@@ -70,8 +70,8 @@ class ModelParameters(object):
 
             source_params = self._divide_parameters(parameters)
             for i, params_i in enumerate(source_params):
-            # This try/except block forces checks from ._init_1_source()
-            # to be run on each source parameters separately.
+                # This try/except block forces checks from ._init_1_source()
+                # to be run on each source parameters separately.
                 try:
                     self.__setattr__('_source_{0}_parameters'.format(i + 1), ModelParameters(params_i))
                 except Exception:
@@ -332,18 +332,26 @@ class ModelParameters(object):
         formats = self._get_formats_dict_for_repr()
         ordered_keys = self._get_ordered_keys_for_repr()
 
-        variables = ''
-        values = ''
+        variables = [''] * (self._n_sources + 1)
+        values = [''] * (self._n_sources + 1)
         for key in ordered_keys:
             if key not in keys:
                 continue
+            index = self._split_parameter_name(key)[1]
+            index = 0 if index is None else index
             (full_name, value) = self._get_values_for_repr(formats[key], key)
-            (fmt_1, fmt_2) = self._get_formats_for_repr(formats[key],
-                                                        full_name)
-            variables += fmt_1.format(full_name)
-            values += fmt_2.format(value)
+            (fmt_1, fmt_2) = self._get_formats_for_repr(formats[key], full_name)
+            variables[index] += fmt_1.format(full_name)
+            values[index] += fmt_2.format(value)
 
-        return '{0}\n{1}'.format(variables, values)
+        print_msg = ''
+        for (i, variable) in enumerate(variables):
+            if variable and values[i]:
+                print_msg += "{:}\n{:}".format(variable, values[i])
+            if i < self.n_sources and variables[i+1]:
+                print_msg += "\n"
+
+        return print_msg
 
     def _get_keys_for_repr(self):
         """
@@ -1081,7 +1089,7 @@ class ModelParameters(object):
         if 'shear_G' in self.parameters.keys():
             return self.parameters['shear_G']
         else:
-            return None
+            raise AttributeError('shear_G is not a parameter of this model.')
 
     @shear_G.setter
     def shear_G(self, new_G):
@@ -1701,7 +1709,9 @@ class ModelParameters(object):
             return (self._source_2_parameters.t_star /
                     self._source_2_parameters.t_E)
         else:
-            return None
+            raise AttributeError(
+                'rho_2 is not defined for these parameters: {0}'.format(
+                    self.parameters.keys()))
 
     @rho_2.setter
     def rho_2(self, new_rho_2):
