@@ -1400,3 +1400,20 @@ class TestSetters2Sources(unittest.TestCase):
              't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_star_2': self.t_star_2, 't_E': self.t_E})
         with self.assertRaises(ValueError):
             params.t_star_2 = -self.dummy_value
+
+def test_print_3_sources():
+    """
+    Test if printing of 3-source ModelParameters is correct.
+    """
+    params = mm.ModelParameters({
+        't_0_1': 0, 'u_0_1': 1, 't_E': 9, 't_0_2': 5, 'u_0_2': 0.1, 'rho_2': 0.001,
+        't_0_3': 2, 'u_0_3': 0.3, 't_star_3': 0.02})
+    expected = ("   t_E (d) \n"
+                "    9.0000 \n"
+                "  t_0_1 (HJD)     u_0_1 \n"
+                "      0.00000  1.000000 \n"
+                "  t_0_2 (HJD)     u_0_2   rho_2 \n"
+                "      5.00000  0.100000 0.00100 \n"
+                "  t_0_3 (HJD)     u_0_3  t_star_3 (d) \n"
+                "      2.00000  0.300000      0.020000 ")
+    assert params.__repr__() == expected
