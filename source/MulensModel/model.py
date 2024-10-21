@@ -108,7 +108,7 @@ class Model(object):
         self._methods_parameters = {}
         self._caustics = None
 
-        self._limb_darkening_coeffs = LimbDarkeningCoeffs()
+        self._limb_darkening_coeffs = [LimbDarkeningCoeffs()] * self.n_sources
         self._bandpasses = []
 
     def __repr__(self):
@@ -1015,7 +1015,7 @@ class Model(object):
 
         return parameters
 
-    def set_limb_coeff_gamma(self, bandpass, coeff):
+    def set_limb_coeff_gamma(self, bandpass, coeff, source=None):
         """
         Store gamma limb darkening coefficient for given band. See
         also
@@ -1027,12 +1027,19 @@ class Model(object):
 
             coeff: *float*
                 Value of the coefficient.
+
+            source: *int* or *None*, optional
+                Which source do the given methods apply to? Accepts 1, 2, or
+                *None* (i.e., all sources). Default is *None*
         """
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)
-        self._limb_darkening_coeffs.set_limb_coeff_gamma(bandpass, coeff)
 
-    def get_limb_coeff_gamma(self, bandpass):
+        # Need to add checks e.g. source > self.n_sources?
+        idx = source - 1 if source is not None else 0
+        self._limb_darkening_coeffs[idx].set_limb_coeff_gamma(bandpass, coeff)
+
+    def get_limb_coeff_gamma(self, bandpass, source=None):
         """
         Get gamma limb darkening coefficient for given band.
 
@@ -1040,14 +1047,18 @@ class Model(object):
             bandpass: *str*
                 Bandpass for which coefficient will be provided.
 
+            source: *int* or *None*, optional
+                Which source do the given methods apply to? Accepts 1, 2, or
+                *None* (i.e., all sources). Default is *None*
+
         Returns :
             gamma: *float*
                 limb darkening coefficient
-
         """
-        return self._limb_darkening_coeffs.get_limb_coeff_gamma(bandpass)
+        idx = source - 1 if source is not None else 0
+        return self._limb_darkening_coeffs[idx].get_limb_coeff_gamma(bandpass)
 
-    def _get_limb_coeff_gamma(self, bandpass, gamma):
+    def _get_limb_coeff_gamma(self, bandpass, gamma, source=None):
         """
         Get gamma from either bandpass or gamma
         """
@@ -1061,13 +1072,13 @@ class Model(object):
                     'No limb-darkening coefficient set for {0}'.format(
                         bandpass))
             else:
-                gamma = self.get_limb_coeff_gamma(bandpass)
+                gamma = self.get_limb_coeff_gamma(bandpass, source)
         else:
             pass
 
         return gamma
 
-    def set_limb_coeff_u(self, bandpass, coeff):
+    def set_limb_coeff_u(self, bandpass, coeff, source=None):
         """
         Store u limb darkening coefficient for given band.  See also
         :py:class:`MulensModel.limbdarkeningcoeffs.LimbDarkeningCoeffs`.
@@ -1079,12 +1090,18 @@ class Model(object):
             coeff: *float*
                 Value of the coefficient.
 
+            source: *int* or *None*, optional
+                Which source do the given methods apply to? Accepts 1, 2, or
+                *None* (i.e., all sources). Default is *None*
         """
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)
-        self._limb_darkening_coeffs.set_limb_coeff_u(bandpass, coeff)
 
-    def get_limb_coeff_u(self, bandpass):
+        # self._limb_darkening_coeffs.set_limb_coeff_u(bandpass, coeff)
+        idx = source - 1 if source is not None else 0
+        self._limb_darkening_coeffs[idx].set_limb_coeff_u(bandpass, coeff)
+
+    def get_limb_coeff_u(self, bandpass, source=None):
         """
         Get u limb darkening coefficient for given band.
 
@@ -1092,12 +1109,17 @@ class Model(object):
             bandpass: *str*
                 Bandpass for which coefficient will be provided.
 
+            source: *int* or *None*, optional
+                Which source do the given methods apply to? Accepts 1, 2, or
+                *None* (i.e., all sources). Default is *None*
+
         Returns :
             u: *float*
                 limb darkening coefficient
-
         """
-        return self._limb_darkening_coeffs.get_limb_coeff_u(bandpass)
+        # return self._limb_darkening_coeffs.get_limb_coeff_u(bandpass)
+        idx = source - 1 if source is not None else 0
+        return self._limb_darkening_coeffs[idx].get_limb_coeff_u(bandpass)
 
     def parallax(
             self, earth_orbital=None, satellite=None, topocentric=None):
