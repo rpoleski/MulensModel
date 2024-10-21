@@ -97,7 +97,6 @@ class FitData(object):
             elif isinstance(fix_source_flux, (float, int)) and (self._model.n_sources == 1):
                 return [fix_source_flux]
 
-
         msg = ("you have {0}".format(self._model.n_sources) +
                " sources. Thus, fix_source_flux should be a list of" +
                "length {0}".format(self._model.n_sources) +
@@ -115,11 +114,9 @@ class FitData(object):
             elif isinstance(fix_source_flux_ratio, (float, int)) and (self._model.n_sources == 2):
                 return np.array([fix_source_flux_ratio])
 
-
         msg = ("you have {0}".format(self._model.n_sources) +
                " sources. Thus, fix_source_flux_ratio should be a list of" +
-               "length {0}".format(self._model.n_sources - 1) +
-               "(or False).")
+               "length {0} (or Flase).".format(self._model.n_sources - 1))
         raise ValueError(msg)
 
     def _check_for_flux_ratio_errors(self):
@@ -131,7 +128,7 @@ class FitData(object):
             if self._model.n_sources == 1:
                 raise ValueError('fix_source_flux_ratio is not defined for only 1 source!')
             elif len(self.fix_source_flux_ratio) != self._model.n_sources-1:
-                raise ValueError('fix_source_flux_ratio should be a *list* of len={0}'.format(self._model.n_sources - 1))
+                raise ValueError('fix_source_flux_ratio should be a *list* of len={0}'.format(self._model.n_sources-1))
             elif self.fix_source_flux is not False:
                 msg = ('fix_source_flux_ratio + fixed_source_flux not ' +
                        'implemented. Fix the fluxes for each source ' +
@@ -235,10 +232,10 @@ class FitData(object):
             else:
                 if len(x.shape) == 1:
                     x += (self.fix_source_flux_ratio[i-1] *
-                         self._data_magnification[i][self._dataset.good])
+                          self._data_magnification[i][self._dataset.good])
                 else:
                     x[0, :] += (self.fix_source_flux_ratio[i-1] *
-                         self._data_magnification[i][self._dataset.good])
+                                self._data_magnification[i][self._dataset.good])
 
         return (x, y)
 
