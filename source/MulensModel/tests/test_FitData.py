@@ -863,24 +863,18 @@ class TestFSPLGradient(unittest.TestCase):
             model.set_limb_coeff_gamma(band, gamma)
 
     def test_FSPL_Derivatives_tstar(self):
-        """ Make sure that FSPL Derivatives fails for models defined with
-        tstar """
+        """
+        Make sure that FSPL Derivatives fails for models defined with tstar.
+        """
         model = mm.Model(
             {'t_0': self.sfit_model.parameters.t_0,
              'u_0': self.sfit_model.parameters.u_0,
              't_E': self.sfit_model.parameters.t_E,
              't_star': self.sfit_model.parameters.t_star})
         self._set_limb_coeffs(model)
-
         fit = mm.FitData(model=model, dataset=self.datasets[0])
 
-        print('JCY: This is supposed to fail because the model is defined by '+
-              'tstar. It actually fails because no finite source '+
-              'magnification method is set. Should consider desired behavior. '+
-              'Relatedly, what happens when there is a mix of PS and FS '+
-              'methods?')
-
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             fit.get_d_A_d_rho()
 
     def test_check_FSPLDerivs_errors_1(self):
@@ -892,8 +886,7 @@ class TestFSPLGradient(unittest.TestCase):
         n_t_star = 9.
         t_lim_1 = model.parameters.t_0 - n_t_star * t_star
         t_lim_2 = model.parameters.t_0 + n_t_star * t_star
-        model.set_magnification_methods(
-            [t_lim_1, 'finite_source_uniform_WittMao94', t_lim_2])
+        model.set_magnification_methods([t_lim_1, 'finite_source_uniform_WittMao94', t_lim_2])
         fit = mm.FitData(model=model, dataset=self.datasets[0])
         with self.assertRaises(NotImplementedError):
             fit.get_d_A_d_rho()
@@ -1167,9 +1160,7 @@ class Test2L2S(unittest.TestCase):
     def test_fix_source_flux_bad(self):
         fix_source_flux = [0.04, 0.01, 0.005, 16., 27.]
         with self.assertRaises(ValueError):
-            fit = mm.FitData(
-                dataset=self.data, model=self.model,
-                fix_source_flux=fix_source_flux)
+            mm.FitData(dataset=self.data, model=self.model, fix_source_flux=fix_source_flux)
 
     def test_fix_source_flux_ratio(self):
         source_flux_ratio = self.header_info['source fluxes'][1] / self.header_info['source fluxes'][0]
@@ -1180,9 +1171,7 @@ class Test2L2S(unittest.TestCase):
     def test_fix_source_flux_ratio_bad(self):
         fix_source_flux_ratio = [0.04, 0.01, 0.005, 16., 27.]
         with self.assertRaises(ValueError):
-            fit = mm.FitData(
-                dataset=self.data, model=self.model,
-                fix_source_flux=fix_source_flux_ratio)
+            mm.FitData(dataset=self.data, model=self.model, fix_source_flux=fix_source_flux_ratio)
 
     def test_fix_source_flux_ratio_arbitrary(self):
         source_flux_ratios = [0.01, 0.005]
@@ -1198,9 +1187,7 @@ class Test2L2S(unittest.TestCase):
     def test_fix_blend_flux(self):
         # Might as well...
         blend_flux = self.header_info['blend flux']
-        self._test_fitted_fluxes(
-            mm.FitData(dataset=self.data, model=self.model, fix_blend_flux=blend_flux)
-        )
+        self._test_fitted_fluxes(mm.FitData(dataset=self.data, model=self.model, fix_blend_flux=blend_flux))
 
 
 class Test1L3S(Test2L2S):
@@ -1224,8 +1211,6 @@ class Test1L3S(Test2L2S):
         fit = mm.FitData(dataset=self.data, model=self.model, fix_source_flux_ratio=source_flux_ratios)
         self._test_fitted_fluxes(fit)
         np.testing.assert_almost_equal(fit.source_flux_ratio, source_flux_ratios)
-
-
 
 # Tests to add:
 #

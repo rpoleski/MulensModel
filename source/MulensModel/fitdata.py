@@ -698,6 +698,9 @@ class FitData(object):
                 evaluated at each data point.
         """
         # Need to consider what happens when we move to 2 sources.
+        if 'rho' not in self.model.parameters.parameters:
+            raise AttributeError('dA/drho cannot be calculated for a model without rho')
+
         if self._data_magnification_curve is None:
             self._set_data_magnification_curves()
 
