@@ -49,6 +49,10 @@ with basic_model:
     t_E = pm.Normal('t_E', mu=11.14, sigma=0.05)
     t_star = pm.Normal('t_star', mu=0.055, sigma=0.001)
 
+    event.model.parameters.t_0 = t_0
+    event.model.parameters.u_0 = u_0
+    event.model.parameters.t_E = t_E
+    event.model.parameters.t_star = t_star
     event.fit_fluxes()
 
     # Expected value of outcome
