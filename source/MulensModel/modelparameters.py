@@ -764,14 +764,6 @@ class ModelParameters(object):
         self._check_valid_parameter_values(parameters)
         self.parameters = dict(parameters)
 
-        angle_parameters = [
-            'alpha', 'xi_Omega_node', 'xi_inclination',
-            'xi_argument_of_latitude_reference', 'xi_omega_periapsis']
-        for parameter in angle_parameters:
-            if parameter in self.parameters:
-                self._warn_if_angle_outside_reasonable_range(
-                    self.parameters[parameter], parameter)
-
     def _update_sources(self, parameter, value):
         """
         For multi-source models, update the values for all sources.
@@ -987,10 +979,9 @@ class ModelParameters(object):
         """
         if 'rho' in self.parameters.keys():
             return self.parameters['rho']
-        elif ('t_star' in self.parameters.keys() and
-              't_E' in self.parameters.keys()):
+        elif 't_star' in self.parameters.keys() and 't_E' in self.parameters.keys():
             return self.t_star / self.t_E
-        elif ('t_star' in self.parameters.keys() and self._type['Cassan08']):
+        elif 't_star' in self.parameters.keys() and self._type['Cassan08']:
             return self.t_star / self.t_E
         else:
             raise AttributeError("rho is not defined and cannot be calculated")
@@ -1025,23 +1016,10 @@ class ModelParameters(object):
     @alpha.setter
     def alpha(self, new_alpha):
         if self._type['Cassan08']:
-            raise ValueError('alpha cannot be set for model using ' +
-                             'Cassan (2008) parameterization')
+            raise ValueError('alpha cannot be set for model using Cassan (2008) parameterization')
 
         self.parameters['alpha'] = new_alpha
-        self._warn_if_angle_outside_reasonable_range(
-            self.parameters['alpha'], 'alpha')
         self._update_sources('alpha', new_alpha)
-
-    def _warn_if_angle_outside_reasonable_range(self, value, name):
-        """
-        Check if value of given angle is in reasonable range and warn if not
-        """
-        min_ = -360.
-        max_ = 540.
-        if value < min_ or value > max_:
-            fmt = "Strange value of angle {:}: {:}"
-            warnings.warn(fmt.format(name, value), RuntimeWarning)
 
     @property
     def q(self):
@@ -1392,8 +1370,6 @@ class ModelParameters(object):
 
     @xi_Omega_node.setter
     def xi_Omega_node(self, new_value):
-        self._warn_if_angle_outside_reasonable_range(new_value,
-                                                     'xi_Omega_node')
         self.parameters['xi_Omega_node'] = new_value
         self._update_sources('xi_Omega_node', new_value)
 
@@ -1410,8 +1386,6 @@ class ModelParameters(object):
 
     @xi_inclination.setter
     def xi_inclination(self, new_value):
-        self._warn_if_angle_outside_reasonable_range(new_value,
-                                                     'xi_inclination')
         self.parameters['xi_inclination'] = new_value
         self._update_sources('xi_inclination', new_value)
 
@@ -1431,8 +1405,6 @@ class ModelParameters(object):
 
     @xi_argument_of_latitude_reference.setter
     def xi_argument_of_latitude_reference(self, new_value):
-        self._warn_if_angle_outside_reasonable_range(
-            new_value, 'xi_argument_of_latitude_reference')
         self.parameters['xi_argument_of_latitude_reference'] = new_value
         self._update_sources('xi_argument_of_latitude_reference', new_value)
 
@@ -1466,8 +1438,6 @@ class ModelParameters(object):
 
     @xi_omega_periapsis.setter
     def xi_omega_periapsis(self, new_value):
-        self._warn_if_angle_outside_reasonable_range(
-            new_value, 'xi_omega_periapsis')
         self.parameters['xi_omega_periapsis'] = new_value
         self._update_sources('xi_omega_periapsis', new_value)
 

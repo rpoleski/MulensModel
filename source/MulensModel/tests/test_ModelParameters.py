@@ -759,28 +759,6 @@ def test_print_xallarap_with_q_source():
     assert lines[2] == "xallarap reference position: (0.2673, 0.0582)"
 
 
-@pytest.mark.parametrize(
-    "parameter",
-    ['xi_Omega_node', 'xi_inclination', 'xi_argument_of_latitude_reference'])
-@pytest.mark.parametrize("value", [-361., 541.])
-def test_warnings_for_xallarap_angles(parameter, value):
-    """
-    Check if xallarap angles in somehow strange range give warning
-    """
-    parameters = {
-        't_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
-        'xi_semimajor_axis': 0.54321, 'xi_Omega_node': 100.,
-        'xi_inclination': 50., 'xi_argument_of_latitude_reference': 200.,
-        't_0_xi': 1.}
-    parameters[parameter] = value
-
-    with warnings.catch_warnings(record=True) as warnings_:
-        warnings.simplefilter("always")
-        mm.ModelParameters(parameters)
-        assert len(warnings_) == 1
-        assert issubclass(warnings_[0].category, RuntimeWarning)
-
-
 def test_is_xallarap_1():
     """
     Make sure that .is_xallarap() returns True, when it should.
