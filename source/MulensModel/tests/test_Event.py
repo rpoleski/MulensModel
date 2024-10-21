@@ -417,28 +417,18 @@ class TestChi2Gradient(unittest.TestCase):
         # changing something w/o updating: gives old values
         event.model.parameters.t_0 += 0.1
         result_1 = event.chi2_gradient
-        print('0', result[0])
-        print('1', result_1[0])
         np.testing.assert_almost_equal(result_1 / result, 1.)
 
         # run fit_fluxes: gives new values
         event.fit_fluxes()
         result_2 = event.calculate_chi2_gradient(self.grad_params)
-        print('2', result_2[0])
         assert all(result != result_2)
 
-        # Go back to previous results and test that
-        # calculate_chi2_gradient gives results that don't match anything.
-        print("JCY: The logic of this test doesn't make sense to me (anymore)."+
-              " Going back to the previous results should plausibly match " +
-              "within numerical noise.")
+        # Go back to previous results and test calculate_chi2_gradient().
         event.model.parameters.t_0 -= 0.1
         result_3 = event.calculate_chi2_gradient(self.grad_params)
-        print('3', result_3[0])
         assert all(result != result_3)
-        assert all(result_2 != result_3)
         result_4 = event.get_chi2_gradient(self.grad_params)
-        print('4', result_4[0])
         np.testing.assert_almost_equal(result_4 / result, 1.)
 
     def test_4(self):
