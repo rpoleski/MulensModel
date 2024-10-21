@@ -561,11 +561,11 @@ class TestParameters(unittest.TestCase):
 
         # No access to mass sheet without it's parameters
         parameters = mm.ModelParameters(basic)
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             parameters.convergence_K = 0.
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             parameters.convergence_K
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             parameters.shear_G = 0.
 
 
@@ -1149,12 +1149,12 @@ class TestSetters(unittest.TestCase):
 
     def test_set_u0_error(self):
         params = mm.ModelParameters({'t_0': self.t_0, 't_eff': self.t_eff, 't_E': self.t_E})
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             params.u_0 = self.dummy_value
 
     def test_set_t_star_error_1(self):
         params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E, 'rho': self.rho})
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             params.t_star = self.dummy_value
 
     def test_set_t_star_error_2(self):
@@ -1169,7 +1169,7 @@ class TestSetters(unittest.TestCase):
 
     def test_set_t_eff_error(self):
         params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E})
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             params.t_eff = self.dummy_value
 
     def test_set_t_E_error_1(self):
@@ -1184,7 +1184,7 @@ class TestSetters(unittest.TestCase):
 
     def test_set_t_E_error_3(self):
         params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_eff': self.t_eff})
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             params.t_E = self.dummy_value
 
     def test_set_rho(self):
@@ -1199,7 +1199,7 @@ class TestSetters(unittest.TestCase):
 
     def test_set_rho_error_2(self):
         params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E})
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             params.rho = self.dummy_value
 
     def test_set_q(self):
@@ -1224,7 +1224,7 @@ class TestSetters(unittest.TestCase):
 
     def test_set_pi_E_error(self):
         params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E})
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             params.pi_E = [self.dummy_value, -self.dummy_value]
 
 
@@ -1256,7 +1256,7 @@ class TestParallax3Sources(unittest.TestCase):
 
     def test_set_pi_E_N_error(self):
         params = mm.ModelParameters(self.static_params)
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             params.pi_E_N = self.dummy_value
 
     def test_set_pi_E_E(self):
@@ -1268,7 +1268,7 @@ class TestParallax3Sources(unittest.TestCase):
 
     def test_set_pi_E_E_error(self):
         params = mm.ModelParameters(self.static_params)
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             params.pi_E_E = self.dummy_value
 
 
@@ -1301,7 +1301,7 @@ class TestSetters2Sources(unittest.TestCase):
     def test_set_u_0_1_error(self):
         params = mm.ModelParameters(
             {'t_0_1': self.t_0_1, 't_eff_1': self.t_eff_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             params.u_0_1 = self.dummy_value
 
     def test_set_u_0_2(self):
@@ -1314,7 +1314,7 @@ class TestSetters2Sources(unittest.TestCase):
     def test_set_u_0_2_error(self):
         params = mm.ModelParameters(
             {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 't_eff_2': self.t_eff_2, 't_E': self.t_E})
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             params.u_0_2 = self.dummy_value
 
     def test_set_rho_1(self):
@@ -1328,7 +1328,7 @@ class TestSetters2Sources(unittest.TestCase):
     def test_set_rho_1_error_1(self):
         params = mm.ModelParameters(
             {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             params.rho_1 = self.dummy_value
 
     def test_set_rho_1_error_2(self):
@@ -1349,7 +1349,7 @@ class TestSetters2Sources(unittest.TestCase):
     def test_set_rho_2_error_1(self):
         params = mm.ModelParameters(
             {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             params.rho_2 = self.dummy_value
 
     def test_set_rho_2_error_2(self):
@@ -1370,7 +1370,7 @@ class TestSetters2Sources(unittest.TestCase):
     def test_set_t_star_1_error_1(self):
         params = mm.ModelParameters(
             {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             params.t_star_1 = self.dummy_value
 
     def test_set_t_star_1_error_2(self):
@@ -1391,7 +1391,7 @@ class TestSetters2Sources(unittest.TestCase):
     def test_set_t_star_2_error_1(self):
         params = mm.ModelParameters(
             {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             params.t_star_2 = self.dummy_value
 
     def test_set_t_star_2_error_2(self):

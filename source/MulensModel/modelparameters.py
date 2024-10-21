@@ -69,7 +69,7 @@ class ModelParameters(object):
                                'has to be the same for both sources.')
 
             source_params = self._divide_parameters(parameters)
-            for i, params_i in enumerate(source_params):
+            for (i, params_i) in enumerate(source_params):
                 # This try/except block forces checks from ._init_1_source()
                 # to be run on each source parameters separately.
                 try:
@@ -881,7 +881,7 @@ class ModelParameters(object):
             self.parameters['u_0'] = new_u_0
             self._update_sources('u_0', new_u_0)
         else:
-            raise KeyError('u_0 is not a parameter of this model.')
+            raise AttributeError('u_0 is not a parameter of this model.')
 
     @property
     def t_star(self):
@@ -908,7 +908,7 @@ class ModelParameters(object):
             self.parameters['t_star'] = new_t_star
             self._update_sources('t_star', new_t_star)
         else:
-            raise KeyError('t_star is not a parameter of this model.')
+            raise AttributeError('t_star is not a parameter of this model.')
 
         if new_t_star < 0.:
             raise ValueError(
@@ -937,7 +937,7 @@ class ModelParameters(object):
             self.parameters['t_eff'] = new_t_eff
             self._update_sources('t_eff', new_t_eff)
         else:
-            raise KeyError('t_eff is not a parameter of this model.')
+            raise AttributeError('t_eff is not a parameter of this model.')
 
     @property
     def t_E(self):
@@ -958,7 +958,7 @@ class ModelParameters(object):
               'u_0' in self.parameters.keys()):
             return self.t_eff / abs(self.u_0)
         else:
-            raise KeyError("You're trying to access t_E that was not set")
+            raise AttributeError("You're trying to access t_E that was not set")
 
     @t_E.setter
     def t_E(self, new_t_E):
@@ -976,7 +976,7 @@ class ModelParameters(object):
             self.parameters['t_E'] = new_t_E
             self._update_sources('t_E', new_t_E)
         else:
-            raise KeyError('t_E is not a parameter of this model.')
+            raise AttributeError('t_E is not a parameter of this model.')
 
     @property
     def rho(self):
@@ -1003,7 +1003,7 @@ class ModelParameters(object):
             self.parameters['rho'] = new_rho
             self._update_sources('rho', new_rho)
         else:
-            raise KeyError('rho is not a parameter of this model.')
+            raise AttributeError('rho is not a parameter of this model.')
 
     @property
     def alpha(self):
@@ -1069,7 +1069,7 @@ class ModelParameters(object):
         if 'convergence_K' in self.parameters.keys():
             return self.parameters['convergence_K']
         else:
-            raise KeyError('convergence_K is not a parameter of this model.')
+            raise AttributeError('convergence_K is not a parameter of this model.')
 
     @convergence_K.setter
     def convergence_K(self, new_K):
@@ -1077,7 +1077,7 @@ class ModelParameters(object):
             self.parameters['convergence_K'] = new_K
             self._update_sources('convergence_K', new_K)
         else:
-            raise KeyError('convergence_K is not a parameter of this model.')
+            raise AttributeError('convergence_K is not a parameter of this model.')
 
     @property
     def shear_G(self):
@@ -1097,7 +1097,7 @@ class ModelParameters(object):
             self.parameters['shear_G'] = new_G
             self._update_sources('shear_G', new_G)
         else:
-            raise KeyError('shear_G is not a parameter of this model.')
+            raise AttributeError('shear_G is not a parameter of this model.')
 
     @property
     def s(self):
@@ -1129,7 +1129,7 @@ class ModelParameters(object):
         elif 'pi_E' in self.parameters.keys():
             return self.parameters['pi_E'][0]
         else:
-            raise KeyError('pi_E_N not defined for this model')
+            raise AttributeError('pi_E_N not defined for this model')
 
     @pi_E_N.setter
     def pi_E_N(self, new_value):
@@ -1137,7 +1137,7 @@ class ModelParameters(object):
             self.parameters['pi_E_N'] = new_value
             self._update_sources('pi_E_N', new_value)
         else:
-            raise KeyError('pi_E_N is not a parameter of this model.')
+            raise AttributeError('pi_E_N is not a parameter of this model.')
 
     @property
     def pi_E_E(self):
@@ -1149,7 +1149,7 @@ class ModelParameters(object):
         if 'pi_E_E' in self.parameters.keys():
             return self.parameters['pi_E_E']
         else:
-            raise KeyError('pi_E_N not defined for this model')
+            raise AttributeError('pi_E_N not defined for this model')
 
     @pi_E_E.setter
     def pi_E_E(self, new_value):
@@ -1157,7 +1157,7 @@ class ModelParameters(object):
             self.parameters['pi_E_E'] = new_value
             self._update_sources('pi_E_E', new_value)
         else:
-            raise KeyError('pi_E_E is not a parameter of this model.')
+            raise AttributeError('pi_E_E is not a parameter of this model.')
 
     @property
     def pi_E(self):
@@ -1166,11 +1166,11 @@ class ModelParameters(object):
 
         It was used in previous versions. Use :py:attr:`~pi_E_N` and :py:attr:`~pi_E_E` instead.
         """
-        raise KeyError('pi_E is not defined. Use pi_E_N and pi_E_E instead')
+        raise AttributeError('pi_E is not defined. Use pi_E_N and pi_E_E instead')
 
     @pi_E.setter
     def pi_E(self, new_value):
-        raise KeyError('pi_E is not defined. Use pi_E_N and pi_E_E instead')
+        raise AttributeError('pi_E is not defined. Use pi_E_N and pi_E_E instead')
 
     @property
     def t_0_par(self):
@@ -1192,7 +1192,7 @@ class ModelParameters(object):
             elif self.n_sources > 1:
                 return self.t_0_1
             else:
-                raise KeyError('No valid value for setting t_0_par', self.parameters)
+                raise AttributeError('No valid value for setting t_0_par', self.parameters)
 
         else:
             return self.parameters['t_0_par']
@@ -1213,7 +1213,7 @@ class ModelParameters(object):
             pi_E_N = self.parameters['pi_E_N']
             pi_E_E = self.parameters['pi_E_E']
         else:
-            raise KeyError('pi_E not defined for this model')
+            raise AttributeError('pi_E not defined for this model')
         return np.sqrt(pi_E_N**2 + pi_E_E**2)
 
     @property
@@ -1576,7 +1576,7 @@ class ModelParameters(object):
             self.parameters['u_0_1'] = new_u_0_1
             self._source_1_parameters.u_0 = new_u_0_1
         else:
-            raise KeyError('u_0_1 is not a parameter of this model.')
+            raise AttributeError('u_0_1 is not a parameter of this model.')
 
     @property
     def u_0_2(self):
@@ -1604,7 +1604,7 @@ class ModelParameters(object):
             self.parameters['u_0_2'] = new_u_0_2
             self._source_2_parameters.u_0 = new_u_0_2
         else:
-            raise KeyError('u_0_2 is not a parameter of this model.')
+            raise AttributeError('u_0_2 is not a parameter of this model.')
 
     @property
     def t_star_1(self):
@@ -1631,7 +1631,7 @@ class ModelParameters(object):
             self.parameters['t_star_1'] = new_t_star_1
             self._source_1_parameters.t_star = new_t_star_1
         else:
-            raise KeyError('t_star_1 is not a parameter of this model.')
+            raise AttributeError('t_star_1 is not a parameter of this model.')
 
         if new_t_star_1 < 0.:
             raise ValueError(
@@ -1662,7 +1662,7 @@ class ModelParameters(object):
             self.parameters['t_star_2'] = new_t_star_2
             self._source_2_parameters.t_star = new_t_star_2
         else:
-            raise KeyError('t_star_2 is not a parameter of this model.')
+            raise AttributeError('t_star_2 is not a parameter of this model.')
 
         if new_t_star_2 < 0.:
             raise ValueError(
@@ -1693,7 +1693,7 @@ class ModelParameters(object):
             self.parameters['rho_1'] = new_rho_1
             self._source_1_parameters.rho = new_rho_1
         else:
-            raise KeyError('rho_1 is not a parameter of this model.')
+            raise AttributeError('rho_1 is not a parameter of this model.')
 
     @property
     def rho_2(self):
@@ -1721,7 +1721,7 @@ class ModelParameters(object):
             self.parameters['rho_2'] = new_rho_2
             self._source_2_parameters.rho = new_rho_2
         else:
-            raise KeyError('rho_2 is not a parameter of this model.')
+            raise AttributeError('rho_2 is not a parameter of this model.')
 
     def get_s(self, epoch):
         """
