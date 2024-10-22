@@ -195,9 +195,3 @@ def test_BinaryLensAdaptiveContouringMagnification():
         trajectory=trajectory,  accuracy=0.019, ld_accuracy=1e-3)
     result = lens.get_magnification()
     np.testing.assert_almost_equal(result, 11.403036510555962, decimal=3)
-
-
-if __name__ == '__main__':
-    test = TestBinaryLensPointSourceMagnification()
-    test.setUp()
-    test.test_BLPS_WittMao95()

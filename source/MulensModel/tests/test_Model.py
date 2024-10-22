@@ -961,7 +961,7 @@ class TestNSources(unittest.TestCase):
             self.model_2.get_magnification(self.times),
             self.model_3.get_magnification(self.times)))
 
-        self.flux =  self.source_flux_1 * self.model_1.get_magnification(self.times)
+        self.flux = self.source_flux_1 * self.model_1.get_magnification(self.times)
         self.flux += self.source_flux_2 * self.model_2.get_magnification(self.times)
         self.flux += self.source_flux_3 * self.model_3.get_magnification(self.times)
         self.flux += self.blend_flux

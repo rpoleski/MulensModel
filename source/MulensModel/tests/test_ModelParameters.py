@@ -1,5 +1,4 @@
 import unittest
-import warnings
 import pytest
 import numpy as np
 
@@ -1378,6 +1377,7 @@ class TestSetters2Sources(unittest.TestCase):
              't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_star_2': self.t_star_2, 't_E': self.t_E})
         with self.assertRaises(ValueError):
             params.t_star_2 = -self.dummy_value
+
 
 def test_print_3_sources():
     """
