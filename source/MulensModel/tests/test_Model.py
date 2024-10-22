@@ -1018,11 +1018,11 @@ class TestNSources(unittest.TestCase):
             self.source_3_params['t_0'] + 1.5 * self.t_E, times[-1], decimal=4
         )
 
-def test_N_sources_gamma():
-    """
-    Test a model with gammas for different sources.
-    """
-    raise NotImplementedError()
+# def test_N_sources_gamma():
+#    """
+#    Test a model with gammas for different sources.
+#    """
+#    raise NotImplementedError()
 
 
 # Tests to Add:
