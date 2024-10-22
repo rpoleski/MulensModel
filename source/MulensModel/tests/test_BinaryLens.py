@@ -266,8 +266,24 @@ def test_BinaryLensVBBLMagnification_2():
 
 
 def test_BinaryLensVBBLMagnification_LD():
-    raise NotImplementedError('No tests defined for VBBL + gamma!')
-    assert 1 == 2
+    """
+    Make sure VBBL with limb darkening works properly
+    """
+    s = 0.8
+    q = 0.001
+    x = 0.001
+    y = 0.001
+    rho = 0.001
+
+    trajectory = make_trajectory([x, y], {'s': s, 'q': q, 'rho': rho})
+    lens_LD = mm.BinaryLensVBBLMagnification(u_limb_darkening=0.51, trajectory=trajectory)
+    result_LD = lens_LD.get_magnification()
+    lens = mm.BinaryLensVBBLMagnification(trajectory=trajectory)
+    result = lens.get_magnification()
+
+    np.testing.assert_almost_equal(result_LD, 683.31177335)
+    np.testing.assert_almost_equal(result, 687.80333614)
+    # Above values are taken from VBBL.
 
 
 def test_BinaryLensAdaptiveContouringMagnification():
