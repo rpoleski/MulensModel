@@ -158,17 +158,11 @@ class TestBinaryLensPointSourceMagnification(unittest.TestCase):
         np.testing.assert_almost_equal(result, self.expected, decimal=3)
 
 
-def test_BinaryLensQuadrupoleMagnification():
-    raise NotImplementedError('No tests defined for quadrupole approximation!')
-    assert 1 == 2
-
-
 class TestBinaryLensHexadecapoleMagnification(unittest.TestCase):
     """
-    tests hexadecapole and quadrupole calculation for planetary case
+    Tests hexadecapole calculation for planetary case
     with rho=0.001 and 3 values of gamma: 0, 0.5, and 1.0
     """
-
     def setUp(self):
         self.s = 1.35
         self.q = 0.00578
@@ -180,7 +174,7 @@ class TestBinaryLensHexadecapoleMagnification(unittest.TestCase):
             [self.x, self.y], {'s': self.s, 'q': self.q, 'rho': self.rho})
 
         self.pspl_mag = 4.691830779895085
-        # [hexa, quad, pspl]
+        # The order of approximations below is [hexa, quad, pspl].
         self.reference_00 = [5.017252440557196, 4.9587638949353146, self.pspl_mag]
         self.reference_05 = [4.981368071884021, 4.932070583431292, self.pspl_mag]
         self.reference_10 = [4.9454837032108445, 4.905377271927269, self.pspl_mag]
@@ -204,22 +198,32 @@ class TestBinaryLensHexadecapoleMagnification(unittest.TestCase):
         self._test_gamma(1.0, self.reference_10)
 
 
-class TestBinaryLensQuadrupoleMagnification(
-    TestBinaryLensHexadecapoleMagnification):
+class TestBinaryLensQuadrupoleMagnification(TestBinaryLensHexadecapoleMagnification):
+    """
+    Tests quadrupole calculation for planetary case
+    with rho=0.001 and 3 values of gamma: 0, 0.5, and 1.0
+    """
 
     def setUp(self):
         TestBinaryLensHexadecapoleMagnification.setUp(self)
 
-    def test_gamma_00(self):
-        lens = mm.BinaryLensQuadrupoleMagnification(trajectory=self.trajectory, gamma=0.0)
+    def _test_gamma_quad(self, gamma, reference):
+        """
+        Check if quadrupole calculation works well.
+        """
+        lens = mm.BinaryLensQuadrupoleMagnification(trajectory=self.trajectory, gamma=gamma)
         result = lens.get_magnification()
-        np.testing.assert_almost_equal(result, self.reference_00[1])
+        np.testing.assert_almost_equal(result, reference)
 
-    def test_gamma_05(self):
-        pass
+    def test_gamma_00_quad(self):
+        self._test_gamma_quad(0.0, self.reference_00[1])
 
-    def test_gamma_10(self):
-        pass
+    def test_gamma_05_quad(self):
+        self._test_gamma_quad(0.5, self.reference_05[1])
+
+    def test_gamma_10_quad(self):
+        self._test_gamma_quad(1.0, self.reference_10[1])
+
 
 def test_BinaryLensVBBLMagnification_1():
     """
