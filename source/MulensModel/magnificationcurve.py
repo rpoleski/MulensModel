@@ -379,6 +379,7 @@ class MagnificationCurve(object):
 
         magnification = np.zeros(len(self.times))
         for method, selection in self.methods_indices.items():
+            print(self._magnification_objects[method].get_magnification())
             magnification[selection] = \
                 self._magnification_objects[method].get_magnification()
 

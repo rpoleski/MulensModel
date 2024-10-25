@@ -10,9 +10,11 @@ except ImportError as err:
     print("Get it and re-run the script")
     sys.exit(1)
 
+import torch as pt
 import arviz as az
 import numpy as np
 import MulensModel as mm
+
 
 # JCY: For now, we're going to ignore bad data
 file_names = ['../data/photometry_files/MB08310/MOA_0300089_PLC_007.tbl',
@@ -29,42 +31,60 @@ model.set_magnification_methods(
 event = mm.Event(datasets=data, model=model)
 
 # New pymc stuff:
-parameters_to_fit = ['t_0', 'u_0', 't_E', 't_star']
+parameters_to_fit = ['t_0']
+
+
+def ln_like(t_0):
+    """ likelihood function """
+    print(type(t_0))
+    event.model.parameters.t_0 = t_0
+    #event.model.parameters.u_0 = u_0
+    #event.model.parameters.t_E = t_E
+    #event.model.parameters.t_star = t_star
+
+    chi2 = event.get_chi2()
+
+    return -0.5 * chi2
+
+
+class LogLike(pt.Op):
+
+    def make_node(self, t_0) -> Apply:
+        # Convert inputs to tensor variables
+        t_0 = pt.as_tensor(t_0)
+        inputs = [t_0]
+        # Define output type, in our case a vector of likelihoods
+        # with the same dimensions and same data type as data
+        # If data must always be a vector, we could have hard-coded
+        # outputs = [pt.vector()]
+        outputs = float
+
+        # Apply is an object that combines inputs, outputs and an Op (self)
+        return Apply(self, inputs, outputs)
+
+    def perform(self, node: Apply, inputs: list[np.ndarray], outputs: list[list[None]]) -> None:
+        # This is the method that compute numerical output
+        # given numerical inputs. Everything here is numpy arrays
+        t_0 = inputs  # this will contain my variables
+
+        # call our numpy log-likelihood function
+        loglike_eval = ln_like(t_0)
+
+        # Save the result in the outputs list provided by PyTensor
+        # There is one list per output, each containing another list
+        # pre-populated with a `None` where the result should be saved.
+        outputs[0][0] = np.asarray(loglike_eval)
+
+
 basic_model = pm.Model()
-
-observed_fluxes = None
-observed_errors = None
-for dataset in event.datasets:
-    if observed_fluxes is None:
-        observed_fluxes = dataset.flux
-        observed_errors = dataset.err_flux
-    else:
-        observed_fluxes = np.hstack([observed_fluxes, dataset.flux])
-        observed_errors = np.hstack([observed_errors, dataset.err_flux])
-
 with basic_model:
     # Priors for unknown model parameters
     t_0 = pm.Normal('t_0', mu=2454656.4, sigma=0.001)
-    u_0 = pm.Normal('u_0', mu=0.003, sigma=0.0003)
-    t_E = pm.Normal('t_E', mu=11.14, sigma=0.05)
-    t_star = pm.Normal('t_star', mu=0.055, sigma=0.001)
+    #u_0 = pm.Normal('u_0', mu=0.003, sigma=0.0003)
+    #t_E = pm.Normal('t_E', mu=11.14, sigma=0.05)
+    #t_star = pm.Normal('t_star', mu=0.055, sigma=0.001)
 
-    event.model.parameters.t_0 = t_0
-    event.model.parameters.u_0 = u_0
-    event.model.parameters.t_E = t_E
-    event.model.parameters.t_star = t_star
-    event.fit_fluxes()
-
-    # Expected value of outcome
-    mod_fluxes = None
-    for fit in event.fits:
-        if mod_fluxes is None:
-            mod_fluxes = fit.get_model_fluxes()
-        else:
-            mod_fluxes = np.hstack([mod_fluxes, fit.get_model_fluxes()])
-
-    # Likelihood (sampling distribution) of observations
-    Y_obs = pm.Normal("Y_obs", mu=mod_fluxes, sigma=observed_errors, observed=observed_fluxes)
+    pm.CustomDist('likelihood', t_0, u_0, t_E, t_star, logp=ln_like)
 
 with basic_model:
     # draw 1000 posterior samples
