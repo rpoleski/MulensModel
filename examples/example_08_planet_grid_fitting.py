@@ -152,11 +152,11 @@ print('Initial Guess')
 print(point_lens_model)
 
 # Plot (excluded data shown as 'X')
-point_lens_event.plot_model(color='black')
+point_lens_event.plot_model(color='black', zorder=10)
 point_lens_event.plot_data(show_bad=True)
 plt.show()
 print(point_lens_event.get_ref_fluxes())
-print(point_lens_event.model.magnification(t_0))
+print(point_lens_event.model.get_magnification(t_0))
 
 point_lens_event.plot_model(subtract_2460000=True, color='black', zorder=10)
 point_lens_event.plot_data(show_bad=True, subtract_2460000=True)
@@ -202,7 +202,7 @@ s_plus = 0.5 * (np.sqrt(u_planet**2 + 4.) + u_planet)
 
 # Angle between the source trajectory and the binary axis
 alpha_planet = np.rad2deg(-np.arctan2(
-    point_lens_event.model.parameters.u_0, tau_planet))
+    point_lens_event.model.parameters.u_0, tau_planet)) + 180.
 
 # Check the estimated model
 # Note that there are two possibilities for s: s_plus and s_minus. 
@@ -292,7 +292,7 @@ for log_s in grid_log_s:
         grid[0, i] = log_s
         grid[1, i] = log_q
         grid[2, i] = chi2
-        grid[3, i] = planet_event.model.parameters.alpha.value
+        grid[3, i] = planet_event.model.parameters.alpha
         grid[4, i] = planet_event.model.parameters.rho
             
         i += 1
