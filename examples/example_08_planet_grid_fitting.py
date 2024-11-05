@@ -309,7 +309,7 @@ if len(colors) < n_best - 1:
     raise ValueError('colors must have at least n_best -1 entries.')
 
 # Plot the grid
-fig, axes = plt.subplots(nrows=1, ncols=2)
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(7.5, 4.8))
 n_plot = 0
 for i in np.arange(2):
     if i == 0:
@@ -340,14 +340,14 @@ for i in np.arange(2):
         if index in index_grid:
             axes[i].scatter(grid[0, index], grid[1, index], marker='o', color=colors[j - 1])
             
-fig.subplots_adjust(right=0.9)
-cbar_ax = fig.add_axes([0.95, 0.15, 0.05, 0.7])
+fig.subplots_adjust(right=0.82, left=0.1, wspace=0.23)
+cbar_ax = fig.add_axes([0.84, 0.15, 0.02, 0.7])
 fig.colorbar(im, cax=cbar_ax)
 
 fig.text(0.5, 0.92, r'$\chi^2$ Map', ha='center')
 fig.text(0.5, 0.04, 'log s', ha='center')
-fig.text(0.04, 0.5, 'log q', va='center', rotation='vertical')
-fig.text(1.1, 0.5, r'$\chi^2$', va='center', rotation='vertical')
+fig.text(0.02, 0.5, 'log q', va='center', rotation='vertical')
+fig.text(0.97, 0.5, r'$\chi^2$', va='center', rotation='vertical')
 
 plt.show()
 
