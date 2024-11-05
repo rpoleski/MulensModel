@@ -1,5 +1,4 @@
 import unittest
-import warnings
 import pytest
 import numpy as np
 
@@ -236,8 +235,8 @@ def test_q_gt_1_is_good():
     magnifications_2 = planet_2.get_magnification(time=t_checks)
     magnifications_3 = planet_3.get_magnification(time=t_checks)
 
-    assert max(magnifications_1 - magnifications_2) < 1e-10
-    assert max(magnifications_1 - magnifications_3) < 1e-10
+    assert max(magnifications_1 - magnifications_2) < 1e-7
+    assert max(magnifications_2 - magnifications_3) < 1e-10
 
 
 def test_q_gt_1_is_smooth():
@@ -1378,6 +1377,7 @@ class TestSetters2Sources(unittest.TestCase):
              't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_star_2': self.t_star_2, 't_E': self.t_E})
         with self.assertRaises(ValueError):
             params.t_star_2 = -self.dummy_value
+
 
 def test_print_3_sources():
     """

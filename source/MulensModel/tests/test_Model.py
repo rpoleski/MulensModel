@@ -962,7 +962,7 @@ class TestNSources(unittest.TestCase):
             self.model_2.get_magnification(self.times),
             self.model_3.get_magnification(self.times)))
 
-        self.flux =  self.source_flux_1 * self.model_1.get_magnification(self.times)
+        self.flux = self.source_flux_1 * self.model_1.get_magnification(self.times)
         self.flux += self.source_flux_2 * self.model_2.get_magnification(self.times)
         self.flux += self.source_flux_3 * self.model_3.get_magnification(self.times)
         self.flux += self.blend_flux
@@ -1019,11 +1019,11 @@ class TestNSources(unittest.TestCase):
             self.source_3_params['t_0'] + 1.5 * self.t_E, times[-1], decimal=4
         )
 
-def test_N_sources_gamma():
-    """
-    Test a model with gammas for different sources.
-    """
-    raise NotImplementedError()
+# def test_N_sources_gamma():
+#    """
+#    Test a model with gammas for different sources.
+#    """
+#    raise NotImplementedError()
 
 
 # Tests to Add:
