@@ -20,3 +20,4 @@ fitting_parameters:
 plots:
     best model:
         file: ob08092-o4_minimal_plot.png 
+        interactive: ob08092-o4_minimal_plot.html

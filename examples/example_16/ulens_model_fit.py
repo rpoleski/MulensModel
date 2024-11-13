@@ -14,6 +14,8 @@ from scipy.interpolate import interp1d
 from matplotlib import pyplot as plt
 from matplotlib import gridspec, rcParams, rcParamsDefault
 # from matplotlib.backends.backend_pdf import PdfPages
+import plotly.graph_objects as go
+from MulensModel.utils import PlotUtils
 
 import_failed = set()
 try:
@@ -351,6 +353,7 @@ class UlensModelFit(object):
                       'time range': 2456050. 2456300.
                   'best model':
                       'file': 'my_fit_best.png'
+                      'interactive' : 'my_fit_best.html'
                       'time range': 2456000. 2456300.
                       'magnitude range': 15.123 13.012
                       'legend':
@@ -792,7 +795,7 @@ class UlensModelFit(object):
         Check if parameters of best model make sense
         """
         allowed = set(['file', 'time range', 'magnitude range', 'legend',
-                       'rcParams', 'second Y scale'])
+                       'rcParams', 'second Y scale', 'interactive'])
         unknown = set(self._plots['best model'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
@@ -823,6 +826,9 @@ class UlensModelFit(object):
                     args = [key, type(self._plots['best model'][key])]
                     raise TypeError(msg.format(*args))
 
+        if 'interactive' in self._plots['best model']:
+            self._check_plots_parameters_best_model_interactive()
+
         if 'second Y scale' in self._plots['best model']:
             self._check_plots_parameters_best_model_Y_scale()
 
@@ -845,6 +851,17 @@ class UlensModelFit(object):
             raise ValueError("Incorrect 'time range' for " + plot_type +
                              "plot:\n" + text[0] + " " + text[1])
         self._plots[plot_type]['time range'] = [t_0, t_1]
+
+    def _check_plots_parameters_best_model_interactive(self):
+        """
+        Check if there is no problem with interactive best plot
+        """
+        if 'file' not in self._plots['best model']:
+            raise ValueError(
+                "When choosing to create an interactive plot of the best model," +
+                " a regular plot must also be generated. " +
+
+                "Please specify the 'best model' 'file' in YAML input.")
 
     def _check_plots_parameters_best_model_Y_scale(self):
         """
@@ -3335,6 +3352,8 @@ class UlensModelFit(object):
             self._trace_plot()
         if 'best model' in self._plots:
             self._best_model_plot()
+            if 'interactive' in self._plots['best model']:
+                self._make_interactive_plot()
         if 'trajectory' in self._plots:
             self._make_trajectory_plot()
 
@@ -3794,6 +3813,544 @@ class UlensModelFit(object):
                               top=True, right=True)
 
         self._save_figure(self._plots['trajectory'].get('file'), dpi=dpi)
+
+    def _get_kwargs_for_plotly_plot(self, scale):
+        """_
+        setting kwargs for interactive plot
+        """
+        sizes = np.array([
+            10.,  # markers data points
+            4.,  # model line
+            4.,  # residuals error thickens
+            4.,  # residuals error width
+            56.,  # font label
+            3.,  # zero-line width in residuals
+            8.,  # markers residuals
+            4.,  # axes and legend border width
+            15.,  # ticks len
+            30.,  # font lagend
+        ])
+        sizes = sizes*scale
+
+        kwargs_interactive = dict(
+            sizes=sizes,
+            colors=['black',  # axes
+                    'black',  # font
+                    '#b9b9b9'  # legend border
+                    ],
+            opacity=0.7,
+            width=1920*scale,
+            height=1440*scale,
+            font='Old Standard TT, serif',
+            paper_bgcolor='white',
+        )
+
+        return kwargs_interactive
+
+    def _make_interactive_layout(
+            self,
+            ylim,
+            ylim_residuals,
+            height_ratios,
+            hspace,
+            sizes,
+            colors,
+            opacity,
+            width,
+            height,
+            font,
+            paper_bgcolor,
+            t_start,
+            t_stop,
+            subtract_2450000=None,
+            subtract_2460000=None,
+            **kwargs):
+        """
+        Creates plotly.graph_objects.Layout object analogues to best model plot
+        """
+        hsplit = height_ratios[1] / height_ratios[0]
+        subtract = PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
+
+        xtitle = 'Time'
+        if subtract > 0.:
+            xtitle = xtitle+' - {:d}'.format(int(subtract))
+
+        t_start = t_start - subtract
+        t_stop = t_stop - subtract
+
+        layout = go.Layout(
+            autosize=True,
+            width=width,
+            height=height,
+            showlegend=True,
+            legend=dict(
+                x=1.02,
+                y=.98,
+                bgcolor=paper_bgcolor,
+                bordercolor=colors[2],
+                borderwidth=sizes[7],
+                font=dict(
+                    family=font,
+                    size=sizes[9])
+            ),
+            paper_bgcolor=paper_bgcolor,
+            plot_bgcolor=paper_bgcolor,
+            font=dict(
+                family=font,
+                size=sizes[4],
+                color=colors[1]
+            ),
+            yaxis=dict(
+                title_text='Magnitude',
+                domain=[hsplit+(hspace/2), 1],
+                # anchor="y",
+                showgrid=False,
+                mirror='all',
+                ticks='inside',
+                showline=True,
+                ticklen=sizes[8],
+                tickwidth=sizes[7],
+                linewidth=sizes[7],
+                linecolor=colors[0],
+                range=ylim,
+                tickfont=dict(
+                    family=font,
+                    size=sizes[4],
+                    color=colors[1]
+                ),
+            ),
+            yaxis2=dict(
+                title_text='Residuals',
+                domain=[0, hsplit-(hspace/2)],
+                anchor="x",
+                showgrid=False,
+                mirror='all',
+                ticks='inside',
+                ticklen=sizes[8],
+                linewidth=sizes[7],
+                tickwidth=sizes[7],
+                showline=True,
+                linecolor=colors[0],
+                range=ylim_residuals,
+                tickfont=dict(
+                    family=font,
+                    size=sizes[4],
+                    color=colors[1]
+                ),
+            ),
+            xaxis=dict(
+                anchor="y",
+                showgrid=False,
+                mirror='ticks',
+                side='top',
+                ticks='inside',
+                scaleanchor='x2',
+                matches='x2',
+                showline=True,
+                ticklen=sizes[8],
+                linecolor=colors[0],
+                linewidth=sizes[7],
+                tickwidth=sizes[7],
+                showticklabels=False,
+                range=[t_start, t_stop],
+                tickfont=dict(
+                    family=font,
+                    size=sizes[4],
+                    color=colors[1]
+                ),
+            ),
+            xaxis2=dict(
+                title_text=xtitle,
+                anchor="y2",
+                showgrid=False,
+                mirror='all',
+                ticks='inside',
+                scaleanchor='x',
+                matches='x',
+                showline=True,
+                ticklen=sizes[8],
+                linecolor=colors[0],
+                tickwidth=sizes[7],
+                linewidth=sizes[7],
+                range=[t_start, t_stop],
+                tickfont=dict(
+                    family=font,
+                    size=sizes[4],
+                    color=colors[1]
+                ),
+            ),
+        )
+        return layout
+
+    def _make_interactive_lc_traces(
+            self,
+            f_source_0, f_blend_0,
+            sizes,
+            colors,
+            opacity,
+            width,
+            height,
+            font,
+            paper_bgcolor,
+            t_start,
+            t_stop,
+            name=None,
+            dash='solid',
+            subtract_2450000=None,
+            subtract_2460000=None,
+            gamma=None,
+            bandpass=None,
+            **kwargs):
+        """
+        Creates plotly.graph_objects.Scatter object with model light-curve
+        """
+        traces_lc = []
+        times = np.linspace(t_start, t_stop, num=20000)
+        subtract = PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
+
+        if isinstance(name, type(None)):
+            showlegend = False
+        else:
+            showlegend = True
+
+        for dataset in self._datasets:
+            if dataset.ephemerides_file is None:
+                lc = self._model.get_lc(
+                    times=times, source_flux=f_source_0, blend_flux=f_blend_0,
+                    gamma=gamma, bandpass=bandpass)
+                times = times - subtract
+                traces_lc.append(go.Scatter(x=times,
+                                            y=lc,
+                                            name=name,
+                                            showlegend=showlegend,
+                                            mode='lines',
+                                            line=dict(
+                                                color=colors[1],
+                                                width=sizes[1],
+                                                dash=dash,
+                                            ),
+                                            xaxis="x",
+                                            yaxis="y",
+                                            ))
+                return traces_lc
+
+        for (i, model) in enumerate(self._models_satellite):
+            name = self._event.datasets[i].plot_properties['label']
+            model.parameters.parameters = {**self._model.parameters.parameters}
+            lc = self._model.get_lc(times=times, source_flux=f_source_0,
+                                    blend_flux=f_blend_0,
+                                    gamma=gamma, bandpass=bandpass)
+            times = times - subtract
+            traces_lc.append(go.Scatter(x=times,
+                                        y=lc,
+                                        name=name,
+                                        mode='lines',
+                                        showlegend=True,
+                                        line=dict(
+                                            color=colors[1],
+                                            width=sizes[1],
+                                            dash=dash,
+                                        ),
+                                        xaxis="x",
+                                        yaxis="y",
+                                        ))
+
+        return traces_lc
+
+    def _make_one_interactive_data_trace(
+            self,
+            dataset_index,
+            times,
+            y_value,
+            y_err,
+            xaxis,
+            yaxis,
+            showlegend,
+            colors,
+            sizes,
+            opacity,
+            show_errorbars=None,
+            show_bad=None,
+            **kwargs):
+        """
+        Creates plotly.graph_objects.Scatter object with
+        data points form a given data set
+        """
+        trace_data = []
+        dataset = self._event.datasets[dataset_index]
+
+        if show_errorbars is None:
+            show_errorbars = dataset.plot_properties.get(
+                'show_errorbars', True)
+
+        if show_bad is None:
+            show_bad = dataset.plot_properties.get('show_bad', False)
+
+        times_good = times[dataset.good]
+        times_bad = times[dataset.bad]
+        y_good = y_value[dataset.good]
+        y_bad = y_value[dataset.bad]
+        y_err_good = y_err[dataset.good]
+        y_err_bad = y_err[dataset.bad]
+
+        trace_data_good = go.Scatter(
+            x=times_good,
+            y=y_good,
+            opacity=opacity,
+            name=dataset.plot_properties['label'],
+
+            mode='markers',
+            showlegend=showlegend,
+            error_y=dict(
+                type='data',
+                array=y_err_good,
+                visible=show_errorbars,
+                thickness=sizes[2],
+                width=sizes[3]),
+            marker=dict(
+                color=dataset.plot_properties['color'],
+                size=sizes[0],
+                line=dict(
+                    color=dataset.plot_properties['color'],
+                    width=1,
+                ),
+            ),
+            xaxis=xaxis,
+            yaxis=yaxis,
+        )
+        trace_data.append(trace_data_good)
+        if show_bad:
+            trace_data_bad = go.Scatter(
+                x=times_bad,
+                y=y_bad,
+                opacity=opacity,
+                name=dataset.plot_properties['label'],
+                legendgroup=str(dataset_index),
+                mode='markers',
+                showlegend=showlegend,
+                error_y=dict(
+                    type='data',
+                    array=y_err_bad,
+                    visible=False,
+                    thickness=sizes[2],
+                    width=sizes[3]),
+                marker=dict(
+                    color='black',
+                    size=sizes[0]*0.8,
+                    line=dict(
+                        color='black',
+                        width=1,
+                    ),
+                ),
+                xaxis=xaxis,
+                yaxis=yaxis,
+            )
+
+            trace_data.append(trace_data_bad)
+
+        return trace_data
+
+    def _make_interactive_data_traces(
+        self,
+        kwargs_interactive,
+        phot_fmt='mag',
+        data_ref=None,
+        show_errorbars=False,
+        show_bad=None,
+        subtract_2450000=False,
+        subtract_2460000=False,
+        **kwargs,
+    ):
+        """
+        Creates plotly.graph_objects.Scatter object for observation points
+        per each data set.
+        """
+        traces_data = []
+        self._event._set_default_colors()  # For each dataset
+        if self._event.fits is None:
+            self._event.get_chi2()
+
+        if data_ref is None:
+            data_ref = self._event.data_ref
+
+        subtract = PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
+
+        # Get fluxes for the reference dataset
+        (f_source_0, f_blend_0) = self._event.get_flux_for_dataset(data_ref)
+        for (dataset_index, data) in enumerate(self._datasets):
+            # Scale the data flux
+            (flux, err_flux) = self._event.fits[dataset_index].scale_fluxes(
+                f_source_0, f_blend_0)
+            (y_value, y_err) = PlotUtils.get_y_value_y_err(
+                phot_fmt, flux, err_flux)
+            times = data.time-subtract
+            trace_data = self._make_one_interactive_data_trace(
+                dataset_index,
+                times,
+                y_value,
+                y_err,
+                xaxis='x',
+                yaxis='y',
+                showlegend=True,
+                show_errorbars=show_errorbars,
+                show_bad=show_bad,
+                **kwargs_interactive,
+            )
+            traces_data.extend(trace_data)
+        return traces_data
+
+    def _make_interactive_residuals_traces(
+            self,
+            kwargs_interactive,
+            phot_fmt='mag',
+            data_ref=None,
+            show_errorbars=True,
+            show_bad=None,
+            subtract_2450000=False,
+            subtract_2460000=False,
+            **kwargs,):
+        """
+        Creates plotly.graph_objects.Scatter object for residuals points
+        per each data set.
+        """
+        traces_residuals = []
+        self._event._set_default_colors()  # For each dataset
+        if self._event.fits is None:
+            self._event.get_chi2()
+
+        if data_ref is None:
+            data_ref = self._event.data_ref
+
+        subtract = PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
+
+        # Get fluxes for the reference dataset
+        (f_source_0, f_blend_0) = self._event.get_flux_for_dataset(data_ref)
+        kwargs_residuals = {'phot_fmt': 'scaled', 'bad': False,
+                            'source_flux': f_source_0, 'blend_flux': f_blend_0}
+        if show_bad:
+            kwargs_residuals['bad'] = True
+
+        for (dataset_index, data) in enumerate(self._datasets):
+            # Scale the data flux
+            (y_value, y_err) = self._event.fits[dataset_index].get_residuals(
+                **kwargs_residuals)
+            times = data.time-subtract
+            trace_residuals = self._make_one_interactive_data_trace(
+                dataset_index,
+                times,
+                y_value,
+                y_err,
+                xaxis='x2',
+                yaxis='y2',
+                showlegend=False,
+                show_errorbars=show_errorbars,
+                show_bad=show_bad,
+                **kwargs_interactive,
+            )
+            traces_residuals.extend(trace_residuals)
+
+        return traces_residuals
+
+    def _make_interactive_zero_trace(
+            self, t_start, t_stop, colors, sizes,
+            subtract_2450000=False, subtract_2460000=False,
+            **kwargs):
+        """
+        Creates plotly.graph_objects.Scatter object for line y=0 in
+        residuals plot
+        """
+        subtract = PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
+        times = np.linspace(t_start, t_stop, num=2000)
+        line = np.zeros(len(times))
+        trace_0 = go.Scatter(
+            x=times-subtract,
+            y=line,
+            mode='lines',
+            line=dict(
+                color=colors[0],
+                width=sizes[1],
+                dash='dash',
+            ),
+            xaxis="x2",
+            yaxis="y2",
+            showlegend=False,
+        )
+        return trace_0
+
+    def _save_interactive_fig(self):
+        """
+        Saving interactive figure
+        """
+        file = self._plots['best model']['interactive']
+        if path.exists(file):
+            if path.isfile(file):
+                msg = "Existing file " + file + " will be overwritten"
+                warnings.warn(msg)
+        self._interactive_fig.write_html(file, full_html=True)
+
+    def _get_time_span_data(self):
+        """
+        Returning time span of datasets
+
+        """
+        t_min = np.zeros(len(self._datasets))
+        t_max = np.zeros(len(self._datasets))
+        for (i, data) in enumerate(self._datasets):
+            t_min[i] = min(data.time)
+            t_max[i] = max(data.time)
+
+        return (min(t_min), max(t_max))
+
+    def _make_interactive_plot(self):
+        """
+        plot best model and residuals interactively
+        """
+        scale = 0.5  # original size=(1920:1440)
+
+        self._ln_like(self._best_model_theta)  # Sets all parameters to
+        # the best model.
+
+        self._reset_rcParams()
+        if 'rcParams' in self._plots['best model']:
+            for (key, value) in self._plots['best model']['rcParams'].items():
+                rcParams[key] = value
+
+        kwargs_all = self._get_kwargs_for_best_model_plot()
+        (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2) = kwargs_all[:6]
+        (kwargs_axes_1, kwargs_axes_2) = kwargs_all[6:]
+        (ylim, ylim_residuals) = self._get_ylim_for_best_model_plot(t_1, t_2)
+        kwargs_interactive = self._get_kwargs_for_plotly_plot(scale)
+        layout = self._make_interactive_layout(ylim, ylim_residuals,
+                                               **kwargs_grid,
+                                               **kwargs_model,
+                                               **kwargs_interactive)
+        t_data_start, t_data_stop = self._get_time_span_data()
+        kwargs_model['t_start'] = t_data_start
+        kwargs_model['t_stop'] = t_data_stop
+        data_ref = self._event.data_ref
+        (f_source_0, f_blend_0) = self._event.get_flux_for_dataset(data_ref)
+        traces_lc = self._make_interactive_lc_traces(f_source_0, f_blend_0,
+                                                     **kwargs_model,
+                                                     **kwargs_interactive,)
+        self._interactive_fig = go.Figure(data=traces_lc, layout=layout)
+
+        trace_0 = (self._make_interactive_zero_trace(
+            **kwargs_model, **kwargs_interactive))
+        self._interactive_fig.add_trace(trace_0)
+
+        traces_data = self._make_interactive_data_traces(
+            kwargs_interactive,
+            **kwargs)
+        for trace in traces_data:
+            self._interactive_fig.add_trace(trace)
+
+        traces_residuals = self._make_interactive_residuals_traces(
+            kwargs_interactive,
+            **kwargs_model)
+        for trace in traces_residuals:
+            self._interactive_fig.add_trace(trace)
+
+        self._save_interactive_fig()
 
 
 if __name__ == '__main__':
