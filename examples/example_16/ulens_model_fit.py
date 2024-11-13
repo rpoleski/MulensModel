@@ -331,8 +331,8 @@ class UlensModelFit(object):
             ``trajectory``, and ``best model``.
             The values are also dicts and currently accepted keys are:
             1) for ``best model``:
-            ``'file'``, ``'time range'``, ``'magnitude range'``, ``'legend'``,
-            and ``'rcParams'``,
+            ``'file'``,``'interactive' ``'time range'``, ``'magnitude range'``,
+            ``'legend'``,`and ``'rcParams'``,
             2) for ``triangle`` and ``trace``:
             ``'file'`` and ``'shift t_0'`` (*bool*, *True* is default)
             3) for ``trajectory``:
@@ -858,8 +858,8 @@ class UlensModelFit(object):
         """
         if 'file' not in self._plots['best model']:
             raise ValueError(
-                "When choosing to create an interactive plot of the best model," +
-                " a regular plot must also be generated. " +
+                "When choosing to create an interactive plot of the best" +
+                " model, a regular plot must also be generated. " +
 
                 "Please specify the 'best model' 'file' in YAML input.")
 
