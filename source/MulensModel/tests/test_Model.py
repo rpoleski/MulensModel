@@ -155,10 +155,9 @@ def test_limb_darkening():
     u = 3. * gamma / (2. + gamma)
 
     model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'rho': 0.001})
-    model.set_limb_coeff_gamma('I', gamma, source=1)
-    # model.set_limb_coeff_gamma('I', gamma, source=0)  # also works...
+    model.set_limb_coeff_gamma('I', gamma)
 
-    almost(model.get_limb_coeff_gamma('I', source=1), gamma)
+    almost(model.get_limb_coeff_gamma('I'), gamma)
     almost(model.get_limb_coeff_u('I'), u)
 
 
@@ -682,7 +681,7 @@ def test_repr():
 
     model = mm.Model(parameters)
     model.set_limb_coeff_gamma("I", 0.5)
-    expected = begin + end + "\nlimb-darkening coeffs (gamma): [{'I': 0.5}]"
+    expected = begin + end + "\nlimb-darkening coeffs (gamma): {'I': 0.5}"
     assert str(model) == expected
 
 
