@@ -1768,7 +1768,7 @@ class ModelParameters(object):
     @property
     def gamma(self):
         """
-        *astropy.Quantity*
+        *float*
 
         Instantaneous velocity of the secondary relative to the primary in
         1/year. Cannot be set.

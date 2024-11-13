@@ -1223,9 +1223,9 @@ class Model(object):
                  of the ratios of source_flux_i / source_flux_1 where i = 2, N.
 
             separate: *boolean*, optional
-                For binary source models, return magnification of each source
-                separately. Default is *False* and then only effective
-                magnification is returned.
+                For multi source models, return magnification of each source
+                separately. Defaults to *True* if source_flux_ratio is provided and *False* otherwise
+                (then only effective magnification is returned).
 
         Returns :
             magnification: *np.ndarray*
