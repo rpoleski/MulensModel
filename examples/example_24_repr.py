@@ -65,4 +65,3 @@ event_default.data_ref = 6
 
 print("\nPrinting event:")
 print(event_default)
-

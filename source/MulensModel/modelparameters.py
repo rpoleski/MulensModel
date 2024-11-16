@@ -1,5 +1,4 @@
 import numpy as np
-import warnings
 
 from MulensModel.uniformcausticsampling import UniformCausticSampling
 from MulensModel.orbits.orbit import Orbit

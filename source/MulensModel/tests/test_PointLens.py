@@ -2,16 +2,13 @@ import unittest
 
 import numpy as np
 import os
-import matplotlib.pyplot as plt
 
 import MulensModel as mm
 import fortran_files
-from test_FitData import create_0939_parallax_model, SAMPLE_FILE_03, \
-    SAMPLE_FILE_03_EPH
+from test_FitData import create_0939_parallax_model, SAMPLE_FILE_03, SAMPLE_FILE_03_EPH
 
 SAMPLE_FILE = os.path.join(mm.DATA_PATH, 'unit_test_files', 'FSPL_test_1.dat')
-PSPL_SAMPLE_DIR = os.path.join(
-    mm.DATA_PATH, 'unit_test_files', 'fspl_derivs', 'test_PointLensClasses')
+PSPL_SAMPLE_DIR = os.path.join(mm.DATA_PATH, 'unit_test_files', 'fspl_derivs', 'test_PointLensClasses')
 
 
 def get_file_params(filename):
@@ -19,11 +16,9 @@ def get_file_params(filename):
     with open(filename) as data_file:
         lines = data_file.readlines()
         ulens_params = lines[2].split()
-    return (
-        mm.ModelParameters(
-            {'t_0': float(ulens_params[1]), 'u_0': float(ulens_params[2]),
-             't_E': float(ulens_params[3]), 'rho': float(ulens_params[4])}),
-        float(ulens_params[5]))
+    model = mm.ModelParameters({'t_0': float(ulens_params[1]), 'u_0': float(ulens_params[2]),
+                                't_E': float(ulens_params[3]), 'rho': float(ulens_params[4])})
+    return (model, float(ulens_params[5]))
 
 
 def get_variables():
@@ -279,7 +274,7 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
         for (nob_indices, mag_obj) in zip(
                 self.sfit_files['63'].sfit_nob_indices, self.mag_objs):
             with self.assertRaises(AttributeError):
-                x = mag_obj.magnification
+                _ = mag_obj.magnification
 
             mag_obj.get_magnification()
             np.testing.assert_allclose(
@@ -302,8 +297,7 @@ class TestPointSourcePointLensMagnification(unittest.TestCase):
                 rtol=0.0001)
 
 
-class TestFiniteSourceUniformGould94Magnification(
-    TestPointSourcePointLensMagnification):
+class TestFiniteSourceUniformGould94Magnification(TestPointSourcePointLensMagnification):
 
     def setUp(self):
         TestPointSourcePointLensMagnification.setUp(self)
@@ -372,7 +366,7 @@ class TestFiniteSourceUniformGould94Magnification(
                 self.indices_mag_test, self.gammas, self.mag_objs):
 
             with self.assertRaises(AttributeError):
-                x = mag_obj.magnification
+                _ = mag_obj.magnification
 
             sfit_mag = self.sfit_files['61'].mag[nob_indices][mag_test_indices]
             b1_factor = (self.sfit_files['63'].amp[nob_indices][
@@ -447,16 +441,14 @@ class TestFiniteSourceUniformGould94Magnification(
         """
         rho = self.sfit_files['51'].a[3]
 
-        for (nob_indices, source_flux, gamma, mag_test_indices,
-             mag_obj) in zip(
-            self.sfit_files['62'].sfit_nob_indices,
-            self.sfit_files['51'].source_fluxes,
-            self.gammas, self.indices_mag_test, self.mag_objs):
-
+        zip_ = zip(self.sfit_files['62'].sfit_nob_indices, self.sfit_files['51'].source_fluxes,
+                   self.gammas, self.indices_mag_test, self.mag_objs)
+        for (nob_indices, source_flux, gamma, mag_test_indices, mag_obj) in zip_:
             dA_du = mag_obj.get_d_A_d_u()[mag_test_indices]
 
-            b1_term = self.sfit_files['62'].dAdu[nob_indices][mag_test_indices] * gamma * self.sfit_files['63'].b1[nob_indices][mag_test_indices]
-            b1_term += self.sfit_files['63'].amp[nob_indices][mag_test_indices] * gamma * self.sfit_files['61'].db1[nob_indices][mag_test_indices] / rho
+            b1_term = (self.sfit_files['62'].dAdu * self.sfit_files['63'].b1)[nob_indices][mag_test_indices]
+            b1_term += (self.sfit_files['63'].amp * self.sfit_files['61'].db1)[nob_indices][mag_test_indices] / rho
+            b1_term *= gamma
             sfit_dA_du_US = self.sfit_files['62'].df[nob_indices][mag_test_indices] / source_flux + b1_term
 
             np.testing.assert_allclose(dA_du, sfit_dA_du_US, rtol=0.015)
@@ -567,8 +559,7 @@ class TestFiniteSourceUniformGould94Magnification(
                 rtol=0.0001)
 
 
-class TestFiniteSourceUniformGould94DirectMagnification(
-    TestFiniteSourceUniformGould94Magnification):
+class TestFiniteSourceUniformGould94DirectMagnification(TestFiniteSourceUniformGould94Magnification):
 
     def setUp(self):
         TestFiniteSourceUniformGould94Magnification.setUp(self)
@@ -586,7 +577,7 @@ class TestFiniteSourceUniformGould94DirectMagnification(
     def test_db0(self):
         for mag_obj in self.mag_objs:
             with self.assertRaises(NotImplementedError):
-                x = mag_obj.db0
+                _ = mag_obj.db0
 
     def test_get_d_A_d_params(self):
         """
@@ -603,8 +594,7 @@ class TestFiniteSourceUniformGould94DirectMagnification(
                 mag_obj.get_d_A_d_rho()
 
 
-class TestFiniteSourceLDYoo04Magnification(
-    TestFiniteSourceUniformGould94Magnification):
+class TestFiniteSourceLDYoo04Magnification(TestFiniteSourceUniformGould94Magnification):
 
     def setUp(self):
         TestFiniteSourceUniformGould94Magnification.setUp(self)
@@ -632,7 +622,7 @@ class TestFiniteSourceLDYoo04Magnification(
                 self.indices_mag_test, self.mag_objs):
 
             with self.assertRaises(AttributeError):
-                x = mag_obj.magnification
+                _ = mag_obj.magnification
 
             mag_obj.get_magnification()
             np.testing.assert_allclose(
@@ -719,8 +709,7 @@ class TestFiniteSourceLDYoo04Magnification(
             np.testing.assert_almost_equal(gamma, mag_obj.gamma)
 
 
-class TestFiniteSourceLDYoo04DirectMagnification(
-    TestFiniteSourceLDYoo04Magnification):
+class TestFiniteSourceLDYoo04DirectMagnification(TestFiniteSourceLDYoo04Magnification):
 
     def setUp(self):
         TestFiniteSourceLDYoo04Magnification.setUp(self)
@@ -761,12 +750,12 @@ class TestFiniteSourceLDYoo04DirectMagnification(
     def test_db0(self):
         for mag_obj in self.mag_objs:
             with self.assertRaises(NotImplementedError):
-                x = mag_obj.db0
+                _ = mag_obj.db0
 
     def test_db1(self):
         for mag_obj in self.mag_objs:
             with self.assertRaises(NotImplementedError):
-                x = mag_obj.db1
+                _ = mag_obj.db1
 
     def test_get_d_A_d_params(self):
         """
