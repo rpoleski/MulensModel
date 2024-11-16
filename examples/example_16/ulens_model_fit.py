@@ -4155,7 +4155,7 @@ class UlensModelFit(object):
         kwargs_interactive,
         phot_fmt='mag',
         data_ref=None,
-        show_errorbars=False,
+        show_errorbars=True,
         show_bad=None,
         subtract_2450000=False,
         subtract_2460000=False,
