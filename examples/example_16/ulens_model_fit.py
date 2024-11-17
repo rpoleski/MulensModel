@@ -3820,8 +3820,7 @@ class UlensModelFit(object):
         """
         scale = 0.5  # original size=(1920:1440)
 
-        self._ln_like(self._best_model_theta)  # Sets all parameters to
-        # the best model.
+        self._ln_like(self._best_model_theta)  # Sets all parameters to the best model.
 
         self._reset_rcParams()
         if 'rcParams' in self._plots['best model']:
@@ -3838,19 +3837,12 @@ class UlensModelFit(object):
         kwargs_model['t_stop'] = t_data_stop
         data_ref = self._event.data_ref
         (f_source_0, f_blend_0) = self._event.get_flux_for_dataset(data_ref)
-        traces_lc = self._make_interactive_lc_traces(f_source_0, f_blend_0,
-                                                     **kwargs_model,
-                                                     **kwargs_interactive,)
+        traces_lc = self._make_interactive_lc_traces(f_source_0, f_blend_0, **kwargs_model, **kwargs_interactive)
         self._interactive_fig = graph_objects.Figure(data=traces_lc, layout=layout)
 
-        self._add_interactive_zero_trace(
-            **kwargs_model, **kwargs_interactive)
-        self._add_interactive_data_traces(
-            kwargs_interactive,
-            **kwargs)
-        self._add_interactive_residuals_traces(
-            kwargs_interactive,
-            **kwargs_model)
+        self._add_interactive_zero_trace(**kwargs_model, **kwargs_interactive)
+        self._add_interactive_data_traces(kwargs_interactive, **kwargs)
+        self._add_interactive_residuals_traces(kwargs_interactive, **kwargs_model)
 
         self._save_interactive_fig()
 
