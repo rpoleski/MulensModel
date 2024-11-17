@@ -4086,10 +4086,9 @@ class UlensModelFit(object):
     def _make_interactive_scatter_lc_satellite(
             self, traces, times, f_source_0, f_blend_0, gamma,
             bandpass, colors, sizes, dash, subtract, showlegend):
-        """Generates Plotly Scatter traces for
-        the light-curve satellite models."""
+        """Generates Plotly Scatter traces for the light-curve satellite models."""
 
-        for i, model in enumerate(self._models_satellite):
+        for (i, model) in enumerate(self._models_satellite):
             name = self._event.datasets[i].plot_properties['label']
             model.parameters.parameters = {**self._model.parameters.parameters}
             lc = self._model.get_lc(times=times, source_flux=f_source_0,
