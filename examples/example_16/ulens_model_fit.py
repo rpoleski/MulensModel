@@ -4073,7 +4073,7 @@ class UlensModelFit(object):
                     times, lc, name, showlegend, colors[1], sizes[1], dash))
             return traces_lc
 
-        traces_lc.extend(self._generate_traces_for_models(
+        traces_lc.extend(self._make_interactive_scatter_lc_satellite(
             traces_lc, times, f_source_0, f_blend_0, gamma, bandpass,
             colors, sizes, dash, subtract, showlegend))
         return traces_lc
