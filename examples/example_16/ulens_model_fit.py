@@ -3915,6 +3915,9 @@ class UlensModelFit(object):
         t_start = t_start - subtract
         t_stop = t_stop - subtract
 
+        font_1 = dict(family=font, size=sizes[4], color=colors[1])
+        kwargs_y = dict(mirror='all', showgrid=False, ticks='inside', showline=True,
+                        ticklen=sizes[8], tickwidth=sizes[7], linewidth=sizes[7], linecolor=colors[0], tickfont=font_1)
         layout = graph_objects.Layout(
             autosize=True,
             width=width,
@@ -3926,55 +3929,12 @@ class UlensModelFit(object):
                 bgcolor=paper_bgcolor,
                 bordercolor=colors[2],
                 borderwidth=sizes[7],
-                font=dict(
-                    family=font,
-                    size=sizes[9])
-            ),
+                font=dict(family=font, size=sizes[9])),
             paper_bgcolor=paper_bgcolor,
             plot_bgcolor=paper_bgcolor,
-            font=dict(
-                family=font,
-                size=sizes[4],
-                color=colors[1]
-            ),
-            yaxis=dict(
-                title_text='Magnitude',
-                domain=[hsplit+(hspace/2), 1],
-                # anchor="y",
-                showgrid=False,
-                mirror='all',
-                ticks='inside',
-                showline=True,
-                ticklen=sizes[8],
-                tickwidth=sizes[7],
-                linewidth=sizes[7],
-                linecolor=colors[0],
-                range=ylim,
-                tickfont=dict(
-                    family=font,
-                    size=sizes[4],
-                    color=colors[1]
-                ),
-            ),
-            yaxis2=dict(
-                title_text='Residuals',
-                domain=[0, hsplit-(hspace/2)],
-                anchor="x",
-                showgrid=False,
-                mirror='all',
-                ticks='inside',
-                ticklen=sizes[8],
-                linewidth=sizes[7],
-                tickwidth=sizes[7],
-                showline=True,
-                linecolor=colors[0],
-                range=ylim_residuals,
-                tickfont=dict(
-                    family=font,
-                    size=sizes[4],
-                    color=colors[1]
-                ),
-            ),
+            font=font_1,
+            yaxis=dict(title_text='Magnitude', domain=[hsplit+(hspace/2), 1], range=ylim, **kwargs_y),
+            yaxis2=dict(title_text='Residuals', domain=[0, hsplit-(hspace/2)], anchor="x", range=ylim_residuals, **kwargs_y),
             xaxis=dict(
                 anchor="y",
                 showgrid=False,
@@ -3990,12 +3950,7 @@ class UlensModelFit(object):
                 tickwidth=sizes[7],
                 showticklabels=False,
                 range=[t_start, t_stop],
-                tickfont=dict(
-                    family=font,
-                    size=sizes[4],
-                    color=colors[1]
-                ),
-            ),
+                tickfont=font_1),
             xaxis2=dict(
                 title_text=xtitle,
                 anchor="y2",
@@ -4010,13 +3965,8 @@ class UlensModelFit(object):
                 tickwidth=sizes[7],
                 linewidth=sizes[7],
                 range=[t_start, t_stop],
-                tickfont=dict(
-                    family=font,
-                    size=sizes[4],
-                    color=colors[1]
-                ),
-            ),
-        )
+                tickfont=font_1)
+            )
         return layout
 
     def _get_time_span_data(self):
