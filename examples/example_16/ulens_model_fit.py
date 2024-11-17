@@ -3878,20 +3878,10 @@ class UlensModelFit(object):
             30.,  # font lagend
         ])
         sizes = sizes*scale
+        colors = ['black', 'black', '#b9b9b9']  # This are: axes, font, and legend border.
 
-        kwargs_interactive = dict(
-            sizes=sizes,
-            colors=['black',  # axes
-                    'black',  # font
-                    '#b9b9b9'  # legend border
-                    ],
-            opacity=0.7,
-            width=1920*scale,
-            height=1440*scale,
-            font='Old Standard TT, serif',
-            paper_bgcolor='white',
-        )
-
+        kwargs_interactive = dict(sizes=sizes, colors=colors, opacity=0.7, width=1920*scale,
+                                  height=1440*scale, font='Old Standard TT, serif', paper_bgcolor='white')
         return kwargs_interactive
 
     def _make_interactive_layout(
