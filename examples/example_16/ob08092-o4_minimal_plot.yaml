@@ -18,5 +18,5 @@ fitting_parameters:
     n_burn:  500
 # Now set the file where you want the light curve to be plotted:
 plots:
-  best model:
-    file: ob08092-o4_minimal_plot.png
+    best model:
+       file: ob08092-o4_minimal_plot.png
