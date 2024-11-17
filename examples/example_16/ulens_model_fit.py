@@ -14,7 +14,6 @@ from scipy.interpolate import interp1d
 from matplotlib import pyplot as plt
 from matplotlib import gridspec, rcParams, rcParamsDefault
 # from matplotlib.backends.backend_pdf import PdfPages
-from MulensModel.utils import PlotUtils
 
 import_failed = set()
 try:
@@ -39,7 +38,7 @@ try:
 except Exception:
     import_failed.add("ultranest")
 try:
-    import plotly.graph_objects as go
+    from plotly import graph_objects
 except Exception:
     import_failed.add("plotly")
 try:
@@ -3830,13 +3829,11 @@ class UlensModelFit(object):
                 rcParams[key] = value
 
         kwargs_all = self._get_kwargs_for_best_model_plot()
-        (ylim, ylim_residuals) = self._get_ylim_for_best_model_plot(
-            *kwargs_all[4:6])
-        layout, kwargs_model, kwargs_interactive, kwargs = \
-            self._prepare_interactive_layout(
-            scale, kwargs_all, ylim, ylim_residuals)
+        (ylim, ylim_residuals) = self._get_ylim_for_best_model_plot(*kwargs_all[4:6])
+        (layout, kwargs_model, kwargs_interactive, kwargs) = \
+            self._prepare_interactive_layout(scale, kwargs_all, ylim, ylim_residuals)
 
-        t_data_start, t_data_stop = self._get_time_span_data()
+        (t_data_start, t_data_stop) = self._get_time_span_data()
         kwargs_model['t_start'] = t_data_start
         kwargs_model['t_stop'] = t_data_stop
         data_ref = self._event.data_ref
@@ -3844,7 +3841,7 @@ class UlensModelFit(object):
         traces_lc = self._make_interactive_lc_traces(f_source_0, f_blend_0,
                                                      **kwargs_model,
                                                      **kwargs_interactive,)
-        self._interactive_fig = go.Figure(data=traces_lc, layout=layout)
+        self._interactive_fig = graph_objects.Figure(data=traces_lc, layout=layout)
 
         self._add_interactive_zero_trace(
             **kwargs_model, **kwargs_interactive)
@@ -3927,7 +3924,7 @@ class UlensModelFit(object):
         Creates plotly.graph_objects.Layout object analogues to best model plot
         """
         hsplit = height_ratios[1] / height_ratios[0]
-        subtract = PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
+        subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
 
         xtitle = 'Time'
         if subtract > 0.:
@@ -3936,7 +3933,7 @@ class UlensModelFit(object):
         t_start = t_start - subtract
         t_stop = t_stop - subtract
 
-        layout = go.Layout(
+        layout = graph_objects.Layout(
             autosize=True,
             width=width,
             height=height,
@@ -4064,7 +4061,7 @@ class UlensModelFit(object):
         """
         traces_lc = []
         times = np.linspace(t_start, t_stop, num=20000)
-        subtract = PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
+        subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
 
         if isinstance(name, type(None)):
             showlegend = False
@@ -4109,7 +4106,7 @@ class UlensModelFit(object):
             showlegend, color, size, dash):
         """Creates a Plotly Scatter trace for the light curve."""
 
-        return go.Scatter(
+        return graph_objects.Scatter(
             x=times,
             y=lc,
             name=name,
@@ -4202,7 +4199,7 @@ class UlensModelFit(object):
         object for good or bad data."""
         color = color_override if color_override \
             else dataset.plot_properties['color']
-        return go.Scatter(
+        return graph_objects.Scatter(
             x=x,
             y=y,
             opacity=opacity,
@@ -4250,7 +4247,7 @@ class UlensModelFit(object):
         if data_ref is None:
             data_ref = self._event.data_ref
 
-        subtract = PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
+        subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
 
         # Get fluxes for the reference dataset
         (f_source_0, f_blend_0) = self._event.get_flux_for_dataset(data_ref)
@@ -4258,8 +4255,7 @@ class UlensModelFit(object):
             # Scale the data flux
             (flux, err_flux) = self._event.fits[dataset_index].scale_fluxes(
                 f_source_0, f_blend_0)
-            (y_value, y_err) = PlotUtils.get_y_value_y_err(
-                phot_fmt, flux, err_flux)
+            (y_value, y_err) = mm.utils.PlotUtils.get_y_value_y_err(phot_fmt, flux, err_flux)
             times = data.time-subtract
             trace_data = self._make_one_interactive_data_trace(
                 dataset_index,
@@ -4299,7 +4295,7 @@ class UlensModelFit(object):
         if data_ref is None:
             data_ref = self._event.data_ref
 
-        subtract = PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
+        subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
 
         # Get fluxes for the reference dataset
         (f_source_0, f_blend_0) = self._event.get_flux_for_dataset(data_ref)
@@ -4337,10 +4333,10 @@ class UlensModelFit(object):
         Creates plotly.graph_objects.Scatter object for line y=0 in
         residuals plot
         """
-        subtract = PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
+        subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
         times = np.linspace(t_start, t_stop, num=2000)
         line = np.zeros(len(times))
-        trace_0 = go.Scatter(
+        trace_0 = graph_objects.Scatter(
             x=times-subtract,
             y=line,
             mode='lines',
