@@ -14,7 +14,6 @@ from scipy.interpolate import interp1d
 from matplotlib import pyplot as plt
 from matplotlib import gridspec, rcParams, rcParamsDefault
 # from matplotlib.backends.backend_pdf import PdfPages
-import plotly.graph_objects as go
 from MulensModel.utils import PlotUtils
 
 import_failed = set()
@@ -39,7 +38,10 @@ try:
     import ultranest
 except Exception:
     import_failed.add("ultranest")
-
+try:
+    import plotly.graph_objects as go
+except Exception:
+    import_failed.add("plotly")
 try:
     import MulensModel as mm
 except Exception:
@@ -779,7 +781,8 @@ class UlensModelFit(object):
         if 'trace' in self._plots:
             self._check_plots_parameters_trace()
 
-        names = {key: value['file'] for (key, value) in self._plots.items()}
+        names = {key: value.get('file', None)
+                 for (key, value) in self._plots.items()}
         done = {}
         for (plot_type, name) in names.items():
             if name is None:
@@ -856,12 +859,10 @@ class UlensModelFit(object):
         """
         Check if there is no problem with interactive best plot
         """
-        if 'file' not in self._plots['best model']:
-            raise ValueError(
-                "When choosing to create an interactive plot of the best" +
-                " model, a regular plot must also be generated. " +
-
-                "Please specify the 'best model' 'file' in YAML input.")
+        if "second Y scale" in self._plots['best model']:
+            msg = "Interactive plot will not have a" + \
+                "second Y scale. This feature is not implemented."
+            warnings.warn(msg)
 
     def _check_plots_parameters_best_model_Y_scale(self):
         """
@@ -1731,7 +1732,7 @@ class UlensModelFit(object):
 
             sigma = float(value.split()[0])
             sets = list(map(self._get_no_of_dataset,
-                        shlex.split(value, posix=False)[1:]))
+                            shlex.split(value, posix=False)[1:]))
             if len(sets) > len(self._datasets):
                 raise ValueError(
                     "dataset number specified in" +
@@ -3506,8 +3507,8 @@ class UlensModelFit(object):
         plt.xlim(*xlim)
         plt.ylim(*ylim_residuals)
         axes.tick_params(**kwargs_axes_2)
-
-        self._save_figure(self._plots['best model'].get('file'), dpi=dpi)
+        if self._plots['best model'].get('file') is not None:
+            self._save_figure(self._plots['best model'].get('file'), dpi=dpi)
 
     def _get_kwargs_for_best_model_plot(self):
         """
@@ -3814,6 +3815,63 @@ class UlensModelFit(object):
 
         self._save_figure(self._plots['trajectory'].get('file'), dpi=dpi)
 
+    def _make_interactive_plot(self):
+        """
+        plot best model and residuals interactively
+        """
+        scale = 0.5  # original size=(1920:1440)
+
+        self._ln_like(self._best_model_theta)  # Sets all parameters to
+        # the best model.
+
+        self._reset_rcParams()
+        if 'rcParams' in self._plots['best model']:
+            for (key, value) in self._plots['best model']['rcParams'].items():
+                rcParams[key] = value
+
+        kwargs_all = self._get_kwargs_for_best_model_plot()
+        (ylim, ylim_residuals) = self._get_ylim_for_best_model_plot(
+            *kwargs_all[4:6])
+        layout, kwargs_model, kwargs_interactive, kwargs = \
+            self._prepare_interactive_layout(
+            scale, kwargs_all, ylim, ylim_residuals)
+
+        t_data_start, t_data_stop = self._get_time_span_data()
+        kwargs_model['t_start'] = t_data_start
+        kwargs_model['t_stop'] = t_data_stop
+        data_ref = self._event.data_ref
+        (f_source_0, f_blend_0) = self._event.get_flux_for_dataset(data_ref)
+        traces_lc = self._make_interactive_lc_traces(f_source_0, f_blend_0,
+                                                     **kwargs_model,
+                                                     **kwargs_interactive,)
+        self._interactive_fig = go.Figure(data=traces_lc, layout=layout)
+
+        self._add_interactive_zero_trace(
+            **kwargs_model, **kwargs_interactive)
+        self._add_interactive_data_traces(
+            kwargs_interactive,
+            **kwargs)
+        self._add_interactive_residuals_traces(
+            kwargs_interactive,
+            **kwargs_model)
+
+        self._save_interactive_fig()
+
+    def _prepare_interactive_layout(
+            self, scale, kwargs_all, ylim, ylim_residuals):
+        """Prepares the layout for the interactive plot."""
+        kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2 = kwargs_all[:6]
+        kwargs_axes_1, kwargs_axes_2 = kwargs_all[6:]
+        kwargs_interactive = self._get_kwargs_for_plotly_plot(scale)
+
+        layout = self._make_interactive_layout(
+            ylim, ylim_residuals,
+            **kwargs_grid,
+            **kwargs_model,
+            **kwargs_interactive
+        )
+        return layout, kwargs_model, kwargs_interactive, kwargs
+
     def _get_kwargs_for_plotly_plot(self, scale):
         """_
         setting kwargs for interactive plot
@@ -4002,7 +4060,7 @@ class UlensModelFit(object):
             bandpass=None,
             **kwargs):
         """
-        Creates plotly.graph_objects.Scatter object with model light-curve
+        Creates plotly.graph_objects.Scatter objects with model light curve
         """
         traces_lc = []
         times = np.linspace(t_start, t_stop, num=20000)
@@ -4019,43 +4077,52 @@ class UlensModelFit(object):
                     times=times, source_flux=f_source_0, blend_flux=f_blend_0,
                     gamma=gamma, bandpass=bandpass)
                 times = times - subtract
-                traces_lc.append(go.Scatter(x=times,
-                                            y=lc,
-                                            name=name,
-                                            showlegend=showlegend,
-                                            mode='lines',
-                                            line=dict(
-                                                color=colors[1],
-                                                width=sizes[1],
-                                                dash=dash,
-                                            ),
-                                            xaxis="x",
-                                            yaxis="y",
-                                            ))
-                return traces_lc
+                traces_lc.append(self._make_interactive_scatter_lc(
+                    times, lc, name, showlegend, colors[1], sizes[1], dash))
+            return traces_lc
 
-        for (i, model) in enumerate(self._models_satellite):
+        traces_lc.extend(self._generate_traces_for_models(
+            traces_lc, times, f_source_0, f_blend_0, gamma, bandpass,
+            colors, sizes, dash, subtract, showlegend))
+        return traces_lc
+
+    def _make_interactive_scatter_lc_satellite(
+            self, traces, times, f_source_0, f_blend_0, gamma,
+            bandpass, colors, sizes, dash, subtract, showlegend):
+        """Generates Plotly Scatter traces for
+        the light-curve satellite models."""
+
+        for i, model in enumerate(self._models_satellite):
             name = self._event.datasets[i].plot_properties['label']
             model.parameters.parameters = {**self._model.parameters.parameters}
             lc = self._model.get_lc(times=times, source_flux=f_source_0,
                                     blend_flux=f_blend_0,
                                     gamma=gamma, bandpass=bandpass)
             times = times - subtract
-            traces_lc.append(go.Scatter(x=times,
-                                        y=lc,
-                                        name=name,
-                                        mode='lines',
-                                        showlegend=True,
-                                        line=dict(
-                                            color=colors[1],
-                                            width=sizes[1],
-                                            dash=dash,
-                                        ),
-                                        xaxis="x",
-                                        yaxis="y",
-                                        ))
+            trace = self._make_interactive_scatter_lc(
+                times, lc, name, showlegend, colors[1], sizes[1], dash)
+            traces.append(trace)
+        return traces
 
-        return traces_lc
+    def _make_interactive_scatter_lc(
+            self, times, lc, name,
+            showlegend, color, size, dash):
+        """Creates a Plotly Scatter trace for the light curve."""
+
+        return go.Scatter(
+            x=times,
+            y=lc,
+            name=name,
+            showlegend=showlegend,
+            mode='lines',
+            line=dict(
+                color=color,
+                width=size,
+                dash=dash,
+            ),
+            xaxis="x",
+            yaxis="y"
+        )
 
     def _make_one_interactive_data_trace(
             self,
@@ -4077,80 +4144,90 @@ class UlensModelFit(object):
         data points form a given data set
         """
         trace_data = []
+        dataset, show_errorbars, show_bad = self._get_interactive_dataset(
+            dataset_index)
+
+        trace_data_good = self._make_interactive_good_data_trace(
+            dataset, times, y_value, y_err, opacity,
+            sizes, xaxis, yaxis, showlegend, show_errorbars)
+        trace_data.append(trace_data_good)
+
+        if show_bad:
+            trace_data_bad = self._make_interactive_bad_data_trace(
+                dataset, times, y_value, y_err, opacity,
+                sizes, xaxis, yaxis, showlegend)
+            trace_data.append(trace_data_bad)
+        return trace_data
+
+    def _get_interactive_dataset(self, dataset_index):
+        """Get dataset properties for interactive plot settings."""
         dataset = self._event.datasets[dataset_index]
+        show_errorbars = dataset.plot_properties.get('show_errorbars', True)
+        show_bad = dataset.plot_properties.get('show_bad', False)
+        return dataset, show_errorbars, show_bad
 
-        if show_errorbars is None:
-            show_errorbars = dataset.plot_properties.get(
-                'show_errorbars', True)
-
-        if show_bad is None:
-            show_bad = dataset.plot_properties.get('show_bad', False)
-
+    def _make_interactive_good_data_trace(
+            self, dataset, times, y_value, y_err, opacity,
+            sizes, xaxis, yaxis, showlegend, show_errorbars):
+        """Creates a single plotly.graph_objects.Scatter
+        object for the good data points."""
         times_good = times[dataset.good]
-        times_bad = times[dataset.bad]
         y_good = y_value[dataset.good]
-        y_bad = y_value[dataset.bad]
         y_err_good = y_err[dataset.good]
-        y_err_bad = y_err[dataset.bad]
+        return self._make_interactive_data_trace(
+            times_good, y_good, y_err_good, dataset,
+            opacity, sizes, xaxis, yaxis, showlegend, show_errorbars)
 
-        trace_data_good = go.Scatter(
-            x=times_good,
-            y=y_good,
+    def _make_interactive_bad_data_trace(
+            self, dataset, times, y_value, y_err, opacity,
+            sizes, xaxis, yaxis, showlegend):
+        """Creates a single plotly.graph_objects.Scatter
+        object for the bad data points."""
+        times_bad = times[dataset.bad]
+        y_bad = y_value[dataset.bad]
+        y_err_bad = y_err[dataset.bad]
+        return self._make_interactive_data_trace(
+            times_bad, y_bad, y_err_bad, dataset,
+            opacity, sizes, xaxis, yaxis, showlegend,
+            show_errorbars=False,
+            color_override='black',
+            error_visible=False
+        )
+
+    def _make_interactive_data_trace(
+            self, x, y, y_err, dataset, opacity, sizes, xaxis, yaxis,
+            showlegend, show_errorbars,
+            color_override=None, error_visible=True):
+        """Creates single plotly.graph_objects.Scatter
+        object for good or bad data."""
+        color = color_override if color_override \
+            else dataset.plot_properties['color']
+        return go.Scatter(
+            x=x,
+            y=y,
             opacity=opacity,
             name=dataset.plot_properties['label'],
-
             mode='markers',
             showlegend=showlegend,
             error_y=dict(
                 type='data',
-                array=y_err_good,
-                visible=show_errorbars,
+                array=y_err,
+                visible=error_visible,
                 thickness=sizes[2],
                 width=sizes[3]),
             marker=dict(
-                color=dataset.plot_properties['color'],
+                color=color,
                 size=sizes[0],
                 line=dict(
-                    color=dataset.plot_properties['color'],
+                    color=color,
                     width=1,
                 ),
             ),
             xaxis=xaxis,
             yaxis=yaxis,
         )
-        trace_data.append(trace_data_good)
-        if show_bad:
-            trace_data_bad = go.Scatter(
-                x=times_bad,
-                y=y_bad,
-                opacity=opacity,
-                name=dataset.plot_properties['label'],
-                legendgroup=str(dataset_index),
-                mode='markers',
-                showlegend=showlegend,
-                error_y=dict(
-                    type='data',
-                    array=y_err_bad,
-                    visible=False,
-                    thickness=sizes[2],
-                    width=sizes[3]),
-                marker=dict(
-                    color='black',
-                    size=sizes[0]*0.8,
-                    line=dict(
-                        color='black',
-                        width=1,
-                    ),
-                ),
-                xaxis=xaxis,
-                yaxis=yaxis,
-            )
 
-            trace_data.append(trace_data_bad)
-
-        return trace_data
-
-    def _make_interactive_data_traces(
+    def _add_interactive_data_traces(
         self,
         kwargs_interactive,
         phot_fmt='mag',
@@ -4197,9 +4274,10 @@ class UlensModelFit(object):
                 **kwargs_interactive,
             )
             traces_data.extend(trace_data)
-        return traces_data
+        for trace in traces_data:
+            self._interactive_fig.add_trace(trace)
 
-    def _make_interactive_residuals_traces(
+    def _add_interactive_residuals_traces(
             self,
             kwargs_interactive,
             phot_fmt='mag',
@@ -4248,10 +4326,10 @@ class UlensModelFit(object):
                 **kwargs_interactive,
             )
             traces_residuals.extend(trace_residuals)
+        for trace in traces_residuals:
+            self._interactive_fig.add_trace(trace)
 
-        return traces_residuals
-
-    def _make_interactive_zero_trace(
+    def _add_interactive_zero_trace(
             self, t_start, t_stop, colors, sizes,
             subtract_2450000=False, subtract_2460000=False,
             **kwargs):
@@ -4275,7 +4353,7 @@ class UlensModelFit(object):
             yaxis="y2",
             showlegend=False,
         )
-        return trace_0
+        self._interactive_fig.add_trace(trace_0)
 
     def _save_interactive_fig(self):
         """
@@ -4300,57 +4378,6 @@ class UlensModelFit(object):
             t_max[i] = max(data.time)
 
         return (min(t_min), max(t_max))
-
-    def _make_interactive_plot(self):
-        """
-        plot best model and residuals interactively
-        """
-        scale = 0.5  # original size=(1920:1440)
-
-        self._ln_like(self._best_model_theta)  # Sets all parameters to
-        # the best model.
-
-        self._reset_rcParams()
-        if 'rcParams' in self._plots['best model']:
-            for (key, value) in self._plots['best model']['rcParams'].items():
-                rcParams[key] = value
-
-        kwargs_all = self._get_kwargs_for_best_model_plot()
-        (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2) = kwargs_all[:6]
-        (kwargs_axes_1, kwargs_axes_2) = kwargs_all[6:]
-        (ylim, ylim_residuals) = self._get_ylim_for_best_model_plot(t_1, t_2)
-        kwargs_interactive = self._get_kwargs_for_plotly_plot(scale)
-        layout = self._make_interactive_layout(ylim, ylim_residuals,
-                                               **kwargs_grid,
-                                               **kwargs_model,
-                                               **kwargs_interactive)
-        t_data_start, t_data_stop = self._get_time_span_data()
-        kwargs_model['t_start'] = t_data_start
-        kwargs_model['t_stop'] = t_data_stop
-        data_ref = self._event.data_ref
-        (f_source_0, f_blend_0) = self._event.get_flux_for_dataset(data_ref)
-        traces_lc = self._make_interactive_lc_traces(f_source_0, f_blend_0,
-                                                     **kwargs_model,
-                                                     **kwargs_interactive,)
-        self._interactive_fig = go.Figure(data=traces_lc, layout=layout)
-
-        trace_0 = (self._make_interactive_zero_trace(
-            **kwargs_model, **kwargs_interactive))
-        self._interactive_fig.add_trace(trace_0)
-
-        traces_data = self._make_interactive_data_traces(
-            kwargs_interactive,
-            **kwargs)
-        for trace in traces_data:
-            self._interactive_fig.add_trace(trace)
-
-        traces_residuals = self._make_interactive_residuals_traces(
-            kwargs_interactive,
-            **kwargs_model)
-        for trace in traces_residuals:
-            self._interactive_fig.add_trace(trace)
-
-        self._save_interactive_fig()
 
 
 if __name__ == '__main__':
