@@ -4037,6 +4037,19 @@ class UlensModelFit(object):
         )
         return layout
 
+    def _get_time_span_data(self):
+        """
+        Returning time span of datasets
+
+        """
+        t_min = np.zeros(len(self._datasets))
+        t_max = np.zeros(len(self._datasets))
+        for (i, data) in enumerate(self._datasets):
+            t_min[i] = min(data.time)
+            t_max[i] = max(data.time)
+
+        return (min(t_min), max(t_max))
+
     def _make_interactive_lc_traces(
             self,
             f_source_0, f_blend_0,
@@ -4120,6 +4133,81 @@ class UlensModelFit(object):
             yaxis="y"
         )
 
+    def _add_interactive_zero_trace(
+            self, t_start, t_stop, colors, sizes,
+            subtract_2450000=False, subtract_2460000=False,
+            **kwargs):
+        """
+        Creates plotly.graph_objects.Scatter object for line y=0 in
+        residuals plot
+        """
+        subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
+        times = np.linspace(t_start, t_stop, num=2000)
+        line = np.zeros(len(times))
+        trace_0 = graph_objects.Scatter(
+            x=times-subtract,
+            y=line,
+            mode='lines',
+            line=dict(
+                color=colors[0],
+                width=sizes[1],
+                dash='dash',
+            ),
+            xaxis="x2",
+            yaxis="y2",
+            showlegend=False,
+        )
+        self._interactive_fig.add_trace(trace_0)
+
+    def _add_interactive_data_traces(
+        self,
+        kwargs_interactive,
+        phot_fmt='mag',
+        data_ref=None,
+        show_errorbars=True,
+        show_bad=None,
+        subtract_2450000=False,
+        subtract_2460000=False,
+        **kwargs,
+    ):
+        """
+        Creates plotly.graph_objects.Scatter object for observation points
+        per each data set.
+        """
+        traces_data = []
+        self._event._set_default_colors()  # For each dataset
+        if self._event.fits is None:
+            self._event.get_chi2()
+
+        if data_ref is None:
+            data_ref = self._event.data_ref
+
+        subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
+
+        # Get fluxes for the reference dataset
+        (f_source_0, f_blend_0) = self._event.get_flux_for_dataset(data_ref)
+        for (dataset_index, data) in enumerate(self._datasets):
+            # Scale the data flux
+            (flux, err_flux) = self._event.fits[dataset_index].scale_fluxes(
+                f_source_0, f_blend_0)
+            (y_value, y_err) = mm.utils.PlotUtils.get_y_value_y_err(phot_fmt, flux, err_flux)
+            times = data.time-subtract
+            trace_data = self._make_one_interactive_data_trace(
+                dataset_index,
+                times,
+                y_value,
+                y_err,
+                xaxis='x',
+                yaxis='y',
+                showlegend=True,
+                show_errorbars=show_errorbars,
+                show_bad=show_bad,
+                **kwargs_interactive,
+            )
+            traces_data.extend(trace_data)
+        for trace in traces_data:
+            self._interactive_fig.add_trace(trace)
+
     def _make_one_interactive_data_trace(
             self,
             dataset_index,
@@ -4174,22 +4262,6 @@ class UlensModelFit(object):
             times_good, y_good, y_err_good, dataset,
             opacity, sizes, xaxis, yaxis, showlegend, show_errorbars)
 
-    def _make_interactive_bad_data_trace(
-            self, dataset, times, y_value, y_err, opacity,
-            sizes, xaxis, yaxis, showlegend):
-        """Creates a single plotly.graph_objects.Scatter
-        object for the bad data points."""
-        times_bad = times[dataset.bad]
-        y_bad = y_value[dataset.bad]
-        y_err_bad = y_err[dataset.bad]
-        return self._make_interactive_data_trace(
-            times_bad, y_bad, y_err_bad, dataset,
-            opacity, sizes, xaxis, yaxis, showlegend,
-            show_errorbars=False,
-            color_override='black',
-            error_visible=False
-        )
-
     def _make_interactive_data_trace(
             self, x, y, y_err, dataset, opacity, sizes, xaxis, yaxis,
             showlegend, show_errorbars,
@@ -4223,54 +4295,21 @@ class UlensModelFit(object):
             yaxis=yaxis,
         )
 
-    def _add_interactive_data_traces(
-        self,
-        kwargs_interactive,
-        phot_fmt='mag',
-        data_ref=None,
-        show_errorbars=True,
-        show_bad=None,
-        subtract_2450000=False,
-        subtract_2460000=False,
-        **kwargs,
-    ):
-        """
-        Creates plotly.graph_objects.Scatter object for observation points
-        per each data set.
-        """
-        traces_data = []
-        self._event._set_default_colors()  # For each dataset
-        if self._event.fits is None:
-            self._event.get_chi2()
-
-        if data_ref is None:
-            data_ref = self._event.data_ref
-
-        subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
-
-        # Get fluxes for the reference dataset
-        (f_source_0, f_blend_0) = self._event.get_flux_for_dataset(data_ref)
-        for (dataset_index, data) in enumerate(self._datasets):
-            # Scale the data flux
-            (flux, err_flux) = self._event.fits[dataset_index].scale_fluxes(
-                f_source_0, f_blend_0)
-            (y_value, y_err) = mm.utils.PlotUtils.get_y_value_y_err(phot_fmt, flux, err_flux)
-            times = data.time-subtract
-            trace_data = self._make_one_interactive_data_trace(
-                dataset_index,
-                times,
-                y_value,
-                y_err,
-                xaxis='x',
-                yaxis='y',
-                showlegend=True,
-                show_errorbars=show_errorbars,
-                show_bad=show_bad,
-                **kwargs_interactive,
-            )
-            traces_data.extend(trace_data)
-        for trace in traces_data:
-            self._interactive_fig.add_trace(trace)
+    def _make_interactive_bad_data_trace(
+            self, dataset, times, y_value, y_err, opacity,
+            sizes, xaxis, yaxis, showlegend):
+        """Creates a single plotly.graph_objects.Scatter
+        object for the bad data points."""
+        times_bad = times[dataset.bad]
+        y_bad = y_value[dataset.bad]
+        y_err_bad = y_err[dataset.bad]
+        return self._make_interactive_data_trace(
+            times_bad, y_bad, y_err_bad, dataset,
+            opacity, sizes, xaxis, yaxis, showlegend,
+            show_errorbars=False,
+            color_override='black',
+            error_visible=False
+        )
 
     def _add_interactive_residuals_traces(
             self,
@@ -4324,32 +4363,6 @@ class UlensModelFit(object):
         for trace in traces_residuals:
             self._interactive_fig.add_trace(trace)
 
-    def _add_interactive_zero_trace(
-            self, t_start, t_stop, colors, sizes,
-            subtract_2450000=False, subtract_2460000=False,
-            **kwargs):
-        """
-        Creates plotly.graph_objects.Scatter object for line y=0 in
-        residuals plot
-        """
-        subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
-        times = np.linspace(t_start, t_stop, num=2000)
-        line = np.zeros(len(times))
-        trace_0 = graph_objects.Scatter(
-            x=times-subtract,
-            y=line,
-            mode='lines',
-            line=dict(
-                color=colors[0],
-                width=sizes[1],
-                dash='dash',
-            ),
-            xaxis="x2",
-            yaxis="y2",
-            showlegend=False,
-        )
-        self._interactive_fig.add_trace(trace_0)
-
     def _save_interactive_fig(self):
         """
         Saving interactive figure
@@ -4360,19 +4373,6 @@ class UlensModelFit(object):
                 msg = "Existing file " + file + " will be overwritten"
                 warnings.warn(msg)
         self._interactive_fig.write_html(file, full_html=True)
-
-    def _get_time_span_data(self):
-        """
-        Returning time span of datasets
-
-        """
-        t_min = np.zeros(len(self._datasets))
-        t_max = np.zeros(len(self._datasets))
-        for (i, data) in enumerate(self._datasets):
-            t_min[i] = min(data.time)
-            t_max[i] = max(data.time)
-
-        return (min(t_min), max(t_max))
 
 
 if __name__ == '__main__':
