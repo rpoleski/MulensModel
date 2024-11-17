@@ -4367,12 +4367,12 @@ class UlensModelFit(object):
         """
         Saving interactive figure
         """
-        file = self._plots['best model']['interactive']
-        if path.exists(file):
-            if path.isfile(file):
-                msg = "Existing file " + file + " will be overwritten"
+        file_ = self._plots['best model']['interactive']
+        if path.exists(file_):
+            if path.isfile(file_):
+                msg = "Existing file " + file_ + " will be overwritten"
                 warnings.warn(msg)
-        self._interactive_fig.write_html(file, full_html=True)
+        self._interactive_fig.write_html(file_, full_html=True)
 
 
 if __name__ == '__main__':
