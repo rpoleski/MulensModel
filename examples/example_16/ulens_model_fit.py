@@ -3507,8 +3507,8 @@ class UlensModelFit(object):
         plt.xlim(*xlim)
         plt.ylim(*ylim_residuals)
         axes.tick_params(**kwargs_axes_2)
-        if self._plots['best model'].get('file') is not None:
-            self._save_figure(self._plots['best model'].get('file'), dpi=dpi)
+
+        self._save_figure(self._plots['best model'].get('file'), dpi=dpi)
 
     def _get_kwargs_for_best_model_plot(self):
         """
