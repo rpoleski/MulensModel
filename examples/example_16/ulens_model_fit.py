@@ -38,7 +38,7 @@ try:
 except Exception:
     import_failed.add("ultranest")
 try:
-    from plotly import graph_objects
+    import plotly.graph_objects as go
 except Exception:
     import_failed.add("plotly")
 try:
@@ -3838,7 +3838,7 @@ class UlensModelFit(object):
         data_ref = self._event.data_ref
         (f_source_0, f_blend_0) = self._event.get_flux_for_dataset(data_ref)
         traces_lc = self._make_interactive_lc_traces(f_source_0, f_blend_0, **kwargs_model, **kwargs_interactive)
-        self._interactive_fig = graph_objects.Figure(data=traces_lc, layout=layout)
+        self._interactive_fig = go.Figure(data=traces_lc, layout=layout)
 
         self._add_interactive_zero_trace(**kwargs_model, **kwargs_interactive)
         self._add_interactive_data_traces(kwargs_interactive, **kwargs)
@@ -3918,7 +3918,7 @@ class UlensModelFit(object):
         font_1 = dict(family=font, size=sizes[4], color=colors[1])
         kwargs_y = dict(mirror='all', showgrid=False, ticks='inside', showline=True,
                         ticklen=sizes[8], tickwidth=sizes[7], linewidth=sizes[7], linecolor=colors[0], tickfont=font_1)
-        layout = graph_objects.Layout(
+        layout = go.Layout(
             autosize=True,
             width=width,
             height=height,
@@ -4050,7 +4050,7 @@ class UlensModelFit(object):
             showlegend, color, size, dash):
         """Creates a Plotly Scatter trace for the light curve."""
 
-        return graph_objects.Scatter(
+        return go.Scatter(
             x=times,
             y=lc,
             name=name,
@@ -4076,7 +4076,7 @@ class UlensModelFit(object):
         subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
         times = np.linspace(t_start, t_stop, num=2000)
         line = np.zeros(len(times))
-        trace_0 = graph_objects.Scatter(
+        trace_0 = go.Scatter(
             x=times-subtract,
             y=line,
             mode='lines',
@@ -4202,7 +4202,7 @@ class UlensModelFit(object):
         object for good or bad data."""
         color = color_override if color_override \
             else dataset.plot_properties['color']
-        return graph_objects.Scatter(
+        return go.Scatter(
             x=x,
             y=y,
             opacity=opacity,
