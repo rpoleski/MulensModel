@@ -3,6 +3,7 @@ import ast
 import numpy as np
 from numpy.testing import assert_almost_equal as almost
 from numpy.testing import assert_allclose
+import pytest
 import unittest
 from os.path import join
 
@@ -310,7 +311,7 @@ def test_fit_fluxes():
         model=pspl, dataset=my_dataset, fix_blend_flux=False,
         fix_source_flux=False)
     #   Before update or fit_fluxes is run, chi2_per_point should be None
-    assert(my_fit.chi2_per_point is None)
+    assert (my_fit.chi2_per_point is None)
     my_fit.update()
     #   After update is run, chi2_per_point should have some values
     assert (len(my_fit.chi2_per_point) == 1000)
@@ -325,11 +326,11 @@ def test_fit_fluxes():
     my_fit.fix_blend_flux = 0.
     my_fit.fit_fluxes()
 
-    assert(f_s_1 != my_fit.source_flux)
-    assert(chi2_1 == my_fit.chi2)
+    assert (f_s_1 != my_fit.source_flux)
+    assert (chi2_1 == my_fit.chi2)
 
     my_fit.update()
-    assert(chi2_1 != my_fit.chi2)
+    assert (chi2_1 != my_fit.chi2)
 
 
 def create_0939_parallax_model():
@@ -411,12 +412,12 @@ def test_bad_data():
     point_lens_model = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
     fit_all = mm.FitData(dataset=data, model=point_lens_model)
     fit_bad = mm.FitData(dataset=data_bad, model=point_lens_model)
-    assert(fit_all.chi2 is None)
+    assert (fit_all.chi2 is None)
     fit_all.update()
     fit_bad.update()
     chi2_all = fit_all.chi2
     chi2_bad = fit_bad.chi2
-    assert(chi2_all > chi2_bad)
+    assert (chi2_all > chi2_bad)
 
     # test whether chi2_per_point is calculated for bad points.
     # not calculated --> magnification = 0, model_flux --> f_blend, dchi2=large
@@ -573,8 +574,10 @@ class TestGetResiduals(unittest.TestCase):
     def test_photfmt_mag(self):
         """ check phot_fmt = 'mag' ."""
         # Bad = True
-        (residuals, res_errors) = self.fit.get_residuals(
-            phot_fmt='mag', bad=True)
+        msg = '"mag" returns residuals in the original data flux system.'
+        with pytest.warns(UserWarning, match=msg):
+            (residuals, res_errors) = self.fit.get_residuals(
+                phot_fmt='mag', bad=True)
 
         # Simple sign check
         for i, index in enumerate(self.outliers['index']):
