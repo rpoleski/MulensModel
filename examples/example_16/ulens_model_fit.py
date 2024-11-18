@@ -859,9 +859,8 @@ class UlensModelFit(object):
         Check if there is no problem with interactive best plot
         """
         if "second Y scale" in self._plots['best model']:
-            msg = "Interactive plot will not have a" + \
-                "second Y scale. This feature is not implemented."
-            warnings.warn(msg)
+            msg = "Interactive plot will not have a second Y scale. This feature is not yet implemented."
+            raise NotImplementedError(msg)
 
     def _check_plots_parameters_best_model_Y_scale(self):
         """
