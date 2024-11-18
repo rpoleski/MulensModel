@@ -86,6 +86,13 @@ useful and it was very complicated.
 `MulensData` objects.
   - REMOVED `model` and `plot_residuals` keywords from `plot()`.
   
+### Trajectory Class
+
+ADDED new keyword arguments to `__init__`: `x` and `y`. They can be provided 
+instead of the `times` argument.
+
+## Changes to Other Classes
+
 ### FitData Class
 
 - Now supports `fit_fluxes` for multiple sources.
@@ -106,18 +113,11 @@ could be accessed instead through `FitData.magnification_curve.XXX()`.
 
 - REMOVED deprecated functions and attributes:
   - In `get_residuals`, REMOVED `type` keyword. Use `phot_fmt` instead.
-  
-### Trajectory Class
 
-ADDED new keyword arguments to `__init__`: `x` and `y`. They can be provided 
-instead of the `times` argument.
-
-## Changes to Other Classes
-
+### Point Lens
 The PointLens and BinaryLens classes were subdivided into separate classes for 
 each magnification method.
 
-### Point Lens
 - Function `get_pspl_magnification()` from `pointlens.py` was removed. Use 
 classes listed in next point instead.
 - Point Lens classes ADDED:
