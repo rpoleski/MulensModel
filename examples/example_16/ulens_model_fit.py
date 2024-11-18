@@ -3637,15 +3637,12 @@ class UlensModelFit(object):
         """
         for dataset in self._datasets:
             if dataset.ephemerides_file is None:
-                self._model.plot_lc(
-                    source_flux=fluxes[0], blend_flux=fluxes[1],
-                    **kwargs_model)
+                self._model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs_model)
                 break
 
         for model in self._models_satellite:
             model.parameters.parameters = {**self._model.parameters.parameters}
-            model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1],
-                          **kwargs_model)
+            model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs_model)
 
     def _plot_legend_for_best_model_plot(self):
         """
@@ -3883,24 +3880,9 @@ class UlensModelFit(object):
                                   height=1440*scale, font='Old Standard TT, serif', paper_bgcolor='white')
         return kwargs_interactive
 
-    def _make_interactive_layout(
-            self,
-            ylim,
-            ylim_residuals,
-            height_ratios,
-            hspace,
-            sizes,
-            colors,
-            opacity,
-            width,
-            height,
-            font,
-            paper_bgcolor,
-            t_start,
-            t_stop,
-            subtract_2450000=None,
-            subtract_2460000=None,
-            **kwargs):
+    def _make_interactive_layout(self, ylim, ylim_residuals, height_ratios, hspace, sizes, colors, opacity, width,
+                                 height, font, paper_bgcolor, t_start, t_stop,
+                                 subtract_2450000=None, subtract_2460000=None, **kwargs):
         """
         Creates plotly.graph_objects.Layout object analogues to best model plot
         """
@@ -3915,63 +3897,28 @@ class UlensModelFit(object):
         t_stop = t_stop - subtract
 
         font_1 = dict(family=font, size=sizes[4], color=colors[1])
-        kwargs_y = dict(mirror='all', showgrid=False, ticks='inside', showline=True,
-                        ticklen=sizes[8], tickwidth=sizes[7], linewidth=sizes[7], linecolor=colors[0], tickfont=font_1)
+        font_2 = dict(family=font, size=sizes[9])
+        kwargs_ = dict(showgrid=False, ticks='inside', showline=True, ticklen=sizes[8],
+                       tickwidth=sizes[7], linewidth=sizes[7], linecolor=colors[0], tickfont=font_1)
+        kwargs_y = {'mirror': 'all', **kwargs_}
+        kwargs_x = {'range': [t_start, t_stop], **kwargs_}
         layout = go.Layout(
-            autosize=True,
-            width=width,
-            height=height,
-            showlegend=True,
-            legend=dict(
-                x=1.02,
-                y=.98,
-                bgcolor=paper_bgcolor,
-                bordercolor=colors[2],
-                borderwidth=sizes[7],
-                font=dict(family=font, size=sizes[9])),
-            paper_bgcolor=paper_bgcolor,
-            plot_bgcolor=paper_bgcolor,
-            font=font_1,
+            autosize=True, width=width, height=height, showlegend=True,
+            legend=dict(x=1.02, y=.98, bgcolor=paper_bgcolor, bordercolor=colors[2], borderwidth=sizes[7], 
+                        font=dict(family=font, size=sizes[9])),
+            paper_bgcolor=paper_bgcolor, plot_bgcolor=paper_bgcolor, font=font_1,
             yaxis=dict(title_text='Magnitude', domain=[hsplit+(hspace/2), 1], range=ylim, **kwargs_y),
-            yaxis2=dict(title_text='Residuals', domain=[0, hsplit-(hspace/2)], anchor="x", range=ylim_residuals, **kwargs_y),
-            xaxis=dict(
-                anchor="y",
-                showgrid=False,
-                mirror='ticks',
-                side='top',
-                ticks='inside',
-                scaleanchor='x2',
-                matches='x2',
-                showline=True,
-                ticklen=sizes[8],
-                linecolor=colors[0],
-                linewidth=sizes[7],
-                tickwidth=sizes[7],
-                showticklabels=False,
-                range=[t_start, t_stop],
-                tickfont=font_1),
-            xaxis2=dict(
-                title_text=xtitle,
-                anchor="y2",
-                showgrid=False,
-                mirror='all',
-                ticks='inside',
-                scaleanchor='x',
-                matches='x',
-                showline=True,
-                ticklen=sizes[8],
-                linecolor=colors[0],
-                tickwidth=sizes[7],
-                linewidth=sizes[7],
-                range=[t_start, t_stop],
-                tickfont=font_1)
+            yaxis2=dict(title_text='Residuals', domain=[0, hsplit-(hspace/2)], anchor="x", range=ylim_residuals,
+                        **kwargs_y),
+            xaxis=dict(anchor="y", mirror='ticks', side='top', scaleanchor='x2', matches='x2', showticklabels=False,
+                       **kwargs_x),
+            xaxis2=dict(title_text=xtitle, anchor="y2", mirror='all', scaleanchor='x', matches='x', **kwargs_x)
             )
         return layout
 
     def _get_time_span_data(self):
         """
         Returning time span of datasets
-
         """
         t_min = np.zeros(len(self._datasets))
         t_max = np.zeros(len(self._datasets))
@@ -4015,8 +3962,7 @@ class UlensModelFit(object):
         for dataset in self._datasets:
             if dataset.ephemerides_file is None:
                 lc = self._model.get_lc(
-                    times=times, source_flux=f_source_0, blend_flux=f_blend_0,
-                    gamma=gamma, bandpass=bandpass)
+                    times=times, source_flux=f_source_0, blend_flux=f_blend_0, gamma=gamma, bandpass=bandpass)
                 times = times - subtract
                 traces_lc.append(self._make_interactive_scatter_lc(
                     times, lc, name, showlegend, colors[1], sizes[1], dash))
