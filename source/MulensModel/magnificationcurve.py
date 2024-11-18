@@ -300,8 +300,7 @@ class MagnificationCurve(object):
         """
         Calculate the Point Lens magnification.
 
-        Allowed magnification methods
-        (set by :py:func:`set_magnification_methods()`) :
+        Allowed magnification methods (set by :py:func:`set_magnification_methods()`) :
             ``point_source``:
                 standard Paczynski equation for a point source/point lens.
 
@@ -459,8 +458,7 @@ class MagnificationCurve(object):
         Calculate the binary lens magnification.
         If the shear or convergence are set, then they are used.
 
-        Allowed magnification methods
-        (set by :py:func:`set_magnification_methods()`) :
+        Allowed magnification methods (set by :py:func:`set_magnification_methods()`) :
             ``point_source``:
                 standard point source magnification calculation.
 

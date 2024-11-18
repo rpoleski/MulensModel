@@ -730,7 +730,8 @@ class Model(object):
 
     def get_trajectory(self, times, satellite_skycoord=None):
         """
-        Get the source trajectory for the given set of times.
+        Get the trajectory of the source for the given set of times.
+        For multi-source models, one trajectory per source is returned.
 
         Parameters :
             times:  *np.ndarray*, *list of floats*, or *float*
@@ -742,10 +743,9 @@ class Model(object):
                 then these are satellite positions for all epochs.
                 See also :py:func:`get_satellite_coords()`
 
-        Returns : A `:py:class:`~MulensModel.trajectory.Trajectory` object. If
-            n_sources > 1, returns a *list* of
-            `:py:class:`~MulensModel.trajectory.Trajectory`s
-
+        Returns :
+            trajectories: `:py:class:`~MulensModel.trajectory.Trajectory` object or a *list* of them
+                Single object for single source model, a *list* otherwise.
         """
         if satellite_skycoord is None:
             satellite_skycoord = self.get_satellite_coords(times)
@@ -1171,8 +1171,7 @@ class Model(object):
             return satellite_skycoords.get_satellite_coords(times)
 
     def get_magnification(self, time, satellite_skycoord=None, gamma=None,
-                          bandpass=None, source_flux_ratio=None,
-                          separate=None):
+                          bandpass=None, source_flux_ratio=None, separate=None):
         """
         Calculate the model magnification for the given time(s).
 
@@ -1198,7 +1197,7 @@ class Model(object):
             source_flux_ratio: *float*, *list*
                 If the model has 2 sources, source_flux_ratio is the ratio of
                 source_flux_2 / source_flux_1. For N sources, source_flux_ratio a list
-                 of the ratios of source_flux_i / source_flux_1 where i = 2, N.
+                of the ratios of source_flux_i / source_flux_1 where i = 2, N.
 
             separate: *boolean*, optional
                 For multi source models, return magnification of each source
