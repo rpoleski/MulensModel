@@ -8,15 +8,15 @@ models)
 
 Implementing these changes involved some major updates to the internal 
 architecture, but these should mostly be invisible to the user (although they 
-add new options).
+add new functionality).
 
 We have also cleaned up some problems/bugs/features that will impact the user 
 experience:
 - Shifted the convention of `alpha` by 180 deg to make MM compatible with 
-conventions of Skowron et al. 2011.
+convention of Skowron et al. 2011.
 - Removing `astropy` units from microlensing parameters.
 - Generally improving consistency in naming conventions.
-- Deprecated functions removed.
+- Deprecated functions and properties removed.
 
 A detailed list of changes follows.
 
@@ -55,7 +55,7 @@ Use `fix_blend_flux` instead.
 
 ### ModelParameters Class
 
-Even if the user was initializing `Model` with a `dict` that `dict` will be 
+Even if the user was initializing `Model` with a `dict`, that `dict` is 
 immediately converted into a `ModelParameters` object, so many of these changes 
 could affect the user experience, even if they had not been interacting directly 
 with the `ModelParameters` class.
