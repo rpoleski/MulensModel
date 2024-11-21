@@ -3904,8 +3904,8 @@ class UlensModelFit(object):
         kwargs_x = {'range': [t_start, t_stop], **kwargs_}
         layout = go.Layout(
             autosize=True, width=width, height=height, showlegend=True,
-            legend=dict(x=1.02, y=.98, bgcolor=paper_bgcolor, bordercolor=colors[2], borderwidth=sizes[7], 
-                        font=dict(family=font, size=sizes[9])),
+            legend=dict(
+                x=1.02, y=.98, bgcolor=paper_bgcolor, bordercolor=colors[2], borderwidth=sizes[7], font=font_2),
             paper_bgcolor=paper_bgcolor, plot_bgcolor=paper_bgcolor, font=font_1,
             yaxis=dict(title_text='Magnitude', domain=[hsplit+(hspace/2), 1], range=ylim, **kwargs_y),
             yaxis2=dict(title_text='Residuals', domain=[0, hsplit-(hspace/2)], anchor="x", range=ylim_residuals,
@@ -4036,23 +4036,13 @@ class UlensModelFit(object):
         )
         self._interactive_fig.add_trace(trace_0)
 
-    def _add_interactive_data_traces(
-        self,
-        kwargs_interactive,
-        phot_fmt='mag',
-        data_ref=None,
-        show_errorbars=True,
-        show_bad=None,
-        subtract_2450000=False,
-        subtract_2460000=False,
-        **kwargs,
-    ):
+    def _add_interactive_data_traces(self, kwargs_interactive, phot_fmt='mag', data_ref=None, show_errorbars=True,
+                                     show_bad=None, subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Creates plotly.graph_objects.Scatter object for observation points
         per each data set.
         """
-        traces_data = []
-        self._event._set_default_colors()  # For each dataset
+        self._event._set_default_colors()
         if self._event.fits is None:
             self._event.get_chi2()
 
@@ -4060,64 +4050,39 @@ class UlensModelFit(object):
             data_ref = self._event.data_ref
 
         subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
-
-        # Get fluxes for the reference dataset
         (f_source_0, f_blend_0) = self._event.get_flux_for_dataset(data_ref)
+
+        traces_data = []
         for (dataset_index, data) in enumerate(self._datasets):
             # Scale the data flux
-            (flux, err_flux) = self._event.fits[dataset_index].scale_fluxes(
-                f_source_0, f_blend_0)
+            (flux, err_flux) = self._event.fits[dataset_index].scale_fluxes(f_source_0, f_blend_0)
             (y_value, y_err) = mm.utils.PlotUtils.get_y_value_y_err(phot_fmt, flux, err_flux)
             times = data.time-subtract
             trace_data = self._make_one_interactive_data_trace(
-                dataset_index,
-                times,
-                y_value,
-                y_err,
-                xaxis='x',
-                yaxis='y',
-                showlegend=True,
-                show_errorbars=show_errorbars,
-                show_bad=show_bad,
-                **kwargs_interactive,
-            )
+                dataset_index, times, y_value, y_err, xaxis='x', yaxis='y', showlegend=True,
+                show_errorbars=show_errorbars, show_bad=show_bad, **kwargs_interactive)
             traces_data.extend(trace_data)
+
         for trace in traces_data:
             self._interactive_fig.add_trace(trace)
 
-    def _make_one_interactive_data_trace(
-            self,
-            dataset_index,
-            times,
-            y_value,
-            y_err,
-            xaxis,
-            yaxis,
-            showlegend,
-            colors,
-            sizes,
-            opacity,
-            show_errorbars=None,
-            show_bad=None,
-            **kwargs):
+    def _make_one_interactive_data_trace(self, dataset_index, times, y_value, y_err, xaxis, yaxis, showlegend,
+                                         colors, sizes, opacity, show_errorbars=None, show_bad=None, **kwargs):
         """
-        Creates plotly.graph_objects.Scatter object with
-        data points form a given data set
+        Creates plotly.graph_objects.Scatter object with data points form a given data set.
         """
         trace_data = []
-        dataset, show_errorbars, show_bad = self._get_interactive_dataset(
-            dataset_index)
+        dataset, show_errorbars, show_bad = self._get_interactive_dataset(dataset_index)
 
         trace_data_good = self._make_interactive_good_data_trace(
-            dataset, times, y_value, y_err, opacity,
-            sizes, xaxis, yaxis, showlegend, show_errorbars)
+            dataset, times, y_value, y_err, opacity, sizes, xaxis, yaxis, showlegend, show_errorbars)
         trace_data.append(trace_data_good)
 
         if show_bad:
-            trace_data_bad = self._make_interactive_bad_data_trace(
-                dataset, times, y_value, y_err, opacity,
-                sizes, xaxis, yaxis, showlegend)
+            trace_data_bad = self._make_interactive_bad_data_trace(dataset, times, y_value, y_err, opacity,
+                                                                   sizes, xaxis, yaxis, showlegend)
             trace_data.append(trace_data_bad)
+
         return trace_data
 
     def _get_interactive_dataset(self, dataset_index):
@@ -4125,13 +4090,12 @@ class UlensModelFit(object):
         dataset = self._event.datasets[dataset_index]
         show_errorbars = dataset.plot_properties.get('show_errorbars', True)
         show_bad = dataset.plot_properties.get('show_bad', False)
-        return dataset, show_errorbars, show_bad
+        return (dataset, show_errorbars, show_bad)
 
     def _make_interactive_good_data_trace(
             self, dataset, times, y_value, y_err, opacity,
             sizes, xaxis, yaxis, showlegend, show_errorbars):
-        """Creates a single plotly.graph_objects.Scatter
-        object for the good data points."""
+        """Creates a single plotly.graph_objects.Scatter object for the good data points."""
         times_good = times[dataset.good]
         y_good = y_value[dataset.good]
         y_err_good = y_err[dataset.good]
@@ -4139,44 +4103,19 @@ class UlensModelFit(object):
             times_good, y_good, y_err_good, dataset,
             opacity, sizes, xaxis, yaxis, showlegend, show_errorbars)
 
-    def _make_interactive_data_trace(
-            self, x, y, y_err, dataset, opacity, sizes, xaxis, yaxis,
-            showlegend, show_errorbars,
-            color_override=None, error_visible=True):
-        """Creates single plotly.graph_objects.Scatter
-        object for good or bad data."""
-        color = color_override if color_override \
-            else dataset.plot_properties['color']
-        return go.Scatter(
-            x=x,
-            y=y,
-            opacity=opacity,
-            name=dataset.plot_properties['label'],
-            mode='markers',
-            showlegend=showlegend,
-            error_y=dict(
-                type='data',
-                array=y_err,
-                visible=error_visible,
-                thickness=sizes[2],
-                width=sizes[3]),
-            marker=dict(
-                color=color,
-                size=sizes[0],
-                line=dict(
-                    color=color,
-                    width=1,
-                ),
-            ),
-            xaxis=xaxis,
-            yaxis=yaxis,
-        )
+    def _make_interactive_data_trace(self, x, y, y_err, dataset, opacity, sizes, xaxis, yaxis,
+                                     showlegend, show_errorbars, color_override=None, error_visible=True):
+        """Creates single plotly.graph_objects.Scatter object for good or bad data."""
+        color = color_override if color_override else dataset.plot_properties['color']
+        error_y = dict(type='data', array=y_err, visible=error_visible, thickness=sizes[2], width=sizes[3])
+        marker = dict(color=color, size=sizes[0], line=dict(color=color, width=1))
+        return go.Scatter(x=x, y=y, opacity=opacity, name=dataset.plot_properties['label'], mode='markers',
+                          showlegend=showlegend, error_y=error_y, marker=marker, xaxis=xaxis, yaxis=yaxis)
 
     def _make_interactive_bad_data_trace(
             self, dataset, times, y_value, y_err, opacity,
             sizes, xaxis, yaxis, showlegend):
-        """Creates a single plotly.graph_objects.Scatter
-        object for the bad data points."""
+        """Creates a single plotly.graph_objects.Scatter object for the bad data points."""
         times_bad = times[dataset.bad]
         y_bad = y_value[dataset.bad]
         y_err_bad = y_err[dataset.bad]
@@ -4220,23 +4159,13 @@ class UlensModelFit(object):
             kwargs_residuals['bad'] = True
 
         for (dataset_index, data) in enumerate(self._datasets):
-            # Scale the data flux
-            (y_value, y_err) = self._event.fits[dataset_index].get_residuals(
-                **kwargs_residuals)
+            (y_value, y_err) = self._event.fits[dataset_index].get_residuals(**kwargs_residuals)
             times = data.time-subtract
             trace_residuals = self._make_one_interactive_data_trace(
-                dataset_index,
-                times,
-                y_value,
-                y_err,
-                xaxis='x2',
-                yaxis='y2',
-                showlegend=False,
-                show_errorbars=show_errorbars,
-                show_bad=show_bad,
-                **kwargs_interactive,
-            )
+                dataset_index, times, y_value, y_err, xaxis='x2', yaxis='y2',
+                showlegend=False, show_errorbars=show_errorbars, show_bad=show_bad, **kwargs_interactive)
             traces_residuals.extend(trace_residuals)
+
         for trace in traces_residuals:
             self._interactive_fig.add_trace(trace)
 
