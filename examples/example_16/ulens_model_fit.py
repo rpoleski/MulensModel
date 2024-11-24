@@ -1492,8 +1492,7 @@ class UlensModelFit(object):
         self._check_dir_and_parameter_names_Ultranest()
 
         keys = {"n_live_points": "min_num_live_points"}
-        same_keys = ["min_num_live_points", 'max_num_improvement_loops',
-                     "show_status", "dlogz", "frac_remain"]
+        same_keys = ["min_num_live_points", 'max_num_improvement_loops', "show_status", "dlogz", "frac_remain"]
         keys = {**keys, **{key: key for key in same_keys}}
         self._set_dict_safely(self._kwargs_UltraNest, settings, keys)
 
@@ -1505,17 +1504,14 @@ class UlensModelFit(object):
         """
         if self._log_dir_UltraNest is not None:
             if not path.exists(self._log_dir_UltraNest):
-                raise ValueError("log directory value in fitting_parameters"
-                                 "does not exist.")
+                raise ValueError("log directory value in fitting_parameters does not exist.")
             elif not path.isdir(self._log_dir_UltraNest):
-                raise ValueError("log directory value in fitting_parameters"
-                                 "exists, but it is a file.")
+                raise ValueError("log directory value in fitting_parameters exists, but it is a file.")
 
         n_datasets = len(self._datasets)
         n_fluxes = self._n_fluxes_per_dataset
         if len(self._derived_param_names_UltraNest) != n_datasets * n_fluxes:
-            raise ValueError("The number of `derived parameter names` must "
-                             "match the number of derived fluxes.")
+            raise ValueError("The number of `derived parameter names` must match the number of derived fluxes.")
 
     def _set_prior_limits(self):
         """
@@ -1541,16 +1537,12 @@ class UlensModelFit(object):
         for key in self._min_values:
             if key in self._max_values:
                 if self._min_values[key] >= self._max_values[key]:
-                    fmt = (
-                        "This doesn't make sense: for {:} the lower limit " +
-                        "is larger than the upper limit: {:} vs {:}")
-                    raise ValueError(fmt.format(
-                        key, self._min_values[key], self._max_values[key]))
+                    fmt = ("This doesn't make sense: for {:} the lower limit "
+                           "is larger than the upper limit: {:} vs {:}")
+                    raise ValueError(fmt.format(key, self._min_values[key], self._max_values[key]))
 
-        self._min_values_indexed = self._parse_min_max_values_single(
-            self._min_values)
-        self._max_values_indexed = self._parse_min_max_values_single(
-            self._max_values)
+        self._min_values_indexed = self._parse_min_max_values_single(self._min_values)
+        self._max_values_indexed = self._parse_min_max_values_single(self._max_values)
 
     def _parse_min_max_values_single(self, limits):
         """
@@ -1562,18 +1554,17 @@ class UlensModelFit(object):
 
         for (key, value) in limits.items():
             if key not in self._fit_parameters:
-                raise ValueError(
-                    'Key provided in limits: {:}\n'.format(key) +
-                    'is not one of the parameters for fitting: ' +
-                    '{:}'.format(self._fit_parameters))
+                fmt = 'Key provided in limits: {:}\nis not one of the parameters for fitting: {:}'
+                raise ValueError(fmt.format(key, self._fit_parameters))
+
             index = self._fit_parameters.index(key)
             out[index] = value
+
         return out
 
     def _set_prior_limits_MultiNest(self):
         """
-        Set prior limits and transformation constants (from unit cube to
-        MM parameters).
+        Set prior limits and transformation constants (from unit cube to MM parameters).
         """
         min_values = []
         max_values = []
