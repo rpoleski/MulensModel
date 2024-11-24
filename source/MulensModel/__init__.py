@@ -33,15 +33,16 @@ from MulensModel.utils import MAG_ZEROPOINT, Utils
 
 from .version import __version__
 
-__all__ = ['mulensobjects', 'MODULE_PATH', 'DATA_PATH', 'BinaryLens',
-           'BinaryLensWithShear', 'Caustics', 'CausticsPointWithShear',
-           'CausticsWithShear', 'Coordinates', 'Event', 'FitData', 'Horizons',
-           'LimbDarkeningCoeffs', 'MagnificationCurve', 'Model',
-           'ModelParameters', 'MulensData', 'Lens',
-           'Source', 'MulensSystem', 'orbits', 'PointLens',
-           'get_pspl_magnification', 'PointLensWithShear',
-           'PointLensFiniteSource', 'SatelliteSkyCoord', 'Trajectory',
-           'UniformCausticSampling', 'MAG_ZEROPOINT',  'Utils', '__version__']
+__all__ = [
+    'BinaryLensPointSourceWM95Magnification', 'BinaryLensPointSourceVBBLMagnification',
+    'BinaryLensQuadrupoleMagnification', 'BinaryLensHexadecapoleMagnification', 'BinaryLensVBBLMagnification',
+    'BinaryLensAdaptiveContouringMagnification', 'BinaryLensPointSourceWithShearWM95Magnification',
+    'BinaryLensPointSourceWithShearVBBLMagnification', 'CausticsBinary', 'CausticsPointWithShear',
+    'CausticsBinaryWithShear', 'Coordinates', 'Event', 'FitData', 'Horizons', 'LimbDarkeningCoeffs',
+    'MagnificationCurve', 'Model', 'ModelParameters', 'MulensData', 'Lens', 'Source', 'MulensSystem', 'orbits',
+    'PointSourcePointLensMagnification', 'FiniteSourceUniformGould94Magnification',
+    'FiniteSourceLDYoo04Magnification', 'PointSourcePointLensWithShearMagnification', 'B0B1Utils', 'EllipUtils',
+    'SatelliteSkyCoord', 'Trajectory', 'UniformCausticSampling', 'MAG_ZEROPOINT', 'Utils', '__version__']
 
 MODULE_PATH = path.abspath(__file__)
 for i in range(3):
