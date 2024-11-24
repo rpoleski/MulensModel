@@ -5,6 +5,14 @@ photometry_files:
 #    - {file_name: some_K2_data.txt, phot_fmt: flux, bandpass: 'Kp', ephemerides_file: K2_ephemeris_01.dat}
 # For files with time starting with 245...:
 #    - {..., add_2450000: False}
+fit_method: EMCEE
+# Options: EMCEE, MultiNest, UltraNest.
+# If fit_method is not given, EMCEE is used if starting_parameters are given;
+# and MultiNest or UltraNest is used if prior_limits are given, depending on
+# the combination of fitting_parameters.
+# If MultiNest/UltraNest is used, this file cannot have starting_parameters,
+# fit_constraints (except negative_blending_flux_sigma_mag and prior->t_E for
+# UltraNest), min_values, max_values and plots->trace.
 model:
     methods: 2452800. point_source 2452833. VBBL 2452845. point_source 2452860.
     default method: point_source_point_lens
@@ -36,6 +44,17 @@ starting_parameters:
     #   file: ob08092-o4_starting_file_input.txt
     #   parameters: t_0 u_0 t_E
     # See also ob08092-o4_starting_file.yaml
+# prior_limits:
+#     t_0: [2452847.5, 2452848.5]
+#     u_0: [0.08, 0.18]
+#     t_E: 58.7 64.7
+#     rho: [0.0004, 0.0018]
+#     pi_E_N: [-0.05, 0.05]
+#     pi_E_E: [-0.05, 0.05]
+#     s: [1.077, 1.125]
+#     q: [0.001, 0.02]
+#     alpha: [219.4, 229.4]
+#     # Only MultiNest and UltraNest, cannot be given with starting_parameters
 fit_constraints:
     negative_blending_flux_sigma_mag: 20.  
     #one can specify for which dataset soft constrain on blending flux should be applied: sigma dataset_label(s)
@@ -76,12 +95,27 @@ max_values:
     s: 2.
     alpha: 360.
 fitting_parameters:
+    ## EMCEE only
     n_walkers: 20
     n_steps: 4
     n_burn:  2
     progress: True
     posterior file: ob03235_2_models.npy
     posterior file fluxes: all
+    ## MultiNest only (basename, multimodal, evidence tolerance=0.5)
+    # basename: out_ob08092_O4_MN-
+    # multimodal: True
+    # evidence tolerance: 0.5
+    ## UltraNest only (log directory, derived parameter names, show_status,
+    ## dlogz=0.5, frac_remain=0.01, max_num_improvement_loops=-1)
+    # log directory: ultranest_outputs/
+    # derived parameter names: flux_s_1 flux_b_1 flux_s_2 flux_b_2
+    # show_status: True
+    # dlogz: 2.
+    # frac_remain: 0.5
+    # max_num_improvement_loops: 0
+    ## Both for MultiNest and UltraNest (number of live points)
+    # n_live_points: 20
 plots:
     best model:
         # You can skip the line below - the light curve will be plotted on screen.

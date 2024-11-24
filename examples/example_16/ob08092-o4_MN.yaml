@@ -1,5 +1,6 @@
 photometry_files:
     data/OB08092/phot_ob08092_O4.dat
+fit_method: MultiNest
 prior_limits:
     t_0: [2455379.4, 2455379.76]
     u_0: [0.3, 0.65]
@@ -7,11 +8,14 @@ prior_limits:
 fitting_parameters:
     basename: out_ob08092_O4_MN-
     multimodal: True
+    # Default settings of other parameters:
+    # evidence tolerance: 0.5
     n_live_points: 1000
-# Default settings of other parameters:
-#    evidence tolerance: 0.5
 plots:
     best model:
         file: out_ob08092_O4_MN_model.png
     triangle:
         file: out_ob08092_O4_MN_triangle.png
+other_output:
+    yaml output:
+        file name: ob08092_O4_MN_all_results.yaml
