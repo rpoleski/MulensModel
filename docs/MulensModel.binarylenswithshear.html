@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>MulensModel.binarylenswithshear module &#8212; MulensModel 2.23.0 documentation</title>
+    <title>MulensModel.binarylenswithshear module &#8212; MulensModel 3.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -34,11 +34,13 @@
   <section id="module-MulensModel.binarylenswithshear">
 <span id="mulensmodel-binarylenswithshear-module"></span><h1>MulensModel.binarylenswithshear module<a class="headerlink" href="#module-MulensModel.binarylenswithshear" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="MulensModel.binarylenswithshear.BinaryLensWithShear">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.binarylenswithshear.</span></span><span class="sig-name descname"><span class="pre">BinaryLensWithShear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mass_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_K</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shear_G</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylenswithshear.BinaryLensWithShear" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLens" title="MulensModel.binarylens.BinaryLens"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensModel.binarylens.BinaryLens</span></code></a></p>
+<dt class="sig sig-object py" id="MulensModel.binarylenswithshear.BinaryLensPointSourceWithShearWM95Magnification">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.binarylenswithshear.</span></span><span class="sig-name descname"><span class="pre">BinaryLensPointSourceWithShearWM95Magnification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convergence_K</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shear_G</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylenswithshear.BinaryLensPointSourceWithShearWM95Magnification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="MulensModel.binarylens.html#MulensModel.binarylens.BinaryLensPointSourceWM95Magnification" title="MulensModel.binarylens.BinaryLensPointSourceWM95Magnification"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensModel.binarylens.BinaryLensPointSourceWM95Magnification</span></code></a></p>
 <p>The binary lens with shear and convergence:
 solutions, images, parities, magnifications, etc.</p>
+<p>Uses Witt &amp; Mao 1995 for the binary lens magnification calculation. See
+<cite>py:class:binarylens.BinaryLensPointSourceWM95Magnification</cite></p>
 <p>The binary lens with shear and convergence equation is
 the 9th order complex polynomial.</p>
 <dl class="simple">
@@ -65,30 +67,48 @@ make sure you know what you’re doing before you start using this
 possibility.</p>
 <p>If you’re using this class, then please cite
 Peirson et al. (2022; ApJ 927, 24).</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="MulensModel.binarylenswithshear.BinaryLensWithShear.point_source_magnification">
-<span class="sig-name descname"><span class="pre">point_source_magnification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vbbl_on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylenswithshear.BinaryLensWithShear.point_source_magnification" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate point source magnification for given position. The
-origin of the coordinate system is at the center of mass and
-both masses are on X axis with higher mass at negative X; this
-means that the higher mass is at (X, Y)=(-s*q/(1+q), 0) and
-the lower mass is at (s/(1+q), 0).</p>
-<dl class="simple">
-<dt>Parameters :</dt><dd><dl class="simple">
-<dt>source_x: <em>float</em></dt><dd><p>X-axis coordinate of the source.</p>
-</dd>
-<dt>source_y: <em>float</em></dt><dd><p>Y-axis coordinate of the source.</p>
-</dd>
-</dl>
-</dd>
-<dt>Returns :</dt><dd><dl class="simple">
-<dt>magnification: <em>float</em></dt><dd><p>Point source magnification.</p>
-</dd>
-</dl>
-</dd>
-</dl>
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="MulensModel.binarylenswithshear.BinaryLensPointSourceWithShearWM95PlanetFrameMagnification">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.binarylenswithshear.</span></span><span class="sig-name descname"><span class="pre">BinaryLensPointSourceWithShearWM95PlanetFrameMagnification</span></span><a class="headerlink" href="#MulensModel.binarylenswithshear.BinaryLensPointSourceWithShearWM95PlanetFrameMagnification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#MulensModel.binarylenswithshear.BinaryLensPointSourceWithShearWM95Magnification" title="MulensModel.binarylenswithshear.BinaryLensPointSourceWithShearWM95Magnification"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensModel.binarylenswithshear.BinaryLensPointSourceWithShearWM95Magnification</span></code></a></p>
+<p><em>NOT IMPLEMENTED</em></p>
+<p>Binary-Lens–Point-Source+Shear magnification calculation in the
+planet frame.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="MulensModel.binarylenswithshear.BinaryLensPointSourceWithShearVBBLMagnification">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.binarylenswithshear.</span></span><span class="sig-name descname"><span class="pre">BinaryLensPointSourceWithShearVBBLMagnification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.binarylenswithshear.BinaryLensPointSourceWithShearVBBLMagnification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#MulensModel.binarylenswithshear.BinaryLensPointSourceWithShearWM95Magnification" title="MulensModel.binarylenswithshear.BinaryLensPointSourceWithShearWM95Magnification"><code class="xref py py-class docutils literal notranslate"><span class="pre">MulensModel.binarylenswithshear.BinaryLensPointSourceWithShearWM95Magnification</span></code></a></p>
+<p>The binary lens with shear and convergence:
+solutions, images, parities, magnifications, etc.</p>
+<p>Uses VBBL.</p>
+<p>The binary lens with shear and convergence equation is
+the 9th order complex polynomial.</p>
+<dl class="simple">
+<dt>Attributes :</dt><dd><dl class="simple">
+<dt>mass_1: <em>float</em></dt><dd><p>mass of the primary (left-hand object) as a fraction of
+the total mass.</p>
+</dd>
+<dt>mass_2: <em>float</em></dt><dd><p>mass of the secondary (right-hand object) as a fraction of the
+total mass.</p>
+</dd>
+<dt>separation: <em>float</em></dt><dd><p>separation between the two bodies as a fraction of the Einstein
+ring.</p>
+</dd>
+<dt>convergence_K: <em>float</em></dt><dd><p>External mass sheet convergence.</p>
+</dd>
+<dt>shear_G: <em>complex</em></dt><dd><p>External mass sheat shear.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>Note: mass_1 and mass_2 may be defined as a fraction of some other
+mass than the total mass. This is possible but not recommended -
+make sure you know what you’re doing before you start using this
+possibility.</p>
 </dd></dl>
 
 </section>
