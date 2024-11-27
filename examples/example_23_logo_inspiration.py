@@ -6,7 +6,7 @@ import MulensModel as mm
 import matplotlib.pyplot as plt
 
 binary_model = mm.Model(
-    {'t_0': 1.3, 'u_0': 0.11, 't_E': 1.5, 's': 0.5, 'q': 0.3, 'alpha': -38.})
+    {'t_0': 1.3, 'u_0': 0.11, 't_E': 1.5, 's': 0.5, 'q': 0.3, 'alpha': 142.})
 
 binary_source_model = mm.Model(
     {'t_0_1': 0.5, 'u_0_1': 0.08, 't_E': 0.5,

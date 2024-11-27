@@ -3,7 +3,6 @@ Plot model, data, and model together with data and residuals
 """
 import os
 import matplotlib.pyplot as plt
-from astropy import units as u
 
 import MulensModel as mm
 
@@ -20,7 +19,7 @@ plt.title('Raw Data (MulensData)')
 plt.gca().invert_yaxis()
 
 # Generate a model
-model = mm.Model({'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87*u.day})
+model = mm.Model({'t_0': 2456836.22, 'u_0': 0.922, 't_E': 22.87})
 
 plt.figure()
 model.plot_lc(source_flux=1.0, blend_flux=0.0, subtract_2450000=True)

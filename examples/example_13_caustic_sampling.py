@@ -8,7 +8,7 @@ to periodic variables.
 
 Specific settings are in file example_13.cfg.
 
-Running this example takes 15-60 minutes on most modern machines.
+Running this example takes approx 5 minutes on most modern machines.
 """
 import numpy as np
 import emcee
@@ -145,7 +145,7 @@ my_model = mm.Model(par, coords=model_settings['coords'])
 if 'methods' in model_settings:
     my_model.set_magnification_methods(model_settings['methods'])
 if 'default_method' in model_settings:
-    my_model.set_default_magnification_method(model_settings['default_method'])
+    my_model.default_magnification_method = model_settings['default_method']
 my_event = mm.Event(datasets=datasets, model=my_model)
 
 # Prepare sampler.
@@ -188,11 +188,11 @@ my_event.fit_fluxes()
 # t_0 ~ 2452848.06
 # u_0 ~ 0.132
 # t_E ~ 61.5
-# alpha ~ 223.7
+# alpha ~ 43.7
 # It is possible that degenerate solution is found and then u_0 ~ -0.132 and
-# alpha ~ 136.3
+# alpha ~ 316.3
 # You can inspect the output file and search for models similar to the above.
-# The first one should appear withing first 600 models calculated.
+# The first one should appear within first 600 models calculated.
 if 'x_caustic_in' in parameters:
     print(' t_0 = {:.5f}'.format(my_event.model.parameters.t_0))
     print(' u_0 = {:.5f}'.format(my_event.model.parameters.u_0))

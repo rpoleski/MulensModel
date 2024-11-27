@@ -1,0 +1,39 @@
+photometry_files:
+    data/OB08092/phot_ob08092_O3.dat
+model:
+    methods: 2454535. VBBL 2454550. 
+    default method: point_source_point_lens
+starting_parameters:
+    t_0: gauss 2454727.4 0.001
+    u_0: gauss 1.5 0.001
+    t_E: gauss 40. 0.001
+    rho: gauss 0.04 0.001
+    t_0_pl: gauss 2454541.15 0.001
+    u_0_pl: gauss 0.0 0.1
+    t_E_pl: gauss 0.7 .001
+min_values:
+    u_0: 0.
+    t_E: 0.
+    rho: 0.
+    t_E_pl: 0.
+    u_0_pl: -3.0
+max_values:
+    u_0: 3.0
+    u_0_pl: 3.0
+fitting_parameters:
+    n_walkers:  20
+    n_steps: 10000
+    n_burn:   2000
+fit_constraints:
+    # This constraint is different than in Poleski et al. 2014, so the results will also be different.
+    negative_blending_flux_sigma_mag: 20. 
+plots:
+    triangle:
+        file: ob08092-o3_triangle.png
+    trace:
+        file: ob08092-o3_trace.png
+    best model:
+        file: ob08092-o3_model.png
+        time range: 2454530 2454960
+    trajectory:
+        file: ob08092-o3_trajectory.png

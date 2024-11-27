@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from MulensModel.utils import Utils
 
 
-class Caustics(object):
+class CausticsBinary(object):
     """
     Class for the caustic structure corresponding to a given (*q*, *s*),
     i.e. mass ratio and separation. Implemented for 2-body lenses only.

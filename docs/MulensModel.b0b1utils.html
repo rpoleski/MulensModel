@@ -1,0 +1,234 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>MulensModel.b0b1utils module &#8212; MulensModel 3.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-MulensModel.b0b1utils">
+<span id="mulensmodel-b0b1utils-module"></span><h1>MulensModel.b0b1utils module<a class="headerlink" href="#module-MulensModel.b0b1utils" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="MulensModel.b0b1utils.B0B1Utils">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.b0b1utils.</span></span><span class="sig-name descname"><span class="pre">B0B1Utils</span></span><a class="headerlink" href="#MulensModel.b0b1utils.B0B1Utils" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Data and methods used for interpolation for finite-source point-lens
+magnification calculations.</p>
+<p>There are no parameters of <cite>__init__()</cite>. In general, this class is not
+directly used by a user.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="MulensModel.b0b1utils.B0B1Utils.interpolate_B0">
+<span class="sig-name descname"><span class="pre">interpolate_B0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.b0b1utils.B0B1Utils.interpolate_B0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interpolate B_0(z) function.</p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>z: <em>np.ndarray</em></dt><dd><p>Values of u/rho.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>B0: <em>np.ndarray</em></dt><dd><p>Values of B_0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MulensModel.b0b1utils.B0B1Utils.interpolate_B0minusB1">
+<span class="sig-name descname"><span class="pre">interpolate_B0minusB1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.b0b1utils.B0B1Utils.interpolate_B0minusB1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interpolate B_0(z)-B_1(z) function.</p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>z: <em>np.ndarray</em></dt><dd><p>Values of u/rho.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>B0_minus_B1: <em>np.ndarray</em></dt><dd><p>Values of B_0(z)-B_1(z).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MulensModel.b0b1utils.B0B1Utils.interpolate_B1">
+<span class="sig-name descname"><span class="pre">interpolate_B1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.b0b1utils.B0B1Utils.interpolate_B1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interpolate B_1(z) function.</p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>z: <em>np.ndarray</em></dt><dd><p>Values of u/rho.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>B1: <em>np.ndarray</em></dt><dd><p>Values of B_1(z).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MulensModel.b0b1utils.B0B1Utils.interpolate_B0prime">
+<span class="sig-name descname"><span class="pre">interpolate_B0prime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.b0b1utils.B0B1Utils.interpolate_B0prime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interpolate derivative of B_0(z), i.e., d B_0(z)/d z.</p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>z: <em>np.ndarray</em></dt><dd><p>Values of u/rho.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>dB0_dz: <em>np.ndarray</em></dt><dd><p>Values of d B_0(z)/d z.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MulensModel.b0b1utils.B0B1Utils.interpolate_B1prime">
+<span class="sig-name descname"><span class="pre">interpolate_B1prime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.b0b1utils.B0B1Utils.interpolate_B1prime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interpolate derivative of B_1(z), i.e., d B_1(z)/d z.</p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>z: <em>np.ndarray</em></dt><dd><p>Values of u/rho.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>dB1_dz: <em>np.ndarray</em></dt><dd><p>Values of d B_1(z)/d z.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MulensModel.b0b1utils.B0B1Utils.get_interpolation_mask">
+<span class="sig-name descname"><span class="pre">get_interpolation_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.b0b1utils.B0B1Utils.get_interpolation_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get mask of z values for which interpolation of B_0(z), B_1(z) etc.
+is allowed</p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>z: <em>np.ndarray</em></dt><dd><p>Values of u/rho.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>mask: <em>np.ndarray</em></dt><dd><p>Mask indicating for which z values interpolation is allowed.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.b0b1utils.B0B1Utils.z_max_interpolation">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">z_max_interpolation</span></span><a class="headerlink" href="#MulensModel.b0b1utils.B0B1Utils.z_max_interpolation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximum value of z for which interpolation is allowed.</p>
+<p><em>float</em></p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">MulensModel</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_fit_pspl.html">Fitting tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_fit_pi_E.html">Parallax fitting tutorial</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Radek Poleski, Jennifer Yee.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/MulensModel.b0b1utils.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

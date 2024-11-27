@@ -5,7 +5,6 @@ import warnings
 
 from MulensModel.utils import Utils, PlotUtils
 from MulensModel.satelliteskycoord import SatelliteSkyCoord
-from MulensModel.coordinates import Coordinates
 
 
 class MulensData(object):
@@ -46,12 +45,6 @@ class MulensData(object):
            should be done in Magnitude or Flux spaces. Accepts either
            'mag' or 'flux'. Default is 'flux' because almost always
            the errors are gaussian in flux space.
-
-        coords: *astropy.SkyCoord*, optional
-           sky coordinates of the event
-
-        ra, dec: *str*, optional
-           sky coordinates of the event
 
         ephemerides_file: *str*, optional
            Specify the ephemerides of a satellite over the period when
@@ -119,7 +112,6 @@ class MulensData(object):
 
     def __init__(self, data_list=None, file_name=None,
                  phot_fmt="mag", chi2_fmt="flux",
-                 coords=None, ra=None, dec=None,
                  ephemerides_file=None, add_2450000=False,
                  add_2460000=False, bandpass=None, bad=None, good=None,
                  plot_properties=None, **kwargs):
@@ -135,8 +127,6 @@ class MulensData(object):
         self._chi2_fmt = chi2_fmt
         self._file_name = file_name
         self._input_fmt = phot_fmt
-
-        self._set_coords(coords=coords, ra=ra, dec=dec)
 
         if plot_properties is None:
             plot_properties = dict()
@@ -216,7 +206,7 @@ class MulensData(object):
             (vector_1, vector_2, vector_3) = list(data_list)
             self._initialize(
                 time=np.array(vector_1), brightness=np.array(vector_2),
-                err_brightness=np.array(vector_3), coords=self._coords)
+                err_brightness=np.array(vector_3))
         elif self._file_name is not None:  # ...from a file
             usecols = kwargs.pop('usecols', (0, 1, 2))
             if not exists(self._file_name):
@@ -233,7 +223,7 @@ class MulensData(object):
                 raise
             self._initialize(
                 time=vector_1, brightness=vector_2,
-                err_brightness=vector_3, coords=self._coords)
+                err_brightness=vector_3)
 
             # Check if data label specified, if not use file_name.
             if 'label' not in self.plot_properties.keys():
@@ -246,8 +236,7 @@ class MulensData(object):
                 'MulensData cannot be initialized with ' +
                 'data_list or file_name')
 
-    def _initialize(self, time=None, brightness=None,
-                    err_brightness=None, coords=None):
+    def _initialize(self, time=None, brightness=None, err_brightness=None):
         """
         Internal function to import photometric data into the correct
         form using a few numpy ndarrays.
@@ -256,7 +245,6 @@ class MulensData(object):
             time - Date vector of the data
             brightness - vector of the photometric measurements
             err_brightness - vector of the errors in the phot measurements.
-            coords - Sky coordinates of the event, optional
 
         """
         if self._init_keys['add245'] and self._init_keys['add246']:
@@ -311,28 +299,6 @@ class MulensData(object):
             msg = 'unknown brightness format in MulensData'
             raise ValueError(msg)
 
-    def _set_coords(self, coords=None, ra=None, dec=None):
-        """Set the coordinates and raise errors if applicable."""
-        self._coords = None
-        if (coords is not None) or (ra is not None) or (dec is not None):
-            # Check for errors and if none, set the coordinates
-            warnings.warn(
-                'coords will be deprecated in future. There is no reason ' +
-                'to tie this to a given dataset', FutureWarning)
-            coords_msg = 'Must specify both or neither of ra and dec'
-            # ...using coords keyword
-            if coords is not None:
-                self._coords = Coordinates(coords)
-            # ...using ra, dec keywords
-            if ra is not None:
-                if dec is not None:
-                    self._coords = Coordinates(ra, dec)
-                else:
-                    raise AttributeError(coords_msg)
-            else:
-                if ra is not None:
-                    raise AttributeError(coords_msg)
-
     @property
     def plot_properties(self):
         """
@@ -352,8 +318,7 @@ class MulensData(object):
         return self._plot_properties
 
     def plot(self, phot_fmt=None, show_errorbars=None, show_bad=None,
-             subtract_2450000=False, subtract_2460000=False,
-             model=None, plot_residuals=False, **kwargs):
+             subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the data.
 
@@ -383,14 +348,6 @@ class MulensData(object):
                 sure to also set the same settings for all other
                 plotting calls (e.g. :py:func:`plot_lc()`).
 
-            model: :py:class:`~MulensModel.model.Model`
-                DEPRECATED. Use :py:func:`~MulensModel.model.Event.plot_data()`
-                to plot a dataset scaled to a model.
-
-            plot_residuals: *boolean*
-                If *True* then residuals are plotted (*model* is required).
-                Default is *False*, i.e., plot the data.
-
             ``**kwargs``:
                 passed to matplotlib plotting functions.
         """
@@ -398,18 +355,9 @@ class MulensData(object):
             phot_fmt = self.input_fmt
         if phot_fmt not in ['mag', 'flux']:
             raise ValueError('wrong value of phot_fmt: {:}'.format(phot_fmt))
-        if plot_residuals and model is None:
-            raise ValueError(
-                'MulensData.plot() requires model to plot residuals')
 
-        if model is None:
-            (y_value, y_err) = self._get_y_value_y_err(phot_fmt,
-                                                       self.flux,
-                                                       self.err_flux)
-        else:
-            raise KeyError(
-                'Passing a model to MulensData.plot will be depracated. Use ' +
-                'Event.plot_data() or Event.plot_residuals() instead.')
+        (y_value, y_err) = self._get_y_value_y_err(phot_fmt, self.flux,
+                                                   self.err_flux)
 
         self._plot_datapoints(
             (y_value, y_err), subtract_2450000=subtract_2450000,
@@ -614,20 +562,6 @@ class MulensData(object):
                 "parameter has to be dict, not {:}".format(type(weights)))
 
         self._limb_darkening_weights = weights
-
-    @property
-    def coords(self):
-        """
-        :py:class:`~MulensModel.coordinates.Coordinates`
-
-        Sky coordinates of data.
-        See :py:class:`~MulensModel.coordinates.Coordinates`.
-        """
-        return self._coords
-
-    @coords.setter
-    def coords(self, new_value):
-        self._coords = Coordinates(new_value)
 
     @property
     def time(self):
@@ -852,7 +786,7 @@ class MulensData(object):
         kwargs = {
             'data_list': [self.time, *list(data_and_err)],
             'phot_fmt': self.input_fmt, 'chi2_fmt': self._chi2_fmt,
-            'coords': self.coords, 'ephemerides_file': self._ephemerides_file,
+            'ephemerides_file': self._ephemerides_file,
             'add_2450000': self._init_keys['add245'],
             'add_2460000': self._init_keys['add246'],
             'bandpass': self.bandpass, 'bad': np.array(self.bad),

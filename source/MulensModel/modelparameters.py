@@ -1,185 +1,7 @@
-from astropy import units as u
 import numpy as np
-import warnings
 
 from MulensModel.uniformcausticsampling import UniformCausticSampling
 from MulensModel.orbits.orbit import Orbit
-
-
-# For definition of class ModelParameters see below.
-
-# Different parameter sets. Any parameters that may be given as
-# 'basic' should be a list. Parameters that may be 'optional' should
-# be a list of length 2. The second item will only be printed if the
-# effect is included in the 'optional' list (see _get_effect_strings()).
-
-_valid_parameters = {
-    'point lens': ['t_0, u_0, t_E'],
-    'point lens alt': 'alternate: t_eff may be substituted for u_0 or t_E',
-    'binary lens': ['s, q, alpha'],
-    'binary lens alt':
-        'alternate: ' +
-        '(x_caustic_in, x_caustic_out, t_caustic_in, t_caustic_out) ' +
-        'may be substituted for (t_0, u_0, t_E, alpha)',
-    'external_mass_sheet': ['convergence_K', 'shear_G', 'alpha'],
-    'binary_lens_shear': ['convergence_K', 'shear_G'],
-    'finite source': ['rho', '(for finite source effects)'],
-    'finite source alt': 'alternate: t_star may be substituted for t_E or rho',
-    'parallax': ['(pi_E_N, pi_E_E) OR pi_E', '(for parallax)'],
-    'parallax opt': [
-        't_0_par',
-        'may also be specified for parallax models. Defaults to t_0.'],
-    'lens orbital motion': ['dalpha_dt, ds_dt', '(for orbital motion)'],
-    'lens orbital motion opt': [
-        't_0_kep',
-        'may also be specified for orbital motion models. Defaults to t_0.']}
-
-
-def _get_effect_strings(*args):
-    """
-    Given *args[0], figure out which parameters should be printed.
-
-    'basic' = fundamental parameters of the model or effect described
-        by args[0]
-    'additional' = any additional fundamental parameters (an extension
-        of 'basic')
-    'alternate' = possible substitutions for the fundamental parameters
-    'optional' = parameters that may also be specified for the given
-        model type.
-
-    e.g. 'FSPL' returns basic = [t_0, u_0, tE], additional = [rho, s,
-    q, alpha], alternate = [t_eff, t_star], and optional = [pi_E or
-    pi_E_N, pi_E_E]
-    """
-    basic = None
-    additional = []
-    alternate = []
-    optional = []
-
-    args_0 = args[0].lower().replace(" ", "")
-
-    # number of lenses
-    if args_0 == 'pointlens' or args_0[2:4] == 'pl':
-        basic = 'point lens'
-        alternate.append('point lens alt')
-
-    if args_0 == 'binarylens':
-        basic = 'binary lens'
-
-    if args_0[2:4] == 'bl':
-        basic = 'point lens'
-        additional.append('binary lens')
-        alternate.append('point lens alt')
-        alternate.append('binary lens alt')
-
-    # Effects
-    if args_0 == 'finitesource':
-        basic = 'finite source'
-        alternate.append('finite source alt')
-
-    if args_0[0:2] == 'fs':
-        additional.append('finite source')
-        alternate.append('finite source alt')
-
-    if args_0 == 'parallax':
-        basic = 'parallax'
-        optional.append('parallax opt')
-
-    if len(args[0]) == 4:
-        optional.append('parallax')
-        optional.append('parallax opt')
-
-    if args[0].lower() == 'lens orbital motion':
-        basic = 'lens orbital motion'
-        optional.append('lens orbital motion opt')
-
-    if len(args[0]) == 4 and args[0][2:4].lower() == 'bl':
-        optional.append('lens orbital motion')
-        optional.append('lens orbital motion opt')
-
-    return {
-        'basic': basic, 'additional': additional, 'alternate': alternate,
-        'optional': optional}
-
-
-def _print_parameters(header, components):
-    """
-    Prints the given parameter information under the requested header.
-
-    Arguments:
-        header: *str*
-
-        components: *dictionary*
-            This should be created using _get_effect_strings()
-    """
-    print(header)
-    if components['basic'] is not None:
-        parameters_list = 'basic: {0}'.format(
-            _valid_parameters[components['basic']][0])
-        if len(components['additional']) > 0:
-            for item in components['additional']:
-                parameters_list += ', {0}'.format(_valid_parameters[item][0])
-        print('{0}'.format(parameters_list))
-
-    if len(components['alternate']) > 0:
-        for item in components['alternate']:
-            print('{0}'.format(_valid_parameters[item]))
-
-    if len(components['optional']) > 0:
-        for item in components['optional']:
-            print('optional: {0} {1}'.format(
-                _valid_parameters[item][0], _valid_parameters[item][1]))
-
-
-def _print_all():
-    """
-    Give the user general information about common models and effects.
-    """
-    print('------------------------')
-    print('Some common model types:')
-    print('------------------------')
-    _print_parameters('PSPL: ', _get_effect_strings('PSPL'))
-    _print_parameters('----\nFSBL: ', _get_effect_strings('FSBL'))
-    print('-----------------')
-    print('Optional Effects:')
-    print('-----------------')
-    _print_parameters('finite source: ', _get_effect_strings('finite source'))
-    _print_parameters('---------\nparallax: ', _get_effect_strings('parallax'))
-    _print_parameters(
-        '---------\nlens orbital motion: ',
-        _get_effect_strings('lens orbital motion'))
-    print('-----------------')
-    print('All Options: (call using which_parameters([option]) )')
-    print('-----------------')
-    print("Model types: 'PSPL', 'FSPL', 'PSBL', 'FSBL'")
-    print("Effects: 'point lens', 'binary lens', 'finite source', " +
-          "'parallax', 'lens orbital motion'")
-
-
-def which_parameters(*args):
-    """
-    Prints information on valid parameter combinations that can be
-    used to define a model or a particular effect. May be called with
-    no arguments (returns information on many types of models) or with
-    one argument referring to a specific model (e.g. PSPL) or effect
-    (e.g. parallax).
-
-    Valid arguments: *str*
-        Model types: 'PSPL', 'FSPL', 'PSBL', 'FSBL'
-
-        Effects: 'point lens', 'binary lens', 'finite source',
-        'parallax', 'lens orbital motion'
-    """
-    warnings.warn(
-        "Warning: function which_parameters() does not show binary source " +
-        "parameters!",
-        RuntimeWarning)
-    if len(args) == 0:
-        _print_all()
-    else:
-        components = _get_effect_strings(*args)
-        header = '---------\n{0} parameters:'.format(args[0])
-        _print_parameters(header, components)
 
 
 class ModelParameters(object):
@@ -211,66 +33,58 @@ class ModelParameters(object):
 
     """
 
+    # parameters that may be defined for a given source
+    _primary_source_params_head = ['t_0', 'u_0']
+    _finite_source_params_head = ['rho', 't_star']
+    _all_source_params_head = np.hstack((_primary_source_params_head, _finite_source_params_head))
+    _t_0_ref_types = ['par', 'kep', 'xi']
+
     def __init__(self, parameters):
         if not isinstance(parameters, dict):
-            raise TypeError(
-                'ModelParameters must be initialized with dict ' +
-                "as a parameter\ne.g., ModelParameters({'t_0': " +
-                "2456789.0, 'u_0': 0.123, 't_E': 23.45})")
+            raise TypeError('ModelParameters must be initialized with dict as a parameter\ne.g., '
+                            "ModelParameters({'t_0': 2456789.0, 'u_0': 0.123, 't_E': 23.45})")
 
-        self._set_type(parameters.keys())
-        self._count_sources(set(parameters.keys()))
+        self._count_sources(parameters.keys())
         self._count_lenses(parameters.keys())
+        self._set_type(parameters.keys())
         self._check_types('alpha' in parameters.keys())
 
         if self.n_sources == 1:
-            self._init_1_source(parameters)
-        elif self.n_sources == 2:
-            self._init_2_sources(parameters)
+            self._check_valid_combination_1_source(parameters.keys())
+            if self._type['Cassan08']:
+                self._uniform_caustic = None
+                self._standard_parameters = None
+
+            if self.is_xallarap:
+                self._check_for_extra_source_parameters(parameters.keys())
+                delta_1 = self._get_xallarap_position(parameters)
+                self._xallarap_reference_position = delta_1
+
+        elif self.n_sources > 1:
+            self._check_valid_combination_of_sources(parameters.keys())
+            if 't_E' not in parameters.keys():
+                raise KeyError('Currently, the binary source calculations ' +
+                               'require t_E to be directly defined, i.e., ' +
+                               'has to be the same for both sources.')
+
+            source_params = self._divide_parameters(parameters)
+            for (i, params_i) in enumerate(source_params):
+                # This try/except block forces checks from ._init_1_source()
+                # to be run on each source parameters separately.
+                try:
+                    self.__setattr__('_source_{0}_parameters'.format(i + 1), ModelParameters(params_i))
+                except Exception:
+                    print("ERROR IN INITIALIZING SOURCE {0}".format(i + 1))
+                    raise
+
+            if self.is_xallarap:
+                self._update_sources_xallarap_reference()
+
         else:
-            raise ValueError('wrong number of sources')
+            msg = 'wrong number of sources. Your parameters: {0:}'
+            raise ValueError(msg.format(parameters))
 
         self._set_parameters(parameters)
-
-    def _init_1_source(self, parameters):
-        """
-        initialize model with 1 source
-        """
-        self._check_valid_combination_1_source(parameters.keys())
-        if self._type['Cassan08']:
-            self._uniform_caustic = None
-            self._standard_parameters = None
-        if self.is_xallarap:
-            delta_1 = self._get_xallarap_position(parameters)
-            self._xallarap_reference_position = delta_1
-
-    def _init_2_sources(self, parameters):
-        """
-        initialize model with s sources
-        """
-        self._check_valid_combination_2_sources(parameters.keys())
-        if 't_E' not in parameters.keys():
-            raise KeyError('Currently, the binary source calculations ' +
-                           'require t_E to be directly defined, i.e., ' +
-                           'has to be the same for both sources.')
-
-        (params_1, params_2) = self._divide_parameters(parameters)
-
-        try:
-            self._source_1_parameters = ModelParameters(params_1)
-        except Exception:
-            print("ERROR IN ITIALIZING SOURCE 1")
-            raise
-        try:
-            self._source_2_parameters = ModelParameters(params_2)
-        except Exception:
-            print("ERROR IN ITIALIZING SOURCE 2")
-            raise
-        # The try/except blocks above force checks from ._init_1_source()
-        # to be run on each source parameters separately.
-
-        if self.is_xallarap:
-            self._update_sources_xallarap_reference()
 
     def _update_sources_xallarap_reference(self):
         """
@@ -303,51 +117,45 @@ class ModelParameters(object):
         orbit = Orbit(**orbit_parameters)
         return orbit.get_reference_plane_position([t_0_xi])
 
+    def __getattr__(self, item):
+        (head, end) = self._split_parameter_name(item)
+        if end is not None:
+            return self.__getattr__('_source_{:}_parameters'.format(end)).__getattribute__(head)
+        elif item.startswith("source_") and item.endswith("_parameters"):
+            return object.__getattribute__(self, "_" + item)
+        else:
+            return object.__getattribute__(self, item)
+
+    def _split_parameter_name(self, parameter):
+        """
+        Split ABC_DEF_n into ABC_DEF (str) and n (int). For parameters like t_0 or rho, n is None.
+        """
+        end = parameter.split('_')[-1]
+        if end.isnumeric() and int(end) > 0:
+            head = parameter[:-len(end)-1]
+            end = int(end)
+        else:
+            head = parameter
+            end = None
+
+        return (head, end)
+
     def _count_sources(self, keys):
         """
-        How many luminous sources there are?
-        We're also checking for ill-defined xallarap with
-        *_1 and *_2 binary source parameters.
+        How many luminous sources are there?
         """
-        finite_source_params = ['rho_1', 'rho_2', 't_star_1', 't_star_2']
-        binary_params = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2']
-        binary_params += finite_source_params
-        common = set(binary_params).intersection(keys)
-        finite_params = common.intersection(finite_source_params)
-        n_finite = len(finite_params)
+        self._n_sources = 1
+        for key in keys:
+            n = self._split_parameter_name(key)[1]
+            if n is not None:
+                if n > self._n_sources:
+                    self._n_sources = n
 
-        if len(common) == 0 and 'q_source' not in keys:
-            self._n_sources = 1
-        elif len(common) == 0 and 'q_source' in keys:
+        if 'q_source' in keys:
+            if self._n_sources != 1:
+                if self._n_sources != 2 and ('rho_2' in keys or 't_star_2' in keys):
+                    raise RuntimeError('wrong set of parametes: ' + str(keys))
             self._n_sources = 2
-        elif len(common) == 1:
-            if self.is_xallarap and n_finite == 1:
-                self._n_sources = int(list(finite_params)[0][-1])
-            else:
-                raise ValueError('Wrong parameters - the only binary ' +
-                                 'source parameter is {:}'.format(common))
-        elif len(common) == 2 and n_finite == 2 and 'q_source' in keys:
-            if common in [{'rho_1', 't_star_1'}, {'rho_2', 't_star_2'}]:
-                raise ValueError('source size overdefined: {:}'.format(common))
-            else:
-                self._n_sources = 2
-        else:
-            self._check_for_underdefined_source(common)
-            self._n_sources = 2
-
-    def _check_for_underdefined_source(self, common):
-        """
-        Make sure that finite source size in binary source model
-        is not underdefined.
-        """
-        common_no_1_2 = {param[:-2] for param in common}
-        condition_1 = (len(common_no_1_2) == len(common))
-        condition_2 = not (
-            'rho' in common_no_1_2 and 't_star' in common_no_1_2)
-        if condition_1 and condition_2:
-            raise ValueError(
-                'Given binary source parameters do not allow defining ' +
-                'the Model: {:}'.format(common))
 
     def _count_lenses(self, keys):
         """How many lenses there are?"""
@@ -366,9 +174,8 @@ class ModelParameters(object):
 
         temp = {
             'finite source': 'rho t_star rho_1 rho_2 t_star_1 t_star_2',
-            'parallax': 'pi_E_N pi_E_E pi_E',
-            'Cassan08':
-                'x_caustic_in x_caustic_out t_caustic_in t_caustic_out',
+            'parallax': 'pi_E_N pi_E_E',
+            'Cassan08': 'x_caustic_in x_caustic_out t_caustic_in t_caustic_out',
             'lens 2-parameter orbital motion': 'dalpha_dt ds_dt',
             'mass sheet': 'convergence_K shear_G',
             'xallarap': ('xi_period xi_semimajor_axis xi_inclination '
@@ -411,7 +218,7 @@ class ModelParameters(object):
         """
         # Make sure that there are no unwanted keys
         allowed_keys = set((
-            't_0 u_0 t_E t_eff rho t_star pi_E pi_E_N pi_E_E t_0_par '
+            't_0 u_0 t_E t_eff rho t_star pi_E_N pi_E_E t_0_par '
             's q alpha dalpha_dt ds_dt t_0_kep convergence_K shear_G '
             't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2 '
             'x_caustic_in x_caustic_out t_caustic_in t_caustic_out '
@@ -457,33 +264,30 @@ class ModelParameters(object):
 
     def _divide_parameters(self, parameters):
         """
-        Divide an input dict into 2 - each source separately.
+        Divide an input dict into each source separately.
         Some of the parameters are copied to both dicts.
         """
-        separate_parameters = (
-            't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2'.split())
         skipped_parameters = ['q_source']
-        parameters_1 = {}
-        parameters_2 = {}
-        for (key, value) in parameters.items():
-            if key in separate_parameters:
-                if key[-2:] == "_1":
-                    parameters_1[key[:-2]] = value
-                elif key[-2:] == "_2":
-                    parameters_2[key[:-2]] = value
-                else:
-                    raise ValueError('unexpected error')
-            elif key in skipped_parameters:
-                continue
-            else:
-                parameters_1[key] = value
-                parameters_2[key] = value
+
+        source_parameters = []
+        for i in range(self.n_sources):
+            params_i = dict()
+            for (key, value) in parameters.items():
+                if key in skipped_parameters:
+                    continue
+
+                (head, end) = self._split_parameter_name(key)
+                if end is None:
+                    params_i[key] = value
+                elif end == i + 1:
+                    params_i[head] = value
+
+            source_parameters.append(params_i)
 
         if self.n_sources == 2 and self._type['xallarap']:
-            self._set_changed_parameters_2nd_source(parameters['q_source'],
-                                                    parameters_2)
+            self._set_changed_parameters_2nd_source(parameters['q_source'], source_parameters[1])
 
-        return (parameters_1, parameters_2)
+        return source_parameters
 
     def _set_changed_parameters_2nd_source(self, q_source, parameters_2):
         """
@@ -527,27 +331,32 @@ class ModelParameters(object):
         formats = self._get_formats_dict_for_repr()
         ordered_keys = self._get_ordered_keys_for_repr()
 
-        variables = ''
-        values = ''
+        variables = [''] * (self._n_sources + 1)
+        values = [''] * (self._n_sources + 1)
         for key in ordered_keys:
             if key not in keys:
                 continue
+            index = self._split_parameter_name(key)[1]
+            index = 0 if index is None else index
             (full_name, value) = self._get_values_for_repr(formats[key], key)
-            (fmt_1, fmt_2) = self._get_formats_for_repr(formats[key],
-                                                        full_name)
-            variables += fmt_1.format(full_name)
-            values += fmt_2.format(value)
+            (fmt_1, fmt_2) = self._get_formats_for_repr(formats[key], full_name)
+            variables[index] += fmt_1.format(full_name)
+            values[index] += fmt_2.format(value)
 
-        return '{0}\n{1}'.format(variables, values)
+        print_msg = ''
+        for (i, variable) in enumerate(variables):
+            if variable and values[i]:
+                print_msg += "{:}\n{:}".format(variable, values[i])
+            if i < self.n_sources and variables[i+1]:
+                print_msg += "\n"
+
+        return print_msg
 
     def _get_keys_for_repr(self):
         """
         get all the keys that will be printed
         """
         keys = set(self.parameters.keys())
-        if 'pi_E' in keys:
-            keys.remove('pi_E')
-            keys |= {'pi_E_E', 'pi_E_N'}
 
         if 'pi_E_E' in keys or 'pi_E_N' in keys:
             keys |= {'t_0_par'}
@@ -609,17 +418,18 @@ class ModelParameters(object):
             'q_source': {'width': 12, 'precision': 8},
             't_0_xi': {'width': 13, 'precision': 5, 'unit': 'HJD'},
         }
-        # Add binary source parameters with the same settings.
-        binary_source_keys = ['t_0_1', 't_0_2', 'u_0_1', 'u_0_2',
-                              'rho_1', 'rho_2', 't_star_1', 't_star_2']
-        for key in binary_source_keys:
-            form = formats[key[:-2]]
-            formats[key] = {'width': form['width'],
-                            'precision': form['precision']}
-            if 'unit' in form:
-                formats[key]['unit'] = form['unit']
-            if 'name' in form:
-                raise KeyError('internal issue: {:}'.format(key))
+        # Add multiple source parameters with the same settings.
+        if self.n_sources > 1:
+            for i in range(self.n_sources):
+                for param_head in self._all_source_params_head:
+                    form = formats[param_head]
+                    key = '{0}_{1}'.format(param_head, i+1)
+                    formats[key] = {'width': form['width'],
+                                    'precision': form['precision']}
+                    if 'unit' in form:
+                        formats[key]['unit'] = form['unit']
+                    if 'name' in form:
+                        raise KeyError('internal issue: {:}'.format(key))
 
         return formats
 
@@ -627,16 +437,31 @@ class ModelParameters(object):
         """
         define the default order of parameters
         """
-        ordered_keys = [
-            't_0', 't_0_1', 't_0_2', 'u_0', 'u_0_1', 'u_0_2', 't_eff', 't_E',
-            'rho', 'rho_1', 'rho_2', 't_star', 't_star_1', 't_star_2',
+        basic_keys = ['t_0', 'u_0', 't_E', 'rho', 't_star']
+        additional_keys = [
             'pi_E_N', 'pi_E_E', 't_0_par', 's', 'q', 'alpha',
             'convergence_K', 'shear_G', 'ds_dt', 'dalpha_dt', 't_0_kep',
             'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
             'xi_period', 'xi_semimajor_axis', 'xi_inclination',
             'xi_Omega_node', 'xi_argument_of_latitude_reference',
             'xi_eccentricity', 'xi_omega_periapsis', 'q_source', 't_0_xi'
-        ]
+            ]
+
+        ordered_keys = []
+        if self.n_sources > 1:
+            for param_head in basic_keys:
+                if param_head == 't_E':
+                    ordered_keys.append(param_head)
+                else:
+                    for i in range(self.n_sources):
+                        ordered_keys.append('{0}_{1}'.format(param_head, i + 1))
+
+        else:
+            ordered_keys = basic_keys
+
+        for key in additional_keys:
+            ordered_keys.append(key)
+
         return ordered_keys
 
     def _get_values_for_repr(self, form, key):
@@ -649,9 +474,6 @@ class ModelParameters(object):
             full_name += " ({:})".format(form['unit'])
 
         value = getattr(self, key)
-        if isinstance(value, u.Quantity):
-            value = value.value
-
         return (full_name, value)
 
     def _get_formats_for_repr(self, form, full_name):
@@ -663,29 +485,79 @@ class ModelParameters(object):
         fmt_1 += '} '
         return (fmt_1, fmt_2)
 
-    def _check_valid_combination_2_sources(self, keys):
+    def _check_valid_combination_of_sources(self, keys):
         """
-        Make sure that there is no conflict between t_0 and t_0_1 etc.
-        Also make sure that xallarap is not mixed with t_0_1, u_0_1 etc.
+        make sure that there is no conflict between t_0 and t_0_1 etc.
+        Also make sure that t_0 and u_0 are defined for all sources.
         """
-        binary_params_nonFS = 't_0_1 t_0_2 u_0_1 u_0_2'.split()
-        binary_params_FS_2 = ['rho_2', 't_star_2']
-        binary_params_FS = ['rho_1', 't_star_1'] + binary_params_FS_2
-        binary_params = binary_params_nonFS + binary_params_FS
-        for parameter in binary_params:
-            if (parameter in keys) and (parameter[:-2] in keys):
-                raise ValueError('You cannot set {:} and {:}'.format(
-                                 parameter, parameter[:-2]))
+        self._check_for_incompatible_source_parameters(keys)
+        self._check_for_missing_source_parameters(keys)
+        self._check_for_extra_source_parameters(keys)
 
-        common = set(keys).intersection(binary_params_nonFS)
-        if self.is_xallarap and len(common) > 0:
-            msg = 'xallarap parameters cannot be mixed with {:}'
-            raise NotImplementedError(msg.format(common))
+    def _check_for_incompatible_source_parameters(self, keys):
+        """
+        make sure that there is no conflict between t_0 and t_0_1 etc.
+        """
+        for parameter in self._primary_source_params_head:
+            if parameter in keys:
+                # conflict between t_0 and t_0_1
+                for i in range(self.n_sources):
+                    if '{0}_{1}'.format(parameter, i+1) in keys:
+                        msg = 'You cannot set both {:} and {:}'
+                        raise KeyError(msg.format(parameter, '{0}_{1}'.format(parameter, i+1)))
 
-        common = set(keys).intersection(binary_params_FS_2)
-        if self.is_xallarap and len(common) > 0 and 'q_source' not in keys:
-            raise KeyError('You cannot define xallarap model without '
-                           'q_star but with rho_2 or t_star_2')
+        for parameter in self._finite_source_params_head:
+            if parameter in keys:
+                raise KeyError('You must specify which source {0} goes with'.format(parameter))
+
+        if self.is_xallarap:
+            self._check_for_parameters_incompatible_with_xallarap(keys)
+
+    def _check_for_parameters_incompatible_with_xallarap(self, keys):
+        """
+        Check for additional source parameters with xallarap (bad).
+        """
+        for parameter in keys:
+            try:
+                key_num = parameter.split('_')[-1]
+                if ((int(key_num) > 1) and (parameter[0:-len(key_num) - 1] in self._primary_source_params_head)):
+                    msg = 'xallarap parameters cannot be mixed with {:}'
+                    raise NotImplementedError(msg.format(parameter))
+
+            except ValueError:
+                pass
+
+    def _check_for_missing_source_parameters(self, keys):
+        """
+        Also make sure that t_0 and u_0 are defined for all sources.
+        """
+        if (self.n_sources > 1) and ('q_source' not in keys):
+            for i in range(self.n_sources):
+                if 't_0_{0}'.format(i + 1) not in keys:
+                    raise KeyError(
+                        't_0_{0} is missing from parameters.'.format(i+1) +
+                        'Your parameters: {0}'.format(keys))
+
+            for i in range(self.n_sources):
+                if ('u_0_{0}'.format(i + 1) not in keys) and ('t_eff_{0}'.format(i + 1) not in keys):
+                    raise KeyError(
+                        'Either u_0_{0} or t_eff_{0} must be specified.'.format(i+1) +
+                        'Your parameters: {0}'.format(keys))
+
+    def _check_for_extra_source_parameters(self, keys):
+        """
+        Check if parameters have been set for sources that don't exist.
+        """
+        for key in keys:
+            key_parts = key.split('_')
+            if len(key_parts) > 1:
+                try:
+                    if int(key_parts[1]) > self.n_sources:
+                        raise KeyError(
+                            '{0} is defined but there are only '.format(key) +
+                            '{0} sources.'.format(self.n_sources))
+                except ValueError:
+                    pass
 
     def _check_valid_combination_1_source_standard(self, keys):
         """
@@ -731,12 +603,6 @@ class ModelParameters(object):
         """
         Here we check parallax parameters for non-Cassan08 parameterization.
         """
-        # Parallax is either pi_E or (pi_E_N, pi_E_E)
-        if 'pi_E' in keys and ('pi_E_N' in keys or 'pi_E_E' in keys):
-            raise KeyError(
-                'Parallax may be defined EITHER by pi_E OR by ' +
-                '(pi_E_N and pi_E_E).')
-
         # If parallax is defined, then both components must be set:
         if ('pi_E_N' in keys) != ('pi_E_E' in keys):
             raise KeyError(
@@ -747,7 +613,7 @@ class ModelParameters(object):
             raise KeyError('t_0_par makes sense only when parallax is defined')
 
         # Parallax needs reference epoch:
-        if 'pi_E' in keys or 'pi_E_N' in keys:
+        if 'pi_E_N' in keys:
             if 't_0' not in keys and 't_0_par' not in keys:
                 raise KeyError(
                     'Parallax is defined, hence either t_0 or t_0_par has ' +
@@ -812,8 +678,7 @@ class ModelParameters(object):
         check if orbit is properly defined; prefix is added to
         checked orbit parameters
         """
-        required = ('period semimajor_axis inclination '
-                    'Omega_node argument_of_latitude_reference').split()
+        required = ('period semimajor_axis inclination Omega_node argument_of_latitude_reference').split()
         required = [prefix + req for req in required]
         for parameter in required:
             if parameter not in keys:
@@ -852,7 +717,7 @@ class ModelParameters(object):
         Prevent user from setting negative (unphysical) values for
         t_E, t_star, rho etc. Shear_G should be complex.
 
-        Also, check that all values are scalars (except pi_E vector).
+        Also, check that all values are scalars.
         """
         full_names = {
             't_E': 'Einstein timescale', 't_star': 'Source crossing time',
@@ -865,10 +730,7 @@ class ModelParameters(object):
                     raise ValueError(fmt.format(full, parameters[name]))
 
         for (key, value) in parameters.items():
-            if key == 'pi_E':
-                continue
-            check = (not np.isscalar(value) or isinstance(value, str))
-            if not isinstance(value, u.Quantity) and check:
+            if not np.isscalar(value) or isinstance(value, str):
                 msg = "{:} must be a scalar: {:}, {:}"
                 raise TypeError(msg.format(key, value, type(value)))
 
@@ -901,18 +763,6 @@ class ModelParameters(object):
         self._check_valid_parameter_values(parameters)
         self.parameters = dict(parameters)
 
-        for parameter in ['t_E', 't_star', 't_eff', 't_star_1', 't_star_2']:
-            if parameter in self.parameters:
-                self._set_time_quantity(parameter, self.parameters[parameter])
-
-        angle_parameters = [
-            'alpha', 'xi_Omega_node', 'xi_inclination',
-            'xi_argument_of_latitude_reference', 'xi_omega_periapsis']
-        for parameter in angle_parameters:
-            if parameter in self.parameters:
-                self._warn_if_angle_outside_reasonable_range(
-                    self.parameters[parameter], parameter)
-
     def _update_sources(self, parameter, value):
         """
         For multi-source models, update the values for all sources.
@@ -921,40 +771,26 @@ class ModelParameters(object):
         if self.n_sources == 1:
             return
 
-        if parameter in self._source_1_parameters.parameters:
-            setattr(self._source_1_parameters, parameter, value)
+        for i in range(self.n_sources):
+            source = self.__getattr__('_source_{0}_parameters'.format(i+1))
+            try:
+                source.__getattr__(parameter)
+                source.__setattr__(parameter, value)
+            except KeyError:
+                continue
 
-        if parameter == 'xi_semimajor_axis':
-            value /= self.parameters['q_source']
-        elif parameter == 'xi_argument_of_latitude_reference':
-            value += 180.
+        if self.is_xallarap:
+            if parameter == 'q_source':
+                value_ = self.parameters['xi_semimajor_axis'] / value
+                setattr(self._source_2_parameters, 'xi_semimajor_axis', value_)
+            elif parameter == 'xi_semimajor_axis':
+                value /= self.parameters['q_source']
+                setattr(self._source_2_parameters, parameter, value)
+            elif parameter == 'xi_argument_of_latitude_reference':
+                value += 180.
+                setattr(self._source_2_parameters, parameter, value)
 
-        if parameter in self._source_2_parameters.parameters:
-            setattr(self._source_2_parameters, parameter, value)
-
-        if parameter == 'q_source':
-            value_ = self.parameters['xi_semimajor_axis'] / value
-            setattr(self._source_2_parameters, 'xi_semimajor_axis', value_)
-
-        if self.is_xallarap and self.n_sources > 1:
             self._update_sources_xallarap_reference()
-
-    def _set_time_quantity(self, key, new_time):
-        """
-        Save a variable with units of time (e.g. t_E, t_star,
-        t_eff). If units are not given, assume days.
-        """
-        if isinstance(new_time, u.Quantity):
-            self.parameters[key] = new_time
-        else:
-            self.parameters[key] = new_time * u.day
-
-    def _check_time_quantity(self, key):
-        """
-        Make sure that value for give key has quantity, add it if missing.
-        """
-        if not isinstance(self.parameters[key], u.Quantity):
-            self._set_time_quantity(key, self.parameters[key])
 
     def _get_uniform_caustic_sampling(self):
         """
@@ -1022,14 +858,10 @@ class ModelParameters(object):
             return self.parameters['u_0']
         else:
             try:
-                u_0_quantity = (
-                    self.parameters['t_eff'] / self.parameters['t_E'])
-                return (u_0_quantity + 0.).value
-                # Adding 0 ensures the units are simplified.
+                u_0_quantity = self.parameters['t_eff'] / self.parameters['t_E']
+                return u_0_quantity
             except KeyError:
-                raise AttributeError(
-                    'u_0 is not defined for these parameters: {0}'.format(
-                        self.parameters.keys()))
+                raise AttributeError('u_0 is not defined for these parameters: {0}'.format(self.parameters.keys()))
 
     @u_0.setter
     def u_0(self, new_u_0):
@@ -1040,27 +872,22 @@ class ModelParameters(object):
             self.parameters['u_0'] = new_u_0
             self._update_sources('u_0', new_u_0)
         else:
-            raise KeyError('u_0 is not a parameter of this model.')
+            raise AttributeError('u_0 is not a parameter of this model.')
 
     @property
     def t_star(self):
         """
         *float*
 
-        t_star = rho * t_E = source radius crossing time
-
-        "day" is the default unit. Can be set as *float* or
-        *astropy.Quantity*, but always returns *float* in units of days.
+        t_star = rho * t_E = source radius crossing time in days
         """
         if 't_star' in self.parameters.keys():
-            self._check_time_quantity('t_star')
-            return self.parameters['t_star'].to(u.day).value
+            return self.parameters['t_star']
         elif ('rho' in self.parameters.keys() and self._type['Cassan08']):
             return self.rho * self.t_E
         else:
             try:
-                return (self.parameters['t_E'].to(u.day).value *
-                        self.parameters['rho'])
+                return (self.parameters['t_E'] * self.parameters['rho'])
             except KeyError:
                 raise AttributeError(
                     't_star is not defined for these parameters: {0}'.format(
@@ -1069,10 +896,10 @@ class ModelParameters(object):
     @t_star.setter
     def t_star(self, new_t_star):
         if 't_star' in self.parameters.keys():
-            self._set_time_quantity('t_star', new_t_star)
+            self.parameters['t_star'] = new_t_star
             self._update_sources('t_star', new_t_star)
         else:
-            raise KeyError('t_star is not a parameter of this model.')
+            raise AttributeError('t_star is not a parameter of this model.')
 
         if new_t_star < 0.:
             raise ValueError(
@@ -1083,18 +910,13 @@ class ModelParameters(object):
         """
         *float*
 
-        t_eff = u_0 * t_E = effective timescale
-
-        "day" is the default unit. Can be set as *float* or
-        *astropy.Quantity*, but always returns *float* in units of days.
+        t_eff = u_0 * t_E = effective timescale in days
         """
         if 't_eff' in self.parameters.keys():
-            self._check_time_quantity('t_eff')
-            return self.parameters['t_eff'].to(u.day).value
+            return self.parameters['t_eff']
         else:
             try:
-                return (self.parameters['t_E'].to(u.day).value *
-                        self.parameters['u_0'])
+                return (self.parameters['t_E'] * self.parameters['u_0'])
             except KeyError:
                 raise AttributeError(
                     't_eff is not defined for these parameters: {0}'.format(
@@ -1103,26 +925,23 @@ class ModelParameters(object):
     @t_eff.setter
     def t_eff(self, new_t_eff):
         if 't_eff' in self.parameters.keys():
-            self._set_time_quantity('t_eff', new_t_eff)
+            self.parameters['t_eff'] = new_t_eff
             self._update_sources('t_eff', new_t_eff)
         else:
-            raise KeyError('t_eff is not a parameter of this model.')
+            raise AttributeError('t_eff is not a parameter of this model.')
 
     @property
     def t_E(self):
         """
         *float*
 
-        The Einstein timescale. "day" is the default unit. Can be set as
-        *float* or *astropy.Quantity*, but always returns *float* in units of
-        days.
+        The Einstein timescale in days.
         """
         if self._type['Cassan08']:
             self._get_standard_parameters_from_Cassan08()
             return self._standard_parameters['t_E']
         if 't_E' in self.parameters.keys():
-            self._check_time_quantity('t_E')
-            return self.parameters['t_E'].to(u.day).value
+            return self.parameters['t_E']
         elif ('t_star' in self.parameters.keys() and
               'rho' in self.parameters.keys()):
             return self.t_star / self.rho
@@ -1130,7 +949,7 @@ class ModelParameters(object):
               'u_0' in self.parameters.keys()):
             return self.t_eff / abs(self.u_0)
         else:
-            raise KeyError("You're trying to access t_E that was not set")
+            raise AttributeError("You're trying to access t_E that was not set")
 
     @t_E.setter
     def t_E(self, new_t_E):
@@ -1145,10 +964,10 @@ class ModelParameters(object):
             raise ValueError('Einstein timescale cannot be negative:', new_t_E)
 
         if 't_E' in self.parameters.keys():
-            self._set_time_quantity('t_E', new_t_E)
+            self.parameters['t_E'] = new_t_E
             self._update_sources('t_E', new_t_E)
         else:
-            raise KeyError('t_E is not a parameter of this model.')
+            raise AttributeError('t_E is not a parameter of this model.')
 
     @property
     def rho(self):
@@ -1159,13 +978,12 @@ class ModelParameters(object):
         """
         if 'rho' in self.parameters.keys():
             return self.parameters['rho']
-        elif ('t_star' in self.parameters.keys() and
-              't_E' in self.parameters.keys()):
+        elif 't_star' in self.parameters.keys() and 't_E' in self.parameters.keys():
             return self.t_star / self.t_E
-        elif ('t_star' in self.parameters.keys() and self._type['Cassan08']):
+        elif 't_star' in self.parameters.keys() and self._type['Cassan08']:
             return self.t_star / self.t_E
         else:
-            return None
+            raise AttributeError("rho is not defined and cannot be calculated")
 
     @rho.setter
     def rho(self, new_rho):
@@ -1175,55 +993,32 @@ class ModelParameters(object):
             self.parameters['rho'] = new_rho
             self._update_sources('rho', new_rho)
         else:
-            raise KeyError('rho is not a parameter of this model.')
+            raise AttributeError('rho is not a parameter of this model.')
 
     @property
     def alpha(self):
         """
-        *astropy.Quantity*
+        *float*
 
         The angle of the source trajectory relative to the binary lens
         axis (or primary-secondary axis). Measured counterclockwise,
         i.e., according to convention advocated by
-        `Skowron et al. 2011 (ApJ, 738, 87)
-        <https://ui.adsabs.harvard.edu/abs/2011ApJ...738...87S/abstract>`_,
-        but shifted by 180 deg.  May be
-        set as a *float* --> assumes "deg" is the default unit.
-        Regardless of input value, returns value in degrees.
+        `Skowron et al. 2011 (ApJ, 738, 87) <https://ui.adsabs.harvard.edu/abs/2011ApJ...738...87S/abstract>`_,
+        but shifted by 180 deg.
         """
         if self._type['Cassan08']:
             self._get_standard_parameters_from_Cassan08()
-            return self._standard_parameters['alpha'] * u.deg
+            return self._standard_parameters['alpha']
 
-        if not isinstance(self.parameters['alpha'], u.Quantity):
-            self.parameters['alpha'] = self.parameters['alpha'] * u.deg
-        return self.parameters['alpha'].to(u.deg)
+        return self.parameters['alpha']
 
     @alpha.setter
     def alpha(self, new_alpha):
         if self._type['Cassan08']:
-            raise ValueError('alpha cannot be set for model using ' +
-                             'Cassan (2008) parameterization')
+            raise ValueError('alpha cannot be set for model using Cassan (2008) parameterization')
 
-        if isinstance(new_alpha, u.Quantity):
-            self.parameters['alpha'] = new_alpha
-        else:
-            self.parameters['alpha'] = new_alpha * u.deg
-        self._warn_if_angle_outside_reasonable_range(
-            self.parameters['alpha'].to(u.deg).value, 'alpha')
+        self.parameters['alpha'] = new_alpha
         self._update_sources('alpha', new_alpha)
-
-    def _warn_if_angle_outside_reasonable_range(self, value, name):
-        """
-        Check if value of given angle is in reasonable range and warn if not
-        """
-        min_ = -360.
-        max_ = 540.
-        if isinstance(value, u.Quantity):
-            value = value.to(u.deg).value
-        if value < min_ or value > max_:
-            fmt = "Strange value of angle {:}: {:}"
-            warnings.warn(fmt.format(name, value), RuntimeWarning)
 
     @property
     def q(self):
@@ -1251,7 +1046,7 @@ class ModelParameters(object):
         if 'convergence_K' in self.parameters.keys():
             return self.parameters['convergence_K']
         else:
-            raise KeyError('convergence_K is not a parameter of this model.')
+            raise AttributeError('convergence_K is not a parameter of this model.')
 
     @convergence_K.setter
     def convergence_K(self, new_K):
@@ -1259,7 +1054,7 @@ class ModelParameters(object):
             self.parameters['convergence_K'] = new_K
             self._update_sources('convergence_K', new_K)
         else:
-            raise KeyError('convergence_K is not a parameter of this model.')
+            raise AttributeError('convergence_K is not a parameter of this model.')
 
     @property
     def shear_G(self):
@@ -1271,7 +1066,7 @@ class ModelParameters(object):
         if 'shear_G' in self.parameters.keys():
             return self.parameters['shear_G']
         else:
-            return None
+            raise AttributeError('shear_G is not a parameter of this model.')
 
     @shear_G.setter
     def shear_G(self, new_G):
@@ -1279,7 +1074,7 @@ class ModelParameters(object):
             self.parameters['shear_G'] = new_G
             self._update_sources('shear_G', new_G)
         else:
-            raise KeyError('shear_G is not a parameter of this model.')
+            raise AttributeError('shear_G is not a parameter of this model.')
 
     @property
     def s(self):
@@ -1300,44 +1095,6 @@ class ModelParameters(object):
         self._update_sources('s', new_s)
 
     @property
-    def pi_E(self):
-        """
-        *list of floats*
-
-        The microlensing parallax vector. Must be set as a vector/list
-        (i.e. [pi_E_N, pi_E_E]). To get the magnitude of pi_E, use
-        pi_E_mag
-        """
-        if 'pi_E' in self.parameters.keys():
-            return self.parameters['pi_E']
-        elif ('pi_E_N' in self.parameters.keys() and
-              'pi_E_E' in self.parameters.keys()):
-            return [self.parameters['pi_E_N'], self.parameters['pi_E_E']]
-        else:
-            return None
-
-    @pi_E.setter
-    def pi_E(self, new_pi_E):
-        if isinstance(new_pi_E, np.ndarray):
-            new_pi_E = new_pi_E.flatten()
-
-        if 'pi_E' in self.parameters.keys():
-            if len(new_pi_E) == 2:
-                self.parameters['pi_E'] = new_pi_E
-                self._update_sources('pi_E', new_pi_E)
-            else:
-                raise TypeError('pi_E is a 2D vector. It must have length 2.')
-
-        elif ('pi_E_N' in self.parameters.keys() and
-              'pi_E_E' in self.parameters.keys()):
-            self.parameters['pi_E_N'] = new_pi_E[0]
-            self.parameters['pi_E_E'] = new_pi_E[1]
-            self._update_sources('pi_E_N', new_pi_E[0])
-            self._update_sources('pi_E_E', new_pi_E[1])
-        else:
-            raise KeyError('pi_E is not a parameter of this model.')
-
-    @property
     def pi_E_N(self):
         """
         *float*
@@ -1349,20 +1106,15 @@ class ModelParameters(object):
         elif 'pi_E' in self.parameters.keys():
             return self.parameters['pi_E'][0]
         else:
-            raise KeyError('pi_E_N not defined for this model')
+            raise AttributeError('pi_E_N not defined for this model')
 
     @pi_E_N.setter
     def pi_E_N(self, new_value):
         if 'pi_E_N' in self.parameters.keys():
             self.parameters['pi_E_N'] = new_value
             self._update_sources('pi_E_N', new_value)
-        elif 'pi_E' in self.parameters.keys():
-            self.parameters['pi_E'][0] = new_value
-            if self.n_sources != 1:
-                self._source_1_parameters.parameters['pi_E'][0] = new_value
-                self._source_2_parameters.parameters['pi_E'][0] = new_value
         else:
-            raise KeyError('pi_E_N is not a parameter of this model.')
+            raise AttributeError('pi_E_N is not a parameter of this model.')
 
     @property
     def pi_E_E(self):
@@ -1373,23 +1125,29 @@ class ModelParameters(object):
         """
         if 'pi_E_E' in self.parameters.keys():
             return self.parameters['pi_E_E']
-        elif 'pi_E' in self.parameters.keys():
-            return self.parameters['pi_E'][1]
         else:
-            raise KeyError('pi_E_N not defined for this model')
+            raise AttributeError('pi_E_N not defined for this model')
 
     @pi_E_E.setter
     def pi_E_E(self, new_value):
         if 'pi_E_E' in self.parameters.keys():
             self.parameters['pi_E_E'] = new_value
             self._update_sources('pi_E_E', new_value)
-        elif 'pi_E' in self.parameters.keys():
-            self.parameters['pi_E'][1] = new_value
-            if self.n_sources != 1:
-                self._source_1_parameters.parameters['pi_E'][1] = new_value
-                self._source_2_parameters.parameters['pi_E'][1] = new_value
         else:
-            raise KeyError('pi_E_E is not a parameter of this model.')
+            raise AttributeError('pi_E_E is not a parameter of this model.')
+
+    @property
+    def pi_E(self):
+        """
+        Not defined.
+
+        It was used in previous versions. Use :py:attr:`~pi_E_N` and :py:attr:`~pi_E_E` instead.
+        """
+        raise AttributeError('pi_E is not defined. Use pi_E_N and pi_E_E instead')
+
+    @pi_E.setter
+    def pi_E(self, new_value):
+        raise AttributeError('pi_E is not defined. Use pi_E_N and pi_E_E instead')
 
     @property
     def t_0_par(self):
@@ -1397,13 +1155,22 @@ class ModelParameters(object):
         *float*
 
         The reference time for the calculation of parallax. If not set
-        explicitly, then it is assumed t_0_par = t_0.
+        explicitly, then it is assumed t_0_par = t_0. If there are multiple sources,
+        t_0_1 is used.
 
         Note that this is a reference value and not the fitting parameter.
         It is best to fix it at the begin of calculations.
         """
         if 't_0_par' not in self.parameters.keys():
-            return self.parameters['t_0']
+            if 't_0_kep' in self.parameters.keys():
+                return self.parameters['t_0_kep']
+            elif 't_0' in self.parameters.keys():
+                return self.parameters['t_0']
+            elif self.n_sources > 1:
+                return self.t_0_1
+            else:
+                raise AttributeError('No valid value for setting t_0_par', self.parameters)
+
         else:
             return self.parameters['t_0_par']
 
@@ -1419,15 +1186,11 @@ class ModelParameters(object):
 
         The magnitude of the microlensing parallax vector.
         """
-        if 'pi_E' in self.parameters.keys():
-            pi_E_N = self.parameters['pi_E'][0]
-            pi_E_E = self.parameters['pi_E'][1]
-        elif ('pi_E_N' in self.parameters.keys() and
-              'pi_E_E' in self.parameters.keys()):
+        if 'pi_E_N' in self.parameters.keys() and 'pi_E_E' in self.parameters.keys():
             pi_E_N = self.parameters['pi_E_N']
             pi_E_E = self.parameters['pi_E_E']
         else:
-            raise KeyError('pi_E not defined for this model')
+            raise AttributeError('pi_E not defined for this model')
         return np.sqrt(pi_E_N**2 + pi_E_E**2)
 
     @property
@@ -1509,46 +1272,29 @@ class ModelParameters(object):
     @property
     def ds_dt(self):
         """
-        *astropy.Quantity*
+        *float*
 
-        Change rate of separation :py:attr:`~s` in 1/year. Can be set as
-        *AstroPy.Quantity* or as *float* (1/year is assumed default unit).
-        Regardless of input value, returns value in 1/year.
+        Change rate of separation :py:attr:`~s` in 1/year.
         """
-        if not isinstance(self.parameters['ds_dt'], u.Quantity):
-            self.parameters['ds_dt'] = self.parameters['ds_dt'] / u.yr
-
-        return self.parameters['ds_dt'].to(1 / u.yr)
+        return self.parameters['ds_dt']
 
     @ds_dt.setter
     def ds_dt(self, new_ds_dt):
-        if isinstance(new_ds_dt, u.Quantity):
-            self.parameters['ds_dt'] = new_ds_dt
-        else:
-            self.parameters['ds_dt'] = new_ds_dt / u.yr
+        self.parameters['ds_dt'] = new_ds_dt
         self._update_sources('ds_dt', new_ds_dt)
 
     @property
     def dalpha_dt(self):
         """
-        *astropy.Quantity*
+        *float*
 
-        Change rate of angle :py:attr:`~alpha` in deg/year. Can be set as
-        *AstroPy.Quantity* or as *float* (deg/year is assumed default unit).
-        Regardless of input value, returns value in deg/year.
+        Change rate of angle :py:attr:`~alpha` in deg/year.
         """
-        if not isinstance(self.parameters['dalpha_dt'], u.Quantity):
-            self.parameters['dalpha_dt'] = (self.parameters['dalpha_dt'] *
-                                            u.deg / u.yr)
-
-        return self.parameters['dalpha_dt'].to(u.deg / u.yr)
+        return self.parameters['dalpha_dt']
 
     @dalpha_dt.setter
     def dalpha_dt(self, new_dalpha_dt):
-        if isinstance(new_dalpha_dt, u.Quantity):
-            self.parameters['dalpha_dt'] = new_dalpha_dt
-        else:
-            self.parameters['dalpha_dt'] = new_dalpha_dt * u.deg / u.yr
+        self.parameters['dalpha_dt'] = new_dalpha_dt
         self._update_sources('dalpha_dt', new_dalpha_dt)
 
     @property
@@ -1557,13 +1303,18 @@ class ModelParameters(object):
         *float*
 
         The reference time for the calculation of lens orbital motion.
-        If not set explicitly, then it is assumed t_0_kep = t_0.
+        If not set explicitly, then it is assumed t_0_kep = t_0 (or t_0_1 for multi-source models).
 
         Note that this is a reference value and not the fitting parameter.
         It is best to fix it at the begin of calculations.
         """
         if 't_0_kep' not in self.parameters.keys():
-            return self.parameters['t_0']
+            if 't_0_par' in self.parameters.keys():
+                return self.parameters['t_0_par']
+            elif 't_0' in self.parameters.keys():
+                return self.parameters['t_0']
+            elif self.n_sources > 1:
+                return self.t_0_1
         else:
             return self.parameters['t_0_kep']
 
@@ -1618,8 +1369,6 @@ class ModelParameters(object):
 
     @xi_Omega_node.setter
     def xi_Omega_node(self, new_value):
-        self._warn_if_angle_outside_reasonable_range(new_value,
-                                                     'xi_Omega_node')
         self.parameters['xi_Omega_node'] = new_value
         self._update_sources('xi_Omega_node', new_value)
 
@@ -1636,8 +1385,6 @@ class ModelParameters(object):
 
     @xi_inclination.setter
     def xi_inclination(self, new_value):
-        self._warn_if_angle_outside_reasonable_range(new_value,
-                                                     'xi_inclination')
         self.parameters['xi_inclination'] = new_value
         self._update_sources('xi_inclination', new_value)
 
@@ -1657,8 +1404,6 @@ class ModelParameters(object):
 
     @xi_argument_of_latitude_reference.setter
     def xi_argument_of_latitude_reference(self, new_value):
-        self._warn_if_angle_outside_reasonable_range(
-            new_value, 'xi_argument_of_latitude_reference')
         self.parameters['xi_argument_of_latitude_reference'] = new_value
         self._update_sources('xi_argument_of_latitude_reference', new_value)
 
@@ -1692,8 +1437,6 @@ class ModelParameters(object):
 
     @xi_omega_periapsis.setter
     def xi_omega_periapsis(self, new_value):
-        self._warn_if_angle_outside_reasonable_range(
-            new_value, 'xi_omega_periapsis')
         self.parameters['xi_omega_periapsis'] = new_value
         self._update_sources('xi_omega_periapsis', new_value)
 
@@ -1802,7 +1545,7 @@ class ModelParameters(object):
             self.parameters['u_0_1'] = new_u_0_1
             self._source_1_parameters.u_0 = new_u_0_1
         else:
-            raise KeyError('u_0_1 is not a parameter of this model.')
+            raise AttributeError('u_0_1 is not a parameter of this model.')
 
     @property
     def u_0_2(self):
@@ -1830,26 +1573,22 @@ class ModelParameters(object):
             self.parameters['u_0_2'] = new_u_0_2
             self._source_2_parameters.u_0 = new_u_0_2
         else:
-            raise KeyError('u_0_2 is not a parameter of this model.')
+            raise AttributeError('u_0_2 is not a parameter of this model.')
 
     @property
     def t_star_1(self):
         """
         *float*
 
-        t_star_1 = rho_1 * t_E_1 = source no. 1 radius crossing time
-
-        "day" is the default unit. Can be set as *float* or
-        *astropy.Quantity*, but always returns *float* in units of days.
+        t_star_1 = rho_1 * t_E_1 = source no. 1 radius crossing time in days
         """
         if 't_star_1' in self.parameters.keys():
-            self._check_time_quantity('t_star_1')
-            return self.parameters['t_star_1'].to(u.day).value
+            return self.parameters['t_star_1']
         else:
             try:
-                t_E = self._source_1_parameters.parameters['t_E'].to(u.day)
+                t_E = self._source_1_parameters.parameters['t_E']
                 rho = self._source_1_parameters.parameters['rho']
-                return t_E.value * rho
+                return t_E * rho
             except KeyError:
                 raise AttributeError(
                     't_star_1 is not defined for these parameters: {0}'.format(
@@ -1858,10 +1597,10 @@ class ModelParameters(object):
     @t_star_1.setter
     def t_star_1(self, new_t_star_1):
         if 't_star_1' in self.parameters.keys():
-            self._set_time_quantity('t_star_1', new_t_star_1)
+            self.parameters['t_star_1'] = new_t_star_1
             self._source_1_parameters.t_star = new_t_star_1
         else:
-            raise KeyError('t_star_1 is not a parameter of this model.')
+            raise AttributeError('t_star_1 is not a parameter of this model.')
 
         if new_t_star_1 < 0.:
             raise ValueError(
@@ -1872,19 +1611,15 @@ class ModelParameters(object):
         """
         *float*
 
-        t_star_2 = rho_2 * t_E_2 = source no. 2 radius crossing time
-
-        "day" is the default unit. Can be set as *float* or
-        *astropy.Quantity*, but always returns *float* in units of days.
+        t_star_2 = rho_2 * t_E_2 = source no. 2 radius crossing time in days.
         """
         if 't_star_2' in self.parameters.keys():
-            self._check_time_quantity('t_star_2')
-            return self.parameters['t_star_2'].to(u.day).value
+            return self.parameters['t_star_2']
         else:
             try:
-                t_E = self._source_2_parameters.parameters['t_E'].to(u.day)
+                t_E = self._source_2_parameters.parameters['t_E']
                 rho = self._source_2_parameters.parameters['rho']
-                return t_E.value * rho
+                return t_E * rho
             except KeyError:
                 raise AttributeError(
                     't_star_2 is not defined for these parameters: {0}'.format(
@@ -1893,10 +1628,10 @@ class ModelParameters(object):
     @t_star_2.setter
     def t_star_2(self, new_t_star_2):
         if 't_star_2' in self.parameters.keys():
-            self._set_time_quantity('t_star_2', new_t_star_2)
+            self.parameters['t_star_2'] = new_t_star_2
             self._source_2_parameters.t_star = new_t_star_2
         else:
-            raise KeyError('t_star_2 is not a parameter of this model.')
+            raise AttributeError('t_star_2 is not a parameter of this model.')
 
         if new_t_star_2 < 0.:
             raise ValueError(
@@ -1916,7 +1651,8 @@ class ModelParameters(object):
             return (self._source_1_parameters.t_star /
                     self._source_1_parameters.t_E)
         else:
-            return None
+            fmt = 'rho_1 is not defined for these parameters: {:}'
+            raise AttributeError(fmt.format(self.parameters.keys()))
 
     @rho_1.setter
     def rho_1(self, new_rho_1):
@@ -1926,7 +1662,7 @@ class ModelParameters(object):
             self.parameters['rho_1'] = new_rho_1
             self._source_1_parameters.rho = new_rho_1
         else:
-            raise KeyError('rho_1 is not a parameter of this model.')
+            raise AttributeError('rho_1 is not a parameter of this model.')
 
     @property
     def rho_2(self):
@@ -1942,7 +1678,9 @@ class ModelParameters(object):
             return (self._source_2_parameters.t_star /
                     self._source_2_parameters.t_E)
         else:
-            return None
+            raise AttributeError(
+                'rho_2 is not defined for these parameters: {0}'.format(
+                    self.parameters.keys()))
 
     @rho_2.setter
     def rho_2(self, new_rho_2):
@@ -1952,7 +1690,7 @@ class ModelParameters(object):
             self.parameters['rho_2'] = new_rho_2
             self._source_2_parameters.rho = new_rho_2
         else:
-            raise KeyError('rho_2 is not a parameter of this model.')
+            raise AttributeError('rho_2 is not a parameter of this model.')
 
     def get_s(self, epoch):
         """
@@ -1974,7 +1712,7 @@ class ModelParameters(object):
         if isinstance(epoch, list):
             epoch = np.array(epoch)
 
-        s_of_t = (self.s + self.ds_dt * (epoch - self.t_0_kep) * u.d).value
+        s_of_t = self.s + self.ds_dt * (epoch - self.t_0_kep) / 365.25
 
         return s_of_t
 
@@ -1988,7 +1726,7 @@ class ModelParameters(object):
                 The time(s) at which to calculate :py:attr:`~alpha`.
 
         Returns :
-            separation: *astropy.Quantity*
+            angle: *float*
                 Value(s) of angle for given epochs in degrees
 
         """
@@ -1998,15 +1736,14 @@ class ModelParameters(object):
         if isinstance(epoch, list):
             epoch = np.array(epoch)
 
-        alpha_of_t = (self.alpha + self.dalpha_dt *
-                      (epoch - self.t_0_kep) * u.d)
+        alpha_of_t = self.alpha + self.dalpha_dt * (epoch - self.t_0_kep) / 365.25
 
-        return alpha_of_t.to(u.deg)
+        return alpha_of_t
 
     @property
     def gamma_parallel(self):
         """
-        *astropy.Quantity*
+        *float*
 
         Parallel component of instantaneous velocity of the secondary
         relative to the primary in 1/year.
@@ -2018,25 +1755,24 @@ class ModelParameters(object):
     @property
     def gamma_perp(self):
         """
-        *astropy.Quantity*
+        *float*
 
         Perpendicular component of instantaneous velocity of the secondary
         relative to the primary. It is perpendicular to the primary-secondary
         axis. It has sign opposite to :py:attr:`~dalpha_dt`
         and is in rad/yr, not deg/yr. Cannot be set.
         """
-        return -self.dalpha_dt.to(u.rad / u.yr)
+        return -self.dalpha_dt * (np.pi / 180.)
 
     @property
     def gamma(self):
         """
-        *astropy.Quantity*
+        *float*
 
         Instantaneous velocity of the secondary relative to the primary in
         1/year. Cannot be set.
         """
-        gamma_perp = (self.gamma_perp / u.rad).to(1 / u.yr)
-        return (self.gamma_parallel**2 + gamma_perp**2)**0.5
+        return (self.gamma_parallel**2 + self.gamma_perp**2)**0.5
 
     def is_finite_source(self):
         """

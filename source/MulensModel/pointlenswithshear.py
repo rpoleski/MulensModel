@@ -1,10 +1,9 @@
 import numpy as np
 
-from MulensModel.pointlens import PointLens
-from MulensModel.trajectory import Trajectory
+from MulensModel.pointlens import _PointLensMagnification
 
 
-class PointLensWithShear(PointLens):
+class PointSourcePointLensWithShearMagnification(_PointLensMagnification):
     """
     Lens of point mass plus shear and convergence, i.e., Chang-Refsdal lens.
 
@@ -12,34 +11,32 @@ class PointLensWithShear(PointLens):
     `Chang and Refsdal (1979; Nature, 282, 561)
     <https://ui.adsabs.harvard.edu/abs/1979Natur.282..561C/abstract>`_.
 
-    Keywords :
-        parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`
-            Parameters of the model.
+    Arguments :
+        trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Including trajectory.parameters =
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
+
     """
-    def get_point_source_magnification(self, trajectory):
+
+    def get_magnification(self):
         """
         Calculate point source magnification for the lens composed of
-        a single mass plus a mass sheat.
+        a single mass plus a mass sheet.
 
-        Arguments :
-            trajectory: :py:class:`~MulensModel.trajectory.Trajectory` object
-                Trajectory of the source.
 
         Returns :
             pspl_magnification: *np.ndarray*
                 The point-source--point-lens magnification for each point
                 specified by `trajectory`.
         """
-        if not isinstance(trajectory, Trajectory):
-            raise TypeError("trajectory must be a Trajectory object.")
-
-        shear_G = self.parameters.shear_G
-        if shear_G is None:
+        try:
+            shear_G = self.trajectory.parameters.shear_G
+        except AttributeError:
             shear_G = 0.
-        convergence_K = self.parameters.convergence_K
+        convergence_K = self.trajectory.parameters.convergence_K
 
         shear_G_conj = shear_G.conjugate()
-        zeta = trajectory.x + trajectory.y * 1j
+        zeta = self.trajectory.x + self.trajectory.y * 1j
         zeta_conj = zeta.conjugate()
 
         temp = [shear_G * shear_G_conj**2 - convergence_K**2 * shear_G_conj +
@@ -70,11 +67,11 @@ class PointLensWithShear(PointLens):
             magnification.append(mag)
 
         magnification = np.array(magnification)
-        self._test_maginification_values(magnification, trajectory)
+        self._test_magnification_values(magnification)
 
         return magnification
 
-    def _test_maginification_values(self, magnification, trajectory):
+    def _test_magnification_values(self, magnification):
         """
         Test if all magnifications are > 1 and raise ValueError if not.
         """
@@ -85,35 +82,10 @@ class PointLensWithShear(PointLens):
                  'failed for input:\nconvergence_K : {:}\nshear_G : {:}\n\n'
                  'x y mag\n')
         error = error.format(
-            self.parameters.convergence_K, self.parameters.shear_G)
-        for (mag, x, y) in zip(magnification, trajectory.x, trajectory.y):
+            self.trajectory.parameters.convergence_K,
+            self.trajectory.parameters.shear_G)
+        for (mag, x, y) in zip(magnification, self.trajectory.x, self.trajectory.y):
             if mag < 1.:
                 error += "{:} {:} {:}\n".format(x, y, mag)
 
         raise ValueError(error)
-
-    def get_point_lens_finite_source_magnification(self, *args, **kwargs):
-        """Not implemented for Chang-Refsdal"""
-        raise NotImplementedError("not implemented for Chang-Refsdal")
-
-    def get_point_lens_limb_darkening_magnification(self, *args, **kwargs):
-        """Not implemented for Chang-Refsdal"""
-        raise NotImplementedError("not implemented for Chang-Refsdal")
-
-    def get_point_lens_uniform_integrated_magnification(self, *args, **kwargs):
-        """Not implemented for Chang-Refsdal"""
-        raise NotImplementedError("not implemented for Chang-Refsdal")
-
-    def get_point_lens_LD_integrated_magnification(self, *args, **kwargs):
-        """Not implemented for Chang-Refsdal"""
-        raise NotImplementedError("not implemented for Chang-Refsdal")
-
-    def get_point_lens_large_finite_source_magnification(self, *args,
-                                                         **kwargs):
-        """Not implemented for Chang-Refsdal"""
-        raise NotImplementedError("not implemented for Chang-Refsdal")
-
-    def get_point_lens_large_LD_integrated_magnification(self, *args,
-                                                         **kwargs):
-        """Not implemented for Chang-Refsdal"""
-        raise NotImplementedError("not implemented for Chang-Refsdal")

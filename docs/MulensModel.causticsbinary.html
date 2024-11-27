@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>MulensModel.caustics module &#8212; MulensModel 2.23.0 documentation</title>
+    <title>MulensModel.causticsbinary module &#8212; MulensModel 3.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -31,12 +31,12 @@
 
           <div class="body" role="main">
             
-  <section id="module-MulensModel.caustics">
-<span id="mulensmodel-caustics-module"></span><h1>MulensModel.caustics module<a class="headerlink" href="#module-MulensModel.caustics" title="Permalink to this headline">¶</a></h1>
+  <section id="module-MulensModel.causticsbinary">
+<span id="mulensmodel-causticsbinary-module"></span><h1>MulensModel.causticsbinary module<a class="headerlink" href="#module-MulensModel.causticsbinary" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="MulensModel.caustics.Caustics">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.caustics.</span></span><span class="sig-name descname"><span class="pre">Caustics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.caustics.Caustics" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dt class="sig sig-object py" id="MulensModel.causticsbinary.CausticsBinary">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.causticsbinary.</span></span><span class="sig-name descname"><span class="pre">CausticsBinary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.causticsbinary.CausticsBinary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class for the caustic structure corresponding to a given (<em>q</em>, <em>s</em>),
 i.e. mass ratio and separation. Implemented for 2-body lenses only.</p>
 <dl class="simple">
@@ -50,8 +50,8 @@ Einstein ring)</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="MulensModel.caustics.Caustics.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.caustics.Caustics.plot" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.causticsbinary.CausticsBinary.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.causticsbinary.CausticsBinary.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots the caustics using <code class="xref py py-func docutils literal notranslate"><span class="pre">matplotlib.pyplot.scatter()</span></code>.</p>
 <dl class="simple">
 <dt>Parameters :</dt><dd><dl class="simple">
@@ -70,8 +70,8 @@ To mitigate this, use:
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="MulensModel.caustics.Caustics.get_caustics">
-<span class="sig-name descname"><span class="pre">get_caustics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.caustics.Caustics.get_caustics" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="MulensModel.causticsbinary.CausticsBinary.get_caustics">
+<span class="sig-name descname"><span class="pre">get_caustics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.causticsbinary.CausticsBinary.get_caustics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns x and y vectors corresponding to the outlines of the
 caustics.  Origin is center of mass and larger mass is on the
 left (for <em>q</em> &lt; 1).</p>
@@ -91,16 +91,16 @@ coordinates of the caustic points.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="MulensModel.caustics.Caustics.critical_curve">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">critical_curve</span></span><a class="headerlink" href="#MulensModel.caustics.Caustics.critical_curve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Critical curve stored as <a class="reference internal" href="#MulensModel.caustics.Caustics.CriticalCurve" title="MulensModel.caustics.Caustics.CriticalCurve"><code class="xref py py-class docutils literal notranslate"><span class="pre">CriticalCurve</span></code></a> object, read-only</p>
+<dt class="sig sig-object py" id="MulensModel.causticsbinary.CausticsBinary.critical_curve">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">critical_curve</span></span><a class="headerlink" href="#MulensModel.causticsbinary.CausticsBinary.critical_curve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Critical curve stored as <a class="reference internal" href="#MulensModel.causticsbinary.CausticsBinary.CriticalCurve" title="MulensModel.causticsbinary.CausticsBinary.CriticalCurve"><code class="xref py py-class docutils literal notranslate"><span class="pre">CriticalCurve</span></code></a> object, read-only</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="MulensModel.caustics.Caustics.CriticalCurve">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CriticalCurve</span></span><a class="headerlink" href="#MulensModel.caustics.Caustics.CriticalCurve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Internal class of <a class="reference internal" href="#MulensModel.caustics.Caustics" title="MulensModel.caustics.Caustics"><code class="xref py py-class docutils literal notranslate"><span class="pre">Caustics</span></code></a>. Defines the critical
+<dt class="sig sig-object py" id="MulensModel.causticsbinary.CausticsBinary.CriticalCurve">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CriticalCurve</span></span><a class="headerlink" href="#MulensModel.causticsbinary.CausticsBinary.CriticalCurve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Internal class of <code class="xref py py-class docutils literal notranslate"><span class="pre">Caustics</span></code>. Defines the critical
 curve (in the lens plane). Origin is center of mass with
 larger mass on the left (<em>q</em> &lt; 1).</p>
 <dl>
@@ -179,7 +179,7 @@ coordinates of the caustic points.</p>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="_sources/MulensModel.caustics.rst.txt"
+      <a href="_sources/MulensModel.causticsbinary.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

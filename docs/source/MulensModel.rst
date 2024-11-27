@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 4
 
    MulensModel.mulensobjects
+   MulensModel.orbits
 
 Submodules
 ----------
@@ -15,13 +16,15 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   MulensModel.b0b1utils
    MulensModel.binarylens
    MulensModel.binarylensimports
    MulensModel.binarylenswithshear
-   MulensModel.caustics
+   MulensModel.causticsbinary
+   MulensModel.causticsbinarywithshear
    MulensModel.causticspointwithshear
-   MulensModel.causticswithshear
    MulensModel.coordinates
+   MulensModel.elliputils
    MulensModel.event
    MulensModel.fitdata
    MulensModel.horizons

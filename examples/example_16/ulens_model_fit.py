@@ -46,7 +46,8 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.39.0'
+
+__version__ = '0.40.1'
 
 
 class UlensModelFit(object):
@@ -524,7 +525,6 @@ class UlensModelFit(object):
             'xi_eccentricity xi_omega_periapsis q_source')
         self._all_MM_parameters = parameters_str.split()
         self._fixed_only_MM_parameters = ['t_0_par', 't_0_xi']
-        self._other_parameters = []
 
         self._latex_conversion = dict(
             t_0='t_0', u_0='u_0',
@@ -548,7 +548,23 @@ class UlensModelFit(object):
             xi_omega_periapsis='\\xi_{\\omega}',
             q_source='q_{\\rm source}',
         )
+
+        self._user_parameters = []
+        self._other_parameters = []
+        self._latex_conversion_user = dict()
         self._latex_conversion_other = dict()
+
+        self._set_default_user_and_other_parameters()
+
+    def _set_default_user_and_other_parameters(self):
+        """
+        Method to be sub-classed if user defines their own parameters (microlensing or other).
+        If you use different microlensing parameters, then define self._user_parameters and
+        self._latex_conversion_user.
+        If you add non-microlensing parameters (e.g., source distance) then define self._other_parameters and
+        self._latex_conversion_other.
+        """
+        pass
 
     def _guess_fitting_method(self):
         """
@@ -1202,7 +1218,7 @@ class UlensModelFit(object):
             to_be_checked = set(self._model_parameters['parameters'])
         else:
             raise ValueError('unexpected error: ' + str(self._task))
-        allowed = self._all_MM_parameters + self._other_parameters
+        allowed = self._all_MM_parameters + self._other_parameters + self._user_parameters
         unknown = to_be_checked - set(allowed)
         if len(unknown) > 0:
             raise ValueError('Unknown parameters: {:}'.format(unknown))
@@ -1213,7 +1229,7 @@ class UlensModelFit(object):
         This is useful to make sure the order of printed parameters
         is always the same.
         """
-        order = self._all_MM_parameters + self._other_parameters
+        order = self._all_MM_parameters + self._user_parameters + self._other_parameters
         indexes = sorted(
             [order.index(p) for p in self._fit_parameters_unsorted])
 
@@ -1229,7 +1245,7 @@ class UlensModelFit(object):
         """
         change self._fit_parameters into latex parameters
         """
-        conversion = {**self._latex_conversion, **self._latex_conversion_other}
+        conversion = {**self._latex_conversion, **self._latex_conversion_other, **self._latex_conversion_user}
 
         if self._shift_t_0:
             for key in ['t_0', 't_0_1', 't_0_2']:
@@ -1507,8 +1523,7 @@ class UlensModelFit(object):
         self._check_dir_and_parameter_names_Ultranest()
 
         keys = {"n_live_points": "min_num_live_points"}
-        same_keys = ["min_num_live_points", 'max_num_improvement_loops',
-                     "show_status", "dlogz", "frac_remain"]
+        same_keys = ["min_num_live_points", 'max_num_improvement_loops', "show_status", "dlogz", "frac_remain"]
         keys = {**keys, **{key: key for key in same_keys}}
         self._set_dict_safely(self._kwargs_UltraNest, settings, keys)
 
@@ -1520,17 +1535,14 @@ class UlensModelFit(object):
         """
         if self._log_dir_UltraNest is not None:
             if not path.exists(self._log_dir_UltraNest):
-                raise ValueError("log directory value in fitting_parameters"
-                                 "does not exist.")
+                raise ValueError("log directory value in fitting_parameters does not exist.")
             elif not path.isdir(self._log_dir_UltraNest):
-                raise ValueError("log directory value in fitting_parameters"
-                                 "exists, but it is a file.")
+                raise ValueError("log directory value in fitting_parameters exists, but it is a file.")
 
         n_datasets = len(self._datasets)
         n_fluxes = self._n_fluxes_per_dataset
         if len(self._derived_param_names_UltraNest) != n_datasets * n_fluxes:
-            raise ValueError("The number of `derived parameter names` must "
-                             "match the number of derived fluxes.")
+            raise ValueError("The number of `derived parameter names` must match the number of derived fluxes.")
 
     def _set_prior_limits(self):
         """
@@ -1556,16 +1568,12 @@ class UlensModelFit(object):
         for key in self._min_values:
             if key in self._max_values:
                 if self._min_values[key] >= self._max_values[key]:
-                    fmt = (
-                        "This doesn't make sense: for {:} the lower limit " +
-                        "is larger than the upper limit: {:} vs {:}")
-                    raise ValueError(fmt.format(
-                        key, self._min_values[key], self._max_values[key]))
+                    fmt = ("This doesn't make sense: for {:} the lower limit "
+                           "is larger than the upper limit: {:} vs {:}")
+                    raise ValueError(fmt.format(key, self._min_values[key], self._max_values[key]))
 
-        self._min_values_indexed = self._parse_min_max_values_single(
-            self._min_values)
-        self._max_values_indexed = self._parse_min_max_values_single(
-            self._max_values)
+        self._min_values_indexed = self._parse_min_max_values_single(self._min_values)
+        self._max_values_indexed = self._parse_min_max_values_single(self._max_values)
 
     def _parse_min_max_values_single(self, limits):
         """
@@ -1577,18 +1585,17 @@ class UlensModelFit(object):
 
         for (key, value) in limits.items():
             if key not in self._fit_parameters:
-                raise ValueError(
-                    'Key provided in limits: {:}\n'.format(key) +
-                    'is not one of the parameters for fitting: ' +
-                    '{:}'.format(self._fit_parameters))
+                fmt = 'Key provided in limits: {:}\nis not one of the parameters for fitting: {:}'
+                raise ValueError(fmt.format(key, self._fit_parameters))
+
             index = self._fit_parameters.index(key)
             out[index] = value
+
         return out
 
     def _set_prior_limits_MultiNest(self):
         """
-        Set prior limits and transformation constants (from unit cube to
-        MM parameters).
+        Set prior limits and transformation constants (from unit cube to MM parameters).
         """
         min_values = []
         max_values = []
@@ -2047,8 +2054,8 @@ class UlensModelFit(object):
                 for (band, u_value) in self._model_parameters[key].items():
                     model.set_limb_coeff_u(band, u_value)
             if 'default method' in self._model_parameters:
-                model.set_default_magnification_method(
-                    self._model_parameters['default method'])
+                model.default_magnification_method = \
+                    self._model_parameters['default method']
             if 'methods' in self._model_parameters:
                 model.set_magnification_methods(
                     self._model_parameters['methods'])
@@ -2128,6 +2135,14 @@ class UlensModelFit(object):
         else:
             raise ValueError('internal value')
 
+        parameters = self._transform_parameters(parameters)
+        return parameters
+
+    def _transform_parameters(self, parameters):
+        """
+        Method to be sub-classed if user defines their own microlensing parameters.
+        It takes a dict as input and returns a dict.
+        """
         return parameters
 
     def _get_example_parameters_EMCEE(self):
@@ -2328,11 +2343,14 @@ class UlensModelFit(object):
         if self._task == 'plot':
             return
 
+        parameters = dict(zip(self._fit_parameters, theta))
+        parameters = self._transform_parameters(parameters)
+
         if len(self._fit_parameters_other) == 0:
-            for (parameter, value) in zip(self._fit_parameters, theta):
+            for (parameter, value) in parameters.items():
                 setattr(self._model.parameters, parameter, value)
         else:
-            for (parameter, value) in zip(self._fit_parameters, theta):
+            for (parameter, value) in parameters.items():
                 if parameter not in self._fit_parameters_other:
                     setattr(self._model.parameters, parameter, value)
                 else:
@@ -3515,15 +3533,14 @@ class UlensModelFit(object):
         plot_size_ratio = 5
         hspace = 0
         tau = 1.5
-        remove_245 = True
         default_model = {'color': 'black', 'linewidth': 1.0, 'zorder': np.inf}
 
         kwargs_grid = {
             'nrows': 2, 'ncols': 1, 'height_ratios': [plot_size_ratio, 1],
             'hspace': hspace}
-        kwargs = {'subtract_2450000': remove_245}
 
         (t_1, t_2) = self._get_time_limits_for_plot(tau, 'best model')
+        (kwargs, xlim) = self._get_subtract_kwargs_and_xlim_for_best_model(t_1, t_2)
 
         kwargs_model = {
             't_start': t_1, 't_stop': t_2, **default_model, **kwargs}
@@ -3535,11 +3552,6 @@ class UlensModelFit(object):
                 u = self._model_parameters[key][self._datasets[0].bandpass]
                 kwargs_model['gamma'] = mm.Utils.u_to_gamma(u)
 
-        if kwargs['subtract_2450000']:
-            xlim = [t_1-2450000., t_2-2450000.]
-        else:
-            xlim = [t_1, t_2]
-
         kwargs_axes_1 = dict(
             axis='both', direction='in', bottom=True, top=True, left=True,
             right=True, labelbottom=False)
@@ -3547,6 +3559,20 @@ class UlensModelFit(object):
 
         return (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2,
                 kwargs_axes_1, kwargs_axes_2)
+
+    def _get_subtract_kwargs_and_xlim_for_best_model(self, t_1, t_2):
+        """
+        Should we subtract 2450000 or 2460000?
+        """
+        mean = (t_1 + t_2) / 2.
+        if mean < 2460000.:
+            kwargs = {'subtract_2450000': True, 'subtract_2460000': False}
+            xlim = [t_1-2450000., t_2-2450000.]
+        else:
+            kwargs = {'subtract_2450000': False, 'subtract_2460000': True}
+            xlim = [t_1-2460000., t_2-2460000.]
+
+        return (kwargs, xlim)
 
     def _get_time_limits_for_plot(self, tau, plot_type):
         """

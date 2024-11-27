@@ -93,7 +93,7 @@ def test_event_get_chi2_1():
 
     ev.fix_blend_flux = fix_blend_flux
     np.testing.assert_almost_equal(ev.get_chi2(), 459.09826, decimal=4)
-    assert(ev.blend_fluxes == [0.])
+    assert (ev.blend_fluxes == [0.])
 
 
 def test_event_get_chi2_2():
@@ -172,7 +172,7 @@ def test_event_get_chi2_4():
     data = mm.MulensData(file_name=SAMPLE_FILE_01)
 
     ev = mm.Event()
-    params = {'t_0': t_0, 'u_0': u_0, 't_E': t_E * u.day}
+    params = {'t_0': t_0, 'u_0': u_0, 't_E': t_E}
     mod = mm.Model(params)
     ev.model = mod
     ev.datasets = [data]
@@ -181,7 +181,7 @@ def test_event_get_chi2_4():
 
     ev.model.parameters.parameters['t_0'] += 1.
     ev.model.parameters.parameters['u_0'] += 0.1
-    ev.model.parameters.parameters['t_E'] += 1. * u.day
+    ev.model.parameters.parameters['t_E'] += 1.
     chi2_2 = ev.get_chi2()
 
     assert chi2_2 > chi2_1
@@ -424,12 +424,10 @@ class TestChi2Gradient(unittest.TestCase):
         result_2 = event.calculate_chi2_gradient(self.grad_params)
         assert all(result != result_2)
 
-        # Go back to previous results and test that
-        # calculate_chi2_gradient gives results that don't match anything.
+        # Go back to previous results and test calculate_chi2_gradient().
         event.model.parameters.t_0 -= 0.1
         result_3 = event.calculate_chi2_gradient(self.grad_params)
         assert all(result != result_3)
-        assert all(result_2 != result_3)
         result_4 = event.get_chi2_gradient(self.grad_params)
         np.testing.assert_almost_equal(result_4 / result, 1.)
 

@@ -4,6 +4,8 @@ Shows how a dictionary implementation of ModelParameters would work.
 import MulensModel as mm
 
 
+raise NotImplementedError('which_parameters() was removed in version 3.0.0')
+
 mm.modelparameters.which_parameters('PSPL')
 # Returns: 't_0', 'u_0', 't_E'
 

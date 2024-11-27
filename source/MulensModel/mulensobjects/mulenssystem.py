@@ -113,16 +113,15 @@ class MulensSystem(object):
         """
         try:
             t_E = self.theta_E/self.mu_rel
-            return t_E.to(u.day)
+            t_E_value = t_E.to(u.day).value
+            return t_E_value
         except Exception:
             return None
 
     @t_E.setter
     def t_E(self, t_E):
-        if isinstance(t_E, u.Quantity):
-            self.mu_rel = self.theta_E / t_E.to(u.year)
-        else:
-            self.mu_rel = self.theta_E / t_E * u.year
+        t_E_unit = t_E * u.day
+        self.mu_rel = self.theta_E / t_E_unit.to(u.yr)
 
     @property
     def pi_rel(self):

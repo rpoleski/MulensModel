@@ -6,7 +6,10 @@ extern "C" {
   double VBBinaryLensing_BinaryMagDark(double a, double q, double y1, double y2, double RSv, double tolerance, double a1) {
     static VBBinaryLensing VBBL;
 
-    return VBBL.BinaryMagDark(a, q, y1, y2, RSv, a1, tolerance);
+    VBBL.Tol = tolerance;
+    VBBL.a1 = a1;
+
+    return VBBL.BinaryMag2(a, q, y1, y2, RSv);
   }
 }
 

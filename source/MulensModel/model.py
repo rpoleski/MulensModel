@@ -4,14 +4,13 @@ import matplotlib.pyplot as plt
 
 from astropy.coordinates import SkyCoord
 
-from MulensModel.caustics import Caustics
+from MulensModel.causticsbinary import CausticsBinary
 from MulensModel.causticspointwithshear import CausticsPointWithShear
-from MulensModel.causticswithshear import CausticsWithShear
+from MulensModel.causticsbinarywithshear import CausticsBinaryWithShear
 from MulensModel.coordinates import Coordinates
 from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
 from MulensModel.magnificationcurve import MagnificationCurve
 from MulensModel.modelparameters import ModelParameters
-from MulensModel.mulensdata import MulensData
 from MulensModel.satelliteskycoord import SatelliteSkyCoord
 from MulensModel.trajectory import Trajectory
 from MulensModel.utils import Utils, PlotUtils
@@ -70,6 +69,8 @@ class Model(object):
     limb-darkening coefficients.
     """
 
+    _N_source_attr = ['_magnification_curve']
+
     def __init__(
             self, parameters=None, coords=None, ra=None, dec=None,
             ephemerides_file=None):
@@ -126,11 +127,13 @@ class Model(object):
 
         return out
 
+    def __getattr__(self, item):
+        return object.__getattribute__(self, item)
+
     def plot_magnification(
             self, times=None, t_range=None, t_start=None, t_stop=None, dt=None,
             n_epochs=None, subtract_2450000=False, subtract_2460000=False,
             satellite_skycoord=None, gamma=None, source_flux_ratio=None,
-            flux_ratio_constraint=None,
             **kwargs):
         """
         Plot the model magnification curve.
@@ -148,29 +151,17 @@ class Model(object):
                 If the model has two sources, source_flux_ratio is the ratio of
                 source_flux_2 / source_flux_1
 
-            flux_ratio_constraint: DEPRECATED. Use source_flux_ratio instead.
-
             ``**kwargs``:
                 any arguments accepted by :py:func:`matplotlib.pyplot.plot()`.
 
         """
-        if flux_ratio_constraint is not None:
-            warnings.warn(
-                'flux_ratio_constraint will be deprecated. Use ' +
-                'source_flux_ratio instead')
-            source_flux_ratio = flux_ratio_constraint
-
         if self.n_sources > 1 and source_flux_ratio is None:
             raise ValueError(
-                'For binary source model you have to provide ' +
+                'For multi-source model you have to provide ' +
                 'source_flux_ratio. Note that plotted magnification will ' +
-                'be the effective magnification of the two sources.')
+                'be the effective magnification of the sources.')
 
-        if 'fit_blending' in kwargs:
-            raise AttributeError(
-                'fit_blending is deprecated. See Event() class instead.')
-
-        self._check_gamma_for_2_sources(gamma)
+        self._check_gamma_for_N_sources(gamma)
 
         if times is None:
             times = self.set_times(
@@ -237,15 +228,15 @@ class Model(object):
                 see :py:func:`get_magnification()`
 
         Returns :
-            magnification: *numpy.ndarray*
-                Magnification values for each epoch.
+            magnitudes: *numpy.ndarray*
+                Magnitude values for each epoch.
         """
         fluxes = self._parse_fluxes_for_get_lc(
             source_flux, source_flux_ratio, blend_flux)
         (source_flux, source_flux_ratio, blend_flux) = fluxes
 
         gamma = self._get_limb_coeff_gamma(bandpass, gamma)
-        self._check_gamma_for_2_sources(gamma)
+        self._check_gamma_for_N_sources(gamma)
 
         magnitudes = self._get_lc(
             times=times, t_range=t_range, t_start=t_start, t_stop=t_stop,
@@ -254,7 +245,7 @@ class Model(object):
 
         return magnitudes
 
-    def _check_gamma_for_2_sources(self, gamma):
+    def _check_gamma_for_N_sources(self, gamma):
         """
         Check if the user tries to use limb darkening for binary source model
         with finite source effect of both sources. If that is the case,
@@ -266,9 +257,12 @@ class Model(object):
         if self.n_sources == 1:
             return
 
-        is_finite_1 = self._parameters.source_1_parameters.is_finite_source()
-        is_finite_2 = self._parameters.source_2_parameters.is_finite_source()
-        if is_finite_1 and is_finite_2:
+        n_finite = 0
+        for i in range(self.n_sources):
+            if self._parameters.__getattr__('source_{0}_parameters'.format(i+1)).is_finite_source():
+                n_finite += 1
+
+        if n_finite > 1:
             raise NotImplementedError(
                 "You're requesting binary source model with both sources " +
                 "showing finite source effect and you're specifying " +
@@ -290,8 +284,12 @@ class Model(object):
                     "n_sources = {0}\n".format(self.n_sources) +
                     "source_flux_ratio = {0}".format(source_flux_ratio))
             else:
+                if isinstance(source_flux_ratio, (float)):
+                    source_flux_ratio = [source_flux_ratio]
+
                 source_flux = [source_flux]
-                source_flux.append(source_flux[0] * source_flux_ratio)
+                for i in range(0, self.n_sources-1):
+                    source_flux.append(source_flux[0] * source_flux_ratio[i])
 
         if blend_flux is None:
             warnings.warn(
@@ -354,9 +352,7 @@ class Model(object):
             self, times=None, t_range=None, t_start=None, t_stop=None,
             dt=None, n_epochs=None, source_flux=None, blend_flux=None,
             source_flux_ratio=None, gamma=None, bandpass=None,
-            subtract_2450000=False, subtract_2460000=False,
-            data_ref=None, flux_ratio_constraint=None,
-            fit_blending=None, f_source=None, f_blend=None, phot_fmt="mag",
+            subtract_2450000=False, subtract_2460000=False, phot_fmt="mag",
             **kwargs):
         """
         Plot the model light curve in magnitudes.
@@ -380,19 +376,6 @@ class Model(object):
                 sure to also set the same settings for all other
                 plotting calls (e.g. :py:func:`plot_data()`)
 
-            data_ref: DEPRECATED
-                Specify source_flux and blend_flux instead or use plotting
-                functions in py:class:`~MulensModel.Event()`
-
-            flux_ratio_constraint: DEPRECATED
-                Use source_flux_ratio instead
-
-            fit_blending: DEPRECATED
-                Use py:class:`~MulensModel.Event()` for fitting.
-
-            f_source, f_blend: DEPRECATED
-                use *source_flux* or *blend_flux* instead.
-
             phot_fmt: *str*
                 Specifies whether the photometry is plotted in magnitude or
                 flux space. Accepts either 'mag' or 'flux'. Default = 'mag'.
@@ -401,38 +384,12 @@ class Model(object):
                 any arguments accepted by :py:func:`matplotlib.pyplot.plot()`.
         """
 
-        if flux_ratio_constraint is not None:
-            warnings.warn(
-                'flux_ratio_constraint will be deprecated. Use ' +
-                'source_flux_ratio instead')
-            source_flux_ratio = flux_ratio_constraint
-
-        if data_ref is not None:
-            raise AttributeError(
-                'data_ref keyword has been deprecated. Specify source_flux ' +
-                'and blend_flux instead or use plotting functions in Event().')
-
-        if fit_blending is not None:
-            raise AttributeError(
-                'fit_blending keyword has been deprecated. Use Event() ' +
-                'instead.')
-
-        if f_source is not None:
-            warnings.warn(
-                'f_source will be deprecated. Use source_flux instead')
-            source_flux = f_source
-
-        if f_blend is not None:
-            warnings.warn(
-                'f_blend will be deprecated. Use blend_flux instead')
-            blend_flux = f_blend
-
         fluxes = self._parse_fluxes_for_get_lc(
             source_flux, source_flux_ratio, blend_flux)
         (source_flux, source_flux_ratio, blend_flux) = fluxes
 
         gamma = self._get_limb_coeff_gamma(bandpass, gamma)
-        self._check_gamma_for_2_sources(gamma)
+        self._check_gamma_for_N_sources(gamma)
 
         (times, mag_or_flux) = self._get_lc(
             times=times, t_range=t_range, t_start=t_start, t_stop=t_stop,
@@ -541,11 +498,11 @@ class Model(object):
                 return
 
         if not self.parameters.is_external_mass_sheet:
-            self._caustics = Caustics(q=self.parameters.q, s=s)
+            self._caustics = CausticsBinary(q=self.parameters.q, s=s)
         else:
             convergence_K = self.parameters.parameters.get('convergence_K', 0.)
             shear_G = self.parameters.parameters.get('shear_G', complex(0, 0))
-            self._caustics = CausticsWithShear(
+            self._caustics = CausticsBinaryWithShear(
                 q=self.parameters.q, s=s, shear_G=shear_G,
                 convergence_K=convergence_K)
 
@@ -553,7 +510,7 @@ class Model(object):
             self, times=None, t_range=None, t_start=None, t_stop=None,
             dt=None, n_epochs=None, caustics=False,
             arrow=True, satellite_skycoord=None, arrow_kwargs=None,
-            show_data=None, **kwargs):
+            **kwargs):
         """
         Plot the source trajectory.
 
@@ -591,10 +548,6 @@ class Model(object):
                 *arrow_kwargs* are of *dict* type and are different than
                 ``**kwargs``.
 
-            show_data: DEPRECATED
-                Use py:class:`~MulensModel.Event()` for plotting data with
-                models.
-
             ``**kwargs``
                 Controls plotting features of the trajectory. It's passed to
                 :py:func:`pyplot.plot()`.
@@ -613,11 +566,6 @@ class Model(object):
         They have slightly different behavior.
 
         """
-        if show_data is not None:
-            raise AttributeError(
-                'show_data is deprecated. datasets are no longer part of ' +
-                'Model. See Event.plot_source_for_datasets() instead.')
-
         if not arrow and arrow_kwargs is not None:
             raise ValueError(
                 "arrow_kwargs can be only given if arrow is True")
@@ -641,13 +589,11 @@ class Model(object):
             self._plot_single_trajectory(
                 times, self.parameters, satellite_skycoord,
                 arrow, arrow_kwargs, **kwargs)
-        elif self.n_sources == 2:
-            self._plot_single_trajectory(
-                times, self.parameters.source_1_parameters,
-                satellite_skycoord, arrow, arrow_kwargs, **kwargs)
-            self._plot_single_trajectory(
-                times, self.parameters.source_2_parameters,
-                satellite_skycoord, arrow, arrow_kwargs, **kwargs)
+        elif self.n_sources >= 2:
+            for i in range(self.n_sources):
+                self._plot_single_trajectory(
+                    times, self.parameters.__getattr__('source_{0}_parameters'.format(i+1)),
+                    satellite_skycoord, arrow, arrow_kwargs, **kwargs)
         else:
             raise ValueError(
                 'Wrong number of sources: {:}'.format(self.n_sources))
@@ -735,13 +681,12 @@ class Model(object):
         if self.n_sources == 1:
             trajectory = Trajectory(parameters=self.parameters, **kwargs_)
             self._plot_source_for_trajectory(trajectory, **kwargs)
-        elif self.n_sources == 2:
-            trajectory = Trajectory(
-                parameters=self.parameters.source_1_parameters, **kwargs_)
-            self._plot_source_for_trajectory(trajectory, **kwargs)
-            trajectory = Trajectory(
-                parameters=self.parameters.source_2_parameters, **kwargs_)
-            self._plot_source_for_trajectory(trajectory, **kwargs)
+        elif self.n_sources >= 2:
+            for i in range(self.n_sources):
+                trajectory = Trajectory(
+                    parameters=self.parameters.__getattr__('source_{0}_parameters'.format(i+1)), **kwargs_)
+                self._plot_source_for_trajectory(trajectory, **kwargs)
+
         else:
             raise ValueError('Wrong number of sources!')
 
@@ -785,7 +730,8 @@ class Model(object):
 
     def get_trajectory(self, times, satellite_skycoord=None):
         """
-        Get the source trajectory for the given set of times.
+        Get the trajectory of the source for the given set of times.
+        For multi-source models, one trajectory per source is returned.
 
         Parameters :
             times:  *np.ndarray*, *list of floats*, or *float*
@@ -797,10 +743,9 @@ class Model(object):
                 then these are satellite positions for all epochs.
                 See also :py:func:`get_satellite_coords()`
 
-        Returns : A `:py:class:`~MulensModel.trajectory.Trajectory` object. If
-            n_sources > 1, returns a tuple of
-            `:py:class:`~MulensModel.trajectory.Trajectory`s
-
+        Returns :
+            trajectories: `:py:class:`~MulensModel.trajectory.Trajectory` object or a *list* of them
+                Single object for single source model, a *list* otherwise.
         """
         if satellite_skycoord is None:
             satellite_skycoord = self.get_satellite_coords(times)
@@ -811,11 +756,13 @@ class Model(object):
         if self.n_sources == 1:
             return Trajectory(parameters=self.parameters, **kwargs_)
         elif self.n_sources == 2:
-            trajectory_1 = Trajectory(
-                parameters=self.parameters.source_1_parameters, **kwargs_)
-            trajectory_2 = Trajectory(
-                parameters=self.parameters.source_2_parameters, **kwargs_)
-            return (trajectory_1, trajectory_2)
+            trajectories = []
+            for i in range(self.n_sources):
+                trajectory = Trajectory(
+                    parameters=self.parameters.__getattr__('source_{0}_parameters'.format(i + 1)), **kwargs_)
+                trajectories.append(trajectory)
+
+            return trajectories
         else:
             raise NotImplementedError(
                 "only 1 or 2 sources allowed here at this point")
@@ -827,8 +774,9 @@ class Model(object):
         Return a list of times. If no keywords are specified, default
         is 1000 epochs from [:math:`t_0 - 1.5 * t_E`, :math:`t_0 + 1.5 * t_E`]
         range.
-        For binary source models, respectively, smaller and larger of
-        `t_0_1`/`t_0_2` values are used.
+
+        For multi-source models, respectively, minimum and maximum of
+        `t_0_N` values are used.
 
         Parameters (all optional):
             t_range: [*list*, *tuple*]
@@ -852,6 +800,7 @@ class Model(object):
                 raise ValueError(
                     'Model.set_times() - you cannot set t_range and either ' +
                     't_start or t_stop')
+
             t_start = t_range[0]
             t_stop = t_range[1]
 
@@ -860,26 +809,33 @@ class Model(object):
             if self.n_sources == 1:
                 t_0 = self.parameters.t_0
             else:
-                t_0 = min(self.parameters.source_1_parameters.t_0,
-                          self.parameters.source_2_parameters.t_0)
+                t_0 = np.min(
+                    [self.parameters.__getattr__('source_{0}_parameters'.format(i+1)).t_0
+                     for i in range(self.n_sources)])
+
             t_start = t_0 - (n_tE * self.parameters.t_E)
+
         if t_stop is None:
             if self.n_sources == 1:
                 t_0 = self.parameters.t_0
             else:
-                t_0 = max(self.parameters.source_1_parameters.t_0,
-                          self.parameters.source_2_parameters.t_0)
+                t_0 = np.max(
+                    [self.parameters.__getattr__('source_{0}_parameters'.format(i+1)).t_0
+                     for i in range(self.n_sources)])
+
             t_stop = t_0 + (n_tE * self.parameters.t_E)
 
         if dt is None:
             if n_epochs is None:
                 n_epochs = 1000
+
             n_epochs -= 1
             dt = (t_stop - t_start) / float(n_epochs)
 
-        out = np.arange(t_start, t_stop+dt, dt)
+        out = np.arange(t_start, t_stop + dt, dt)
         if out[-1] > t_stop:  # This may happen due to rounding errors.
             out = out[:-1]
+
         return out
 
     def set_magnification_methods(self, methods, source=None):
@@ -908,36 +864,33 @@ class Model(object):
         """
         if not isinstance(methods, list):
             raise TypeError('Parameter methods has to be a list.')
-        if source not in [None, 1, 2]:
-            raise ValueError('In Model.set_magnification_methods() ' +
-                             'the parameter source, has to be 1, 2 or None.')
+        if (not isinstance(source, (int))) and (source is not None):
+            raise ValueError("In Model.set_magnification_methods() the parameter 'source' has to be *int* or None.")
 
         self._check_methods(methods, source)
 
         if (source is None) or (self.n_sources == 1):
             if isinstance(self._methods, dict):
-                raise ValueError('You cannot set methods for all sources ' +
-                                 'after setting them for a single source')
+                raise ValueError('You cannot set methods for all sources after setting them for a single source')
 
             self._methods = methods
         else:
             if isinstance(self._methods, list):
-                raise ValueError('You cannot set methods for a single ' +
-                                 'source after setting them for all sources.')
+                raise ValueError('You cannot set methods for a single source after setting them for all sources.')
 
             if source > self.n_sources:
-                msg = ('Cannot set methods for source {:} for model with ' +
-                       'only {:} sources.')
+                msg = ('Cannot set methods for source {:} for model with only {:} sources.')
                 raise ValueError(msg.format(source, self.n_sources))
 
             if self._methods is None:
                 self._methods = {}
+
             self._methods[source] = methods
 
     def _check_methods(self, methods, source):
         """
         Check consistency of methods:
-        - are finite source methods used for poitn sources?
+        - are finite source methods used for point sources?
         """
         used_methods = set(methods[1::2])
         allowed = set(['point_source', 'point_source_point_lens'])
@@ -950,15 +903,11 @@ class Model(object):
         if self.n_sources == 1:
             if not self.parameters.is_finite_source():
                 raise ValueError(fmt.format("", difference))
-        elif self.n_sources == 2:
-            if source in [1, None]:
-                if not self.parameters.source_1_parameters.is_finite_source():
-                    raise ValueError(fmt.format("no. 1", difference))
-            if source in [2, None]:
-                if not self.parameters.source_2_parameters.is_finite_source():
-                    raise ValueError(fmt.format("no. 2", difference))
-        else:
-            raise ValueError('internal error - too many sources')
+        elif self.n_sources >= 2:
+            for i in range(self.n_sources):
+                if source in [i+1, None]:
+                    if not self.parameters.__getattr__('source_{0}_parameters'.format(i+1)).is_finite_source():
+                        raise ValueError(fmt.format("no. {0}".format(i+1), difference))
 
     def get_magnification_methods(self, source=None):
         """
@@ -988,23 +937,6 @@ class Model(object):
         """*list* of methods used for magnification calculation or *dict* of
         *lists* if there are multiple sources."""
         return self._methods
-
-    def set_default_magnification_method(self, method):
-        """
-        Stores information on method to be used, when no method is
-        directly specified. See
-        :py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
-        for a list of implemented methods.
-
-        Parameters:
-            method: *str*
-                Name of the method to be used.
-
-        """
-        warnings.warn(
-            "set_default_magnification_method() is DEPRECATED. Use default_" +
-            "magnification_method() instead.", DeprecationWarning)
-        self.default_magnification_method = method
 
     @property
     def default_magnification_method(self):
@@ -1239,8 +1171,7 @@ class Model(object):
             return satellite_skycoords.get_satellite_coords(times)
 
     def get_magnification(self, time, satellite_skycoord=None, gamma=None,
-                          bandpass=None, source_flux_ratio=None,
-                          separate=False, flux_ratio_constraint=None):
+                          bandpass=None, source_flux_ratio=None, separate=None):
         """
         Calculate the model magnification for the given time(s).
 
@@ -1263,17 +1194,15 @@ class Model(object):
                 :py:func:`set_limb_coeff_u()`. Only ONE of 'gamma' or
                 'bandpass' may be specified.
 
-            source_flux_ratio: *float*
-                If the model has two sources, source_flux_ratio is the ratio of
-                source_flux_2 / source_flux_1
+            source_flux_ratio: *float*, *list*
+                If the model has 2 sources, source_flux_ratio is the ratio of
+                source_flux_2 / source_flux_1. For N sources, source_flux_ratio a list
+                of the ratios of source_flux_i / source_flux_1 where i = 2, N.
 
             separate: *boolean*, optional
-                For binary source models, return magnification of each source
-                separately. Default is *False* and then only effective
-                magnification is returned.
-
-            flux_ratio_constraint: DEPRECATED
-                Use source_flux_ratio instead.
+                For multi source models, return magnification of each source
+                separately. Defaults to *True* if source_flux_ratio is provided and *False* otherwise
+                (then only effective magnification is returned).
 
         Returns :
             magnification: *np.ndarray*
@@ -1281,52 +1210,33 @@ class Model(object):
                 models, the effective magnification is returned (unless
                 *separate=True*).
         """
-        if flux_ratio_constraint is not None:
-            warnings.warn(
-                'flux_ratio_constraint will be deprecated. Use ' +
-                'source_flux_ratio instead.')
-            if isinstance(flux_ratio_constraint, float):
-                source_flux_ratio = flux_ratio_constraint
-            elif isinstance(flux_ratio_constraint, MulensData):
-                raise AttributeError(
-                    'The ability to set flux_ratio_constraint with a dataset' +
-                    'is deprecated. Use a float with source_flux_ratio ' +
-                    'instead.')
-            else:
-                raise ValueError(
-                    'Wrong type for flux_ratio_constraint. Use a float with '
-                    'source_flux_ratio instead.')
-        elif source_flux_ratio is not None:
+        if source_flux_ratio is not None:
             if not isinstance(source_flux_ratio, float):
                 raise TypeError(
                     'source_flux_ratio should be a float. Got: {:}'.format(
                         source_flux_ratio))
 
         gamma = self._get_limb_coeff_gamma(bandpass, gamma)
-        self._check_gamma_for_2_sources(gamma)
+        self._check_gamma_for_N_sources(gamma)
 
         if self.n_sources > 1:
             if (source_flux_ratio is None) and (separate is False):
                 raise ValueError(
-                    'For 2 sources either source_flux_ratio should be set or' +
+                    'For N sources either source_flux_ratio should be set or' +
                     ' separate=True. \n' +
                     'separate: {0}\n'.format(separate) +
                     'source_flux_ratio: {0}'.format(source_flux_ratio))
+
+            if separate is None:
+                if source_flux_ratio is None:
+                    separate = True
+                else:
+                    separate = False
 
         magnification = self._get_magnification(
             time, satellite_skycoord, gamma, source_flux_ratio, separate)
 
         return magnification
-
-    def magnification(self, *args, **kwargs):
-        """
-        DEPRECATED
-
-        Use :py:func:`get_magnification()` instead.
-        """
-        warnings.warn('magnification() will be deprecated in ' +
-                      'favor of get_magnification()')
-        return self.get_magnification(*args, **kwargs)
 
     def _get_magnification(self, time, satellite_skycoord, gamma,
                            source_flux_ratio, separate):
@@ -1344,7 +1254,7 @@ class Model(object):
                     'Model.get_magnification() parameter ' +
                     'flux_ratio_constraint has to be None for single source ' +
                     'models, not {:}'.format(source_flux_ratio))
-            elif separate:
+            elif separate is not None:
                 raise ValueError(
                     'Model.get_magnification() parameter separate ' +
                     'cannot be True for single source models')
@@ -1352,27 +1262,41 @@ class Model(object):
                 magnification = self._magnification_1_source(
                     time, satellite_skycoord, gamma)
 
-        elif self.n_sources == 2:
-            magnification = self._magnification_2_sources(
+        elif self.n_sources >= 2:
+            magnification = self._magnification_N_sources(
                 time, satellite_skycoord, gamma, source_flux_ratio,
                 separate)
         else:
-            raise ValueError(
-                'Only 1 or 2 sources is implemented. Number of sources: ' +
-                '{:}'.format(self.n_sources))
+            raise ValueError('Invalid number of sources: {:}'.format(self.n_sources))
 
         if np.sum(np.isnan(magnification)) > 0:
-            fmt = ("EPOCHS:\n{:}\nMODEL:\n{:}Something went wrong with " +
-                   "calculating of magnification for the above model. " +
-                   "For all above epochs magnifications are NaN.")
+            fmt = ("EPOCHS:\n{:}\nMODEL:\n{:}Something went wrong with calculating of magnification for " +
+                   "the above model. For all above epochs magnifications are NaN.")
             msg = fmt.format(time[np.isnan(magnification)], self.__repr__())
             raise ValueError(msg)
         return magnification
 
-    def _magnification_1_source(self, time, satellite_skycoord, gamma):
+    def get_magnification_curve(self, time, satellite_skycoord, gamma):
         """
-        calculate model magnification for given times for model with
-        a single source
+        Create a :py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
+        object for a given set of times.
+
+        Parameters :
+            time: *np.ndarray*, *list of floats*, or *float*
+                Times for which magnification values are requested.
+
+            satellite_skycoord: *astropy.coordinates.SkyCoord*, optional
+                *SkyCoord* object that gives satellite positions. Must be
+                the same length as time parameter. Use only for satellite
+                parallax calculations.
+
+            gamma: *float*, optional
+                The limb-darkening coefficient in gamma convention. Default is
+                0 which means no limb darkening effect.
+
+        Return:
+            py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
+
         """
         magnification_curve = MagnificationCurve(
             time, parameters=self.parameters,
@@ -1384,16 +1308,26 @@ class Model(object):
         magnification_curve.set_magnification_methods_parameters(
             self._methods_parameters)
 
+        return magnification_curve
+
+    def _magnification_1_source(self, time, satellite_skycoord, gamma):
+        """
+        calculate model magnification for given times for model with
+        a single source
+        """
+        magnification_curve = self.get_magnification_curve(
+            time, satellite_skycoord, gamma)
+
         return magnification_curve.get_magnification()
 
-    def _magnification_2_sources(
+    def _magnification_N_sources(
             self, time, satellite_skycoord, gamma, source_flux_ratio,
             separate):
         """
         calculate model magnification for given times for model with
         two sources
 
-        source_flux_ratio: *float*
+        source_flux_ratio: *float* or *list*
         separate: *bool*
         """
         if separate and (source_flux_ratio is not None):
@@ -1402,48 +1336,78 @@ class Model(object):
                 " parameters in Model.get_magnification(). This doesn't " +
                 'make sense')
 
-        (mag_1, mag_2) = self._separate_magnifications(
-            time, satellite_skycoord, gamma)
+        mags = self._separate_magnifications(time, satellite_skycoord, gamma)
 
         if separate:
-            return (mag_1, mag_2)
+            return mags
         else:
-            magnification = mag_1 + mag_2 * source_flux_ratio
-            magnification /= (1. + source_flux_ratio)
+            # Defining source_flux_ratios as relative to source_1 (rather than total flux).
+            if isinstance(source_flux_ratio, (float)):
+                source_flux_ratio = [source_flux_ratio]
+
+            magnification = mags[0]
+            for (mag, flux_ratio) in zip(mags[1:], source_flux_ratio):
+                magnification += mag * flux_ratio
+
+            magnification /= (1. + np.sum(source_flux_ratio))
             return magnification
 
-    def _separate_magnifications(self, time, satellite_skycoord, gamma):
+    def get_magnification_curves(self, time, satellite_skycoord, gamma):
         """
-        Calculate magnification separately for each source.
+        Create a *list* of
+        :py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
+        objects for multiple sources, given a set of times.
+
+        Parameters :
+            time: *np.ndarray*, *list of floats*, or *float*
+                Times for which magnification values are requested.
+
+            satellite_skycoord: *astropy.coordinates.SkyCoord*, optional
+                *SkyCoord* object that gives satellite positions. Must be
+                the same length as time parameter. Use only for satellite
+                parallax calculations.
+
+            gamma: *float*, optional
+                The limb-darkening coefficient in gamma convention. Default is
+                0 which means no limb darkening effect.
+
+        Return:
+            *list* of
+            py:class:`~MulensModel.magnificationcurve.MagnificationCurve`
+
         """
         kwargs = {'times': time, 'parallax': self._parallax,
                   'coords': self._coords,
                   'satellite_skycoord': satellite_skycoord, 'gamma': gamma}
 
-        if isinstance(self._methods, dict):
-            methods_1 = self._methods.get(1, None)
-            methods_2 = self._methods.get(2, None)
-        else:
-            methods_1 = self._methods
-            methods_2 = self._methods
+        mag_curves = []
 
-        self._magnification_curve_1 = MagnificationCurve(
-            parameters=self.parameters.source_1_parameters, **kwargs)
-        self._magnification_curve_1.set_magnification_methods(
-            methods_1, self._default_magnification_method)
-        self._magnification_curve_1.set_magnification_methods_parameters(
-            self._methods_parameters)
-        mag_1 = self._magnification_curve_1.get_magnification()
+        for i in range(self.n_sources):
+            if isinstance(self._methods, dict):
+                methods = self._methods.get(i + 1, None)
+            else:
+                methods = self._methods
 
-        self._magnification_curve_2 = MagnificationCurve(
-            parameters=self.parameters.source_2_parameters, **kwargs)
-        self._magnification_curve_2.set_magnification_methods(
-            methods_2, self._default_magnification_method)
-        self._magnification_curve_2.set_magnification_methods_parameters(
-            self._methods_parameters)
-        mag_2 = self._magnification_curve_2.get_magnification()
+            mag_curve = MagnificationCurve(
+                 parameters=self.parameters.__getattr__('source_{0}_parameters'.format(i+1)), **kwargs)
+            mag_curve.set_magnification_methods(methods, self._default_magnification_method)
+            mag_curve.set_magnification_methods_parameters(self._methods_parameters)
+            mag_curves.append(mag_curve)
 
-        return (mag_1, mag_2)
+        return mag_curves
+
+    def _separate_magnifications(self, time, satellite_skycoord, gamma):
+        """
+        Calculate magnification separately for each source.
+        """
+        mags = []
+        mag_curves = self.get_magnification_curves(time, satellite_skycoord, gamma)
+        for i in range(self.n_sources):
+            self.__setattr__('_magnification_curve_{0}'.format(i + 1), mag_curves[i])
+            mag = self.__getattr__('_magnification_curve_{0}'.format(i + 1)).get_magnification()
+            mags.append(mag)
+
+        return mags
 
     @property
     def caustics(self):
@@ -1517,277 +1481,3 @@ class Model(object):
         List of all bandpasses for which limb darkening coefficients are set.
         """
         return self._bandpasses
-
-# ---- DEPRECATED PROPERTIES AND FUNCTIONS---- #
-    def reset_plot_properties(self):
-        """
-        DEPRECATED
-
-        Resets internal plotting properties of all attached datasets.
-        """
-        raise AttributeError(
-            'reset_plot_properties is deprecated. datasets are ' +
-            'no longer part of Model(). Use Event() instead.')
-
-    def plot_data(
-            self, data_ref=None, show_errorbars=None, show_bad=None,
-            color_list=None, marker_list=None, size_list=None,
-            label_list=None, alpha_list=None, zorder_list=None,
-            subtract_2450000=False, subtract_2460000=False, **kwargs):
-        """
-        DEPRECATED
-
-        Plot the data scaled to the model.
-
-        Keywords (all optional):
-            data_ref: see :py:func:`get_ref_fluxes()`
-                If data_ref is not specified, uses the first dataset
-                as the reference for flux scale.
-
-            show_errorbars: *boolean* or *None*
-                Do you want errorbars to be shown for all datasets?
-                Default is *None*, which means the option is taken from each
-                dataset plotting properties (for which default is *True*).
-                If *True*, then data are plotted using matplotlib.errorbar().
-                If *False*, then data are plotted using matplotlib.scatter().
-
-            show_bad: *boolean* or *None*
-                Do you want data marked as bad to be shown?
-                Default is *None*, which means the option is taken from each
-                dataset plotting properties (for which default is *False*).
-                If bad data are shown, then they are plotted with 'x' marker.
-
-            subtract_2450000, subtract_2460000: *boolean*
-                If True, subtracts 2450000 or 2460000 from the time
-                axis to get more human-scale numbers. If using, make
-                sure to also set the same settings for all other
-                plotting calls (e.g. :py:func:`plot_lc()`).
-
-            ``**kwargs``:
-                Passed to matplotlib plotting functions. Contrary to
-                previous behavior, ``**kwargs`` are no longer remembered.
-
-        """
-        raise AttributeError(
-            'plot_data is deprecated. datasets are no ' +
-            'longer part of Model(). Use Event() instead.')
-
-    def plot_residuals(
-            self, show_errorbars=None,
-            color_list=None, marker_list=None, size_list=None,
-            label_list=None, alpha_list=None, zorder_list=None,
-            data_ref=None, subtract_2450000=False, subtract_2460000=False,
-            show_bad=None, **kwargs):
-        """
-        DEPRECATED
-
-        Plot the residuals (in magnitudes) of the model.
-
-        For explanation of keywords, see doctrings in
-        :py:func:`plot_data()`. Note different order of keywords.
-        """
-
-        raise AttributeError(
-            'plot_residuals is deprecated. datasets are no ' +
-            'longer part of Model(). Use Event().fits[data_ref]' +
-            '.get_residuals() instead.')
-
-    def get_residuals(self, data_ref=None, type='mag', data=None):
-        """
-        DEPRECATED
-
-        Calculate the residuals from the model for
-        each dataset at once, or just a single dataset.
-
-        Note: if residuals are returned in magnitudes, they are
-        transformed to the magnitude system specified by `data_ref`,
-        so only suitable for plotting.
-
-        Keywords :
-            data_ref: optional
-                see :py:func:`get_ref_fluxes()`
-
-            type: *str*, optional
-                specify whether the residuals should be returned in
-                magnitudes ('mag') or in flux ('flux'). Default is
-                'mag'.
-
-            data: :py:class:`~MulensModel.mulensdata.MulensData`, optional
-                dataset for which residuals are returned. If specified,
-                then returned lists are single element.
-
-        Returns :
-            residuals: *list*
-                each element of the list is a *np.ndarray* with the
-                residuals for the corresponding dataset.
-
-            errorbars: *list*
-                the scaled errorbars for each point. For plotting
-                errorbars for the residuals.
-        """
-        raise AttributeError(
-            'get_residuals is deprecated. datasets are no ' +
-            'longer part of Model(). Use Event() instead.')
-
-    def plot_source_for_datasets(self, **kwargs):
-        """
-        DEPRECATED
-
-        Plot source positions for all linked datasets. Colors used for
-        each dataset are the same used for plotting photometry.
-
-        Parameters:
-            ``**kwargs``:
-                see :py:func:`plot_source`
-        """
-        raise AttributeError(
-            'plot_source_for_datasets is deprecated. datasets ' +
-            'are no longer part of Model(). Use Event() instead.')
-
-    def get_ref_fluxes(self, data_ref=None, fit_blending=None):
-        """
-        DEPRECATED
-
-        Get source and blending fluxes for the model by finding the
-        best-fit values compared to data_ref.
-
-        Parameters :
-            data_ref: :py:class:`~MulensModel.mulensdata.MulensData` or *int*
-                Reference dataset. If *int*, corresponds to the index of
-                the dataset in self.datasets. If None, than the first dataset
-                will be used.
-
-            fit_blending: *boolean*
-                *True* if blending flux is going to be fitted (default),
-                *False* if blending flux is fixed at 0.
-
-        Returns :
-            f_source: *np.ndarray*
-                Sources' flux; normally of size (1). If it is of size (1)
-                for a double source model, then it is a sum of fluxes
-                of both sources.
-            f_blend: *float*
-                blending flux
-
-        Determine the reference flux system from the datasets. The
-        *data_ref* may either be a dataset or the index of a dataset
-        (if :py:func:`Model.set_datasets()` was previously called). If
-        *data_ref* is not set, it will use the first dataset. If you
-        call this without calling :py:func:`set_datasets()` first,
-        there will be an exception and that's on you.
-        """
-        raise AttributeError(
-            'get_ref_fluxes is deprecated. datasets ' +
-            'are no longer part of Model(). Use Event() instead.')
-
-    def set_source_flux_ratio(self, ratio):
-        """
-        DEPRECATED
-
-        Sets flux ratio of sources for binary source models. If you also call
-        :py:func:`set_source_flux_ratio_for_band()`, then the value set here
-        will be used when: 1) no band is specified, or 2) band is specified
-        but flux ratio for given band was not specified.
-
-        Parameters :
-            ratio: *float* or *None*
-                The ratio of fluxes of source no. 2 to source no. 1, i.e.,
-                flux_source_2/flux_source_1. Setting it to *None* removes
-                the internal information, i.e., flux ratio will be fitted
-                via regression (unless specific value is provided for
-                bandpass).
-        """
-        raise AttributeError(
-            'set_source_flux_ratio is deprecated. Fluxes are not ' +
-            'intrinsic to Model(). Set them explicitly when ' +
-            'needed or use Event().')
-
-    def set_source_flux_ratio_for_band(self, band, ratio):
-        """
-        DEPRECATED
-
-        Sets flux ratio for binary source models for given band.
-
-        Parameters :
-            band: *str*
-                Band for which constraint is given.
-
-            ratio: *float*
-                ratio of fluxes of source no. 2 to source no. 1, i.e.,
-                flux_source_band_2/flux_source_band_1
-        """
-        raise AttributeError(
-            'set_source_flux_ratio_for_band is deprecated. Fluxes are not ' +
-            'intrinsic to Model(). Set them explicitly when ' +
-            'needed or use Event().')
-
-    @property
-    def data_magnification(self):
-        """
-        DEPRECATED
-
-        *list*
-
-        A list of magnifications calculated for every dataset in
-        :py:attr:`datasets`.
-        """
-        raise AttributeError(
-            'data_magnification is deprecated. datasets ' +
-            'are no longer part of Model(). Use Event() instead.')
-
-    def get_data_magnification(self, dataset):
-        """
-        DEPRECATED
-
-        Get the model magnification for a dataset.
-
-        Parameters :
-            dataset: :py:class:`~MulensModel.mulensdata.MulensData`
-                Dataset with epochs for which magnification will be given.
-                Satellite and limb darkening information is taken into
-                account.
-
-        Returns :
-            magnification_vector: *np.ndarray*
-                Values on magnification.
-
-        """
-        raise AttributeError(
-            'get_data_magnification is deprecated. datasets ' +
-            'are no longer part of Model(). Use Event() instead or use' +
-            'Model.get_magnification() for the relevant times.')
-
-    @property
-    def datasets(self):
-        """
-        DEPRECATED
-
-        *list* of :py:class:`~MulensModel.mulensdata.MulensData`
-
-        Datasets linked to given model. Note that these can be changed by
-        :py:class:`~MulensModel.event.Event` instances. This happens when
-        the same model is linked to multiple
-        :py:class:`~MulensModel.event.Event` instances.
-        """
-        raise AttributeError(
-            'datasets is deprecated. datasets ' +
-            'are no longer part of Model(). Use Event() instead.')
-
-    def set_datasets(self, datasets, data_ref=0):
-        """
-        DEPRECATED
-
-        Set :obj:`datasets` property
-
-        Parameters :
-            datasets: *list* of :py:class:`~MulensModel.mulensdata.MulensData`
-                Datasets to be stored.
-
-            data_ref: *int* or,
-            :py:class:`~MulensModel.mulensdata.MulensData`, optional
-
-                Reference dataset.
-        """
-        raise AttributeError(
-            'set_datasets is deprecated. datasets ' +
-            'are no longer part of Model(). Use Event() instead.')

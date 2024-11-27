@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>MulensModel.modelparameters module &#8212; MulensModel 2.23.0 documentation</title>
+    <title>MulensModel.modelparameters module &#8212; MulensModel 3.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -33,26 +33,10 @@
             
   <section id="module-MulensModel.modelparameters">
 <span id="mulensmodel-modelparameters-module"></span><h1>MulensModel.modelparameters module<a class="headerlink" href="#module-MulensModel.modelparameters" title="Permalink to this headline">¶</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="MulensModel.modelparameters.which_parameters">
-<span class="sig-prename descclassname"><span class="pre">MulensModel.modelparameters.</span></span><span class="sig-name descname"><span class="pre">which_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.which_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prints information on valid parameter combinations that can be
-used to define a model or a particular effect. May be called with
-no arguments (returns information on many types of models) or with
-one argument referring to a specific model (e.g. PSPL) or effect
-(e.g. parallax).</p>
-<dl>
-<dt>Valid arguments: <em>str</em></dt><dd><p>Model types: ‘PSPL’, ‘FSPL’, ‘PSBL’, ‘FSBL’</p>
-<p>Effects: ‘point lens’, ‘binary lens’, ‘finite source’,
-‘parallax’, ‘lens orbital motion’</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py class">
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.modelparameters.</span></span><span class="sig-name descname"><span class="pre">ModelParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A class for the basic microlensing model parameters (t_0, u_0,
 t_E, s, q, alpha, etc.). Can handle point lens or binary lens.
 The pi_E assumes NE coordinates (Parallel, Perpendicular
@@ -60,7 +44,7 @@ coordinates are not supported).</p>
 <dl class="simple">
 <dt>Arguments :</dt><dd><dl class="simple">
 <dt>parameters: <em>dictionary</em></dt><dd><p>A dictionary of parameters and their values. See
-<a class="reference internal" href="#MulensModel.modelparameters.which_parameters" title="MulensModel.modelparameters.which_parameters"><code class="xref py py-func docutils literal notranslate"><span class="pre">which_parameters()</span></code></a> for valid parameter combinations.</p>
+<code class="xref py py-func docutils literal notranslate"><span class="pre">which_parameters()</span></code> for valid parameter combinations.</p>
 </dd>
 </dl>
 </dd>
@@ -101,27 +85,21 @@ and the lens center of mass.</p>
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_star">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_star</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_star" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
-<p>t_star = rho * t_E = source radius crossing time</p>
-<p>“day” is the default unit. Can be set as <em>float</em> or
-<em>astropy.Quantity</em>, but always returns <em>float</em> in units of days.</p>
+<p>t_star = rho * t_E = source radius crossing time in days</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_eff">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_eff</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_eff" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
-<p>t_eff = u_0 * t_E = effective timescale</p>
-<p>“day” is the default unit. Can be set as <em>float</em> or
-<em>astropy.Quantity</em>, but always returns <em>float</em> in units of days.</p>
+<p>t_eff = u_0 * t_E = effective timescale in days</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_E">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_E</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_E" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
-<p>The Einstein timescale. “day” is the default unit. Can be set as
-<em>float</em> or <em>astropy.Quantity</em>, but always returns <em>float</em> in units of
-days.</p>
+<p>The Einstein timescale in days.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -134,14 +112,12 @@ days.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.alpha">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">alpha</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.alpha" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>astropy.Quantity</em></p>
+<dd><p><em>float</em></p>
 <p>The angle of the source trajectory relative to the binary lens
 axis (or primary-secondary axis). Measured counterclockwise,
 i.e., according to convention advocated by
 <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2011ApJ...738...87S/abstract">Skowron et al. 2011 (ApJ, 738, 87)</a>,
-but shifted by 180 deg.  May be
-set as a <em>float</em> –&gt; assumes “deg” is the default unit.
-Regardless of input value, returns value in degrees.</p>
+but shifted by 180 deg.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -173,15 +149,6 @@ Regardless of input value, returns value in degrees.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.pi_E">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pi_E</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>list of floats</em></p>
-<p>The microlensing parallax vector. Must be set as a vector/list
-(i.e. [pi_E_N, pi_E_E]). To get the magnitude of pi_E, use
-pi_E_mag</p>
-</dd></dl>
-
-<dl class="py property">
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.pi_E_N">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pi_E_N</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E_N" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
@@ -196,11 +163,19 @@ pi_E_mag</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.pi_E">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pi_E</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.pi_E" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not defined.</p>
+<p>It was used in previous versions. Use <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.pi_E_N" title="MulensModel.modelparameters.ModelParameters.pi_E_N"><code class="xref py py-attr docutils literal notranslate"><span class="pre">pi_E_N</span></code></a> and <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.pi_E_E" title="MulensModel.modelparameters.ModelParameters.pi_E_E"><code class="xref py py-attr docutils literal notranslate"><span class="pre">pi_E_E</span></code></a> instead.</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_0_par">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_0_par</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0_par" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>The reference time for the calculation of parallax. If not set
-explicitly, then it is assumed t_0_par = t_0.</p>
+explicitly, then it is assumed t_0_par = t_0. If there are multiple sources,
+t_0_1 is used.</p>
 <p>Note that this is a reference value and not the fitting parameter.
 It is best to fix it at the begin of calculations.</p>
 </dd></dl>
@@ -253,19 +228,15 @@ See
 <dl class="py property">
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.ds_dt">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ds_dt</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.ds_dt" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>astropy.Quantity</em></p>
-<p>Change rate of separation <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s" title="MulensModel.modelparameters.ModelParameters.s"><code class="xref py py-attr docutils literal notranslate"><span class="pre">s</span></code></a> in 1/year. Can be set as
-<em>AstroPy.Quantity</em> or as <em>float</em> (1/year is assumed default unit).
-Regardless of input value, returns value in 1/year.</p>
+<dd><p><em>float</em></p>
+<p>Change rate of separation <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s" title="MulensModel.modelparameters.ModelParameters.s"><code class="xref py py-attr docutils literal notranslate"><span class="pre">s</span></code></a> in 1/year.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.dalpha_dt">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dalpha_dt</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.dalpha_dt" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>astropy.Quantity</em></p>
-<p>Change rate of angle <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.alpha" title="MulensModel.modelparameters.ModelParameters.alpha"><code class="xref py py-attr docutils literal notranslate"><span class="pre">alpha</span></code></a> in deg/year. Can be set as
-<em>AstroPy.Quantity</em> or as <em>float</em> (deg/year is assumed default unit).
-Regardless of input value, returns value in deg/year.</p>
+<dd><p><em>float</em></p>
+<p>Change rate of angle <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.alpha" title="MulensModel.modelparameters.ModelParameters.alpha"><code class="xref py py-attr docutils literal notranslate"><span class="pre">alpha</span></code></a> in deg/year.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -273,7 +244,7 @@ Regardless of input value, returns value in deg/year.</p>
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_0_kep</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_0_kep" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>The reference time for the calculation of lens orbital motion.
-If not set explicitly, then it is assumed t_0_kep = t_0.</p>
+If not set explicitly, then it is assumed t_0_kep = t_0 (or t_0_1 for multi-source models).</p>
 <p>Note that this is a reference value and not the fitting parameter.
 It is best to fix it at the begin of calculations.</p>
 </dd></dl>
@@ -404,18 +375,14 @@ and the lens center of mass.</p>
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_star_1">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_star_1</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_star_1" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
-<p>t_star_1 = rho_1 * t_E_1 = source no. 1 radius crossing time</p>
-<p>“day” is the default unit. Can be set as <em>float</em> or
-<em>astropy.Quantity</em>, but always returns <em>float</em> in units of days.</p>
+<p>t_star_1 = rho_1 * t_E_1 = source no. 1 radius crossing time in days</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.t_star_2">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_star_2</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.t_star_2" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
-<p>t_star_2 = rho_2 * t_E_2 = source no. 2 radius crossing time</p>
-<p>“day” is the default unit. Can be set as <em>float</em> or
-<em>astropy.Quantity</em>, but always returns <em>float</em> in units of days.</p>
+<p>t_star_2 = rho_2 * t_E_2 = source no. 2 radius crossing time in days.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -463,7 +430,7 @@ epochs (if orbital motion parameters are set).</p>
 </dl>
 </dd>
 <dt>Returns :</dt><dd><dl class="simple">
-<dt>separation: <em>astropy.Quantity</em></dt><dd><p>Value(s) of angle for given epochs in degrees</p>
+<dt>angle: <em>float</em></dt><dd><p>Value(s) of angle for given epochs in degrees</p>
 </dd>
 </dl>
 </dd>
@@ -473,7 +440,7 @@ epochs (if orbital motion parameters are set).</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.gamma_parallel">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gamma_parallel</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.gamma_parallel" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>astropy.Quantity</em></p>
+<dd><p><em>float</em></p>
 <p>Parallel component of instantaneous velocity of the secondary
 relative to the primary in 1/year.
 It is parallel to the primary-secondary axis.
@@ -483,7 +450,7 @@ Equals <a class="reference internal" href="#MulensModel.modelparameters.ModelPar
 <dl class="py property">
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.gamma_perp">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gamma_perp</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.gamma_perp" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>astropy.Quantity</em></p>
+<dd><p><em>float</em></p>
 <p>Perpendicular component of instantaneous velocity of the secondary
 relative to the primary. It is perpendicular to the primary-secondary
 axis. It has sign opposite to <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.dalpha_dt" title="MulensModel.modelparameters.ModelParameters.dalpha_dt"><code class="xref py py-attr docutils literal notranslate"><span class="pre">dalpha_dt</span></code></a>
@@ -493,7 +460,7 @@ and is in rad/yr, not deg/yr. Cannot be set.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.gamma">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gamma</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.gamma" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>astropy.Quantity</em></p>
+<dd><p><em>float</em></p>
 <p>Instantaneous velocity of the secondary relative to the primary in
 1/year. Cannot be set.</p>
 </dd></dl>

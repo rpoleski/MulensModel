@@ -1,4 +1,3 @@
-import math
 import warnings
 from os.path import join
 import numpy as np
@@ -56,19 +55,22 @@ class MagnificationCurve(object):
                 'parameters is a required keyword and must be a ' +
                 'ModelParameters object')
 
-        # Calculate the source trajectory (i.e. u(t))
-        self.trajectory = mm.Trajectory(
-            self.times, parameters=parameters, parallax=parallax,
-            coords=coords, satellite_skycoord=satellite_skycoord)
+        # Trajectory parameters:
+        self.parallax = parallax
+        self.coords = coords
+        self.satellite_skycoord = satellite_skycoord
 
         # Initialize the magnification vector
         self._magnification = None
+        self._magnification_objects = None
 
         # Set methods' variables:
         self._methods_epochs = None
         self._methods_names = []
-        self._default_method = None
+        self._default_method = 'point_source'
         self._methods_parameters = None
+        self._methods_for_epochs = None
+        self._methods_indices = None
 
         self._gamma = gamma
 
@@ -151,6 +153,7 @@ class MagnificationCurve(object):
                 Vector of magnifications.
 
         """
+        # Do we still need separate get_point_lens_magnification and bl methods?
         if self.parameters.n_lenses == 1:
             magnification = self.get_point_lens_magnification()
         elif self.parameters.n_lenses == 2:
@@ -181,12 +184,123 @@ class MagnificationCurve(object):
             warnings.warn(msg, UserWarning)
             return
 
+    def _set_magnification_objects(self):
+        """ High-level function that separations PL/BL and shear/no shear """
+        if self.parameters.n_lenses == 1:
+            if not self.parameters.is_external_mass_sheet:
+                self._set_point_lens_magnification_objects()
+            else:
+                self._set_point_lens_w_shear_magnification_objects()
+        elif self.parameters.n_lenses == 2:
+            if not self.parameters.is_external_mass_sheet:
+                self._set_binary_lens_magnification_objects()
+            else:
+                self._set_binary_lens_w_shear_magnification_objects()
+
+    def _setup_trajectory(self, selection):
+        """ Create a trajectory object for a given subset of the data
+        specified by *selection*. """
+        if self.satellite_skycoord is not None:
+            satellite_skycoord = self.satellite_skycoord[selection]
+        else:
+            satellite_skycoord = None
+
+        trajectory = mm.Trajectory(
+            self.times[selection], parameters=self.parameters,
+            parallax=self.parallax, coords=self.coords,
+            satellite_skycoord=satellite_skycoord)
+        return trajectory
+
+    def _setup_kwargs(self, method):
+        """ Setup the kwargs for a given magnification object."""
+        kwargs = {}
+        if self._methods_parameters is not None:
+            if method.lower() in self._methods_parameters.keys():
+                kwargs = self._methods_parameters[method.lower()]
+
+        return kwargs
+
+    def _set_point_lens_magnification_objects(self):
+        """ For simple point lens models, create a *dict* of magnification
+        objects corresponding to the user-specified magnification methods."""
+        self._magnification_objects = {}
+        for method, selection in self.methods_indices.items():
+            trajectory = self._setup_trajectory(selection)
+            kwargs = self._setup_kwargs(method)
+
+            if kwargs != {}:
+                raise ValueError(
+                    'Methods parameters passed, but currently ' +
+                    'no point lens method accepts the parameters')
+
+            if method.lower() == 'point_source':
+                self._magnification_objects[method] = \
+                    mm.pointlens.PointSourcePointLensMagnification(
+                        trajectory=trajectory)
+            elif method.lower() == 'finite_source_uniform_Gould94'.lower():
+                self._magnification_objects[method] = \
+                    mm.pointlens.FiniteSourceUniformGould94Magnification(
+                        trajectory=trajectory)
+            elif (method.lower() ==
+                  'finite_source_uniform_Gould94_direct'.lower()):
+                self._magnification_objects[method] = \
+                    mm.pointlens.FiniteSourceUniformGould94Magnification(
+                        trajectory=trajectory, direct=True)
+            elif method.lower() == 'finite_source_LD_Yoo04'.lower():
+                self._magnification_objects[method] = \
+                    mm.pointlens.FiniteSourceLDYoo04Magnification(
+                        trajectory=trajectory, gamma=self._gamma)
+            elif method.lower() == 'finite_source_LD_Yoo04_direct'.lower():
+                self._magnification_objects[method] = \
+                    mm.pointlens.FiniteSourceLDYoo04Magnification(
+                        trajectory=trajectory, gamma=self._gamma,
+                        direct=True)
+            elif method.lower() == 'finite_source_uniform_WittMao94'.lower():
+                self._magnification_objects[method] = \
+                    mm.pointlens.FiniteSourceUniformWittMao94Magnification(
+                    trajectory=trajectory)
+            elif method.lower() == 'finite_source_LD_WittMao94'.lower():
+                self._magnification_objects[method] = \
+                    mm.pointlens.FiniteSourceLDWittMao94Magnification(
+                    trajectory=trajectory, gamma=self._gamma)
+            elif method.lower() == 'finite_source_uniform_Lee09'.lower():
+                self._magnification_objects[method] = \
+                    mm.pointlens.FiniteSourceUniformLee09Magnification(
+                        trajectory=trajectory)
+            elif method.lower() == 'finite_source_LD_Lee09'.lower():
+                self._magnification_objects[method] = \
+                    mm.pointlens.FiniteSourceLDLee09Magnification(
+                        trajectory=trajectory, gamma=self._gamma)
+            else:
+                msg = 'Unknown method specified for single lens: {:}'
+                raise ValueError(msg.format(method))
+
+    def _set_point_lens_w_shear_magnification_objects(self):
+        """ For point lens + shear models, create a *dict* of magnification
+        objects corresponding to the user-specified magnification methods."""
+        self._magnification_objects = {}
+        for method, selection in self.methods_indices.items():
+            trajectory = self._setup_trajectory(selection)
+            kwargs = self._setup_kwargs(method)
+
+            if kwargs != {}:
+                raise ValueError(
+                    'Methods parameters passed, but currently ' +
+                    'no point lens method accepts the parameters')
+
+            if method.lower() == 'point_source':
+                self._magnification_objects[method] = \
+                    mm.PointSourcePointLensWithShearMagnification(
+                        trajectory=trajectory)
+            else:
+                msg = 'Unknown method specified for single lens with shear: {:}'
+                raise ValueError(msg.format(method))
+
     def get_point_lens_magnification(self):
         """
         Calculate the Point Lens magnification.
 
-        Allowed magnification methods
-        (set by :py:func:`set_magnification_methods()`) :
+        Allowed magnification methods (set by :py:func:`set_magnification_methods()`) :
             ``point_source``:
                 standard Paczynski equation for a point source/point lens.
 
@@ -259,92 +373,92 @@ class MagnificationCurve(object):
                 "the model provided has " + str(self.parameters.n_lenses) +
                 " lenses")
 
-        if self.parameters.is_external_mass_sheet:
-            point_lens = mm.PointLensWithShear(self.parameters)
-            magnification = point_lens.get_point_source_magnification(
-                self.trajectory)
-        else:
-            point_lens = mm.PointLens(self.parameters)
-            magnification = mm.get_pspl_magnification(self.trajectory)
+        if self._magnification_objects is None:
+            self._set_magnification_objects()
 
-        methods = self._methods_for_epochs()
-        if len(set(methods)-set([None, 'point_source'])) == 0:
-            return magnification
-        methods_ = np.array(methods)
-
-        u2 = self.trajectory.x**2 + self.trajectory.y**2
-        u_all = np.sqrt(u2)
-
-        for method in set(methods):
-            kwargs = {}
-            if self._methods_parameters is not None:
-                if method.lower() in self._methods_parameters.keys():
-                    kwargs = self._methods_parameters[method.lower()]
-
-                if kwargs != {}:
-                    raise ValueError(
-                        'Methods parameters passed, but currently ' +
-                        'no point lens method accepts the parameters')
-            selection = (methods_ == method)
-
-            if method.lower() == 'point_source':
-                pass  # These cases are already taken care of.
-            elif method.lower() == 'finite_source_uniform_Gould94'.lower():
-                magnification[selection] = (
-                    point_lens.get_point_lens_finite_source_magnification(
-                        u=u_all[selection],
-                        pspl_magnification=magnification[selection]))
-            elif (method.lower() ==
-                  'finite_source_uniform_Gould94_direct'.lower()):
-                magnification[selection] = (
-                    point_lens.get_point_lens_finite_source_magnification(
-                        u=u_all[selection],
-                        pspl_magnification=magnification[selection],
-                        direct=True))
-            elif method.lower() == 'finite_source_uniform_WittMao94'.lower():
-                pl = point_lens
-                magnification[selection] = (
-                    pl.get_point_lens_large_finite_source_magnification(
-                        u=u_all[selection]))
-            elif method.lower() == 'finite_source_LD_WittMao94'.lower():
-                pl = point_lens
-                magnification[selection] = (
-                    pl.get_point_lens_large_LD_integrated_magnification(
-                        u=u_all[selection], gamma=self._gamma))
-            elif method.lower() == 'finite_source_LD_Yoo04'.lower():
-                magnification[selection] = (
-                    point_lens.get_point_lens_limb_darkening_magnification(
-                        u=u_all[selection],
-                        pspl_magnification=magnification[selection],
-                        gamma=self._gamma))
-            elif method.lower() == 'finite_source_LD_Yoo04_direct'.lower():
-                magnification[selection] = (
-                    point_lens.get_point_lens_limb_darkening_magnification(
-                        u=u_all[selection],
-                        pspl_magnification=magnification[selection],
-                        gamma=self._gamma, direct=True))
-            elif method.lower() == 'finite_source_uniform_Lee09'.lower():
-                magnification[selection] = (
-                    point_lens.get_point_lens_uniform_integrated_magnification(
-                        u=u_all[selection], rho=self.parameters.rho))
-            elif method.lower() == 'finite_source_LD_Lee09'.lower():
-                magnification[selection] = (
-                    point_lens.get_point_lens_LD_integrated_magnification(
-                        u=u_all[selection], rho=self.parameters.rho,
-                        gamma=self._gamma))
-            else:
-                msg = 'Unknown method specified for single lens: {:}'
-                raise ValueError(msg.format(method))
+        magnification = np.zeros(len(self.times))
+        for method, selection in self.methods_indices.items():
+            magnification[selection] = \
+                self._magnification_objects[method].get_magnification()
 
         return magnification
+
+    def _set_binary_lens_magnification_objects(self):
+        """ For simple binary lens models, create a *dict* of magnification
+        objects corresponding to the user-specified magnification methods."""
+        self._magnification_objects = {}
+        for method, selection in self.methods_indices.items():
+            trajectory = self._setup_trajectory(selection)
+            kwargs = self._setup_kwargs(method)
+
+            if ((kwargs != {}) and
+                    (method.lower() not in ['vbbl', 'adaptive_contouring'])):
+                msg = ('Methods parameters passed for method {:}' +
+                       ' which does not accept any parameters')
+                raise ValueError(msg.format(method))
+
+            if method.lower() == 'point_source':
+                self._magnification_objects[method] = \
+                    mm.binarylens.BinaryLensPointSourceMagnification(trajectory=trajectory)
+            elif method.lower() == 'quadrupole':
+                self._magnification_objects[method] = \
+                    mm.binarylens.BinaryLensQuadrupoleMagnification(
+                    trajectory=trajectory, gamma=self._gamma)
+            elif method.lower() == 'hexadecapole':
+                self._magnification_objects[method] = \
+                    mm.binarylens.\
+                    BinaryLensHexadecapoleMagnification(
+                    trajectory=trajectory, gamma=self._gamma)
+            elif method.lower() == 'vbbl':
+                self._magnification_objects[method] = \
+                    mm.binarylens. \
+                    BinaryLensVBBLMagnification(
+                        trajectory=trajectory, gamma=self._gamma, **kwargs)
+            elif method.lower() == 'adaptive_contouring':
+                self._magnification_objects[method] = \
+                    mm.binarylens. \
+                    BinaryLensAdaptiveContouringMagnification(
+                        trajectory=trajectory, gamma=self._gamma, **kwargs)
+            elif method.lower() == 'point_source_point_lens':
+                self._magnification_objects[method] = \
+                    mm.pointlens.PointSourcePointLensMagnification(
+                        trajectory=trajectory)
+            else:
+                msg = 'Unknown method specified for binary lens: {:}'
+                raise ValueError(msg.format(method))
+
+    def _set_binary_lens_w_shear_magnification_objects(self):
+        """
+        For binary lens + shear models, create a *dict* of magnification
+        objects corresponding to the user-specified magnification methods.
+        """
+        self._magnification_objects = {}
+        for method, selection in self.methods_indices.items():
+            trajectory = self._setup_trajectory(selection)
+            K = self.parameters.parameters.get('convergence_K', 0)
+            G = self.parameters.parameters.get('shear_G', complex(0, 0))
+            kwargs = {'convergence_K': K, 'shear_G': G}
+
+            if method.lower() == 'point_source':
+                self._magnification_objects[method] = \
+                    mm.binarylenswithshear. \
+                    BinaryLensPointSourceWithShearVBBLMagnification(
+                            trajectory=trajectory, **kwargs)
+            elif method.lower() == 'point_source_wm95':
+                self._magnification_objects[method] = \
+                    mm.binarylenswithshear. \
+                    BinaryLensPointSourceWithShearWM95Magnification(
+                            trajectory=trajectory, **kwargs)
+            else:
+                msg = 'Unknown method specified for binary lens: {:}'
+                raise ValueError(msg.format(method))
 
     def get_binary_lens_magnification(self):
         """
         Calculate the binary lens magnification.
         If the shear or convergence are set, then they are used.
 
-        Allowed magnification methods
-        (set by :py:func:`set_magnification_methods()`) :
+        Allowed magnification methods (set by :py:func:`set_magnification_methods()`) :
             ``point_source``:
                 standard point source magnification calculation.
 
@@ -395,17 +509,15 @@ class MagnificationCurve(object):
                 "the model provided has " + str(self.parameters.n_lenses) +
                 " lenses")
 
-        if not self.parameters.is_external_mass_sheet:
-            binary_lens_class = mm.BinaryLens
-            kwargs = dict()
-        else:
-            binary_lens_class = mm.BinaryLensWithShear
-            K = self.parameters.parameters.get('convergence_K', 0)
-            G = self.parameters.parameters.get('shear_G', complex(0, 0))
-            kwargs = {'convergence_K': K, 'shear_G': G}
-        out = self._get_binary_lens_magnification(binary_lens_class, kwargs)
+        if self._magnification_objects is None:
+            self._set_magnification_objects()
 
-        return out
+        magnification = np.zeros(len(self.times))
+        for method, selection in self.methods_indices.items():
+            magnification[selection] = \
+                self._magnification_objects[method].get_magnification()
+
+        return magnification
 
     def _get_binary_lens_magnification(self, binary_lens_class,
                                        optional_kwargs):
@@ -413,105 +525,106 @@ class MagnificationCurve(object):
         Run binary lens calculation with proper class (binary_lens_class) and
         some kwargs (optional_kwargs of type *dict*).
         """
-        q = self.parameters.q
-        binary_kwargs = optional_kwargs
-        binary_kwargs['mass_1'] = 1. / (1. + q)
-        binary_kwargs['mass_2'] = q / (1. + q)
+        if self._magnification_objects is None:
+            self._set_magnification_objects()
 
-        is_static = self.parameters.is_static()
-        if is_static:
-            binary_lens = binary_lens_class(separation=self.parameters.s,
-                                            **binary_kwargs)
-        methods = self._methods_for_epochs()
+        magnification = np.zeros(len(self.times))
+        for method, selection in self.methods_indices.items():
+            magnification[selection] = \
+                self._magnification_objects[method].get_magnification()
 
-        magnification = []
-        for index in range(len(self.times)):
-            if methods[index] is None:
-                raise ValueError("method for calculating binary lens "
-                                 "magnification is not specified properly")
-            x = self.trajectory.x[index]
-            y = self.trajectory.y[index]
-            method = methods[index].lower()
-            if not is_static:
-                binary_lens = binary_lens_class(
-                    separation=self.parameters.get_s(self.times[index]),
-                    **binary_kwargs)
+        return magnification
 
-            kwargs = {}
-            if self._methods_parameters is not None:
-                if method in self._methods_parameters.keys():
-                    kwargs = self._methods_parameters[method]
-                    if method not in ['vbbl', 'adaptive_contouring']:
-                        msg = ('Methods parameters passed for method {:}' +
-                               ' which does not accept any parameters')
-                        raise ValueError(msg.format(method))
+    def get_d_A_d_params(self, parameters):
+        """
+        Calculate d A / d parameters for a point lens model.
 
-            if method == 'point_source':
-                try:
-                    m = binary_lens.point_source_magnification(x, y)
-                except Exception as e:
-                    text = "\nmagnificationcurve.py: Error for 'point_source' "
-                    text += "method. "
-                    text += "\n{0}\n".format(e)
-                    text += "Model parameters for above exception:\n"
-                    text += str(self.parameters)
-                    raise ValueError(text) from e
-                    # The code above is based on
-                    # https://stackoverflow.com/questions/6062576/
-                    # adding-information-to-an-exception/6062799
-            elif method == 'quadrupole':
-                m = binary_lens.hexadecapole_magnification(
-                    x, y, rho=self.parameters.rho, quadrupole=True,
-                    gamma=self._gamma)
-            elif method == 'hexadecapole':
-                m = binary_lens.hexadecapole_magnification(
-                    x, y, rho=self.parameters.rho, gamma=self._gamma)
-            elif method == 'vbbl':
-                if isinstance(binary_lens, mm.BinaryLensWithShear):
-                    raise ValueError("Finite source VBBL is not available "
-                                     "for BinaryLensWithShear")
-                m = binary_lens.vbbl_magnification(
-                    x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
-            elif method == 'adaptive_contouring':
-                if isinstance(binary_lens, mm.BinaryLensWithShear):
-                    raise ValueError("Adaptive contouring is not available "
-                                     "for BinaryLensWithShear")
-                m = binary_lens.adaptive_contouring_magnification(
-                    x, y, rho=self.parameters.rho, gamma=self._gamma, **kwargs)
-            elif method == 'point_source_point_lens':
-                u = math.sqrt(x**2 + y**2)
-                m = mm.get_pspl_magnification(u)
+        Parameters :
+            parameters: *list*
+                List of the parameters to take derivatives with respect to.
+
+        Returns :
+            dA_dparam: *dict*
+                Keys are parameter names from *parameters* argument above.
+                Values are the partial derivatives for that parameter
+                evaluated at each epoch.
+        """
+        if self._magnification_objects is None:
+            self._set_magnification_objects()
+
+        d_A_d_params = {key: np.zeros(len(self.times)) for key in parameters}
+        for method, selection in self.methods_indices.items():
+            d_A_d_params_selection = \
+                self._magnification_objects[method].get_d_A_d_params(parameters)
+            for key in parameters:
+                d_A_d_params[key][selection] = d_A_d_params_selection[key]
+
+        return d_A_d_params
+
+    def get_d_A_d_rho(self):
+        """
+        Calculate d A / d rho for a point lens model.
+
+        No Inputs
+
+        Returns :
+            dA_drho: *np.array*
+                Values are the partial derivatives for rho
+                evaluated at each data point.
+        """
+        if self._magnification_objects is None:
+            self._set_magnification_objects()
+
+        d_A_d_rho = np.zeros(len(self.times))
+        for method, selection in self.methods_indices.items():
+            if method.lower() == 'point_source':
+                d_A_d_rho_selection = np.zeros(np.sum(selection))
             else:
-                msg = 'Unknown method specified for binary lens: {:}'
-                raise ValueError(msg.format(method))
+                d_A_d_rho_selection = \
+                    self._magnification_objects[method].get_d_A_d_rho()
 
-            magnification.append(m)
+            d_A_d_rho[selection] = d_A_d_rho_selection
 
-        return np.array(magnification)
+        return d_A_d_rho
 
     @property
     def methods_for_epochs(self):
         """
         *list*
 
-        for each epochs, decide which methods should be used to
+        for each epoch, decide which methods should be used to
         calculate magnification, but don't run the calculations
         """
-        return self._methods_for_epochs()
+        if self._methods_for_epochs is None:
+            out = [self._default_method] * len(self.times)
+            if self._methods_epochs is None:
+                return out
 
-    def _methods_for_epochs(self):
+            brackets = np.searchsorted(self._methods_epochs, self.times)
+            n_max = len(self._methods_epochs)
+
+            out = [self._methods_names[value - 1]
+                   if (value > 0 and value < n_max) else self._default_method
+                   for value in brackets]
+            self._methods_for_epochs = out
+
+        return self._methods_for_epochs
+
+    @property
+    def methods_indices(self):
         """
-        for given epochs, decide which methods should be used to
-        calculate magnification, but don't run the calculations
+        *dict*
+
+        Keys are the magnification methods. Values are a boolean index that
+        indicate which epochs should be calculated with each method.
         """
-        out = [self._default_method] * len(self.times)
-        if self._methods_epochs is None:
-            return out
+        if self._methods_indices is None:
+            self._methods_indices = {}
+            methods = self.methods_for_epochs
+            methods_ = np.array(methods)
 
-        brackets = np.searchsorted(self._methods_epochs, self.times)
-        n_max = len(self._methods_epochs)
+            for method in set(methods):
+                selection = (methods_ == method)
+                self._methods_indices[method] = selection
 
-        out = [self._methods_names[value - 1]
-               if (value > 0 and value < n_max) else self._default_method
-               for value in brackets]
-        return out
+        return self._methods_indices

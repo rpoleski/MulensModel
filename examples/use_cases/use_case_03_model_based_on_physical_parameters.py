@@ -44,8 +44,8 @@ plt.title('2-body caustic structure')
 two_body_lens_v2.plot_caustics()
 
 two_body_model = mm.Model(
-    {'t_0': 2455400., 'u_0': 0.001, 't_E': 14.*u.day, 'rho': 0.001,
-     'q': two_body_lens_v2.q[0], 's': two_body_lens_v2.s, 'alpha': 261.*u.deg})
+    {'t_0': 2455400., 'u_0': 0.001, 't_E': 14., 'rho': 0.001,
+     'q': two_body_lens_v2.q[0], 's': two_body_lens_v2.s, 'alpha': 261.})
 print('My 2-body Model')
 print(two_body_model)
 

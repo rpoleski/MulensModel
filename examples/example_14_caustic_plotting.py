@@ -17,7 +17,7 @@ color = np.linspace(0., 1., n_points)
 # the points are distributed non-uniformly, i.e., the density is higher
 # near cusps. We also add color to indicate order of plotting.
 # It turns out to be a complicated shape.
-caustic = mm.Caustics(s=s, q=q)
+caustic = mm.CausticsBinary(s=s, q=q)
 caustic.plot(c=color, n_points=n_points)
 plt.axis('equal')
 plt.colorbar()

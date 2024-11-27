@@ -26,14 +26,18 @@ class Trajectory(object):
     except the definition of *alpha*, which is shifted by 180 deg.
 
     Arguments :
-        times: [*float*, *list*, *np.ndarray*], required
+        times: [*float*, *list*, *np.ndarray*]
             the times at which to generate the source trajectory,
-            e.g. a vector.
+            e.g. a vector. Either *times* OR (*x* AND *y*) are required.
 
         parameters: instance of
         :py:class:`~MulensModel.modelparameters.ModelParameters`, required
 
             a ModelParameters object specifying the microlensing parameters
+
+        x, y: [*float*, *list*, *np.ndarray*]
+            Dimensionless X, Y coordinates of trajectory. Either *times* OR
+            (*x* AND *y*) are required.
 
         parallax: *boolean dictionary*, optional
             specifies what parallax effects should be used. Default is
@@ -41,6 +45,7 @@ class Trajectory(object):
             *'topocentric'*. (differs from
             :py:class:`~MulensModel.model.Model` which defaults to
             *True*)
+
 
         coords: *str*, or
         :py:class:`~MulensModel.coordinates.Coordinates`,
@@ -54,9 +59,6 @@ class Trajectory(object):
             :py:obj:`~MulensModel.mulensdata.MulensData.satellite_skycoord`.
 
     Attributes :
-        times: *np.ndarray*
-            input epochs
-
         parameters: :py:class:`~MulensModel.modelparameters.ModelParameters`
             input :py:class:`~MulensModel.modelparameters.ModelParameters`
 
@@ -77,20 +79,32 @@ class Trajectory(object):
     _get_delta_annual_last_index = None
     _get_delta_satellite_results = dict()
 
-    def __init__(self, times, parameters, parallax=None,
+    def __init__(self,
+                 times=None, parameters=None, x=None, y=None, parallax=None,
                  coords=None, satellite_skycoord=None, earth_coords=None):
-        self.times = np.atleast_1d(times)
-
         if isinstance(parameters, ModelParameters):
             self.parameters = parameters
         else:
             m = 'parameters is a required and must be a ModelParameters object'
             raise TypeError(m)
 
-        # Set parallax values
-        self.parallax = {'earth_orbital': False,
-                         'satellite': False,
-                         'topocentric': False}
+        self._set_parallax_and_coords(parallax, coords, satellite_skycoord, earth_coords)
+
+        if times is None:
+            if (x is None) and (y is None):
+                raise KeyError('Either times or (x AND y) must be defined.')
+            self._times = None
+            self._x = x
+            self._y = y
+        else:
+            self._times = np.atleast_1d(times)
+            self._get_xy()
+
+    def _set_parallax_and_coords(self, parallax, coords, satellite_skycoord, earth_coords):
+        """
+        Set parallax and coordinates parameters
+        """
+        self.parallax = {'earth_orbital': False, 'satellite': False, 'topocentric': False}
         if parallax is not None:
             for (key, value) in parallax.items():
                 self.parallax[key] = value
@@ -101,13 +115,8 @@ class Trajectory(object):
             self.coords = Coordinates(coords)
         self.satellite_skycoord = satellite_skycoord
         if earth_coords is not None:
-            raise NotImplementedError(
-                "The earth_coords needed for " +
-                "topocentric parallax is not implemented yet")
+            raise NotImplementedError("The earth_coords needed for topocentric parallax is not implemented yet")
         self._earth_coords = None
-
-        # Calculate trajectory
-        self.get_xy()
 
     @property
     def x(self):
@@ -126,6 +135,16 @@ class Trajectory(object):
         Dimensionless Y coordinates of trajectory.
         """
         return self._y
+
+    @property
+    def times(self):
+        """
+        *np.ndarray* or *None*
+
+        Epochs for which trajectory is calculated.
+        *None* if the class was initialized without epochs provided.
+        """
+        return self._times
 
     @property
     def parallax_delta_N_E(self):
@@ -155,7 +174,7 @@ class Trajectory(object):
                 'Only valid for satellite parallax. ' +
                 'satellite_skycoord must be provided.')
 
-    def get_xy(self):
+    def _get_xy(self):
         """
         For a given set of parameters
         (a :py:class:`~MulensModel.modelparameters.ModelParameters` object),
@@ -165,11 +184,10 @@ class Trajectory(object):
         :py:attr:`~y` attributes.
         """
         # Calculate the position of the source
-        vector_tau = ((self.times - self.parameters.t_0) /
-                      self.parameters.t_E)
-        vector_u = self.parameters.u_0 * np.ones(self.times.size)
+        vector_tau = (self._times - self.parameters.t_0) / self.parameters.t_E
+        vector_u = self.parameters.u_0 * np.ones(self._times.size)
 
-        if self.parameters.pi_E is not None:
+        if 'pi_E_N' in self.parameters.parameters:
             shifts = self._get_shifts_parallax()
             vector_tau += shifts[0]
             vector_u += shifts[1]
@@ -186,15 +204,12 @@ class Trajectory(object):
             vector_x = vector_tau
             vector_y = vector_u
         elif n_lenses == 2 or (n_lenses == 1 and is_mass_sheet):
-            if self.parameters.is_static():
-                sin_alpha = np.sin(self.parameters.alpha).value
-                cos_alpha = np.cos(self.parameters.alpha).value
-            else:
-                sin_alpha = np.sin(self.parameters.get_alpha(self.times)).value
-                cos_alpha = np.cos(self.parameters.get_alpha(self.times)).value
+            alpha = self.parameters.get_alpha(self._times) * (np.pi / 180)
+            sin_alpha = np.sin(alpha)
+            cos_alpha = np.cos(alpha)
 
-            vector_x = vector_tau * cos_alpha - vector_u * sin_alpha
-            vector_y = vector_tau * sin_alpha + vector_u * cos_alpha
+            vector_x = -vector_tau * cos_alpha + vector_u * sin_alpha
+            vector_y = -vector_tau * sin_alpha - vector_u * cos_alpha
             # The above equations use alpha in counterclockwise
             # convention, i.e., the same as proposed by Skowron et
             # al. (2011), but shifted by 180 deg.
@@ -263,7 +278,7 @@ class Trajectory(object):
         calculates projected Earth positions required by annual parallax
         """
         index = (self.parameters.t_0_par, self.coords.ra.value,
-                 self.coords.dec.value, tuple(self.times.tolist()))
+                 self.coords.dec.value, tuple(self._times.tolist()))
         if index == Trajectory._get_delta_annual_last_index:
             return Trajectory._get_delta_annual_last
         if index in Trajectory._get_delta_annual_results:
@@ -273,13 +288,12 @@ class Trajectory(object):
         velocity = utils.Utils.velocity_of_Earth(time_ref) / 1731.45683
         # We change units from km/s to AU/d.
 
-        if not np.all(np.isfinite(self.times)):
-            msg = "Some times have incorrect values: {:}".format(
-                self.times[~np.isfinite(self.times)])
+        if not np.all(np.isfinite(self._times)):
+            msg = "Some times have incorrect values: {:}".format(self._times[~np.isfinite(self._times)])
             raise ValueError(msg)
 
         position = get_body_barycentric(
-            body='earth', time=Time(self.times, format='jd', scale='tdb'))
+            body='earth', time=Time(self._times, format='jd', scale='tdb'))
         position_ref = get_body_barycentric(
             body='earth', time=Time(time_ref, format='jd', scale='tdb'))
         # Seems that get_body_barycentric depends on time system, but there is
@@ -291,7 +305,7 @@ class Trajectory(object):
 
         # Main calculation is in 2 lines below:
         delta_s = (position_ref.xyz.T - position.xyz.T).to(u.au).value
-        delta_s += np.outer(self.times - time_ref, velocity)
+        delta_s += np.outer(self._times - time_ref, velocity)
         # and the results require projecting on the plane of the sky:
         out_n = np.dot(delta_s, self.coords.north_projected)
         out_e = np.dot(delta_s, self.coords.east_projected)
@@ -308,7 +322,7 @@ class Trajectory(object):
         projected on the plane of the sky at event position
         """
         index = (self.coords.ra.value, self.coords.dec.value,
-                 tuple(self.times.tolist()))
+                 tuple(self._times.tolist()))
         if index in Trajectory._get_delta_satellite_results.keys():
             return Trajectory._get_delta_satellite_results[index]
 
@@ -338,5 +352,5 @@ class Trajectory(object):
             key[3:]: value for (key, value) in zip_ if key[:3] == "xi_"}
         orbit_parameters['epoch_reference'] = t_0_xi
         orbit = Orbit(**orbit_parameters)
-        positions = orbit.get_reference_plane_position(self.times)
+        positions = orbit.get_reference_plane_position(self._times)
         return positions - self.parameters.xallarap_reference_position

@@ -123,7 +123,7 @@ my_model = mm.Model(par, coords=model_settings['coords'])
 if 'methods' in model_settings:
     my_model.set_magnification_methods(model_settings['methods'])
 if 'default_method' in model_settings:
-    my_model.set_default_magnification_method(model_settings['default_method'])
+    my_model.default_magnification_method = model_settings['default_method']
 my_event = mm.Event(datasets=datasets, model=my_model)
 
 # Prepare sampler.

@@ -22,7 +22,7 @@ pspl = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 # Create a planet model with same PSPL parameters
 s = 1.5
 q = 0.001
-alpha = 339.0
+alpha = 159.0
 rho = 0.001
 
 planet = mm.Model(

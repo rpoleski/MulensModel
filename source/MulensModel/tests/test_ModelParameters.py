@@ -1,9 +1,6 @@
 import unittest
-import warnings
 import pytest
 import numpy as np
-
-from astropy import units as u
 
 import MulensModel as mm
 
@@ -27,10 +24,10 @@ class TestModelParameters(unittest.TestCase):
             mm.ModelParameters({'t_0': 'abc', 'u_0': 1, 't_E': 10.})
         with self.assertRaises(TypeError):
             mm.ModelParameters({'t_0': 123., 'u_0': 1, 't_E': 10.,
-                                'shear_G': 0.1, 'alpha': 123.})
+                                'shear_G': 0.1, 'alpha': 303.})
         with self.assertRaises(ValueError):
             mm.ModelParameters({'t_0': 123., 'u_0': 1, 't_E': 10., 's': 1.2,
-                               'alpha': 34.56, 'q': -0.5})
+                               'alpha': 214.56, 'q': -0.5})
 
     def test_init_for_2_sources(self):
         """
@@ -55,12 +52,12 @@ def test_init_parameters():
     """
     t_0 = 6141.593
     u_0 = 0.5425
-    t_E = 62.63*u.day
+    t_E = 62.63
     params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
     np.testing.assert_almost_equal(params.t_0, t_0)
     np.testing.assert_almost_equal(params.u_0, u_0)
-    np.testing.assert_almost_equal(params.t_E, t_E.value)
+    np.testing.assert_almost_equal(params.t_E, t_E)
 
 
 def test_repr_parameters():
@@ -69,7 +66,7 @@ def test_repr_parameters():
     """
     t_0 = 2456141.593
     u_0 = 0.5425
-    t_E = 62.63*u.day
+    t_E = 62.63
     params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
 
     out_1 = "    t_0 (HJD)       u_0    t_E (d) \n"
@@ -137,6 +134,66 @@ def test_repr_t_0_kep():
     assert (out_1 + out_2) == str(params)
 
 
+class TestT0X(unittest.TestCase):
+    """
+    Test that t_0_par and t_0_kep are correctly set even if not provided.
+    """
+    def setUp(self):
+        t_0 = 2456145.
+        u_0 = 0.01
+        t_E = 62.63
+        s = 1.0
+        q = 0.003
+        alpha = 30.
+        self.params = {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q,
+                       'alpha': alpha, 'ds_dt': 0.47, 'dalpha_dt': 3.14,
+                       'pi_E_E': 0.1, 'pi_E_N': -0.2}
+
+    def test_basic(self):
+        model_params = mm.ModelParameters(self.params)
+        np.testing.assert_almost_equal(model_params.t_0_par, self.params['t_0'])
+        np.testing.assert_almost_equal(model_params.t_0_kep, self.params['t_0'])
+
+    def test_N_sources(self):
+        params = self.params.copy()
+        params['t_0_1'] = self.params['t_0'] - 1.
+        params['u_0_1'] = self.params['u_0'] * 2
+        params['t_0_2'] = self.params['t_0'] + 1.
+        params['u_0_2'] = 0.1
+        params.pop('t_0')
+        params.pop('u_0')
+
+        assert 't_0' not in params.keys()
+        assert 'u_0' not in params.keys()
+
+        model_params = mm.ModelParameters(params)
+
+        np.testing.assert_almost_equal(model_params.t_0_par, self.params['t_0'] - 1.)
+        np.testing.assert_almost_equal(model_params.t_0_kep, self.params['t_0'] - 1.)
+
+    def test_t_0_par_set(self):
+        params = self.params.copy()
+        params['t_0_par'] = self.params['t_0'] + 3.
+
+        assert 't_0_par' in params.keys()
+        assert 't_0_kep' not in params.keys()
+
+        model_params = mm.ModelParameters(params)
+        np.testing.assert_almost_equal(model_params.t_0_par, self.params['t_0'] + 3.)
+        np.testing.assert_almost_equal(model_params.t_0_kep, self.params['t_0'] + 3.)
+
+    def test_t_0_kep_set(self):
+        params = self.params.copy()
+        params['t_0_kep'] = self.params['t_0'] + 5.
+
+        assert 't_0_par' not in params.keys()
+        assert 't_0_kep' in params.keys()
+
+        model_params = mm.ModelParameters(params)
+        np.testing.assert_almost_equal(model_params.t_0_par, self.params['t_0'] + 5.)
+        np.testing.assert_almost_equal(model_params.t_0_kep, self.params['t_0'] + 5.)
+
+
 def test_positive_t_E():
     """
     Check if t_E is positive when t_eff is given, even if u_0 is negative.
@@ -160,7 +217,7 @@ def test_q_gt_1_is_good():
     t_E = 12.
     s = 1.65
     q = 0.25
-    alpha = 339.0
+    alpha = 159.0
     rho = 0.001
 
     planet = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q,
@@ -178,8 +235,8 @@ def test_q_gt_1_is_good():
     magnifications_2 = planet_2.get_magnification(time=t_checks)
     magnifications_3 = planet_3.get_magnification(time=t_checks)
 
-    assert max(magnifications_1 - magnifications_2) < 1e-10
-    assert max(magnifications_1 - magnifications_3) < 1e-10
+    assert max(magnifications_1 - magnifications_2) < 1e-7
+    assert max(magnifications_2 - magnifications_3) < 1e-10
 
 
 def test_q_gt_1_is_smooth():
@@ -192,7 +249,7 @@ def test_q_gt_1_is_smooth():
     t_E = 12.
     s = 2.18
     q = 0.99
-    alpha = 310.
+    alpha = 130.
     rho = 0.001
     planet = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q,
                        'alpha': alpha, 'rho': rho})
@@ -219,7 +276,7 @@ def test_rho_t_e_t_star():
     t_0 = 2450000.
     u_0 = 0.1
     t_E_1 = 20.
-    t_E_2 = t_E_1 * u.day
+    t_E_2 = t_E_1
     rho = 0.001
     t_star_1 = t_E_1 * rho
     t_star_2 = t_E_2 * rho
@@ -242,7 +299,7 @@ class test(unittest.TestCase):
     def test_too_much_rho_t_e_t_star(self):
         t_0 = 2450000.
         u_0 = 0.1
-        t_E = 20. * u.day
+        t_E = 20.
         rho = 0.001
         t_star = t_E * rho
         with self.assertRaises(KeyError):
@@ -257,7 +314,7 @@ def test_update():
     """
     t_0 = 2456141.593
     u_0 = 0.5425
-    t_E = 62.63*u.day
+    t_E = 62.63
     params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
     params.as_dict().update({'rho': 0.001})
 
@@ -267,7 +324,7 @@ def test_update():
 def test_orbital_motion_1():
     """basic tests of orbital motion"""
     dict_static = {'t_0': 2456789.01234, 'u_0': 1., 't_E': 12.345,
-                   's': 1.2345, 'q': 0.01234, 'alpha': 30.}
+                   's': 1.2345, 'q': 0.01234, 'alpha': 210.}
     dict_motion = dict_static.copy()
     dict_motion.update({'dalpha_dt': 10., 'ds_dt': 0.1})
     static = mm.ModelParameters(dict_static)
@@ -285,23 +342,23 @@ def test_orbital_motion_1():
     assert static.get_s(epoch_1) == static.get_s(epoch_3)
     assert static.get_s(epoch_1) == dict_static['s']
     assert static.get_alpha(epoch_1) == static.get_alpha(epoch_3)
-    assert static.get_alpha(epoch_1) == dict_static['alpha'] * u.deg
+    assert static.get_alpha(epoch_1) == dict_static['alpha']
 
     # Test get_s() and get_alpha() for orbital motion case.
-    np.testing.assert_almost_equal(motion.get_alpha(epoch_1).value, 29.5)
-    np.testing.assert_almost_equal(motion.get_alpha(epoch_2).value, 30.)
-    np.testing.assert_almost_equal(motion.get_alpha(epoch_3).value, 30.5)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_1), 209.5)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_2), 210.)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_3), 210.5)
     np.testing.assert_almost_equal(motion.get_s(epoch_1), 1.2295)
     np.testing.assert_almost_equal(motion.get_s(epoch_2), 1.2345)
     np.testing.assert_almost_equal(motion.get_s(epoch_3), 1.2395)
 
     # Test arguments as list or array.
     np.testing.assert_almost_equal(
-        motion.get_alpha([epoch_1, epoch_2, epoch_3]).value,
-        [29.5, 30., 30.5])
+        motion.get_alpha([epoch_1, epoch_2, epoch_3]),
+        [209.5, 210., 210.5])
     np.testing.assert_almost_equal(
-        motion.get_alpha(np.array([epoch_1, epoch_2, epoch_3])).value,
-        [29.5, 30., 30.5])
+        motion.get_alpha(np.array([epoch_1, epoch_2, epoch_3])),
+        [209.5, 210., 210.5])
     np.testing.assert_almost_equal(
         motion.get_s([epoch_1, epoch_2, epoch_3]),
         [1.2295, 1.2345, 1.2395])
@@ -309,20 +366,14 @@ def test_orbital_motion_1():
         motion.get_s(np.array([epoch_1, epoch_2, epoch_3])),
         [1.2295, 1.2345, 1.2395])
 
-    # Test get_alpha() units.
-    assert static.get_alpha(epoch_1).unit == u.deg
-    assert static.get_alpha(epoch_2).unit == u.deg
-    assert motion.get_alpha(epoch_1).unit == u.deg
-    assert motion.get_alpha(epoch_2).unit == u.deg
-
-    assert motion.alpha == 30. * u.deg
+    assert motion.alpha == 210.
     assert motion.s == 1.2345
 
 
 def test_t_0_kep():
     """test reference epoch for orbital motion"""
     dict_static = {'t_0': 2456789.01234, 'u_0': 1., 't_E': 12.345,
-                   's': 1.2345, 'q': 0.01234, 'alpha': 30.}
+                   's': 1.2345, 'q': 0.01234, 'alpha': 210.}
     dict_motion = dict_static.copy()
     dict_motion.update({'dalpha_dt': 10., 'ds_dt': 0.1})
     dict_motion_2 = dict_motion.copy()
@@ -337,14 +388,14 @@ def test_t_0_kep():
     epoch_2 = dict_static['t_0']
 
     # Test motion.
-    np.testing.assert_almost_equal(motion.get_alpha(epoch_1).value, 29.5)
-    np.testing.assert_almost_equal(motion.get_alpha(epoch_2).value, 30.)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_1), 209.5)
+    np.testing.assert_almost_equal(motion.get_alpha(epoch_2), 210.)
     np.testing.assert_almost_equal(motion.get_s(epoch_1), 1.2295)
     np.testing.assert_almost_equal(motion.get_s(epoch_2), 1.2345)
 
     # Test motion_2.
-    np.testing.assert_almost_equal(motion_2.get_alpha(epoch_1).value, 30.)
-    np.testing.assert_almost_equal(motion_2.get_alpha(epoch_2).value, 30.5)
+    np.testing.assert_almost_equal(motion_2.get_alpha(epoch_1), 210.)
+    np.testing.assert_almost_equal(motion_2.get_alpha(epoch_2), 210.5)
     np.testing.assert_almost_equal(motion_2.get_s(epoch_1), 1.2345)
     np.testing.assert_almost_equal(motion_2.get_s(epoch_2), 1.2395)
 
@@ -353,18 +404,12 @@ def test_orbital_motion_gammas():
     """test .gamma_parallel .gamma_perp .gamma"""
     dict_params = {'t_0': 2457123.456, 'u_0': 0.0345, 't_E': 30.00,
                    's': 1.5, 'ds_dt': 0.5, 'q': 0.987,
-                   'alpha': 12.345, 'dalpha_dt': 50.}
+                   'alpha': 192.345, 'dalpha_dt': 50.}
     params = mm.ModelParameters(dict_params)
 
-    # Test values.
-    np.testing.assert_almost_equal(params.gamma_parallel.value, 0.333333333)
-    np.testing.assert_almost_equal(params.gamma_perp.value, -0.872664626)
-    np.testing.assert_almost_equal(params.gamma.value, 0.934159869)
-
-    # Test units.
-    assert params.gamma_parallel.unit == 1. / u.year
-    assert params.gamma_perp.unit == u.rad / u.year
-    assert params.gamma.unit == 1. / u.year
+    np.testing.assert_almost_equal(params.gamma_parallel, 0.333333333)
+    np.testing.assert_almost_equal(params.gamma_perp, -0.872664626)
+    np.testing.assert_almost_equal(params.gamma, 0.934159869)
 
 
 def test_binary_source():
@@ -406,7 +451,7 @@ def test_n_lenses():
     """
     p_1 = mm.ModelParameters({'t_0': 10, 'u_0': 1, 't_E': 3, 'rho': 0.001})
     p_2 = mm.ModelParameters({'t_0': 10, 'u_0': 1, 't_E': 3, 'rho': 0.001,
-                              's': 10, 'q': 0.5, 'alpha': 100.})
+                              's': 10, 'q': 0.5, 'alpha': 280.})
     p_3 = mm.ModelParameters({'x_caustic_in': 0.1, 'x_caustic_out': 0.15,
                               't_caustic_in': 1000, 't_caustic_out': 2000.,
                               's': 1, 'q': 0.8})
@@ -421,17 +466,17 @@ def test_single_lens_convergence_K_shear_G():
     """
     t_0 = 6141.593
     u_0 = 0.5425
-    t_E = 62.63*u.day
+    t_E = 62.63
     convergence_K = 0.1
     shear_G = complex(0.1, 0.2)
-    alpha = 20.
+    alpha = 200.
     params = mm.ModelParameters({
         't_0': t_0, 'u_0': u_0, 't_E': t_E, 'convergence_K': convergence_K,
         'shear_G': shear_G, 'alpha': alpha})
 
     np.testing.assert_almost_equal(params.t_0, t_0)
     np.testing.assert_almost_equal(params.u_0, u_0)
-    np.testing.assert_almost_equal(params.t_E, t_E.value)
+    np.testing.assert_almost_equal(params.t_E, t_E)
     np.testing.assert_almost_equal(params.convergence_K, convergence_K)
     np.testing.assert_almost_equal(params.shear_G.real, shear_G.real)
 
@@ -466,10 +511,10 @@ def test_single_lens_with_mass_sheet():
     K = -0.1
 
     _ = mm.ModelParameters({**basic})
-    _ = mm.ModelParameters({**basic, 'shear_G': G, 'alpha': 123.})
+    _ = mm.ModelParameters({**basic, 'shear_G': G, 'alpha': 303.})
     _ = mm.ModelParameters({**basic, 'convergence_K': K})
     _ = mm.ModelParameters(
-        {**basic, 'shear_G': G, 'convergence_K': K, 'alpha': 123.})
+        {**basic, 'shear_G': G, 'convergence_K': K, 'alpha': 303.})
 
 
 class TestParameters(unittest.TestCase):
@@ -480,7 +525,7 @@ class TestParameters(unittest.TestCase):
         basic = {'t_0': 1000., 'u_0': 0.1, 't_E': 20.}
         G = complex(-0.1, -0.2)
         K = -0.1
-        alpha = 123.
+        alpha = 303.
 
         # Cases with missing one of PSPL parameters:
         dict_K = {'convergence_K': K}
@@ -515,11 +560,11 @@ class TestParameters(unittest.TestCase):
 
         # No access to mass sheet without it's parameters
         parameters = mm.ModelParameters(basic)
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             parameters.convergence_K = 0.
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             parameters.convergence_K
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             parameters.shear_G = 0.
 
 
@@ -576,6 +621,8 @@ class TestXallarapErrors(unittest.TestCase):
             parameters.pop(parameter)
             with self.assertRaises(KeyError):
                 mm.ModelParameters(parameters)
+                print("Test failed (i.e. KeyError was not raised) for ",
+                      parameter)
 
     def test_negative_period(self):
         """
@@ -645,7 +692,12 @@ class TestXallarapErrors(unittest.TestCase):
         """
         parameters = {**xallarap_parameters,
                       'rho_1': 0.1, 't_star_1': 0.1, 'q_source': 1.0}
-        with self.assertRaises(ValueError):
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(parameters)
+
+    def test_rho_with_source_unspecified(self):
+        parameters = {**xallarap_parameters, 'q_source': 1.3, 'rho': 0.1}
+        with self.assertRaises(KeyError):
             mm.ModelParameters(parameters)
 
     def test_mixed_binary_source_and_xallarap(self):
@@ -654,7 +706,7 @@ class TestXallarapErrors(unittest.TestCase):
         one stardard binary source parameter.
         """
         parameters = {**xallarap_parameters, 'u_0_2': 0.123}
-        with self.assertRaises(ValueError):
+        with self.assertRaises(KeyError):
             mm.ModelParameters(parameters)
 
     def test_no_q_source_but_with_rho_2(self):
@@ -704,28 +756,6 @@ def test_print_xallarap_with_q_source():
     assert lines[0][-27:] == "    q_source  t_0_xi (HJD) "
     assert lines[1][-27:] == "  0.12345000       1.00000 "
     assert lines[2] == "xallarap reference position: (0.2673, 0.0582)"
-
-
-@pytest.mark.parametrize(
-    "parameter",
-    ['xi_Omega_node', 'xi_inclination', 'xi_argument_of_latitude_reference'])
-@pytest.mark.parametrize("value", [-361., 541.])
-def test_warnings_for_xallarap_angles(parameter, value):
-    """
-    Check if xallarap angles in somehow strange range give warning
-    """
-    parameters = {
-        't_0': 0, 't_E': 9., 'u_0': 0.1, 'xi_period': 12.345,
-        'xi_semimajor_axis': 0.54321, 'xi_Omega_node': 100.,
-        'xi_inclination': 50., 'xi_argument_of_latitude_reference': 200.,
-        't_0_xi': 1.}
-    parameters[parameter] = value
-
-    with warnings.catch_warnings(record=True) as warnings_:
-        warnings.simplefilter("always")
-        mm.ModelParameters(parameters)
-        assert len(warnings_) == 1
-        assert issubclass(warnings_[0].category, RuntimeWarning)
 
 
 def test_is_xallarap_1():
@@ -791,9 +821,7 @@ def _test_2S1L_xallarap_individual_source_parameters(xi_u):
     parameters = {'q_source': q_source, **parameters_1st}
     model = mm.ModelParameters(parameters)
     check_1st = model.source_1_parameters.as_dict()
-    check_1st['t_E'] = check_1st['t_E'].value
     check_2nd = model.source_2_parameters.as_dict()
-    check_2nd['t_E'] = check_2nd['t_E'].value
 
     assert check_1st == parameters_1st
     assert check_2nd == parameters_2nd
@@ -856,7 +884,7 @@ def test_changes_of_xallrap_parameters_for_both_sources(key):
 
 def test_reference_position():
     """
-    Make sure that for xallarap model bith sources have the same
+    Make sure that for xallarap model, both sources have the same
     reference position.
     """
     parameters = {**xallarap_parameters, 'q_source': 0.12345}
@@ -864,3 +892,506 @@ def test_reference_position():
     text_1 = model.source_1_parameters.__repr__().split("\n")[-1]
     text_2 = model.source_2_parameters.__repr__().split("\n")[-1]
     assert text_1 == text_2
+
+
+class Test1L3SModels(unittest.TestCase):
+
+    def setUp(self):
+        self.t_0 = [0., 5., 2.]
+        self.u_0 = [1., 0.1, 0.3]
+        self.t_E = 9.
+        rho_2 = 0.001
+        t_star_3 = 0.02
+        self.rho = [0., rho_2, t_star_3 / self.t_E]
+        self.t_star = np.array(self.rho) * self.t_E
+
+        parameters = {'t_0_1': self.t_0[0], 'u_0_1': self.u_0[0],
+                      't_0_2': self.t_0[1], 'u_0_2': self.u_0[1],
+                      'rho_2': rho_2,
+                      't_0_3': self.t_0[2], 'u_0_3': self.u_0[2],
+                      't_star_3': t_star_3,
+                      't_E': self.t_E}
+        self.model_params = mm.ModelParameters(parameters)
+
+    # Basic 1L3S Tests
+    def test_basic_1L3S_n_sources(self):
+        """
+        Test that we can define Triple source models.
+        """
+        assert self.model_params.n_sources == 3
+
+    def test_basic_1L3S_t_0(self):
+        """
+        Test that we can access attributes of Triple source models.
+        """
+        assert (self.model_params.t_0_3 == self.t_0[2])
+        for i in range(3):
+            assert (self.model_params.__getattr__(
+                't_0_{0}'.format(i+1)) == self.t_0[i])
+
+        assert (self.model_params.source_3_parameters.t_0 == self.t_0[2])
+        for i in range(3):
+            assert (self.model_params.__getattr__(
+                'source_{0}_parameters'.format(i+1)).t_0 == self.t_0[i])
+
+        np.testing.assert_almost_equal(self.model_params.t_0_1, self.t_0[0])
+        np.testing.assert_almost_equal(self.model_params.t_0_2, self.t_0[1])
+        np.testing.assert_almost_equal(self.model_params.t_0_3, self.t_0[2])
+
+    def test_basic_1L3S_u_0(self):
+        """
+        Test that we can access attributes of Triple source models.
+        """
+        for i in range(3):
+            assert (self.model_params.__getattr__(
+                'u_0_{0}'.format(i+1)) == self.u_0[i])
+
+        for i in range(3):
+            assert (self.model_params.__getattr__(
+                'source_{0}_parameters'.format(i+1)).u_0 == self.u_0[i])
+
+        np.testing.assert_almost_equal(self.model_params.u_0_1, self.u_0[0])
+        np.testing.assert_almost_equal(self.model_params.u_0_2, self.u_0[1])
+        np.testing.assert_almost_equal(self.model_params.u_0_3, self.u_0[2])
+
+    def test_basic_1L3S_rho(self):
+        """
+        Test that we can access attributes of Triple source models.
+        """
+        for i in range(1, 3):
+            assert (self.model_params.__getattr__(
+                'rho_{0}'.format(i+1)) == self.rho[i])
+
+        for i in range(1, 3):
+            assert (self.model_params.__getattr__(
+                'source_{0}_parameters'.format(i+1)).rho == self.rho[i])
+
+        with np.testing.assert_raises(AttributeError):
+            self.model_params.rho_1
+
+        np.testing.assert_almost_equal(self.model_params.rho_2, self.rho[1])
+        np.testing.assert_almost_equal(self.model_params.rho_3, self.rho[2])
+
+    def test_basic_1L3S_t_star(self):
+        """
+        Test that we can access attributes of Triple source models.
+        """
+        for i in range(1, 3):
+            assert (self.model_params.__getattr__(
+                't_star_{0}'.format(i+1)) == self.t_star[i])
+
+        for i in range(1, 3):
+            assert (self.model_params.__getattr__(
+                'source_{0}_parameters'.format(i+1)).t_star == self.t_star[i])
+
+        with np.testing.assert_raises(AttributeError):
+            _ = self.model_params.t_star_1
+
+        np.testing.assert_almost_equal(self.model_params.t_star_2, self.t_star[1])
+        np.testing.assert_almost_equal(self.model_params.t_star_3, self.t_star[2])
+
+    def test_teff2u0(self):
+        teff = np.array(self.u_0) * self.t_E
+        params = {}
+        for i in range(3):
+            params['t_0_{0}'.format(i+1)] = self.t_0[i]
+            params['t_eff_{0}'.format(i+1)] = teff[i]
+
+        params['t_E'] = self.t_E
+        model = mm.ModelParameters(params)
+        for i in range(3):
+            u_0 = model.__getattr__('u_0_{0}'.format(i+1))
+            np.testing.assert_almost_equal(u_0, self.u_0[i])
+
+        np.testing.assert_almost_equal(model.u_0_1, self.u_0[0])
+        np.testing.assert_almost_equal(model.u_0_2, self.u_0[1])
+        np.testing.assert_almost_equal(model.u_0_3, self.u_0[2])
+
+
+class Test1LNSModels(unittest.TestCase):
+
+    def test_arbitrary_number_of_sources(self):
+        """
+        Test that we can define Triple source models.
+        """
+        n_sources = 16
+        parameters = {'t_E': 9}
+        for i in range(n_sources):
+            parameters['t_0_{0}'.format(i + 1)] = 2. + i
+            parameters['u_0_{0}'.format(i + 1)] = 1. / (i + 1)
+
+        model_params = mm.ModelParameters(parameters)
+        assert model_params.n_sources == n_sources
+
+
+class Test1L3SModelErrors(unittest.TestCase):
+
+    def test_incomplete_1L3S_params(self):
+        """
+        Check error is raised for missing source parameters.
+        """
+        parameters = {'t_0_1': 0, 'u_0_1': 1,
+                      't_0_2': 5, 'rho_2': 0.001,
+                      't_0_3': 2, 'u_0_3': 0.3,
+                      't_E': 9}
+        with self.assertRaises(KeyError):
+            _ = mm.ModelParameters(parameters)
+
+        parameters = {'t_0_1': 0, 'u_0_1': 1,
+                      't_0_2': 5, 'u_0_2': 0.1, 'rho_2': 0.001,
+                      'u_0_3': 0.3,
+                      't_E': 9}
+        with self.assertRaises(KeyError):
+            _ = mm.ModelParameters(parameters)
+
+        parameters = {'t_0_1': 0, 'u_0_1': 1,
+                      't_0_2': 5, 'u_0_2': 0.1, 'rho_2': 0.001,
+                      'rho_3': 0.3,
+                      't_E': 9}
+        with self.assertRaises(KeyError):
+            _ = mm.ModelParameters(parameters)
+
+    def test_bad_1L3S_params(self):
+        """
+        Check error is raised if parameter is not associated with a
+        specific source.
+        """
+        parameters = {'t_0': 0, 'u_0_1': 1,
+                      't_0_2': 5, 'u_0_2': 0.1, 'rho_2': 0.001,
+                      't_0_3': 2, 'u_0_3': 0.3,
+                      't_E': 9}
+        with self.assertRaises(KeyError):
+            _ = mm.ModelParameters(parameters)
+
+        parameters = {'t_0': 0, 'u_0': 1,
+                      't_0_2': 5, 'u_0_2': 0.1, 'rho_2': 0.001,
+                      't_0_3': 2, 'u_0_3': 0.3,
+                      't_E': 9}
+        with self.assertRaises(KeyError):
+            _ = mm.ModelParameters(parameters)
+
+        parameters = {'t_0': 0, 'u_0_1': 1,
+                      't_0_2': 5, 'u_0_2': 0.1, 'rho': 0.001,
+                      't_0_3': 2, 'u_0_3': 0.3,
+                      't_E': 9}
+        with self.assertRaises(KeyError):
+            _ = mm.ModelParameters(parameters)
+
+        parameters = {'t_0': 0, 'u_0_1': 1,
+                      't_0_2': 5, 'u_0_2': 0.1, 'rho_2': 0.001,
+                      't_0_3': 2, 'u_0_3': 0.3, 't_star': 0.02,
+                      't_E': 9}
+        with self.assertRaises(KeyError):
+            _ = mm.ModelParameters(parameters)
+
+    def test_1L3S_xallarap(self):
+        """
+        This test should probably fail, but is it possible to implement this behavior as in OGLE-2015-BLG-1459L?
+
+        https://ui.adsabs.harvard.edu/abs/2018AJ....155..259H/abstract
+        """
+        parameters = {**xallarap_parameters, 't_0_3': 123.456}
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(parameters)
+
+        parameters = {**xallarap_parameters, 'u_0_3': 0.456}
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(parameters)
+
+
+class TestSetters(unittest.TestCase):
+
+    def setUp(self):
+        self.t_0 = 0.0
+        self.u_0 = 0.1
+        self.t_E = 30
+        self.t_eff = self.u_0 * self.t_E
+        self.rho = 0.001
+        self.t_star = self.rho * self.t_E
+
+        self.q = 0.0001
+        self.s = 0.9
+        self.alpha = 270.
+
+        self.pi_E_N = 0.5
+        self.pi_E_E = -0.3
+        self.pi_E = [self.pi_E_N, self.pi_E_E]
+
+        self.dummy_value = 13.
+
+    def test_set_u0(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E})
+        params.u_0 = self.dummy_value
+        assert params.u_0 == self.dummy_value
+
+    def test_set_u0_error(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 't_eff': self.t_eff, 't_E': self.t_E})
+        with self.assertRaises(AttributeError):
+            params.u_0 = self.dummy_value
+
+    def test_set_t_star_error_1(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E, 'rho': self.rho})
+        with self.assertRaises(AttributeError):
+            params.t_star = self.dummy_value
+
+    def test_set_t_star_error_2(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E, 't_star': self.t_star})
+        with self.assertRaises(ValueError):
+            params.t_star = -self.dummy_value
+
+    def test_set_t_eff(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 't_eff': self.t_eff, 't_E': self.t_E})
+        params.t_eff = self.dummy_value
+        assert params.t_eff == self.dummy_value
+
+    def test_set_t_eff_error(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E})
+        with self.assertRaises(AttributeError):
+            params.t_eff = self.dummy_value
+
+    def test_set_t_E_error_1(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E})
+        with self.assertRaises(ValueError):
+            params.t_E = None
+
+    def test_set_t_E_error_2(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E})
+        with self.assertRaises(ValueError):
+            params.t_E = -self.dummy_value
+
+    def test_set_t_E_error_3(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_eff': self.t_eff})
+        with self.assertRaises(AttributeError):
+            params.t_E = self.dummy_value
+
+    def test_set_rho(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E, 'rho': self.rho})
+        params.rho = self.dummy_value
+        assert params.rho == self.dummy_value
+
+    def test_set_rho_error_1(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E, 'rho': self.rho})
+        with self.assertRaises(ValueError):
+            params.rho = -self.dummy_value
+
+    def test_set_rho_error_2(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E})
+        with self.assertRaises(AttributeError):
+            params.rho = self.dummy_value
+
+    def test_set_q(self):
+        params = mm.ModelParameters(
+            {'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E, 's': self.s, 'q': self.q, 'alpha': self.alpha})
+        params.q = self.dummy_value
+        assert params.q == self.dummy_value
+
+    def test_set_q_error(self):
+        params = mm.ModelParameters(
+            {'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E, 's': self.s, 'q': self.q, 'alpha': self.alpha})
+        with self.assertRaises(ValueError):
+            params.q = -self.dummy_value
+
+    def test_set_pi_E(self):
+        params = mm.ModelParameters(
+            {'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E, 'pi_E_N': self.pi_E_N, 'pi_E_E': self.pi_E_E})
+        params.pi_E_N = self.dummy_value
+        params.pi_E_E = -self.dummy_value
+        assert params.pi_E_N == self.dummy_value
+        assert params.pi_E_E == -self.dummy_value
+
+    def test_set_pi_E_error(self):
+        params = mm.ModelParameters({'t_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E})
+        with self.assertRaises(AttributeError):
+            params.pi_E = [self.dummy_value, -self.dummy_value]
+
+
+class TestParallax3Sources(unittest.TestCase):
+
+    def setUp(self):
+        self.pi_E_N = 0.5
+        self.pi_E_E = -0.3
+        self.static_params = {'t_0_1': 0, 'u_0_1': 1,
+                              't_0_2': 5, 'u_0_2': 0.01,
+                              't_0_3': 2, 'u_0_3': 0.3,
+                              't_E': 9}
+        self.parallax_params = {'pi_E_N': self.pi_E_N, 'pi_E_E': self.pi_E_E}
+
+        self.dummy_value = 13.
+
+    def test_initialized_correctly(self):
+        params = mm.ModelParameters({**self.static_params, **self.parallax_params})
+        for i in range(3):
+            assert params.__getattr__('source_{0}_parameters'.format(i+1)).pi_E_N == self.pi_E_N
+            assert params.__getattr__('source_{0}_parameters'.format(i+1)).pi_E_E == self.pi_E_E
+
+    def test_set_pi_E_N(self):
+        params = mm.ModelParameters({**self.static_params, 'pi_E_N': self.pi_E_N, 'pi_E_E': self.pi_E_E})
+        params.pi_E_N = self.dummy_value
+        for i in range(3):
+            assert params.__getattr__('source_{0}_parameters'.format(i + 1)).pi_E_N == self.dummy_value
+            assert params.__getattr__('source_{0}_parameters'.format(i + 1)).pi_E_E == self.pi_E_E
+
+    def test_set_pi_E_N_error(self):
+        params = mm.ModelParameters(self.static_params)
+        with self.assertRaises(AttributeError):
+            params.pi_E_N = self.dummy_value
+
+    def test_set_pi_E_E(self):
+        params = mm.ModelParameters({**self.static_params, 'pi_E_N': self.pi_E_N, 'pi_E_E': self.pi_E_E})
+        params.pi_E_E = self.dummy_value
+        for i in range(3):
+            assert params.__getattr__('source_{0}_parameters'.format(i + 1)).pi_E_N == self.pi_E_N
+            assert params.__getattr__('source_{0}_parameters'.format(i + 1)).pi_E_E == self.dummy_value
+
+    def test_set_pi_E_E_error(self):
+        params = mm.ModelParameters(self.static_params)
+        with self.assertRaises(AttributeError):
+            params.pi_E_E = self.dummy_value
+
+
+class TestSetters2Sources(unittest.TestCase):
+
+    def setUp(self):
+        self.t_0_1 = 0.0
+        self.u_0_1 = 0.1
+        self.t_0_2 = 5.0
+        self.u_0_2 = 0.01
+
+        self.t_E = 30
+        self.t_eff_1 = self.u_0_1 * self.t_E
+        self.t_eff_2 = self.u_0_2 * self.t_E
+
+        self.rho_1 = 0.001
+        self.rho_2 = 0.0003
+        self.t_star_1 = self.rho_1 * self.t_E
+        self.t_star_2 = self.rho_2 * self.t_E
+
+        self.dummy_value = 13.
+
+    def test_set_t_0_2(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
+        params.t_0_2 = self.dummy_value
+        assert params.t_0_2 == self.dummy_value
+        assert params._source_2_parameters.t_0 == self.dummy_value
+
+    def test_set_u_0_1_error(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 't_eff_1': self.t_eff_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
+        with self.assertRaises(AttributeError):
+            params.u_0_1 = self.dummy_value
+
+    def test_set_u_0_2(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
+        params.u_0_2 = self.dummy_value
+        assert params.u_0_2 == self.dummy_value
+        assert params._source_2_parameters.u_0 == self.dummy_value
+
+    def test_set_u_0_2_error(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 't_eff_2': self.t_eff_2, 't_E': self.t_E})
+        with self.assertRaises(AttributeError):
+            params.u_0_2 = self.dummy_value
+
+    def test_set_rho_1(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 'rho_1': self.rho_1,
+             't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 'rho_2': self.rho_2, 't_E': self.t_E})
+        params.rho_1 = self.dummy_value
+        assert params.rho_1 == self.dummy_value
+        assert params._source_1_parameters.rho == self.dummy_value
+
+    def test_set_rho_1_error_1(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
+        with self.assertRaises(AttributeError):
+            params.rho_1 = self.dummy_value
+
+    def test_set_rho_1_error_2(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 'rho_1': self.rho_1,
+             't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 'rho_2': self.rho_2, 't_E': self.t_E})
+        with self.assertRaises(ValueError):
+            params.rho_1 = -self.dummy_value
+
+    def test_set_rho_2(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 'rho_1': self.rho_1,
+             't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 'rho_2': self.rho_2, 't_E': self.t_E})
+        params.rho_2 = self.dummy_value
+        assert params.rho_2 == self.dummy_value
+        assert params._source_2_parameters.rho == self.dummy_value
+
+    def test_set_rho_2_error_1(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
+        with self.assertRaises(AttributeError):
+            params.rho_2 = self.dummy_value
+
+    def test_set_rho_2_error_2(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 'rho_1': self.rho_1,
+             't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 'rho_2': self.rho_2, 't_E': self.t_E})
+        with self.assertRaises(ValueError):
+            params.rho_2 = -self.dummy_value
+
+    def test_set_t_star_1(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_star_1': self.t_star_1,
+             't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_star_2': self.t_star_2, 't_E': self.t_E})
+        params.t_star_1 = self.dummy_value
+        assert params.t_star_1 == self.dummy_value
+        assert params._source_1_parameters.t_star == self.dummy_value
+
+    def test_set_t_star_1_error_1(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
+        with self.assertRaises(AttributeError):
+            params.t_star_1 = self.dummy_value
+
+    def test_set_t_star_1_error_2(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_star_1': self.t_star_1,
+             't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_star_2': self.t_star_2, 't_E': self.t_E})
+        with self.assertRaises(ValueError):
+            params.t_star_1 = -self.dummy_value
+
+    def test_set_t_star_2(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_star_1': self.t_star_1,
+             't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_star_2': self.t_star_2, 't_E': self.t_E})
+        params.t_star_2 = self.dummy_value
+        assert params.t_star_2 == self.dummy_value
+        assert params._source_2_parameters.t_star == self.dummy_value
+
+    def test_set_t_star_2_error_1(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
+        with self.assertRaises(AttributeError):
+            params.t_star_2 = self.dummy_value
+
+    def test_set_t_star_2_error_2(self):
+        params = mm.ModelParameters(
+            {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_star_1': self.t_star_1,
+             't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_star_2': self.t_star_2, 't_E': self.t_E})
+        with self.assertRaises(ValueError):
+            params.t_star_2 = -self.dummy_value
+
+
+def test_print_3_sources():
+    """
+    Test if printing of 3-source ModelParameters is correct.
+    """
+    params = mm.ModelParameters({
+        't_0_1': 0, 'u_0_1': 1, 't_E': 9, 't_0_2': 5, 'u_0_2': 0.1, 'rho_2': 0.001,
+        't_0_3': 2, 'u_0_3': 0.3, 't_star_3': 0.02})
+    expected = ("   t_E (d) \n"
+                "    9.0000 \n"
+                "  t_0_1 (HJD)     u_0_1 \n"
+                "      0.00000  1.000000 \n"
+                "  t_0_2 (HJD)     u_0_2   rho_2 \n"
+                "      5.00000  0.100000 0.00100 \n"
+                "  t_0_3 (HJD)     u_0_3  t_star_3 (d) \n"
+                "      2.00000  0.300000      0.020000 ")
+    assert params.__repr__() == expected

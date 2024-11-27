@@ -2,14 +2,13 @@
 Use Case 01: Define and plot a 2-body microlensing model
 """
 import matplotlib.pyplot as plt
-from astropy import units as u
 
 import MulensModel as mm
 
 
 model = mm.Model(
-    {'t_0': 2457603.1, 'u_0': 0.23, 't_E': 45*u.day,
-     'alpha': 130.23*u.deg, 's': 1.3, 'q': 0.3})
+    {'t_0': 2457603.1, 'u_0': 0.23, 't_E': 45.,
+     'alpha': 130.23, 's': 1.3, 'q': 0.3})
 print(model.parameters)
 
 plt.figure()
