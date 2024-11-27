@@ -3868,8 +3868,7 @@ class UlensModelFit(object):
 
         self._save_interactive_fig()
 
-    def _prepare_interactive_layout(
-            self, scale, kwargs_all, ylim, ylim_residuals):
+    def _prepare_interactive_layout(self, scale, kwargs_all, ylim, ylim_residuals):
         """Prepares the layout for the interactive plot."""
         kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2 = kwargs_all[:6]
         kwargs_axes_1, kwargs_axes_2 = kwargs_all[6:]
@@ -3893,8 +3892,7 @@ class UlensModelFit(object):
             4.,  # residuals error thickens
             4.,  # residuals error width
             56.,  # font label
-            3.,  # zero-line width in residuals
-            8.,  # markers residuals
+            4.,  # zero-line width in residuals
             4.,  # axes and legend border width
             15.,  # ticks len
             30.,  # font lagend
@@ -3922,17 +3920,17 @@ class UlensModelFit(object):
         t_start = t_start - subtract
         t_stop = t_stop - subtract
 
-        font_1 = dict(family=font, size=sizes[4], color=colors[1])
-        font_2 = dict(family=font, size=sizes[9])
-        kwargs_ = dict(showgrid=False, ticks='inside', showline=True, ticklen=sizes[8],
-                       tickwidth=sizes[7], linewidth=sizes[7], linecolor=colors[0], tickfont=font_1)
+        font_base = dict(family=font, size=sizes[4], color=colors[1])
+        font_legend = dict(family=font, size=sizes[8])
+        kwargs_ = dict(showgrid=False, ticks='inside', showline=True, ticklen=sizes[7],
+                       tickwidth=sizes[6], linewidth=sizes[6], linecolor=colors[0], tickfont=font_base)
         kwargs_y = {'mirror': 'all', **kwargs_}
         kwargs_x = {'range': [t_start, t_stop], **kwargs_}
         layout = go.Layout(
             autosize=True, width=width, height=height, showlegend=True,
             legend=dict(
-                x=1.02, y=.98, bgcolor=paper_bgcolor, bordercolor=colors[2], borderwidth=sizes[7], font=font_2),
-            paper_bgcolor=paper_bgcolor, plot_bgcolor=paper_bgcolor, font=font_1,
+                x=1.02, y=.98, bgcolor=paper_bgcolor, bordercolor=colors[2], borderwidth=sizes[6], font=font_legend),
+            paper_bgcolor=paper_bgcolor, plot_bgcolor=paper_bgcolor, font=font_base,
             yaxis=dict(title_text='Magnitude', domain=[hsplit+(hspace/2), 1], range=ylim, **kwargs_y),
             yaxis2=dict(title_text='Residuals', domain=[0, hsplit-(hspace/2)], anchor="x", range=ylim_residuals,
                         **kwargs_y),
@@ -3954,25 +3952,9 @@ class UlensModelFit(object):
 
         return (min(t_min), max(t_max))
 
-    def _make_interactive_lc_traces(
-            self,
-            f_source_0, f_blend_0,
-            sizes,
-            colors,
-            opacity,
-            width,
-            height,
-            font,
-            paper_bgcolor,
-            t_start,
-            t_stop,
-            name=None,
-            dash='solid',
-            subtract_2450000=None,
-            subtract_2460000=None,
-            gamma=None,
-            bandpass=None,
-            **kwargs):
+    def _make_interactive_lc_traces(self, f_source_0, f_blend_0, sizes, colors, opacity, width, height, font,
+                                    paper_bgcolor, t_start, t_stop, name=None, dash='solid', subtract_2450000=None,
+                                    subtract_2460000=None, gamma=None, bandpass=None, **kwargs):
         """
         Creates plotly.graph_objects.Scatter objects with model light curve
         """
@@ -3992,7 +3974,7 @@ class UlensModelFit(object):
                 times = times - subtract
                 traces_lc.append(self._make_interactive_scatter_lc(
                     times, lc, name, showlegend, colors[1], sizes[1], dash))
-            return traces_lc
+                break
 
         traces_lc.extend(self._make_interactive_scatter_lc_satellite(
             traces_lc, times, f_source_0, f_blend_0, gamma, bandpass,
@@ -4007,8 +3989,7 @@ class UlensModelFit(object):
         for (i, model) in enumerate(self._models_satellite):
             name = self._event.datasets[i].plot_properties['label']
             model.parameters.parameters = {**self._model.parameters.parameters}
-            lc = self._model.get_lc(times=times, source_flux=f_source_0,
-                                    blend_flux=f_blend_0,
+            lc = self._model.get_lc(times=times, source_flux=f_source_0,blend_flux=f_blend_0, 
                                     gamma=gamma, bandpass=bandpass)
             times = times - subtract
             trace = self._make_interactive_scatter_lc(
@@ -4021,25 +4002,12 @@ class UlensModelFit(object):
             showlegend, color, size, dash):
         """Creates a Plotly Scatter trace for the light curve."""
 
-        return go.Scatter(
-            x=times,
-            y=lc,
-            name=name,
-            showlegend=showlegend,
-            mode='lines',
-            line=dict(
-                color=color,
-                width=size,
-                dash=dash,
-            ),
-            xaxis="x",
-            yaxis="y"
-        )
+        return go.Scatter(x=times, y=lc, name=name, showlegend=showlegend, mode='lines',
+                          line=dict(color=color, width=size, dash=dash),
+                          xaxis="x", yaxis="y")
 
-    def _add_interactive_zero_trace(
-            self, t_start, t_stop, colors, sizes,
-            subtract_2450000=False, subtract_2460000=False,
-            **kwargs):
+    def _add_interactive_zero_trace(self, t_start, t_stop, colors, sizes,
+                                    subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Creates plotly.graph_objects.Scatter object for line y=0 in
         residuals plot
@@ -4047,19 +4015,9 @@ class UlensModelFit(object):
         subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
         times = np.linspace(t_start, t_stop, num=2000)
         line = np.zeros(len(times))
-        trace_0 = go.Scatter(
-            x=times-subtract,
-            y=line,
-            mode='lines',
-            line=dict(
-                color=colors[0],
-                width=sizes[1],
-                dash='dash',
-            ),
-            xaxis="x2",
-            yaxis="y2",
-            showlegend=False,
-        )
+        trace_0 = go.Scatter(x=times-subtract, y=line, mode='lines',
+                             line=dict(color=colors[0], width=sizes[5], dash='dash'),
+                             xaxis="x2", yaxis="y2", showlegend=False,)
         self._interactive_fig.add_trace(trace_0)
 
     def _add_interactive_data_traces(self, kwargs_interactive, phot_fmt='mag', data_ref=None, show_errorbars=True,
@@ -4105,8 +4063,8 @@ class UlensModelFit(object):
         trace_data.append(trace_data_good)
 
         if show_bad:
-            trace_data_bad = self._make_interactive_bad_data_trace(dataset, times, y_value, y_err, opacity,
-                                                                   sizes, xaxis, yaxis, showlegend)
+            trace_data_bad = self._make_interactive_bad_data_trace(
+                dataset, times, y_value, y_err, opacity, sizes, xaxis, yaxis, showlegend)
             trace_data.append(trace_data_bad)
 
         return trace_data
@@ -4138,9 +4096,8 @@ class UlensModelFit(object):
         return go.Scatter(x=x, y=y, opacity=opacity, name=dataset.plot_properties['label'], mode='markers',
                           showlegend=showlegend, error_y=error_y, marker=marker, xaxis=xaxis, yaxis=yaxis)
 
-    def _make_interactive_bad_data_trace(
-            self, dataset, times, y_value, y_err, opacity,
-            sizes, xaxis, yaxis, showlegend):
+    def _make_interactive_bad_data_trace(self, dataset, times, y_value, y_err, opacity, sizes,
+                                         xaxis, yaxis, showlegend):
         """Creates a single plotly.graph_objects.Scatter object for the bad data points."""
         times_bad = times[dataset.bad]
         y_bad = y_value[dataset.bad]
@@ -4153,16 +4110,8 @@ class UlensModelFit(object):
             error_visible=False
         )
 
-    def _add_interactive_residuals_traces(
-            self,
-            kwargs_interactive,
-            phot_fmt='mag',
-            data_ref=None,
-            show_errorbars=True,
-            show_bad=None,
-            subtract_2450000=False,
-            subtract_2460000=False,
-            **kwargs,):
+    def _add_interactive_residuals_traces(self,  kwargs_interactive, phot_fmt='mag', data_ref=None, show_errorbars=True,
+                                          show_bad=None, subtract_2450000=False, subtract_2460000=False, **kwargs,):
         """
         Creates plotly.graph_objects.Scatter object for residuals points
         per each data set.
