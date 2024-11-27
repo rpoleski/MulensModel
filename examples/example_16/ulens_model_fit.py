@@ -44,7 +44,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.40.0'
+__version__ = '0.40.1'
 
 
 class UlensModelFit(object):
@@ -521,7 +521,6 @@ class UlensModelFit(object):
             'xi_eccentricity xi_omega_periapsis q_source')
         self._all_MM_parameters = parameters_str.split()
         self._fixed_only_MM_parameters = ['t_0_par', 't_0_xi']
-        self._other_parameters = []
 
         self._latex_conversion = dict(
             t_0='t_0', u_0='u_0',
@@ -545,7 +544,23 @@ class UlensModelFit(object):
             xi_omega_periapsis='\\xi_{\\omega}',
             q_source='q_{\\rm source}',
         )
+
+        self._user_parameters = []
+        self._other_parameters = []
+        self._latex_conversion_user = dict()
         self._latex_conversion_other = dict()
+
+        self._set_default_user_and_other_parameters()
+
+    def _set_default_user_and_other_parameters(self):
+        """
+        Method to be sub-classed if user defines their own parameters (microlensing or other).
+        If you use different microlensing parameters, then define self._user_parameters and
+        self._latex_conversion_user.
+        If you add non-microlensing parameters (e.g., source distance) then define self._other_parameters and
+        self._latex_conversion_other.
+        """
+        pass
 
     def _guess_fitting_method(self):
         """
@@ -1187,7 +1202,7 @@ class UlensModelFit(object):
             to_be_checked = set(self._model_parameters['parameters'])
         else:
             raise ValueError('unexpected error: ' + str(self._task))
-        allowed = self._all_MM_parameters + self._other_parameters
+        allowed = self._all_MM_parameters + self._other_parameters + self._user_parameters
         unknown = to_be_checked - set(allowed)
         if len(unknown) > 0:
             raise ValueError('Unknown parameters: {:}'.format(unknown))
@@ -1198,7 +1213,7 @@ class UlensModelFit(object):
         This is useful to make sure the order of printed parameters
         is always the same.
         """
-        order = self._all_MM_parameters + self._other_parameters
+        order = self._all_MM_parameters + self._user_parameters + self._other_parameters
         indexes = sorted(
             [order.index(p) for p in self._fit_parameters_unsorted])
 
@@ -1214,7 +1229,7 @@ class UlensModelFit(object):
         """
         change self._fit_parameters into latex parameters
         """
-        conversion = {**self._latex_conversion, **self._latex_conversion_other}
+        conversion = {**self._latex_conversion, **self._latex_conversion_other, **self._latex_conversion_user}
 
         if self._shift_t_0:
             for key in ['t_0', 't_0_1', 't_0_2']:
@@ -2104,6 +2119,14 @@ class UlensModelFit(object):
         else:
             raise ValueError('internal value')
 
+        parameters = self._transform_parameters(parameters)
+        return parameters
+
+    def _transform_parameters(self, parameters):
+        """
+        Method to be sub-classed if user defines their own microlensing parameters.
+        It takes a dict as input and returns a dict.
+        """
         return parameters
 
     def _get_example_parameters_EMCEE(self):
@@ -2304,11 +2327,14 @@ class UlensModelFit(object):
         if self._task == 'plot':
             return
 
+        parameters = dict(zip(self._fit_parameters, theta))
+        parameters = self._transform_parameters(parameters)
+
         if len(self._fit_parameters_other) == 0:
-            for (parameter, value) in zip(self._fit_parameters, theta):
+            for (parameter, value) in parameters.items():
                 setattr(self._model.parameters, parameter, value)
         else:
-            for (parameter, value) in zip(self._fit_parameters, theta):
+            for (parameter, value) in parameters.items():
                 if parameter not in self._fit_parameters_other:
                     setattr(self._model.parameters, parameter, value)
                 else:
