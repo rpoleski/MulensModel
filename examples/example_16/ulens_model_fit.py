@@ -3959,8 +3959,8 @@ class UlensModelFit(object):
         Creates plotly.graph_objects.Scatter objects with model light curve
         """
         traces_lc = []
-        times = np.linspace(t_start, t_stop, num=20000)
         subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
+        times = np.linspace(t_start, t_stop, num=5000) - subtract
 
         if isinstance(name, type(None)):
             showlegend = False
@@ -3971,14 +3971,12 @@ class UlensModelFit(object):
             if dataset.ephemerides_file is None:
                 lc = self._model.get_lc(
                     times=times, source_flux=f_source_0, blend_flux=f_blend_0, gamma=gamma, bandpass=bandpass)
-                times = times - subtract
                 traces_lc.append(self._make_interactive_scatter_lc(
                     times, lc, name, showlegend, colors[1], sizes[1], dash))
                 break
 
         traces_lc.extend(self._make_interactive_scatter_lc_satellite(
-            traces_lc, times, f_source_0, f_blend_0, gamma, bandpass,
-            colors, sizes, dash, subtract, showlegend))
+            traces_lc, times, f_source_0, f_blend_0, gamma, bandpass, colors, sizes, dash, subtract, showlegend))
         return traces_lc
 
     def _make_interactive_scatter_lc_satellite(
