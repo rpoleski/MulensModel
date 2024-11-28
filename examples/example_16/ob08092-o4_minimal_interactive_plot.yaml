@@ -6,4 +6,4 @@ model:
 # Now set the file where you want the light curve to be plotted:
 plots:
     best model:
-       interactive: ob08092-o4_minimal_plot.html
+        interactive: ob08092-o4_minimal_plot.html

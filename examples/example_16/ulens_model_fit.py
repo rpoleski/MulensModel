@@ -3989,7 +3989,7 @@ class UlensModelFit(object):
         for (i, model) in enumerate(self._models_satellite):
             name = self._event.datasets[i].plot_properties['label']
             model.parameters.parameters = {**self._model.parameters.parameters}
-            lc = self._model.get_lc(times=times, source_flux=f_source_0,blend_flux=f_blend_0, 
+            lc = self._model.get_lc(times=times, source_flux=f_source_0, blend_flux=f_blend_0,
                                     gamma=gamma, bandpass=bandpass)
             times = times - subtract
             trace = self._make_interactive_scatter_lc(
@@ -4041,7 +4041,7 @@ class UlensModelFit(object):
             # Scale the data flux
             (flux, err_flux) = self._event.fits[dataset_index].scale_fluxes(f_source_0, f_blend_0)
             (y_value, y_err) = mm.utils.PlotUtils.get_y_value_y_err(phot_fmt, flux, err_flux)
-            times = data.time-subtract
+            times = data.time - subtract
             trace_data = self._make_one_interactive_data_trace(
                 dataset_index, times, y_value, y_err, xaxis='x', yaxis='y', showlegend=True,
                 show_errorbars=show_errorbars, show_bad=show_bad, **kwargs_interactive)
