@@ -694,6 +694,9 @@ class UlensModelFit(object):
             if self._plots is not None and 'triangle' in self._plots:
                 required_packages.add('corner')
 
+        if self._plots['best model'] and 'interactive' in self._plots['best model']:
+            required_packages.add('plotly')
+
         failed = import_failed.intersection(required_packages)
 
         if len(failed) > 0:
@@ -705,6 +708,8 @@ class UlensModelFit(object):
                     "\nFor corner package it's enough that you run:\nwget " +
                     "https://raw.githubusercontent.com/dfm/corner.py/" +
                     "v2.0.0/corner/corner.py")
+            if "plotly" in failed:
+                message += ("\nThe plotly package is required for creating interactive best model plots.")
 
             raise ImportError(message)
 
