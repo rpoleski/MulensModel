@@ -119,6 +119,16 @@ There are many options and more are being added. The file [ob03235\_2\_full.yaml
 python ulens_model_fit.py ob03235_2_full.yaml
 ```
 
+### Your own parametersization?
+
+Sometimes one wants to fit using different parameters then the ones defined in MulensModel. As an example, you may be fitting a wide-orbit planet model with two separate peaks. In that case, the planet peak can be read from the light-curve easily, but it's not a standard parameter. In that case, it's enough that you define a function that translates parameters and add a few lines of code. Here is an example:
+
+```python
+python reparametrization.py reparametrization_ob08092_O3.yaml
+```
+
+Note that all other features of `ulens_model_fit.py` are available.
+
 
 ### More information
 
