@@ -2,7 +2,7 @@ import numpy as np
 from math import fsum
 from astropy import units as u
 
-from MulensModel.caustics import Caustics
+from MulensModel.causticsbinary import CausticsBinary
 
 
 class Lens(object):
@@ -430,7 +430,7 @@ class Lens(object):
                 raise NotImplementedError(
                     'Caustics do not support more than 2 bodies')
             else:
-                self._caustics = Caustics(q=self.q, s=self.s)
+                self._caustics = CausticsBinary(q=self.q, s=self.s)
         return self._caustics
 
     def plot_caustics(self, n_points=5000, **kwargs):

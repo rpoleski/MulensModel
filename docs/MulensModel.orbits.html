@@ -1,0 +1,258 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>MulensModel.orbits package &#8212; MulensModel 3.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="mulensmodel-orbits-package">
+<h1>MulensModel.orbits package<a class="headerlink" href="#mulensmodel-orbits-package" title="Permalink to this headline">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="MulensModel.orbits.orbit.html">MulensModel.orbits.orbit module</a></li>
+</ul>
+</div>
+</section>
+<section id="module-MulensModel.orbits">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-MulensModel.orbits" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="MulensModel.orbits.Orbit">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.orbits.</span></span><span class="sig-name descname"><span class="pre">Orbit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.orbits.Orbit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Class that combines <a class="reference internal" href="#MulensModel.orbits.OrbitCircular" title="MulensModel.orbits.OrbitCircular"><code class="xref py py-class docutils literal notranslate"><span class="pre">OrbitCircular</span></code></a> and
+<a class="reference internal" href="#MulensModel.orbits.OrbitEccentric" title="MulensModel.orbits.OrbitEccentric"><code class="xref py py-class docutils literal notranslate"><span class="pre">OrbitEccentric</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="MulensModel.orbits.OrbitCircular">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.orbits.</span></span><span class="sig-name descname"><span class="pre">OrbitCircular</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">semimajor_axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Omega_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inclination</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ascending_node_epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argument_of_latitude_reference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch_reference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.orbits.OrbitCircular" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MulensModel.orbits.orbit._OrbitAbstract</span></code></p>
+<p>Circular orbit.</p>
+<dl class="simple">
+<dt>Keywords :</dt><dd><dl class="simple">
+<dt>period: <em>float</em></dt><dd><p>Orbital period of binary in days</p>
+</dd>
+<dt>semimajor_axis: <em>float</em></dt><dd><p>Semimajor axis of the orbit. The unit is not specified.
+Note that the positions returned by
+<a class="reference internal" href="#MulensModel.orbits.OrbitCircular.get_orbital_plane_position" title="MulensModel.orbits.OrbitCircular.get_orbital_plane_position"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_orbital_plane_position()</span></code></a> and
+<code class="xref py py-func docutils literal notranslate"><span class="pre">get_reference_plane_position()</span></code>
+functions will be in the same units.</p>
+</dd>
+<dt>Omega_node: <em>float</em></dt><dd><p>Longitude of the ascending node, i.e., the angle from
+the reference direction to the ascending node direction.</p>
+</dd>
+<dt>inclination: <em>float</em></dt><dd><p>Inclination of the orbit relative to plane of the sky.</p>
+</dd>
+<dt>ascending_node_epoch: <em>float</em> or <em>None</em></dt><dd><p>Epoch when body is in the ascending node.
+It’s in days and usually you want to provide full BJD or HJD.</p>
+</dd>
+<dt>argument_of_latitude_reference: <em>float</em> or <em>None</em></dt><dd><p>Argument of latitude (i.e., u = omega + nu(t_ref)) for
+<em>epoch_reference</em>, which together define
+<em>ascending_node_epoch</em> (omega).</p>
+</dd>
+<dt>epoch_reference: <em>float</em> or <em>None</em></dt><dd><p>Reference epoch that together with
+<em>argument_of_latitude_reference</em> defines
+<em>ascending_node_epoch</em> (omega).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="MulensModel.orbits.OrbitCircular.get_orbital_plane_position">
+<span class="sig-name descname"><span class="pre">get_orbital_plane_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.orbits.OrbitCircular.get_orbital_plane_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate positions in the orbital plane for given epochs</p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>time: <em>float</em> or <em>np.ndarray</em></dt><dd><p>Epochs for which positions are requested.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>positions: <em>np.ndarray</em></dt><dd><p>Calculated positions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="MulensModel.orbits.OrbitEccentric">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.orbits.</span></span><span class="sig-name descname"><span class="pre">OrbitEccentric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">semimajor_axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Omega_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inclination</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eccentricity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega_periapsis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periapsis_epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argument_of_latitude_reference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch_reference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.orbits.OrbitEccentric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MulensModel.orbits.orbit._OrbitAbstract</span></code></p>
+<p>Eccentric orbit.</p>
+<dl class="simple">
+<dt>Keywords :</dt><dd><dl class="simple">
+<dt>period: <em>float</em></dt><dd><p>Orbital period of binary.</p>
+</dd>
+<dt>semimajor_axis: <em>float</em></dt><dd><p>Semimajor axis of the orbit. The unit is not specified.
+Note that the positions returned by
+<a class="reference internal" href="#MulensModel.orbits.OrbitEccentric.get_orbital_plane_position" title="MulensModel.orbits.OrbitEccentric.get_orbital_plane_position"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_orbital_plane_position()</span></code></a> and
+<code class="xref py py-func docutils literal notranslate"><span class="pre">get_reference_plane_position()</span></code>
+functions will be in the same units.</p>
+</dd>
+<dt>Omega_node: <em>float</em></dt><dd><p>Longitude of the ascending node, i.e., the angle from
+the reference direction to the ascending node direction.</p>
+</dd>
+<dt>inclination: <em>float</em></dt><dd><p>Inclination of the orbit relative to plane of the sky.</p>
+</dd>
+<dt>eccentricity: <em>float</em></dt><dd><p>Eccentricity of the orbit, has to be in (0, 1) range.</p>
+</dd>
+<dt>omega_periapsis: <em>float</em></dt><dd><p>Argument of periapsis in degrees.</p>
+</dd>
+<dt>periapsis_epoch: <em>float</em> or <em>None</em></dt><dd><p>Epoch when body is in periapsis.
+It’s in days and usually you want to provide full BJD or HJD.</p>
+</dd>
+<dt>argument_of_latitude_reference: <em>float</em> or <em>None</em></dt><dd><p>Argument of latitude (i.e., u = omega + nu(t_ref)) for
+<em>epoch_reference</em>, which together define
+<em>periapsis_epoch</em> (omega).</p>
+</dd>
+<dt>epoch_reference: <em>float</em> or <em>None</em></dt><dd><p>Reference epoch that together with
+<em>argument_of_latitude_reference</em> defines
+<em>periapsis_epoch</em> (omega).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="MulensModel.orbits.OrbitEccentric.get_orbital_plane_position">
+<span class="sig-name descname"><span class="pre">get_orbital_plane_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.orbits.OrbitEccentric.get_orbital_plane_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate positions in the orbital plane for given epochs</p>
+<dl class="simple">
+<dt>Parameters :</dt><dd><dl class="simple">
+<dt>time: <em>float</em> or <em>np.ndarray</em></dt><dd><p>Epochs for which positions are requested.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>positions: <em>np.ndarray</em></dt><dd><p>Calculated positions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MulensModel.orbits.OrbitEccentric.get_true_anomaly_deg">
+<span class="sig-name descname"><span class="pre">get_true_anomaly_deg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.orbits.OrbitEccentric.get_true_anomaly_deg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate true anomaly [deg] for given epochs.</p>
+<dl class="simple">
+<dt>Parameteres :</dt><dd><dl class="simple">
+<dt>time: <em>float</em> or <em>np.ndarray</em></dt><dd><p>Epochs for which positions are requested.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>true_anomaly: <em>float</em> or <em>np.ndarray</em></dt><dd><p>Values of true anomaly (nu) for given epochs.
+The results are in 0-360 range.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">MulensModel</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_fit_pspl.html">Fitting tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_fit_pi_E.html">Parallax fitting tutorial</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Radek Poleski, Jennifer Yee.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/MulensModel.orbits.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -2,9 +2,7 @@ import numpy as np
 from numpy.testing import assert_almost_equal as almost
 from math import isclose
 import unittest
-from astropy import units as u
 import os.path
-import warnings
 
 import MulensModel as mm
 
@@ -19,9 +17,9 @@ def test_n_lenses():
     """check n_lenses property"""
     model_1 = mm.Model({"t_0": 2456789., "u_0": 1., "t_E": 30.})
     model_2 = mm.Model({"t_0": 2456789., "u_0": 1., "t_E": 30.,
-                        "s": 1.1234, "q": 0.123, 'alpha': 12.34})
+                        "s": 1.1234, "q": 0.123, 'alpha': 192.34})
     model_3 = mm.Model({"t_0": 2456789., "u_0": 1., "t_E": 30.,
-                        "s": 1.1234, "q": 0.123, 'alpha': 12.34,
+                        "s": 1.1234, "q": 0.123, 'alpha': 192.34,
                         'convergence_K': 0.04, 'shear_G': complex(0.1, -0.05)})
     assert model_1.n_lenses == 1
     assert model_2.n_lenses == 2
@@ -99,6 +97,16 @@ def test_model_methods():
     model.set_magnification_methods([9, "point_source", 11])
 
 
+class TestModelParallaxPIE(unittest.TestCase):
+    def test_parallax_pi_E(self):
+        """
+        Make sure error is raised for API used in v1 and v2.
+        """
+        params = {'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'pi_E': (0.5, 0.6)}
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(params)
+
+
 def test_model_parallax_definition():
     """Update parameters in an existing model"""
     model_2 = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.,
@@ -108,11 +116,6 @@ def test_model_parallax_definition():
     model_2.parameters.pi_E_E = 0.4
     assert model_2.parameters.pi_E_N == 0.3
     assert model_2.parameters.pi_E_E == 0.4
-
-    model_3 = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.,
-                        'pi_E': (0.5, 0.6)})
-    assert model_3.parameters.pi_E_N == 0.5
-    assert model_3.parameters.pi_E_E == 0.6
 
     model_4 = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.,
                         'pi_E_N': 0.7, 'pi_E_E': 0.8})
@@ -138,12 +141,12 @@ def test_init_parameters():
     """are parameters properly passed between Model and ModelParameters?"""
     t_0 = 6141.593
     u_0 = 0.5425
-    t_E = 62.63*u.day
+    t_E = 62.63
     params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E})
     model = mm.Model(parameters=params)
     almost(model.parameters.t_0, t_0)
     almost(model.parameters.u_0, u_0)
-    almost(model.parameters.t_E, t_E.value)
+    almost(model.parameters.t_E, t_E)
 
 
 def test_limb_darkening():
@@ -175,17 +178,17 @@ def test_t_E():
 
 # Binary Lens tests
 # Binary lens parameters:
-alpha = 229.58 * u.deg
+alpha = 49.58
 s = 1.3500
 q = 0.00578
 # Other parameters
-t_E = 62.63 * u.day
+t_E = 62.63
 rho = 0.01
 
 # Adjust t_0, u_0 from primary to CM
 shift_x = -s * q / (1. + q)
-delta_t_0 = -t_E.value * shift_x * np.cos(alpha).value
-delta_u_0 = -shift_x * np.sin(alpha).value
+delta_t_0 = -t_E * shift_x * np.cos(alpha * np.pi / 180. + np.pi)
+delta_u_0 = -shift_x * np.sin(alpha * np.pi / 180. + np.pi)
 t_0 = 2456141.593 + delta_t_0
 u_0 = 0.5425 + delta_u_0
 
@@ -200,40 +203,61 @@ def test_BLPS_01():
     t = np.array([2456112.5])
     data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
     magnification = model.get_magnification(data.time[0])
-    almost(magnification, 4.691830781584699)
+    almost(magnification[0], 4.691830781584699)
 # This value comes from early version of this code.
 # almost(m, 4.710563917)
 # This value comes from Andy's getbinp().
 
 
-def test_BLPS_shear_active():
+class TestBLPS_ShearActive(unittest.TestCase):
     """
     simple binary lens with point source and external convergence and shear
     """
-    params = mm.ModelParameters({
-        't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
-        'q': q, 'convergence_K': 0.08, 'shear_G': complex(0.1, -0.1)})
+    def setUp(self):
+        self.params = mm.ModelParameters({
+            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
+            'q': q, 'convergence_K': 0.08, 'shear_G': complex(0.1, -0.1)})
 
-    model = mm.Model(parameters=params)
-    t = np.array([2456112.5])
-    data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
-    magnification = model.get_magnification(data.time[0])
-    assert not isclose(magnification[0], 4.691830781584699, abs_tol=1e-2)
+        self.model = mm.Model(parameters=self.params)
+        self.t = np.array([2456112.5])
+        self.data = mm.MulensData(data_list=[self.t, self.t*0.+16.,
+                                             self.t*0.+0.01])
+
+    def test_vbbl_fail(self):
+        self.model.default_magnification_method = 'point_source'
+        magnification = self.model.get_magnification(self.data.time[0])
+        assert not isclose(magnification[0], 4.691830781584699, abs_tol=1e-2)
+
+    def test_wm95_fail(self):
+        self.model.default_magnification_method = 'point_source_WM95'
+        magnification = self.model.get_magnification(self.data.time[0])
+        assert not isclose(magnification[0], 4.691830781584699, abs_tol=1e-2)
 
 
-def test_BLPS_shear():
+class TestBLPS_Shear(unittest.TestCase):
     """
     simple binary lens with point source and external convergence and shear
     """
-    params = mm.ModelParameters({
-        't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
-        'q': q, 'convergence_K': 0.0, 'shear_G': complex(0, 0)})
 
-    model = mm.Model(parameters=params)
-    t = np.array([2456112.5])
-    data = mm.MulensData(data_list=[t, t*0.+16., t*0.+0.01])
-    magnification = model.get_magnification(data.time[0])
-    almost(magnification, 4.691830781584699)
+    def setUp(self):
+        self.params = mm.ModelParameters({
+            't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
+            'q': q, 'convergence_K': 0.0, 'shear_G': complex(0, 0)})
+
+        self.model = mm.Model(parameters=self.params)
+        self.t = np.array([2456112.5])
+        self.data = mm.MulensData(data_list=[self.t, self.t*0.+16.,
+                                             self.t*0.+0.01])
+
+    def test_vbbl(self):
+        self.model.default_magnification_method = 'point_source'
+        magnification = self.model.get_magnification(self.data.time[0])
+        almost(magnification[0], 4.691830781584699)
+
+    def test_wm95(self):
+        self.model.default_magnification_method = 'point_source_WM95'
+        magnification = self.model.get_magnification(self.data.time[0])
+        almost(magnification[0], 4.691830781584699)
 
 
 def test_BLPS_02():
@@ -421,18 +445,12 @@ class TestMethodsParameters(unittest.TestCase):
 
     def test_default_magnification_methods(self):
         """
-        Test if methods are properly changed and
-        the warning is raised for deprecated method.
+        Test if methods are properly changed, no deprecated method.
         """
         model = mm.Model(self.params)
         assert model.default_magnification_method == 'point_source'
 
-        with warnings.catch_warnings(record=True) as warnings_:
-            warnings.simplefilter("always")
-            model.set_default_magnification_method('point_source_point_lens')
-            assert len(warnings_) == 1
-            assert issubclass(warnings_[0].category, DeprecationWarning)
-
+        model.default_magnification_method = 'point_source_point_lens'
         assert model.default_magnification_method == 'point_source_point_lens'
 
         model.default_magnification_method = 'VBBL'
@@ -452,11 +470,11 @@ def test_caustic_for_orbital_motion():
 
     model.update_caustics()
     almost(model.caustics.get_caustics(),
-           mm.Caustics(q=q, s=s).get_caustics())
+           mm.CausticsBinary(q=q, s=s).get_caustics())
 
     model.update_caustics(100.+365.25/2)
     almost(model.caustics.get_caustics(),
-           mm.Caustics(q=q, s=1.55).get_caustics())
+           mm.CausticsBinary(q=q, s=1.55).get_caustics())
 
 
 def test_update_single_lens_with_shear_caustic():
@@ -467,7 +485,7 @@ def test_update_single_lens_with_shear_caustic():
     shear_G = complex(-0.1, -0.2)
 
     model = mm.Model(mm.ModelParameters({
-        't_0': 0., 'u_0': 1., 't_E': 2., 'alpha': 3.,
+        't_0': 0., 'u_0': 1., 't_E': 2., 'alpha': 183.,
         'convergence_K': 0., 'shear_G': complex(0, 0)}))
     model.parameters.convergence_K = convergence_K
     model.parameters.shear_G = shear_G
@@ -482,7 +500,7 @@ def test_magnifications_for_orbital_motion():
     magnification methods calculations
     """
     dict_static = {'t_0': 100., 'u_0': 0.1, 't_E': 100., 'q': 0.99,
-                   's': 1.1, 'alpha': 10.}
+                   's': 1.1, 'alpha': 190.}
     dict_motion = dict_static.copy()
     dict_motion.update({'ds_dt': -2, 'dalpha_dt': -300.})
     static = mm.Model(dict_static)
@@ -493,7 +511,7 @@ def test_magnifications_for_orbital_motion():
 
     t_2 = 130.
     static.parameters.s = 0.93572895
-    static.parameters.alpha = 345.359342916
+    static.parameters.alpha = 165.359342916
     almost(static.get_magnification(t_2), motion.get_magnification(t_2))
 
 
@@ -901,6 +919,111 @@ class TestGetTrajectory(unittest.TestCase):
         traj_2_1L1S = model_2.get_trajectory(time)
         np.testing.assert_equal(traj_2_1L2S.x, traj_2_1L1S.x)
         np.testing.assert_equal(traj_2_1L2S.y, traj_2_1L1S.y)
+
+
+class TestNSources(unittest.TestCase):
+
+    def setUp(self):
+        """
+        Parameters correspond to OB151459: Hwang et al. 2018, AJ, 155, 259
+        Data are simulated without noise.
+        Fluxes in paper were in the 18th magnitude system. MM works with
+        MAG_ZEROPOINT=22, so these magnitudes have an offset relative to the
+        original event.
+        Table 3: Static 1L3S Model
+        """
+        self.t_E = 4.921
+
+        self.source_1_params = {'t_E': self.t_E, 't_0': 7199.946, 'u_0': 0.065}
+        self.source_2_params = {'t_E': self.t_E, 't_0': 7200.193, 'u_0': 2.638e-3, 'rho': 4.503e-3}
+        self.source_3_params = {'t_E': self.t_E, 't_0': 7200.202, 'u_0': 0.281e-3, 'rho': 0.631e-3}
+
+        self.flux_ratios = {'q_2': 0.014, 'q_3': 0.006}
+        self.source_flux_1 = 0.056
+        self.source_flux_2 = self.source_flux_1 * self.flux_ratios['q_2']
+        self.source_flux_3 = self.source_flux_1 * self.flux_ratios['q_3']
+        self.source_fluxes = [self.source_flux_1, self.source_flux_2, self.source_flux_3]
+        self.blend_flux = 0.100
+
+        self.mag_methods = [7200.1, 'finite_source_uniform_Gould94', 7200.3]
+
+        self.model_1 = mm.Model(self.source_1_params)
+        self.model_2 = mm.Model(self.source_2_params)
+        self.model_2.set_magnification_methods(self.mag_methods)
+        self.model_3 = mm.Model(self.source_3_params)
+        self.model_3.set_magnification_methods(self.mag_methods)
+        self.models = [self.model_1, self.model_2, self.model_3]
+
+        self.times = [7199.946, 7200., 7200.193, 7200.202]
+
+        self.magnifications = np.vstack((
+            self.model_1.get_magnification(self.times),
+            self.model_2.get_magnification(self.times),
+            self.model_3.get_magnification(self.times)))
+
+        self.flux = self.source_flux_1 * self.model_1.get_magnification(self.times)
+        self.flux += self.source_flux_2 * self.model_2.get_magnification(self.times)
+        self.flux += self.source_flux_3 * self.model_3.get_magnification(self.times)
+        self.flux += self.blend_flux
+
+        self.model_params = {'t_E': self.t_E}
+        for i, source_params in enumerate(
+                [self.source_1_params, self.source_2_params, self.source_3_params]):
+            for key, value in source_params.items():
+                if key != 't_E':
+                    self.model_params['{0}_{1}'.format(key, i+1)] = value
+
+        self.model = mm.Model(self.model_params)
+        self.model.set_magnification_methods(self.mag_methods, 2)
+        self.model.set_magnification_methods(self.mag_methods, 3)
+
+    def test_get_magnification(self):
+        np.testing.assert_almost_equal(self.model.get_magnification(self.times), self.magnifications, decimal=4)
+
+    def test_get_lc_1(self):
+        """
+        Returns :
+            magnification: *numpy.ndarray*
+                Magnification values for each epoch.
+        """
+        model_mags = self.model.get_lc(self.times, source_flux=self.source_fluxes, blend_flux=self.blend_flux)
+        np.testing.assert_almost_equal(model_mags, mm.Utils.get_mag_from_flux(self.flux), decimal=4)
+
+    def test_get_lc_2(self):
+        """
+        Returns :
+            magnification: *numpy.ndarray*
+                Magnification values for each epoch.
+        """
+        model_mags = self.model.get_lc(
+            self.times, source_flux=self.source_flux_1,
+            source_flux_ratio=[self.flux_ratios['q_2'], self.flux_ratios['q_3']], blend_flux=self.blend_flux)
+        np.testing.assert_almost_equal(
+            model_mags, mm.Utils.get_mag_from_flux(self.flux), decimal=4
+        )
+
+    def test_get_magnification_curves(self):
+        mag_curves = self.model.get_magnification_curves(self.times, None, None)
+        for mag_curve, model in zip(mag_curves, self.models):
+            np.testing.assert_almost_equal(
+                mag_curve.get_magnification(), model.get_magnification(self.times), decimal=6
+            )
+
+    def test_set_times(self):
+        times = self.model.set_times()
+        np.testing.assert_almost_equal(
+            self.source_1_params['t_0'] - 1.5 * self.t_E, times[0], decimal=4
+        )
+        np.testing.assert_almost_equal(
+            self.source_3_params['t_0'] + 1.5 * self.t_E, times[-1], decimal=4
+        )
+
+# def test_N_sources_gamma():
+#    """
+#    Test a model with gammas for different sources.
+#    """
+#    raise NotImplementedError()
+
 
 # Tests to Add:
 #

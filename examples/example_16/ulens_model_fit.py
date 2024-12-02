@@ -33,13 +33,21 @@ try:
     from pymultinest.analyse import Analyzer
 except Exception:
     import_failed.add("pymultinest")
-
+try:
+    import ultranest
+except Exception:
+    import_failed.add("ultranest")
+try:
+    import plotly.graph_objects as go
+except Exception:
+    import_failed.add("plotly")
 try:
     import MulensModel as mm
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.37.3'
+
+__version__ = '0.41.0'
 
 
 class UlensModelFit(object):
@@ -68,6 +76,19 @@ class UlensModelFit(object):
             pass
             ``'scale_errorbars': {'factor': kappa, 'minimum': epsilon}``
             to scale uncertainties.
+
+        fit_method: *str*
+            Method of fitting. Currently accepted values are ``EMCEE``,
+            ``MultiNest``, and ``UltraNest``. If not provided, the script
+            will guess it based on other parameters: ``EMCEE`` is selected
+            if ``starting_parameters`` are provided. If ``prior_limits`` are
+            provided, either ``MultiNest`` or ``UltraNest`` will be selected
+            depending on the ``fitting_parameters``.
+
+            Webpage of each method:
+            - EMCEE: https://emcee.readthedocs.io/en/stable/
+            - MultiNest: https://johannesbuchner.github.io/PyMultiNest/
+            - UltraNest: https://johannesbuchner.github.io/UltraNest/
 
         starting_parameters: *dict*
             Starting values of the parameters.
@@ -108,12 +129,12 @@ class UlensModelFit(object):
 
         prior_limits: *dict*
             Upper and lower limits of parameters.
-            It also indicates the pyMultiNest fitting mode.
+            It only applies to pyMultiNest and UltraNest fitting.
 
             Keys are MulensModel parameters and values are lists of two floats
             each (alternatively a string giving 2 floats can be provided - see
             example below). Currently, no informative priors are allowed for
-            pyMultiNest fitting. Example input:
+            pyMultiNest and UltraNest fitting. Example input:
 
             .. code-block:: python
 
@@ -157,7 +178,7 @@ class UlensModelFit(object):
         min_values: *dict*
             Minimum values of parameters that define the prior, e.g.,
             ``{'t_E': 0.}``. Note that the these are only limits of a prior.
-            Functional form of priors can be defines in ``fit_constraints``.
+            Functional form of priors can be defined in ``fit_constraints``.
             It works only for EMCEE fitting.
 
         max_values: *dict*
@@ -167,7 +188,7 @@ class UlensModelFit(object):
 
         fitting_parameters: *dict*
             Parameters of the fit function. They depend on the method used -
-            we discuss EMCEE and pyMultiNest below.
+            we discuss EMCEE, pyMultiNest and UltraNest below.
 
             First - EMCEE. The required parameter is ``n_steps``.
             You can also specify ``n_burn`` and ``n_walkers``. The ``n_burn``
@@ -201,7 +222,7 @@ class UlensModelFit(object):
             the posterior to be detected and reported separately?
 
             ``n_live_points`` (*int*) - number of live points, default value
-            is 400.
+            is 400. Also valid for UltraNest.
 
             ``sampling efficiency`` (*float*) - requested sampling efficiency.
             MultiNest documentation suggests 0.8 (default value) for parameter
@@ -209,6 +230,37 @@ class UlensModelFit(object):
 
             ``evidence tolerance`` (*float*) - requested tolerance of ln(Z)
             calculation; default is 0.5 and should work well in most cases.
+
+            Third - UltraNest. There are no required parameters, but a few
+            can be provided. Currently accepted ones are:
+
+            ``log directory`` (*str*) - where to store output files. If given,
+            there is a check if directory exists. If not given, no outputs
+            are saved.
+
+            ``derived parameter names`` (*str*) - names of additional derived
+            parameters created by transform. In microlensing, they are usually
+            the source(s) and blending fluxes. If not given, they are ignored
+            in the transform function.
+
+            ``show_status`` (*bool*) - whether to show integration progress
+            as a status line or not. Default is *True*.
+
+            ``min_num_live_points`` (*int*) - minimum number of live points
+            throughout the run. Default value is 400.
+
+            ``dlogz`` (*float*) - Target evidence uncertainty, in order to
+            obtain a logz error below a threshold. Default value is 0.5.
+            It can be increased to allow `min_num_live_points` values below:
+            sqrt(iterations) / dlogz = sqrt(1000) / 0.5 ~ 64.
+
+            ``frac_remain`` (*float*) - Integrate until this fraction of the
+            integral is left in the remainder. Numbers smaller than 0.01
+            ensure that peaks are discovered, higher numbers can be set if
+            the posterior is simple. Default value is 0.01.
+
+            ``max_num_improvement_loops`` (*int*) - Limit the number of times
+            the algorithm is repeated to improve. Default value is -1.
 
         fit_constraints: *dict*
             Constraints on model other than minimal and maximal values.
@@ -268,14 +320,21 @@ class UlensModelFit(object):
               Mroz et al. 2020 -
               https://ui.adsabs.harvard.edu/abs/2020ApJS..249...16M/abstract
 
+            ``'posterior parsing'`` - additional settings that allow
+            modyfing posterior after it's calculated. Possile values:
+
+                ``'abs': [...]`` - calculate absolute values for parameters
+                from given list. It's useful for e.g. ``'u_0'`` for
+                free-floating planet events.
+
         plots: *dict*
             Parameters of the plots to be made after the fit. Currently
             allowed keys are ``triangle``, ``trace`` (only EMCEE fitting),
             ``trajectory``, and ``best model``.
             The values are also dicts and currently accepted keys are:
             1) for ``best model``:
-            ``'file'``, ``'time range'``, ``'magnitude range'``, ``'legend'``,
-            and ``'rcParams'``,
+            ``'file'``,``'interactive' ``'time range'``, ``'magnitude range'``,
+            ``'legend'``,`and ``'rcParams'``,
             2) for ``triangle`` and ``trace``:
             ``'file'`` and ``'shift t_0'`` (*bool*, *True* is default)
             3) for ``trajectory``:
@@ -296,6 +355,7 @@ class UlensModelFit(object):
                       'time range': 2456050. 2456300.
                   'best model':
                       'file': 'my_fit_best.png'
+                      'interactive' : 'my_fit_best.html'
                       'time range': 2456000. 2456300.
                       'magnitude range': 15.123 13.012
                       'legend':
@@ -330,7 +390,8 @@ class UlensModelFit(object):
             starting_parameters=None, prior_limits=None, model=None,
             fixed_parameters=None,
             min_values=None, max_values=None, fitting_parameters=None,
-            fit_constraints=None, plots=None, other_output=None
+            fit_constraints=None, plots=None, other_output=None,
+            fit_method=None
     ):
         self._check_MM_version()
         self._photometry_files = photometry_files
@@ -344,11 +405,16 @@ class UlensModelFit(object):
         self._fit_constraints = fit_constraints
         self._plots = plots
         self._other_output = other_output
+        self._fit_method = fit_method
 
         self._which_task()
         self._set_default_parameters()
         if self._task == 'fit':
-            self._guess_fitting_method()
+            if self._fit_method is None:
+                self._guess_fitting_method()
+            else:
+                self._fit_method = self._fit_method.lower()
+                self._check_fitting_method()
             self._check_starting_parameters_type()
             self._set_fit_parameters_unsorted()
         self._check_imports()
@@ -412,7 +478,7 @@ class UlensModelFit(object):
 
     def _check_unnecessary_settings_plot(self):
         """
-        Make sure that there arent' too many parameters specified for:
+        Make sure that there aren't too many parameters specified for:
         self._task == 'plot'
         """
         keys = ['_starting_parameters_input', '_min_values', '_max_values',
@@ -459,7 +525,6 @@ class UlensModelFit(object):
             'xi_eccentricity xi_omega_periapsis q_source')
         self._all_MM_parameters = parameters_str.split()
         self._fixed_only_MM_parameters = ['t_0_par', 't_0_xi']
-        self._other_parameters = []
 
         self._latex_conversion = dict(
             t_0='t_0', u_0='u_0',
@@ -483,7 +548,23 @@ class UlensModelFit(object):
             xi_omega_periapsis='\\xi_{\\omega}',
             q_source='q_{\\rm source}',
         )
+
+        self._user_parameters = []
+        self._other_parameters = []
+        self._latex_conversion_user = dict()
         self._latex_conversion_other = dict()
+
+        self._set_default_user_and_other_parameters()
+
+    def _set_default_user_and_other_parameters(self):
+        """
+        Method to be sub-classed if user defines their own parameters (microlensing or other).
+        If you use different microlensing parameters, then define self._user_parameters and
+        self._latex_conversion_user.
+        If you add non-microlensing parameters (e.g., source distance) then define self._other_parameters and
+        self._latex_conversion_other.
+        """
+        pass
 
     def _guess_fitting_method(self):
         """
@@ -499,7 +580,7 @@ class UlensModelFit(object):
                     "which makes impossible to choose the fitting method. "
                     "These settings indicate EMCEE and pyMultiNest "
                     "respectively, and cannot be both set.")
-            method = "MultiNest"
+            method = self._guess_MultiNest_or_UltraNest()
         if method is None:
             raise ValueError(
                 "No fitting method chosen. You can chose either 'EMCEE' or "
@@ -507,12 +588,50 @@ class UlensModelFit(object):
                 "starting_parameters or prior_limits, respectively.")
         self._fit_method = method
 
+    def _guess_MultiNest_or_UltraNest(self):
+        """
+        Guess fit_method between MultiNest or UltraNest, based on the
+        provided fitting_parameters.
+        """
+        args_MultiNest = ['basename', 'multimodal', 'evidence tolerance',
+                          'n_live_points']
+        if all([key in args_MultiNest for key in self._fitting_parameters]):
+            return "MultiNest"
+
+        args_UltraNest = ['log directory', 'derived parameter names',
+                          'show_status', 'dlogz', 'frac_remain',
+                          'max_num_improvement_loops', 'n_live_points']
+        if all([key in args_UltraNest for key in self._fitting_parameters]):
+            return "UltraNest"
+
+        raise ValueError(
+            "Cannot guess fitting method. Provide more parameters in "
+            "fitting_parameters.")
+
+    def _check_fitting_method(self):
+        """
+        Check if fitting method is consistent with the settings.
+        """
+        if self._fit_method == "emcee":
+            self._fit_method = "EMCEE"
+            if self._starting_parameters_input is None:
+                raise ValueError(
+                    "EMCEE fitting method requires starting_parameters.")
+        elif self._fit_method in ["multinest", "ultranest"]:
+            self._fit_method = self._fit_method.capitalize()
+            self._fit_method = self._fit_method.replace("nest", "Nest")
+            if self._prior_limits is None:
+                msg = "{:} fitting method requires prior_limits."
+                raise ValueError(msg.format(self._fit_method))
+        else:
+            raise ValueError("Invalid fitting method was inserted.")
+
     def _check_starting_parameters_type(self):
         """
         Check if starting parameters are read from file or
         will be drawn from distributions specified.
         """
-        if self._fit_method == "MultiNest":
+        if self._fit_method in ["MultiNest", "UltraNest"]:
             return
 
         if 'file' in self._starting_parameters_input:
@@ -540,7 +659,7 @@ class UlensModelFit(object):
             else:
                 raise ValueError(
                     'unexpected: ' + str(self._starting_parameters_type))
-        elif self._fit_method == "MultiNest":
+        elif self._fit_method in ["MultiNest", "UltraNest"]:
             unsorted_keys = self._prior_limits.keys()
         else:
             raise ValueError('unexpected method error')
@@ -569,9 +688,14 @@ class UlensModelFit(object):
                 required_packages.add('emcee')
             elif self._fit_method == "MultiNest":
                 required_packages.add('pymultinest')
+            elif self._fit_method == "UltraNest":
+                required_packages.add('ultranest')
 
             if self._plots is not None and 'triangle' in self._plots:
                 required_packages.add('corner')
+
+        if self._plots['best model'] and 'interactive' in self._plots['best model']:
+            required_packages.add('plotly')
 
         failed = import_failed.intersection(required_packages)
 
@@ -584,6 +708,8 @@ class UlensModelFit(object):
                     "\nFor corner package it's enough that you run:\nwget " +
                     "https://raw.githubusercontent.com/dfm/corner.py/" +
                     "v2.0.0/corner/corner.py")
+            if "plotly" in failed:
+                message += ("\nThe plotly package is required for creating interactive best model plots.")
 
             raise ImportError(message)
 
@@ -605,7 +731,6 @@ class UlensModelFit(object):
         self._check_ulens_model_parameters()
         self._get_parameters_ordered()
         self._get_parameters_latex()
-        self._parse_fitting_parameters()
         self._set_prior_limits()
         self._parse_fit_constraints()
         if self._fit_method == "EMCEE":
@@ -613,6 +738,7 @@ class UlensModelFit(object):
 
         self._check_fixed_parameters()
         self._make_model_and_event()
+        self._parse_fitting_parameters()
         if self._fit_method == "EMCEE":
             self._get_starting_parameters()
 
@@ -675,7 +801,8 @@ class UlensModelFit(object):
         if 'trace' in self._plots:
             self._check_plots_parameters_trace()
 
-        names = {key: value['file'] for (key, value) in self._plots.items()}
+        names = {key: value.get('file', None)
+                 for (key, value) in self._plots.items()}
         done = {}
         for (plot_type, name) in names.items():
             if name is None:
@@ -691,7 +818,7 @@ class UlensModelFit(object):
         Check if parameters of best model make sense
         """
         allowed = set(['file', 'time range', 'magnitude range', 'legend',
-                       'rcParams', 'second Y scale'])
+                       'rcParams', 'second Y scale', 'interactive'])
         unknown = set(self._plots['best model'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
@@ -722,6 +849,9 @@ class UlensModelFit(object):
                     args = [key, type(self._plots['best model'][key])]
                     raise TypeError(msg.format(*args))
 
+        if 'interactive' in self._plots['best model']:
+            self._check_plots_parameters_best_model_interactive()
+
         if 'second Y scale' in self._plots['best model']:
             self._check_plots_parameters_best_model_Y_scale()
 
@@ -744,6 +874,14 @@ class UlensModelFit(object):
             raise ValueError("Incorrect 'time range' for " + plot_type +
                              "plot:\n" + text[0] + " " + text[1])
         self._plots[plot_type]['time range'] = [t_0, t_1]
+
+    def _check_plots_parameters_best_model_interactive(self):
+        """
+        Check if there is no problem with interactive best plot
+        """
+        if "second Y scale" in self._plots['best model']:
+            msg = "Interactive plot will not have a second Y scale. This feature is not yet implemented."
+            raise NotImplementedError(msg)
 
     def _check_plots_parameters_best_model_Y_scale(self):
         """
@@ -837,9 +975,9 @@ class UlensModelFit(object):
             raise ValueError(
                 'Unknown settings for "trace" plot: {:}'.format(unknown))
 
-        if self._fit_method == "MultiNest":
+        if self._fit_method in ["MultiNest", "UltraNest"]:
             raise ValueError(
-                'Trace plot cannot be requested for MultiNest fit')
+                f'Trace plot cannot be requested for {self._fit_method}.')
 
         self._parse_plots_parameter_shift_t_0(self._plots['trace'])
 
@@ -890,10 +1028,10 @@ class UlensModelFit(object):
         """
         Check if there aren't any other inconsistencies between settings
         """
-        if self._fit_method == "MultiNest":
+        if self._fit_method in ["MultiNest", "UltraNest"]:
             if self._min_values is not None or self._max_values is not None:
-                raise ValueError("In MultiNest fitting you cannot set "
-                                 "min_values or max_values")
+                msg = "In {:} fitting you cannot set min_values or max_values"
+                raise ValueError(msg.format(self._fit_method))
 
     def _parse_methods(self, methods):
         """
@@ -1085,7 +1223,7 @@ class UlensModelFit(object):
             to_be_checked = set(self._model_parameters['parameters'])
         else:
             raise ValueError('unexpected error: ' + str(self._task))
-        allowed = self._all_MM_parameters + self._other_parameters
+        allowed = self._all_MM_parameters + self._other_parameters + self._user_parameters
         unknown = to_be_checked - set(allowed)
         if len(unknown) > 0:
             raise ValueError('Unknown parameters: {:}'.format(unknown))
@@ -1096,7 +1234,7 @@ class UlensModelFit(object):
         This is useful to make sure the order of printed parameters
         is always the same.
         """
-        order = self._all_MM_parameters + self._other_parameters
+        order = self._all_MM_parameters + self._user_parameters + self._other_parameters
         indexes = sorted(
             [order.index(p) for p in self._fit_parameters_unsorted])
 
@@ -1112,11 +1250,21 @@ class UlensModelFit(object):
         """
         change self._fit_parameters into latex parameters
         """
-        conversion = {**self._latex_conversion, **self._latex_conversion_other}
+        conversion = {**self._latex_conversion, **self._latex_conversion_other, **self._latex_conversion_user}
 
         if self._shift_t_0:
             for key in ['t_0', 't_0_1', 't_0_2']:
                 conversion[key] = '\\Delta ' + conversion[key]
+
+        if self._fit_constraints is not None:
+            if 'posterior parsing' in self._fit_constraints:
+                settings = self._fit_constraints['posterior parsing']
+                if 'abs' in settings:
+                    if not isinstance(settings['abs'], list):
+                        raise ValueError("Error: fit_constraints -> posterior"
+                                         " parsing -> abs - list expected")
+                    for key in settings['abs']:
+                        conversion[key] = "|" + conversion[key] + "|"
 
         self._fit_parameters_latex = [
             ('$' + conversion[key] + '$') for key in self._fit_parameters]
@@ -1131,6 +1279,8 @@ class UlensModelFit(object):
             self._get_n_walkers()
         elif self._fit_method == 'MultiNest':
             self._parse_fitting_parameters_MultiNest()
+        elif self._fit_method == 'UltraNest':
+            self._parse_fitting_parameters_UltraNest()
         else:
             raise ValueError('internal inconsistency')
 
@@ -1204,8 +1354,8 @@ class UlensModelFit(object):
 
         for required_ in required:
             if required_ not in settings:
-                raise ValueError('EMCEE method requires fitting parameter: ' +
-                                 required_)
+                msg = '{:} method requires fitting parameter: {:}'
+                raise ValueError(msg.format(self._fit_method, required_))
 
         if len(set(settings.keys()) - set(full)) > 0:
             raise ValueError('Unexpected fitting parameters: ' +
@@ -1259,11 +1409,9 @@ class UlensModelFit(object):
         if 'n_walkers' in self._fitting_parameters:
             self._n_walkers = self._fitting_parameters['n_walkers']
         else:
-            if self._starting_parameters_type == 'file':
-                self._n_walkers = None
-            elif self._starting_parameters_type == 'draw':
+            if self._starting_parameters_type == 'draw':
                 self._n_walkers = 4 * self._n_fit_parameters
-            else:
+            elif self._starting_parameters_type != 'file':
                 raise ValueError(
                     'Unexpected: ' + self._starting_parameters_type)
 
@@ -1295,7 +1443,7 @@ class UlensModelFit(object):
         same_keys = ["multimodal", "n_live_points"]
         keys = {**keys, **{key: key for key in same_keys}}
 
-        self._set_dict_safetly(self._kwargs_MultiNest, settings, keys)
+        self._set_dict_safely(self._kwargs_MultiNest, settings, keys)
 
         self._kwargs_MultiNest['importance_nested_sampling'] = (
             not self._kwargs_MultiNest['multimodal'])
@@ -1307,7 +1455,7 @@ class UlensModelFit(object):
             self._MN_temporary_files = True
         self._check_output_files_MultiNest()
 
-    def _set_dict_safetly(self, target, source, keys_mapping):
+    def _set_dict_safely(self, target, source, keys_mapping):
         """
         For each key in keys_mapping (*dict*) check if it is in
         source (*dict*). If it is, then set
@@ -1352,13 +1500,62 @@ class UlensModelFit(object):
             message += "(unless you kill this process)!!!\n"
             warnings.warn(message + str(existing) + "\n")
 
+    def _parse_fitting_parameters_UltraNest(self):
+        """
+        Make sure UltraNest fitting parameters are properly defined
+        """
+        self._kwargs_UltraNest = dict()
+        self._kwargs_UltraNest['viz_callback'] = False
+
+        settings = self._fitting_parameters.copy()
+        if settings is None:
+            settings = dict()
+
+        required = []
+        bools = ['show_status']
+        ints = ['min_num_live_points', 'max_num_improvement_loops']
+        if 'n_live_points' in settings:
+            ints[0] = 'n_live_points'
+        strings = ['log directory', 'derived parameter names']
+        floats = ['dlogz', 'frac_remain']
+        allowed = strings + bools + ints + floats
+
+        self._check_required_and_allowed_parameters(required, allowed)
+        self._check_parameters_types(settings, bools, ints, floats, strings)
+        self._log_dir_UltraNest = settings.pop("log directory", None)
+        value = settings.pop("derived parameter names", "")
+        self._derived_param_names_UltraNest = value.split()
+        self._check_dir_and_parameter_names_Ultranest()
+
+        keys = {"n_live_points": "min_num_live_points"}
+        same_keys = ["min_num_live_points", 'max_num_improvement_loops', "show_status", "dlogz", "frac_remain"]
+        keys = {**keys, **{key: key for key in same_keys}}
+        self._set_dict_safely(self._kwargs_UltraNest, settings, keys)
+
+    def _check_dir_and_parameter_names_Ultranest(self):
+        """
+        Checks if the path to `log directory` exists and is a directory,
+        and also if the number of `derived parameter names` matches the
+        number of derived fluxes.
+        """
+        if self._log_dir_UltraNest is not None:
+            if not path.exists(self._log_dir_UltraNest):
+                raise ValueError("log directory value in fitting_parameters does not exist.")
+            elif not path.isdir(self._log_dir_UltraNest):
+                raise ValueError("log directory value in fitting_parameters exists, but it is a file.")
+
+        n_datasets = len(self._datasets)
+        n_fluxes = self._n_fluxes_per_dataset
+        if len(self._derived_param_names_UltraNest) != n_datasets * n_fluxes:
+            raise ValueError("The number of `derived parameter names` must match the number of derived fluxes.")
+
     def _set_prior_limits(self):
         """
         Set minimum and maximum values of the prior space
         """
         if self._fit_method == 'EMCEE':
             self._set_prior_limits_EMCEE()
-        elif self._fit_method == 'MultiNest':
+        elif self._fit_method in ['MultiNest', 'UltraNest']:
             self._set_prior_limits_MultiNest()
         else:
             raise ValueError('internal bug')
@@ -1376,16 +1573,12 @@ class UlensModelFit(object):
         for key in self._min_values:
             if key in self._max_values:
                 if self._min_values[key] >= self._max_values[key]:
-                    fmt = (
-                        "This doesn't make sense: for {:} the lower limit " +
-                        "is larger than the upper limit: {:} vs {:}")
-                    raise ValueError(fmt.format(
-                        key, self._min_values[key], self._max_values[key]))
+                    fmt = ("This doesn't make sense: for {:} the lower limit "
+                           "is larger than the upper limit: {:} vs {:}")
+                    raise ValueError(fmt.format(key, self._min_values[key], self._max_values[key]))
 
-        self._min_values_indexed = self._parse_min_max_values_single(
-            self._min_values)
-        self._max_values_indexed = self._parse_min_max_values_single(
-            self._max_values)
+        self._min_values_indexed = self._parse_min_max_values_single(self._min_values)
+        self._max_values_indexed = self._parse_min_max_values_single(self._max_values)
 
     def _parse_min_max_values_single(self, limits):
         """
@@ -1397,24 +1590,23 @@ class UlensModelFit(object):
 
         for (key, value) in limits.items():
             if key not in self._fit_parameters:
-                raise ValueError(
-                    'Key provided in limits: {:}\n'.format(key) +
-                    'is not one of the parameters for fitting: ' +
-                    '{:}'.format(self._fit_parameters))
+                fmt = 'Key provided in limits: {:}\nis not one of the parameters for fitting: {:}'
+                raise ValueError(fmt.format(key, self._fit_parameters))
+
             index = self._fit_parameters.index(key)
             out[index] = value
+
         return out
 
     def _set_prior_limits_MultiNest(self):
         """
-        Set prior limits and transformation constants (from unit cube to
-        MM parameters).
+        Set prior limits and transformation constants (from unit cube to MM parameters).
         """
         min_values = []
         max_values = []
         for parameter in self._fit_parameters:
             if parameter not in self._prior_limits:
-                raise ValueError("interal issue")
+                raise ValueError("internal issue")
             values = self._prior_limits[parameter]
             if isinstance(values, str):
                 values = values.split()
@@ -1443,13 +1635,6 @@ class UlensModelFit(object):
         """
         Parse the fitting constraints that are not simple limits on parameters
         """
-        if self._fit_method == 'MultiNest':
-            if self._fit_constraints is not None:
-                raise NotImplementedError(
-                    "Currently no fit_constraints are implemented for "
-                    "MultiNest fit. Please contact Radek Poleski with "
-                    "a specific request.")
-
         self._prior_t_E = None
         self._priors = None
 
@@ -1457,18 +1642,41 @@ class UlensModelFit(object):
             self._set_default_fit_constraints()
             return
 
-        if isinstance(self._fit_constraints, list):
-            raise TypeError(
-                "In version 0.5.0 we've changed type of 'fit_constraints' " +
-                "from list to dict. Please correct you input and re-run " +
-                "the code. Most probably what you need is:\n" +
-                "fit_constraints = {'no_negative_blending_flux': True}")
-
+        self._check_fit_constraints()
         self._parse_fit_constraints_keys()
         self._parse_fit_constraints_fluxes()
+        self._parse_fit_constraints_posterior()
 
         if 'prior' in self._fit_constraints:
             self._parse_fit_constraints_prior()
+
+    def _check_fit_constraints(self):
+        """
+        Run checks on self._fit_constraints
+        """
+        if self._fit_method == 'MultiNest':
+            raise NotImplementedError(
+                "Currently no fit_constraints are implemented for MultiNest "
+                "fit. Please contact Radek Poleski with a specific request.")
+
+        if self._fit_method == 'UltraNest':
+            allowed_keys = {'negative_blending_flux_sigma_mag', 'prior'}
+            used_keys = set(self._fit_constraints.keys())
+            if not used_keys.issubset(allowed_keys):
+                raise NotImplementedError(
+                    "The supported fit_constraints options for UltraNest are"
+                    " `negative_blending_flux_sigma_mag` and `prior`.")
+            if 'prior' in used_keys:
+                if set(self._fit_constraints['prior'].keys()) != {'t_E'}:
+                    raise ValueError(
+                        "Only `t_E` is allowed in fit_constraints['prior'].")
+
+        if isinstance(self._fit_constraints, list):
+            raise TypeError(
+                "In version 0.5.0 we've changed type of 'fit_constraints' " +
+                "from list to dict. Please correct your input and re-run " +
+                "the code. Most probably what you need is:\n" +
+                "fit_constraints = {'no_negative_blending_flux': True}")
 
     def _parse_fit_constraints_keys(self):
         """
@@ -1476,14 +1684,10 @@ class UlensModelFit(object):
         """
         allowed_keys_flux = {
             "no_negative_blending_flux", "negative_blending_flux_sigma_mag"}
+        allowed_keys_color = {'color', 'color source 1', 'color source 2'}
+        allowed_keys = {*allowed_keys_flux, *allowed_keys_color,
+                        "prior", "posterior parsing"}
 
-        allowed_keys_color = {'color',
-                              'color source 1',
-                              'color source 2', }
-
-        allowed_keys = {*allowed_keys_flux,
-                        *allowed_keys_color,
-                        "prior"}
         used_keys = set(self._fit_constraints.keys())
         if len(used_keys - allowed_keys) > 0:
             raise ValueError('unrecognized constraint: {:}'.format(
@@ -1500,9 +1704,9 @@ class UlensModelFit(object):
     def _set_default_fit_constraints(self):
         """
         Set default fitting constraints if none are provided.
-
         """
         self._fit_constraints = {"no_negative_blending_flux": False}
+        self._parse_posterior_abs = list()
 
     def _check_color_constraints_conflict(self, allowed_keys_color):
         """
@@ -1517,7 +1721,7 @@ class UlensModelFit(object):
                     str(used_keys.intersection(allowed_keys_color)-{'color'}))
 
     def _parse_fit_constraints_fluxes(self):
-        """msg +=
+        """
         Process each constraint fit_constraints.
         """
         for key, value in self._fit_constraints.items():
@@ -1538,7 +1742,7 @@ class UlensModelFit(object):
 
             sigma = float(value.split()[0])
             sets = list(map(self._get_no_of_dataset,
-                        shlex.split(value, posix=False)[1:]))
+                            shlex.split(value, posix=False)[1:]))
             if len(sets) > len(self._datasets):
                 raise ValueError(
                     "dataset number specified in" +
@@ -1603,10 +1807,8 @@ class UlensModelFit(object):
         priors = dict()
         for (key, value) in self._fit_constraints['prior'].items():
             if key == 't_E':
-                if value == "Mroz et al. 2017":
-                    self._prior_t_E = 'Mroz+17'
-                elif value == "Mroz et al. 2020":
-                    self._prior_t_E = 'Mroz+20'
+                if value in ["Mroz et al. 2017", "Mroz et al. 2020"]:
+                    self._prior_t_E = value.replace(" et al. 20", "+")
                 else:
                     raise ValueError("Unrecognized t_E prior: " + value)
                 self._read_prior_t_E_data()
@@ -1632,6 +1834,33 @@ class UlensModelFit(object):
 
         if len(priors) > 0:
             self._priors = priors
+
+    def _parse_fit_constraints_posterior(self):
+        """
+        Parse constraints on what is done with posterior.
+        """
+        if 'posterior parsing' not in self._fit_constraints:
+            self._parse_posterior_abs = list()
+            return
+
+        if self._fit_method != "EMCEE":
+            raise ValueError('Input in "posterior parsing" is allowed only'
+                             ' for EMCEE')
+
+        allowed_keys = {"abs"}
+        settings = self._fit_constraints['posterior parsing']
+        unknown = set(settings.keys()) - allowed_keys
+        if len(unknown) > 0:
+            msg = "Unrecognized key in fit_constraints -> 'posterior parsing':"
+            raise KeyError(msg + ' ' + str(unknown))
+
+        if 'abs' in settings:
+            self._parse_posterior_abs = settings['abs']
+            for parameter in self._parse_posterior_abs:
+                if parameter not in self._fit_parameters:
+                    raise ValueError(
+                        "Error - you can calculate absolute value only of "
+                        "a parameter which is fitted, not: " + parameter)
 
     def _get_no_of_dataset(self, label):
         """
@@ -1830,8 +2059,8 @@ class UlensModelFit(object):
                 for (band, u_value) in self._model_parameters[key].items():
                     model.set_limb_coeff_u(band, u_value)
             if 'default method' in self._model_parameters:
-                model.set_default_magnification_method(
-                    self._model_parameters['default method'])
+                model.default_magnification_method = \
+                    self._model_parameters['default method']
             if 'methods' in self._model_parameters:
                 model.set_magnification_methods(
                     self._model_parameters['methods'])
@@ -1898,7 +2127,7 @@ class UlensModelFit(object):
         elif self._task == 'fit':
             if self._fit_method == 'EMCEE':
                 parameters.update(self._get_example_parameters_EMCEE())
-            elif self._fit_method == 'MultiNest':
+            elif self._fit_method in ['MultiNest', 'UltraNest']:
                 means = 0.5 * (self._max_values + self._min_values)
                 parameters.update(dict(zip(self._fit_parameters, means)))
                 if "x_caustic_in" in self._fit_parameters:
@@ -1911,6 +2140,14 @@ class UlensModelFit(object):
         else:
             raise ValueError('internal value')
 
+        parameters = self._transform_parameters(parameters)
+        return parameters
+
+    def _transform_parameters(self, parameters):
+        """
+        Method to be sub-classed if user defines their own microlensing parameters.
+        It takes a dict as input and returns a dict.
+        """
         return parameters
 
     def _get_example_parameters_EMCEE(self):
@@ -2056,9 +2293,12 @@ class UlensModelFit(object):
 
         NOTE: we're using np.log(), i.e., natural logarithms.
         """
-        ln_prior = self._ln_prior(theta)
-        if not np.isfinite(ln_prior):
-            return self._return_ln_prob(-np.inf)
+        if self._fit_method == "EMCEE":
+            ln_prior = self._ln_prior(theta)
+            if not np.isfinite(ln_prior):
+                return self._return_ln_prob(-np.inf)
+        elif self._fit_method == "UltraNest":
+            ln_prior = self._ln_prior_t_E() if self._prior_t_E else 0.
 
         ln_like = self._ln_like(theta)
         if not np.isfinite(ln_like):
@@ -2074,9 +2314,11 @@ class UlensModelFit(object):
 
         ln_prob += ln_prior_flux
 
-        self._update_best_model_EMCEE(ln_prob, theta, fluxes)
+        if self._fit_method == "EMCEE":
+            self._update_best_model_EMCEE(ln_prob, theta, fluxes)
+            return self._return_ln_prob(ln_prob, fluxes)
 
-        return self._return_ln_prob(ln_prob, fluxes)
+        return ln_prob
 
     def _return_ln_prob(self, value, fluxes=None):
         """
@@ -2106,11 +2348,14 @@ class UlensModelFit(object):
         if self._task == 'plot':
             return
 
+        parameters = dict(zip(self._fit_parameters, theta))
+        parameters = self._transform_parameters(parameters)
+
         if len(self._fit_parameters_other) == 0:
-            for (parameter, value) in zip(self._fit_parameters, theta):
+            for (parameter, value) in parameters.items():
                 setattr(self._model.parameters, parameter, value)
         else:
-            for (parameter, value) in zip(self._fit_parameters, theta):
+            for (parameter, value) in parameters.items():
                 if parameter not in self._fit_parameters_other:
                     setattr(self._model.parameters, parameter, value)
                 else:
@@ -2310,7 +2555,8 @@ class UlensModelFit(object):
                 return outside
 
         inside += self._apply_negative_blending_flux_sigma_mag_prior(fluxes)
-        inside += self._apply_color_prior(fluxes)
+        if self._fit_method == "EMCEE":
+            inside += self._apply_color_prior(fluxes)
 
         return inside
 
@@ -2369,6 +2615,8 @@ class UlensModelFit(object):
             self._setup_fit_EMCEE()
         elif self._fit_method == 'MultiNest':
             self._setup_fit_MultiNest()
+        elif self._fit_method == 'UltraNest':
+            self._setup_fit_UltraNest()
         else:
             raise ValueError('internal bug')
 
@@ -2392,21 +2640,47 @@ class UlensModelFit(object):
         if self._return_fluxes:
             self._kwargs_MultiNest['n_params'] += self._n_fluxes
 
+    def _setup_fit_UltraNest(self):
+        """
+        Prepare UltraNest fit, declaring sampler instance.
+        If the names of the derived parameters are not given, the source
+        and blending fluxes are assigned, with indexes depending on the
+        number of sources (s1, s2) and datasets (_1, _2).
+        """
+        if self._return_fluxes:
+            if len(self._derived_param_names_UltraNest) == 0:
+                if self._flux_names is None:
+                    self._flux_names = self._get_fluxes_names_to_print()
+                self._derived_param_names_UltraNest = self._flux_names
+
+        n_dims = self._n_fit_parameters
+        n_params = n_dims + self._n_fluxes_per_dataset * self._return_fluxes
+        t_kwargs = {'n_dims': n_dims, 'n_params': n_params}
+        self._sampler = ultranest.ReactiveNestedSampler(
+            self._fit_parameters, self._ln_prob,
+            transform=lambda cube: self._transform_unit_cube(cube, **t_kwargs),
+            derived_param_names=self._derived_param_names_UltraNest,
+            log_dir=self._log_dir_UltraNest
+        )
+
     def _transform_unit_cube(self, cube, n_dims, n_params):
         """
-        Transform MulitNest unit cube to microlensing parameters.
+        Transform MultiNest/UltraNest unit cube to microlensing parameters.
 
-        Based on SafePrior() in
+        MultiNest: based on SafePrior() in
         https://github.com/JohannesBuchner/PyMultiNest/blob/master/
         pymultinest/solve.py
+        UltraNest: based on the above and UltraNest documentation
+        https://johannesbuchner.github.io/UltraNest/example-sine-line.html
 
         NOTE: We call self._ln_like() here (and remember the result)
         because in MultiNest you can add fluxes only in "prior" function,
         not in likelihood function.
         """
         cube_out = self._min_values + cube[:n_dims] * self._range_values
-        for i in range(n_dims):
-            cube[i] = cube_out[i]
+        if self._fit_method == "MultiNest":
+            for i in range(n_dims):
+                cube[i] = cube_out[i]
 
         if "x_caustic_in" in self._model.parameters.parameters:
             self._set_model_parameters(cube_out)
@@ -2414,19 +2688,25 @@ class UlensModelFit(object):
                 self._last_ln_like = -1.e300
                 self._last_theta = cube_out
                 if self._return_fluxes:
-                    for i in range(n_dims, n_params):
-                        cube[i] = 0.
                     self._last_fluxes = np.zeros(n_params - n_dims)
-                return
+                    if self._fit_method == "MultiNest":
+                        for i in range(n_dims, n_params):
+                            cube[i] = 0.
+                        return
+                    cube_out = np.append(cube_out, self._last_fluxes)
+                    return cube_out
 
         self._last_ln_like = self._ln_like(cube_out)
         self._last_theta = cube_out
 
         if self._return_fluxes:
             fluxes = self._get_fluxes()
+            self._last_fluxes = fluxes
+            if self._fit_method == "UltraNest":
+                cube_out = np.append(cube_out, fluxes)
+                return cube_out
             for i in range(n_dims, n_params):
                 cube[i] = fluxes[i-n_dims]
-            self._last_fluxes = fluxes
 
     def _ln_like_MN(self, theta, n_dim, n_params, lnew):
         """
@@ -2463,6 +2743,8 @@ class UlensModelFit(object):
             self._run_fit_EMCEE()
         elif self._fit_method == 'MultiNest':
             self._run_fit_MultiNest()
+        elif self._fit_method == 'UltraNest':
+            self._run_fit_UltraNest()
         else:
             raise ValueError('internal bug')
 
@@ -2477,6 +2759,16 @@ class UlensModelFit(object):
         Run MultiNest fit
         """
         mn_run(**self._kwargs_MultiNest)
+
+    def _run_fit_UltraNest(self):
+        """
+        Run Ultranest fit
+        """
+        min_n_live = self._kwargs_UltraNest.get("min_num_live_points", 400)
+        cluster_n_live = 40 if min_n_live >= 40 else min_n_live
+        self._kwargs_UltraNest['cluster_num_live_points'] = cluster_n_live
+
+        self._result_UltraNest = self._sampler.run(**self._kwargs_UltraNest)
 
     def _finish_fit(self):
         """
@@ -2553,6 +2845,8 @@ class UlensModelFit(object):
                 self._save_posterior_EMCEE()
         elif self._fit_method == "MultiNest":
             self._parse_results_MultiNest()
+        elif self._fit_method == "UltraNest":
+            self._parse_results_UltraNest()
         else:
             raise ValueError('internal bug')
 
@@ -2625,6 +2919,10 @@ class UlensModelFit(object):
         """
         n_burn = self._fitting_parameters['n_burn']
         self._samples = self._sampler.chain[:, n_burn:, :]
+        for parameter in self._parse_posterior_abs:
+            index = self._fit_parameters.index(parameter)
+            self._samples[:, :, index] = np.fabs(self._samples[:, :, index])
+
         n_fit = self._n_fit_parameters
         self._samples_flat = self._samples.copy().reshape((-1, n_fit))
         if 'trace' not in self._plots:
@@ -2645,7 +2943,7 @@ class UlensModelFit(object):
 
         if self._fit_method == "EMCEE":
             results = self._get_weighted_percentile(data)
-        elif self._fit_method == "MultiNest":
+        elif self._fit_method in ["MultiNest", "UltraNest"]:
             if mode is None:
                 weights = self._samples_flat_weights
             else:
@@ -2672,6 +2970,8 @@ class UlensModelFit(object):
                 format_ = "{:} : {:.7f} +{:.7f} -{:.7f}\n"
                 if yaml:
                     format_ = "{:} : [{:.7f}, +{:.7f}, -{:.7f}]\n"
+            if parameter in self._parse_posterior_abs:
+                parameter = "|{:}|".format(parameter)
             text += (begin + format_).format(parameter, *results_)
         return text[:-1]
 
@@ -2692,7 +2992,7 @@ class UlensModelFit(object):
 
         if self._fit_method == "EMCEE":
             results = self._get_weighted_percentile(data)
-        elif self._fit_method == "MultiNest":
+        elif self._fit_method in ["MultiNest", "UltraNest"]:
             if mode is None:
                 weights = self._samples_flat_weights
             else:
@@ -3006,12 +3306,45 @@ class UlensModelFit(object):
 
     def _get_fluxes_to_print_MultiNest(self):
         """
-        prepare values to be printed for EMCEE fitting
+        prepare flux values to be printed for MultiNest and Ultranest fitting
         """
-        index = 2 + self._n_fit_parameters
-        data = self._analyzer_data[:, index:]
+        if self._fit_method == "MultiNest":
+            index = 2 + self._n_fit_parameters
+            data = self._analyzer_data
+        elif self._fit_method == "UltraNest":
+            index = self._n_fit_parameters
+            data = self._result_UltraNest['weighted_samples']['points']
 
-        return data
+        return data[:, index:]
+
+    def _parse_results_UltraNest(self):
+        """
+        Parse results of UltraNest fitting.
+        Functions that print and save EMCEE results are also called here.
+        """
+        # re-weighted posterior samples:
+        # self._samples_flat = self._result_UltraNest['samples'][:, :-2]
+        # weighted samples from the posterior:
+        weighted_samples = self._result_UltraNest['weighted_samples']
+        index = self._n_fit_parameters
+        self._samples_flat = weighted_samples['points'][:, :index]
+        self._samples_flat_weights = weighted_samples['weights']
+        self._sampler.print_results()
+
+        max_like = self._result_UltraNest['maximum_likelihood']
+        self._best_model_ln_prob = max_like['logl']
+        self._best_model_theta = max_like['point'][:self._n_fit_parameters]
+        self._best_model_fluxes = max_like['point'][self._n_fit_parameters:]
+        self._parse_results_MultiNest_singlemode()
+
+        self._shift_t_0_in_samples()
+        self._print_best_model()
+        if self._yaml_results:
+            self._print_yaml_best_model()
+            ln_ev = self._result_UltraNest['logz_single']
+            ln_ev_err = self._result_UltraNest['logzerr_single']
+            lns = "  ln_ev: [{:.5f}, +{:.5f}, -{:.5f}]"
+            print(lns.format(ln_ev, ln_ev_err, ln_ev_err), **self._yaml_kwargs)
 
     def _write_residuals(self):
         """
@@ -3041,6 +3374,8 @@ class UlensModelFit(object):
             self._trace_plot()
         if 'best model' in self._plots:
             self._best_model_plot()
+            if 'interactive' in self._plots['best model']:
+                self._make_interactive_plot()
         if 'trajectory' in self._plots:
             self._make_trajectory_plot()
 
@@ -3203,15 +3538,14 @@ class UlensModelFit(object):
         plot_size_ratio = 5
         hspace = 0
         tau = 1.5
-        remove_245 = True
         default_model = {'color': 'black', 'linewidth': 1.0, 'zorder': np.inf}
 
         kwargs_grid = {
             'nrows': 2, 'ncols': 1, 'height_ratios': [plot_size_ratio, 1],
             'hspace': hspace}
-        kwargs = {'subtract_2450000': remove_245}
 
         (t_1, t_2) = self._get_time_limits_for_plot(tau, 'best model')
+        (kwargs, xlim) = self._get_subtract_kwargs_and_xlim_for_best_model(t_1, t_2)
 
         kwargs_model = {
             't_start': t_1, 't_stop': t_2, **default_model, **kwargs}
@@ -3223,11 +3557,6 @@ class UlensModelFit(object):
                 u = self._model_parameters[key][self._datasets[0].bandpass]
                 kwargs_model['gamma'] = mm.Utils.u_to_gamma(u)
 
-        if kwargs['subtract_2450000']:
-            xlim = [t_1-2450000., t_2-2450000.]
-        else:
-            xlim = [t_1, t_2]
-
         kwargs_axes_1 = dict(
             axis='both', direction='in', bottom=True, top=True, left=True,
             right=True, labelbottom=False)
@@ -3235,6 +3564,20 @@ class UlensModelFit(object):
 
         return (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2,
                 kwargs_axes_1, kwargs_axes_2)
+
+    def _get_subtract_kwargs_and_xlim_for_best_model(self, t_1, t_2):
+        """
+        Should we subtract 2450000 or 2460000?
+        """
+        mean = (t_1 + t_2) / 2.
+        if mean < 2460000.:
+            kwargs = {'subtract_2450000': True, 'subtract_2460000': False}
+            xlim = [t_1-2450000., t_2-2450000.]
+        else:
+            kwargs = {'subtract_2450000': False, 'subtract_2460000': True}
+            xlim = [t_1-2460000., t_2-2460000.]
+
+        return (kwargs, xlim)
 
     def _get_time_limits_for_plot(self, tau, plot_type):
         """
@@ -3325,15 +3668,12 @@ class UlensModelFit(object):
         """
         for dataset in self._datasets:
             if dataset.ephemerides_file is None:
-                self._model.plot_lc(
-                    source_flux=fluxes[0], blend_flux=fluxes[1],
-                    **kwargs_model)
+                self._model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs_model)
                 break
 
         for model in self._models_satellite:
             model.parameters.parameters = {**self._model.parameters.parameters}
-            model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1],
-                          **kwargs_model)
+            model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs_model)
 
     def _plot_legend_for_best_model_plot(self):
         """
@@ -3500,6 +3840,323 @@ class UlensModelFit(object):
                               top=True, right=True)
 
         self._save_figure(self._plots['trajectory'].get('file'), dpi=dpi)
+
+    def _make_interactive_plot(self):
+        """
+        plot best model and residuals interactively
+        """
+        scale = 0.5  # original size=(1920:1440)
+
+        self._ln_like(self._best_model_theta)  # Sets all parameters to the best model.
+
+        self._reset_rcParams()
+        if 'rcParams' in self._plots['best model']:
+            for (key, value) in self._plots['best model']['rcParams'].items():
+                rcParams[key] = value
+
+        kwargs_all = self._get_kwargs_for_best_model_plot()
+        (ylim, ylim_residuals) = self._get_ylim_for_best_model_plot(*kwargs_all[4:6])
+        (layout, kwargs_model, kwargs_interactive, kwargs) = \
+            self._prepare_interactive_layout(scale, kwargs_all, ylim, ylim_residuals)
+
+        (t_data_start, t_data_stop) = self._get_time_span_data()
+        kwargs_model['t_start'] = t_data_start
+        kwargs_model['t_stop'] = t_data_stop
+        data_ref = self._event.data_ref
+        (f_source_0, f_blend_0) = self._event.get_flux_for_dataset(data_ref)
+        traces_lc = self._make_interactive_lc_traces(f_source_0, f_blend_0, **kwargs_model, **kwargs_interactive)
+        self._interactive_fig = go.Figure(data=traces_lc, layout=layout)
+
+        self._add_interactive_zero_trace(**kwargs_model, **kwargs_interactive)
+        self._add_interactive_data_traces(kwargs_interactive, **kwargs)
+        self._add_interactive_residuals_traces(kwargs_interactive, **kwargs_model)
+
+        self._save_interactive_fig()
+
+    def _prepare_interactive_layout(self, scale, kwargs_all, ylim, ylim_residuals):
+        """Prepares the layout for the interactive plot."""
+        kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2 = kwargs_all[:6]
+        kwargs_axes_1, kwargs_axes_2 = kwargs_all[6:]
+        kwargs_interactive = self._get_kwargs_for_plotly_plot(scale)
+
+        layout = self._make_interactive_layout(
+            ylim, ylim_residuals,
+            **kwargs_grid,
+            **kwargs_model,
+            **kwargs_interactive
+        )
+        return layout, kwargs_model, kwargs_interactive, kwargs
+
+    def _get_kwargs_for_plotly_plot(self, scale):
+        """_
+        setting kwargs for interactive plot
+        """
+        sizes = np.array([
+            10.,  # markers data points
+            4.,  # model line
+            4.,  # residuals error thickens
+            4.,  # residuals error width
+            56.,  # font label
+            4.,  # zero-line width in residuals
+            4.,  # axes and legend border width
+            15.,  # ticks len
+            30.,  # font lagend
+        ])
+        sizes = sizes*scale
+        colors = ['black', 'black', '#b9b9b9']  # This are: axes, font, and legend border.
+
+        kwargs_interactive = dict(sizes=sizes, colors=colors, opacity=0.7, width=1920*scale,
+                                  height=1440*scale, font='Old Standard TT, serif', paper_bgcolor='white')
+        return kwargs_interactive
+
+    def _make_interactive_layout(self, ylim, ylim_residuals, height_ratios, hspace, sizes, colors, opacity, width,
+                                 height, font, paper_bgcolor, t_start, t_stop,
+                                 subtract_2450000=None, subtract_2460000=None, **kwargs):
+        """
+        Creates plotly.graph_objects.Layout object analogues to best model plot
+        """
+        hsplit = height_ratios[1] / height_ratios[0]
+        subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
+
+        xtitle = 'Time'
+        if subtract > 0.:
+            xtitle = xtitle+' - {:d}'.format(int(subtract))
+
+        t_start = t_start - subtract
+        t_stop = t_stop - subtract
+
+        font_base = dict(family=font, size=sizes[4], color=colors[1])
+        font_legend = dict(family=font, size=sizes[8])
+        kwargs_ = dict(showgrid=False, ticks='inside', showline=True, ticklen=sizes[7],
+                       tickwidth=sizes[6], linewidth=sizes[6], linecolor=colors[0], tickfont=font_base)
+        kwargs_y = {'mirror': 'all', **kwargs_}
+        kwargs_x = {'range': [t_start, t_stop], **kwargs_}
+        layout = go.Layout(
+            autosize=True, width=width, height=height, showlegend=True,
+            legend=dict(
+                x=1.02, y=.98, bgcolor=paper_bgcolor, bordercolor=colors[2], borderwidth=sizes[6], font=font_legend),
+            paper_bgcolor=paper_bgcolor, plot_bgcolor=paper_bgcolor, font=font_base,
+            yaxis=dict(title_text='Magnitude', domain=[hsplit+(hspace/2), 1], range=ylim, **kwargs_y),
+            yaxis2=dict(title_text='Residuals', domain=[0, hsplit-(hspace/2)], anchor="x", range=ylim_residuals,
+                        **kwargs_y),
+            xaxis=dict(anchor="y", mirror='ticks', side='top', scaleanchor='x2', matches='x2', showticklabels=False,
+                       **kwargs_x),
+            xaxis2=dict(title_text=xtitle, anchor="y2", mirror='all', scaleanchor='x', matches='x', **kwargs_x)
+            )
+        return layout
+
+    def _get_time_span_data(self):
+        """
+        Returning time span of datasets
+        """
+        t_min = np.zeros(len(self._datasets))
+        t_max = np.zeros(len(self._datasets))
+        for (i, data) in enumerate(self._datasets):
+            t_min[i] = min(data.time)
+            t_max[i] = max(data.time)
+
+        return (min(t_min), max(t_max))
+
+    def _make_interactive_lc_traces(self, f_source_0, f_blend_0, sizes, colors, opacity, width, height, font,
+                                    paper_bgcolor, t_start, t_stop, name=None, dash='solid', subtract_2450000=None,
+                                    subtract_2460000=None, gamma=None, bandpass=None, **kwargs):
+        """
+        Creates plotly.graph_objects.Scatter objects with model light curve
+        """
+        traces_lc = []
+        subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
+        times = np.linspace(t_start, t_stop, num=5000) - subtract
+
+        if isinstance(name, type(None)):
+            showlegend = False
+        else:
+            showlegend = True
+
+        for dataset in self._datasets:
+            if dataset.ephemerides_file is None:
+                lc = self._model.get_lc(
+                    times=times, source_flux=f_source_0, blend_flux=f_blend_0, gamma=gamma, bandpass=bandpass)
+                traces_lc.append(self._make_interactive_scatter_lc(
+                    times, lc, name, showlegend, colors[1], sizes[1], dash))
+                break
+
+        traces_lc.extend(self._make_interactive_scatter_lc_satellite(
+            traces_lc, times, f_source_0, f_blend_0, gamma, bandpass, colors, sizes, dash, subtract, showlegend))
+        return traces_lc
+
+    def _make_interactive_scatter_lc_satellite(
+            self, traces, times, f_source_0, f_blend_0, gamma,
+            bandpass, colors, sizes, dash, subtract, showlegend):
+        """Generates Plotly Scatter traces for the light-curve satellite models."""
+
+        for (i, model) in enumerate(self._models_satellite):
+            name = self._event.datasets[i].plot_properties['label']
+            model.parameters.parameters = {**self._model.parameters.parameters}
+            lc = self._model.get_lc(times=times, source_flux=f_source_0, blend_flux=f_blend_0,
+                                    gamma=gamma, bandpass=bandpass)
+            times = times - subtract
+            trace = self._make_interactive_scatter_lc(
+                times, lc, name, showlegend, colors[1], sizes[1], dash)
+            traces.append(trace)
+        return traces
+
+    def _make_interactive_scatter_lc(
+            self, times, lc, name,
+            showlegend, color, size, dash):
+        """Creates a Plotly Scatter trace for the light curve."""
+
+        return go.Scatter(x=times, y=lc, name=name, showlegend=showlegend, mode='lines',
+                          line=dict(color=color, width=size, dash=dash),
+                          xaxis="x", yaxis="y")
+
+    def _add_interactive_zero_trace(self, t_start, t_stop, colors, sizes,
+                                    subtract_2450000=False, subtract_2460000=False, **kwargs):
+        """
+        Creates plotly.graph_objects.Scatter object for line y=0 in
+        residuals plot
+        """
+        subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
+        times = np.linspace(t_start, t_stop, num=2000)
+        line = np.zeros(len(times))
+        trace_0 = go.Scatter(x=times-subtract, y=line, mode='lines',
+                             line=dict(color=colors[0], width=sizes[5], dash='dash'),
+                             xaxis="x2", yaxis="y2", showlegend=False,)
+        self._interactive_fig.add_trace(trace_0)
+
+    def _add_interactive_data_traces(self, kwargs_interactive, phot_fmt='mag', data_ref=None, show_errorbars=True,
+                                     show_bad=None, subtract_2450000=False, subtract_2460000=False, **kwargs):
+        """
+        Creates plotly.graph_objects.Scatter object for observation points
+        per each data set.
+        """
+        self._event._set_default_colors()
+        if self._event.fits is None:
+            self._event.get_chi2()
+
+        if data_ref is None:
+            data_ref = self._event.data_ref
+
+        subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
+        (f_source_0, f_blend_0) = self._event.get_flux_for_dataset(data_ref)
+
+        traces_data = []
+        for (dataset_index, data) in enumerate(self._datasets):
+            # Scale the data flux
+            (flux, err_flux) = self._event.fits[dataset_index].scale_fluxes(f_source_0, f_blend_0)
+            (y_value, y_err) = mm.utils.PlotUtils.get_y_value_y_err(phot_fmt, flux, err_flux)
+            times = data.time - subtract
+            trace_data = self._make_one_interactive_data_trace(
+                dataset_index, times, y_value, y_err, xaxis='x', yaxis='y', showlegend=True,
+                show_errorbars=show_errorbars, show_bad=show_bad, **kwargs_interactive)
+            traces_data.extend(trace_data)
+
+        for trace in traces_data:
+            self._interactive_fig.add_trace(trace)
+
+    def _make_one_interactive_data_trace(self, dataset_index, times, y_value, y_err, xaxis, yaxis, showlegend,
+                                         colors, sizes, opacity, show_errorbars=None, show_bad=None, **kwargs):
+        """
+        Creates plotly.graph_objects.Scatter object with data points form a given data set.
+        """
+        trace_data = []
+        dataset, show_errorbars, show_bad = self._get_interactive_dataset(dataset_index)
+
+        trace_data_good = self._make_interactive_good_data_trace(
+            dataset, times, y_value, y_err, opacity, sizes, xaxis, yaxis, showlegend, show_errorbars)
+        trace_data.append(trace_data_good)
+
+        if show_bad:
+            trace_data_bad = self._make_interactive_bad_data_trace(
+                dataset, times, y_value, y_err, opacity, sizes, xaxis, yaxis, showlegend)
+            trace_data.append(trace_data_bad)
+
+        return trace_data
+
+    def _get_interactive_dataset(self, dataset_index):
+        """Get dataset properties for interactive plot settings."""
+        dataset = self._event.datasets[dataset_index]
+        show_errorbars = dataset.plot_properties.get('show_errorbars', True)
+        show_bad = dataset.plot_properties.get('show_bad', False)
+        return (dataset, show_errorbars, show_bad)
+
+    def _make_interactive_good_data_trace(
+            self, dataset, times, y_value, y_err, opacity,
+            sizes, xaxis, yaxis, showlegend, show_errorbars):
+        """Creates a single plotly.graph_objects.Scatter object for the good data points."""
+        times_good = times[dataset.good]
+        y_good = y_value[dataset.good]
+        y_err_good = y_err[dataset.good]
+        return self._make_interactive_data_trace(
+            times_good, y_good, y_err_good, dataset,
+            opacity, sizes, xaxis, yaxis, showlegend, show_errorbars)
+
+    def _make_interactive_data_trace(self, x, y, y_err, dataset, opacity, sizes, xaxis, yaxis,
+                                     showlegend, show_errorbars, color_override=None, error_visible=True):
+        """Creates single plotly.graph_objects.Scatter object for good or bad data."""
+        color = color_override if color_override else dataset.plot_properties['color']
+        error_y = dict(type='data', array=y_err, visible=error_visible, thickness=sizes[2], width=sizes[3])
+        marker = dict(color=color, size=sizes[0], line=dict(color=color, width=1))
+        return go.Scatter(x=x, y=y, opacity=opacity, name=dataset.plot_properties['label'], mode='markers',
+                          showlegend=showlegend, error_y=error_y, marker=marker, xaxis=xaxis, yaxis=yaxis)
+
+    def _make_interactive_bad_data_trace(self, dataset, times, y_value, y_err, opacity, sizes,
+                                         xaxis, yaxis, showlegend):
+        """Creates a single plotly.graph_objects.Scatter object for the bad data points."""
+        times_bad = times[dataset.bad]
+        y_bad = y_value[dataset.bad]
+        y_err_bad = y_err[dataset.bad]
+        return self._make_interactive_data_trace(
+            times_bad, y_bad, y_err_bad, dataset,
+            opacity, sizes, xaxis, yaxis, showlegend,
+            show_errorbars=False,
+            color_override='black',
+            error_visible=False
+        )
+
+    def _add_interactive_residuals_traces(self,  kwargs_interactive, phot_fmt='mag', data_ref=None, show_errorbars=True,
+                                          show_bad=None, subtract_2450000=False, subtract_2460000=False, **kwargs,):
+        """
+        Creates plotly.graph_objects.Scatter object for residuals points
+        per each data set.
+        """
+        traces_residuals = []
+        self._event._set_default_colors()  # For each dataset
+        if self._event.fits is None:
+            self._event.get_chi2()
+
+        if data_ref is None:
+            data_ref = self._event.data_ref
+
+        subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
+
+        # Get fluxes for the reference dataset
+        (f_source_0, f_blend_0) = self._event.get_flux_for_dataset(data_ref)
+        kwargs_residuals = {'phot_fmt': 'scaled', 'bad': False,
+                            'source_flux': f_source_0, 'blend_flux': f_blend_0}
+        if show_bad:
+            kwargs_residuals['bad'] = True
+
+        for (dataset_index, data) in enumerate(self._datasets):
+            (y_value, y_err) = self._event.fits[dataset_index].get_residuals(**kwargs_residuals)
+            times = data.time-subtract
+            trace_residuals = self._make_one_interactive_data_trace(
+                dataset_index, times, y_value, y_err, xaxis='x2', yaxis='y2',
+                showlegend=False, show_errorbars=show_errorbars, show_bad=show_bad, **kwargs_interactive)
+            traces_residuals.extend(trace_residuals)
+
+        for trace in traces_residuals:
+            self._interactive_fig.add_trace(trace)
+
+    def _save_interactive_fig(self):
+        """
+        Saving interactive figure
+        """
+        file_ = self._plots['best model']['interactive']
+        if path.exists(file_):
+            if path.isfile(file_):
+                msg = "Existing file " + file_ + " will be overwritten"
+                warnings.warn(msg)
+        self._interactive_fig.write_html(file_, full_html=True)
 
 
 if __name__ == '__main__':

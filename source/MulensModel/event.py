@@ -17,20 +17,18 @@ class Event(object):
     making a number of plots.
 
     Arguments :
-        :py:obj:`~datasets` :  :py:class:`~MulensModel.mulensdata.MulensData`
-        or *list* of :py:class:`~MulensModel.mulensdata.MulensData` objects,
+        datasets:  :py:class:`~MulensModel.mulensdata.MulensData` object or a *list* of such objects
             Datasets that will be linked to the event. These datasets will
             be used for chi^2 calculation, plotting etc.
 
-        :py:obj:`~model` : :py:class:`~MulensModel.model.Model`
+        model: :py:class:`~MulensModel.model.Model`
             Microlensing model that will be linked to the event. In order to
             get chi^2 for different sets of model parameters you should
             keep a single :py:class:`~MulensModel.model.Model` instance and
             change parameters for this model (i.e., do not provide separate
             :py:class:`~MulensModel.model.Model` instances).
 
-        :py:obj:`~coords` : *str*,
-        :py:class:`~MulensModel.coordinates.Coordinates`, or astropy.SkyCoord_
+        coords: *str*, :py:class:`~MulensModel.coordinates.Coordinates`, or astropy.SkyCoord_
             Coordinates of the event. If *str*, then needs format accepted by
             astropy.SkyCoord_ e.g., ``'18:00:00 -30:00:00'``.
 
@@ -48,8 +46,6 @@ class Event(object):
             objects or *str*. If a
             :py:class:`~MulensModel.mulensdata.MulensData` object is specified,
             it will take precedence over a band.
-
-        fit: DEPRECATED
 
         data_ref: *int* or :py:class:`~MulensModel.mulensdata.MulensData`
             Reference dataset. If *int* then gives index of reference dataset
@@ -401,7 +397,7 @@ class Event(object):
         kwargs_residuals = {'phot_fmt': 'scaled', 'bad': False,
                             'source_flux': fluxes[0], 'blend_flux': fluxes[1]}
         if show_bad:
-            kwargs_residuals['bad']: True
+            kwargs_residuals['bad'] = True
 
         # Plot residuals
         t_min = np.min(self._datasets[0].time)
@@ -433,10 +429,6 @@ class Event(object):
         Plot the trajectory of the source. See
         :py:func:`MulensModel.model.Model.plot_trajectory()` for details.
         """
-        if 'show_data' in kwargs:
-            raise AttributeError('Parameter show_data is deprecated. Use '
-                                 'plot_source_for_datasets() instead.')
-
         self.model.plot_trajectory(**kwargs)
 
     def plot_source_for_datasets(self, **kwargs):
@@ -541,38 +533,25 @@ class Event(object):
 
         return (source_flux, blend_flux)
 
-    def get_ref_fluxes(self, data_ref=None, fit_blending=None):
+    def get_ref_fluxes(self):
         """
         Get source and blending fluxes for the reference dataset. See
         :py:func:`~get_flux_for_dataset()`. If the reference dataset is not
         set, uses the first dataset as default. See :py:obj:`~data_ref`.
         """
-        if data_ref is not None:
-            warnings.warn(
-                'data_ref will be deprecated. It is redundant for getting ' +
-                'the flux of the reference dataset. For the flux of an ' +
-                'arbitrary dataset, use get_flux_for_dataset')
-
-        if fit_blending is not None:
-            self._apply_fit_blending(fit_blending)
 
         return self.get_flux_for_dataset(self.data_ref)
 
-    def get_chi2(self, fit_blending=None):
+    def get_chi2(self):
         """
         Calculates chi^2 of current model by fitting for source and
         blending fluxes.
-
-        Parameters :
-            fit_blending: DEPRECATED. use :py:attr:`~fix_blend_flux` instead.
 
         Returns :
             chi2: *float*
                 Chi^2 value
 
         """
-        if fit_blending is not None:
-            self._apply_fit_blending(fit_blending)
 
         self.fit_fluxes()
         chi2 = []
@@ -584,7 +563,7 @@ class Event(object):
 
         return self.chi2
 
-    def get_chi2_for_dataset(self, index_dataset, fit_blending=None):
+    def get_chi2_for_dataset(self, index_dataset):
         """
         Calculates chi^2 for a single dataset
 
@@ -592,28 +571,21 @@ class Event(object):
             index_dataset: *int*
                 index that specifies for which dataset the chi^2 is requested
 
-            fit_blending: DEPRECATED. use :py:attr:`~fix_blending` instead.
-
         Returns :
             chi2: *float*
                 chi2 for dataset[index_dataset].
 
         """
-        if fit_blending is not None:
-            self._apply_fit_blending(fit_blending)
-
         self.fit_fluxes()
 
         return self.fits[index_dataset].chi2
 
-    def get_chi2_per_point(self, fit_blending=None, bad=False):
+    def get_chi2_per_point(self, bad=False):
         """
         Calculates chi^2 for each data point of the current model by
         fitting for source and blending fluxes.
 
         Parameters :
-            fit_blending: DEPRECATED. use :py:attr:`~fix_blending` instead.
-
             bad: *bool*
                 Should chi2 be also caclulated for points marked as bad in
                 MulensData? If `False` (default), then bad epochs have chi2 of
@@ -635,9 +607,6 @@ class Event(object):
                print(chi2[0][10])
 
         """
-        if fit_blending is not None:
-            self._apply_fit_blending(fit_blending)
-
         self.fit_fluxes(bad=bad)
 
         # Calculate chi^2 given the fit
@@ -650,7 +619,7 @@ class Event(object):
 
         return chi2_per_point
 
-    def get_chi2_gradient(self, parameters, fit_blending=None):
+    def get_chi2_gradient(self, parameters):
         """
         Fit for fluxes and calculate chi^2 gradient (also called Jacobian),
         i.e., :math:`d chi^2/d parameter`.
@@ -662,18 +631,14 @@ class Event(object):
                 ``t_E``, ``pi_E_N``, and ``pi_E_E``. The parameters for
                 which you request gradient must be defined in py:attr:`~model`.
 
-            fit_blending: DEPRECATED. use :py:attr:`~fix_blending` instead.
-
         Returns :
             gradient: *float* or *np.ndarray*
                 chi^2 gradient
 
         """
-        if fit_blending is not None:
-            self._apply_fit_blending(fit_blending)
-
         self.fit_fluxes()
         self.calculate_chi2_gradient(parameters)
+
         return self.chi2_gradient
 
     def calculate_chi2_gradient(self, parameters):
@@ -778,14 +743,6 @@ class Event(object):
         if self._model is not None:
             self._model.coords = self._coords
 
-        # We run the command below with try, because _update_coords() is called
-        # by _set_datasets before self._datasets is set.
-        try:
-            for dataset in self._datasets:
-                dataset.coords = self._coords
-        except Exception:
-            pass
-
     @property
     def model(self):
         """an instance of :py:class:`~MulensModel.model.Model`"""
@@ -822,15 +779,7 @@ class Event(object):
         can be called by __init__ or @datasets.setter
         passes datasets to property self._model
         """
-        if isinstance(new_value, list):
-            for dataset in new_value:
-                if dataset.coords is not None:
-                    self._update_coords(coords=dataset.coords)
-
         if isinstance(new_value, MulensData):
-            if new_value.coords is not None:
-                self._update_coords(coords=new_value.coords)
-
             new_value = [new_value]
 
         if new_value is None:
@@ -1000,49 +949,3 @@ class Event(object):
     @sum_function.setter
     def sum_function(self, new_value):
         self._sum_function = new_value
-
-    # ----Stuff that Doesn't Work (or is Deprecated)---- #
-    def reset_best_chi2(self):
-        """
-        DEPRECATED
-
-        Reset :py:attr:`~best_chi2` attribute and its parameters
-        (:py:attr:`~best_chi2_parameters`).
-        """
-        raise AttributeError(
-            'reset_best_chi2 (and best_chi2) has been deprecated.')
-
-    @property
-    def best_chi2(self):
-        """
-        DEPRECATED
-
-        *float*
-
-        The smallest value returned by :py:func:`get_chi2()`.
-        """
-        raise AttributeError('best_chi2 has been deprecated.')
-
-    @property
-    def best_chi2_parameters(self):
-        """
-        DEPRECATED
-
-        *dict*
-
-        Parameters that gave the smallest chi2.
-        """
-        raise AttributeError(
-            'best_chi2_parameters (and best_chi2) has been deprecated.')
-
-    def _apply_fit_blending(self, fit_blending):
-        warnings.warn(
-            'fit_blending option will be deprecated in future.' +
-            'To fix the blending, set Event.fix_blend_flux instead.',
-            FutureWarning)
-        self._fits = None
-        if fit_blending is True:
-            self.fix_blend_flux = {}
-        else:
-            for dataset in self.datasets:
-                self.fix_blend_flux[dataset] = 0.

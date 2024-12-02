@@ -13,7 +13,7 @@ def test_mulenssystem_1():
     pi_rel = (lens['dist'].to(u.mas, equivalencies=u.parallax())
               - source['dist'].to(u.mas, equivalencies=u.parallax()))
     thetaE = np.sqrt(kappa * lens['mass'] * pi_rel)
-    tE = thetaE / mu_rel
+    tE = (thetaE / mu_rel).to(u.day).value
     pi_E = pi_rel / thetaE
 
     test_system = mm.MulensSystem(

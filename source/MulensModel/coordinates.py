@@ -84,7 +84,7 @@ class Coordinates(SkyCoord):
         """
         allowed_fmts = (str, SkyCoord, ICRS, FK4, FK5)
         if not isinstance(arg, allowed_fmts):
-            raise ValueError(f'Coordinate format {type(arg)} is not allowed.')
+            raise ValueError('Coordinate format {:} is not allowed.'.format(type(arg)))
 
         if isinstance(arg, str):
             if frame not in [None, 'icrs', 'fk4', 'fk5']:

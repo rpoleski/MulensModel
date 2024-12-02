@@ -84,10 +84,8 @@ def check_event_coords(event, ra, dec):
     """
     np.testing.assert_almost_equal(event.coords.ra.value, ra)
     np.testing.assert_almost_equal(event.model.coords.ra.value, ra)
-    np.testing.assert_almost_equal(event.datasets[0].coords.ra.value, ra)
     np.testing.assert_almost_equal(event.coords.dec.value, dec)
     np.testing.assert_almost_equal(event.model.coords.dec.value, dec)
-    np.testing.assert_almost_equal(event.datasets[0].coords.dec.value, dec)
 
 
 def test_event_coords_ra_dec_1():
@@ -109,8 +107,8 @@ def test_event_coords_ra_dec_1():
 
     event.coords = '{0} {1}'.format(ra_2_str, dec_2_str)
 
-    np.testing.assert_almost_equal(data.coords.ra.value, ra_2)
-    np.testing.assert_almost_equal(data.coords.dec.value, dec_2)
+    np.testing.assert_almost_equal(event.coords.ra.value, ra_2)
+    np.testing.assert_almost_equal(event.coords.dec.value, dec_2)
 
 
 def test_event_coords_ra_dec_2():

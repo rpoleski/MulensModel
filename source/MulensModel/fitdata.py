@@ -64,18 +64,8 @@ class FitData(object):
 
         # fit parameters
         self.fix_blend_flux = fix_blend_flux
-        self.fix_source_flux_ratio = fix_source_flux_ratio
-        if isinstance(fix_source_flux, list) or (fix_source_flux is False):
-            self.fix_source_flux = fix_source_flux
-        else:
-            if self._model.n_sources == 1:
-                self.fix_source_flux = [fix_source_flux]
-            else:
-                msg = ("you have {0}".format(self._model.n_sources) +
-                       " sources. Thus, fix_source_flux should be a list of" +
-                       "length {0}".format(self._model.n_sources) +
-                       "(or False).")
-                raise ValueError(msg)
+        self.fix_source_flux_ratio = self._set_fix_source_flux_ratio(fix_source_flux_ratio)
+        self.fix_source_flux = self._set_fix_source_flux(fix_source_flux)
 
         # parameters fluxes of various sources
         self._source_fluxes = None
@@ -85,8 +75,49 @@ class FitData(object):
         # chi2 parameters
         self._chi2_per_point = None
         self._chi2 = None
+        self._chi2_gradient = None
 
         self._data_magnification = None
+        self._data_magnification_curve = None
+        self._data_magnification_curves = None
+        self._data_magnification_curve_1 = None
+        self._data_magnification_curve_2 = None
+
+    def __getattr__(self, item):
+        return object.__getattribute__(self, item)
+
+    def _set_fix_source_flux(self, fix_source_flux):
+        if fix_source_flux is False:
+            return fix_source_flux
+        else:
+            if isinstance(fix_source_flux, list):
+                if len(fix_source_flux) == self._model.n_sources:
+                    return fix_source_flux
+
+            elif isinstance(fix_source_flux, (float, int)) and (self._model.n_sources == 1):
+                return [fix_source_flux]
+
+        msg = ("you have {0}".format(self._model.n_sources) +
+               " sources. Thus, fix_source_flux should be a list of" +
+               "length {0}".format(self._model.n_sources) +
+               "(or False).")
+        raise ValueError(msg)
+
+    def _set_fix_source_flux_ratio(self, fix_source_flux_ratio):
+        if fix_source_flux_ratio is False:
+            return fix_source_flux_ratio
+        else:
+            if isinstance(fix_source_flux_ratio, list):
+                if len(fix_source_flux_ratio) == (self._model.n_sources - 1):
+                    return fix_source_flux_ratio
+
+            elif isinstance(fix_source_flux_ratio, (float, int)) and (self._model.n_sources == 2):
+                return np.array([fix_source_flux_ratio])
+
+        msg = ("you have {0}".format(self._model.n_sources) +
+               " sources. Thus, fix_source_flux_ratio should be a list of" +
+               "length {0} (or Flase).".format(self._model.n_sources - 1))
+        raise ValueError(msg)
 
     def _check_for_flux_ratio_errors(self):
         """
@@ -94,11 +125,10 @@ class FitData(object):
         """
 
         if self.fix_source_flux_ratio is not False:
-            if self._model.n_sources != 2:
-                msg = ('fix_source_flux_ratio only valid for models with 2' +
-                       'sources. n_sources = {0}'.format(
-                           self._model.n_sources))
-                raise ValueError(msg)
+            if self._model.n_sources == 1:
+                raise ValueError('fix_source_flux_ratio is not defined for only 1 source!')
+            elif len(self.fix_source_flux_ratio) != self._model.n_sources-1:
+                raise ValueError('fix_source_flux_ratio should be a *list* of len={0}'.format(self._model.n_sources-1))
             elif self.fix_source_flux is not False:
                 msg = ('fix_source_flux_ratio + fixed_source_flux not ' +
                        'implemented. Fix the fluxes for each source ' +
@@ -124,10 +154,7 @@ class FitData(object):
         diff = self._dataset.flux - model_flux
         self._chi2_per_point = (diff / self._dataset.err_flux)**2
 
-    def _calculate_magnifications(self, bad=True):
-        """
-        Calculate the model magnifications for the epochs of the dataset.
-        """
+    def _set_data_magnification_curves(self, bad=True):
         if bad:
             select = np.ones(self._dataset.n_epochs, dtype=bool)
         else:
@@ -136,19 +163,35 @@ class FitData(object):
         if self.dataset.ephemerides_file is None:
             satellite_skycoord = None
         else:
-            satellite_skycoord = self.dataset.satellite_skycoord
+            satellite_skycoord = self.dataset.satellite_skycoord[select]
 
         magnification_kwargs = {
             'gamma': self.gamma, 'satellite_skycoord': satellite_skycoord}
 
         if self._model.n_sources == 1:
-            mag_matrix = self._model.get_magnification(
-                time=self._dataset.time[select],
-                **magnification_kwargs)
-        elif self._model.n_sources == 2:
-            mag_matrix = self._model.get_magnification(
-                time=self._dataset.time[select], separate=True,
-                **magnification_kwargs)
+            self._data_magnification_curve = \
+                self._model.get_magnification_curve(
+                    time=self._dataset.time[select], **magnification_kwargs)
+        elif self._model.n_sources >= 2:
+            self._data_magnification_curves = self._model.get_magnification_curves(
+                        time=self._dataset.time[select], **magnification_kwargs)
+            for i in range(self._model.n_sources):
+                self.__setattr__('_data_magnification_curve_{0}'.format(i+1), self._data_magnification_curves[i])
+
+    def _calculate_magnifications(self, bad=True):
+        """
+        Calculate the model magnifications for the epochs of the dataset.
+        """
+        self._set_data_magnification_curves(bad=bad)
+
+        if self._model.n_sources == 1:
+            mag_matrix = self._data_magnification_curve.get_magnification()
+        elif self._model.n_sources >= 2:
+            mag_matrix = []
+            for i in range(self._model.n_sources):
+                mag_matrix.append(
+                    self.__getattr__('_data_magnification_curve_{0}'.format(i+1)).get_magnification())
+
         else:
             msg = ("{0} ".format(self._model.n_sources) +
                    "sources used. Function model.get_magnification can " +
@@ -172,13 +215,27 @@ class FitData(object):
                         source][self._dataset.good] = mag_matrix[source]
 
     def _get_xy_qflux(self):
-        """ Apply a fixed flux ratio. """
+        """
+        Apply a fixed flux ratio.
+        flux = sum_i(f_i * A_i) + f_b
+             = f_1 * [ A_1 + sum_i>1(q_i * A_i)] + f_b
+        """
         y = self._dataset.flux[self._dataset.good]
         x = np.array(
-            self._data_magnification[0][self._dataset.good] +
-            self.fix_source_flux_ratio *
-            self._data_magnification[1][self._dataset.good])
+            self._data_magnification[0][self._dataset.good])
         self.n_fluxes = 1
+        for i in range(1, self._model.n_sources):
+            if self.fix_source_flux_ratio[i-1] is False:
+                x = np.vstack(
+                    (x, self._data_magnification[i][self._dataset.good]))
+                self.n_fluxes += 1
+            else:
+                if len(x.shape) == 1:
+                    x += (self.fix_source_flux_ratio[i-1] *
+                          self._data_magnification[i][self._dataset.good])
+                else:
+                    x[0, :] += (self.fix_source_flux_ratio[i-1] *
+                                self._data_magnification[i][self._dataset.good])
 
         return (x, y)
 
@@ -336,7 +393,14 @@ class FitData(object):
                         source_fluxes.append(self.fix_source_flux[i])
 
         else:
-            source_fluxes = [results[0], results[0]*self.fix_source_flux_ratio]
+            source_fluxes = results[0]
+            j = 1
+            for i in range(1, self._model.n_sources):
+                if self.fix_source_flux_ratio[i-1] is False:
+                    source_fluxes = np.hstack((source_fluxes, results[j]))
+                    j += 1
+                else:
+                    source_fluxes = np.hstack((source_fluxes, results[0]*self.fix_source_flux_ratio[i-1]))
 
         self._source_fluxes = np.array(source_fluxes)
 
@@ -454,9 +518,8 @@ class FitData(object):
 
         return (flux, err_flux)
 
-    def get_residuals(
-            self, phot_fmt=None, source_flux=None, blend_flux=None, bad=False,
-            type=None):
+    def get_residuals(self, phot_fmt=None, source_flux=None, blend_flux=None,
+                      bad=False):
         """
         Calculate the residuals for each datapoint relative to the model.
 
@@ -475,9 +538,6 @@ class FitData(object):
                 magnification for each point to ensure that there are values
                 even for bad datapoints.
 
-            type:
-                DEPRECATED, see "phot_fmt" above.
-
         Returns :
             residuals: *np.ndarray*
                 the residuals for the corresponding dataset.
@@ -486,20 +546,13 @@ class FitData(object):
                 the scaled errorbars for each point. For plotting
                 errorbars for the residuals.
         """
-        if type is not None:
-            if type == 'mag':
-                warnings.warn(
-                    '"mag" returns residuals in the original data flux' +
-                    'system. To scale the residuals, use "scaled".')
-            warnings.warn(
-                'type keyword will be deprecated. Use "phot_fmt" instead.',
-                FutureWarning)
-            phot_fmt = type
-
         if bad:
             self._calculate_magnifications(bad=True)
 
         if phot_fmt == 'mag':
+            warnings.warn(
+                '"mag" returns residuals in the original data flux system.' +
+                ' To scale the residuals, use "scaled".')
             residuals = self._dataset.mag - self.get_model_magnitudes()
             errorbars = self._dataset.err_mag
         elif phot_fmt == 'flux':
@@ -598,9 +651,8 @@ class FitData(object):
         flux_factor *= 2. * self.source_flux / self.dataset.err_flux**2
 
         gradient = self.get_d_A_d_params_for_point_lens_model(parameters)
-
         for (key, value) in gradient.items():
-            gradient[key] = np.sum((flux_factor * value)[self.dataset.good])
+            gradient[key] = np.sum((flux_factor[self.dataset.good] * value))
 
         if len(parameters) == 1:
             out = gradient[parameters[0]]
@@ -625,16 +677,36 @@ class FitData(object):
                 Values are the partial derivatives for that parameter
                 evaluated at each data point.
         """
-        if 'rho' in self.model.parameters.parameters:
-            derivs = self.FSPL_Derivatives(self)
-            gradient = derivs.get_gradient(parameters)
-        else:
-            gradient = self._get_d_u_d_params(parameters)
-            d_A_d_u = self.get_d_A_d_u_for_PSPL_model()
-            for key in gradient.keys():
-                gradient[key] *= d_A_d_u
+        # Need to consider what happens when we move to 2 sources.
+        if self._data_magnification_curve is None:
+            self._set_data_magnification_curves()
 
-        return gradient
+        d_A_d_params = self._data_magnification_curve.get_d_A_d_params(
+            parameters)
+
+        return d_A_d_params
+
+    def get_d_A_d_rho(self):
+        """
+        Calculate d A / d rho for a point lens model.
+
+        No Inputs
+
+        Returns :
+            dA_drho: *np.array*
+                Values are the partial derivatives for rho
+                evaluated at each data point.
+        """
+        # Need to consider what happens when we move to 2 sources.
+        if 'rho' not in self.model.parameters.parameters:
+            raise AttributeError('dA/drho cannot be calculated for a model without rho')
+
+        if self._data_magnification_curve is None:
+            self._set_data_magnification_curves()
+
+        d_A_d_params = self._data_magnification_curve.get_d_A_d_rho()
+
+        return d_A_d_params
 
     def get_dataset_trajectory(self):
         """
@@ -655,118 +727,13 @@ class FitData(object):
         return self.model.get_trajectory(self.dataset.time, **kwargs)
 
     def get_d_A_d_u_for_PSPL_model(self):
-        """
-        Calculate dA/du for PSPL point-source--point-lens model.
+        raise NotImplementedError('This function was deprecated in Version 3.')
 
-        No parameters.
-
-        Returns :
-            dA_du: *np.ndarray*
-                Derivative dA/du.
-        """
-        trajectory = self.get_dataset_trajectory()
-        u_2 = trajectory.x**2 + trajectory.y**2
-        d_A_d_u = -8. / (u_2 * (u_2 + 4) * np.sqrt(u_2 + 4))
-        return d_A_d_u
-
-    # def get_d_A_d_u_for_FSPL_model(self):
-    #     """
-    #     Calculate dA/du for FSPL
-    #
-    #     Returns :
-    #         dA_du: *np.ndarray*
-    #             Derivative dA/du.
-    #     """
-    #     d_A_pspl_d_u = self.get_d_A_d_u_for_PSPL_model()
-    #     B_0_gamma_B_1 = self._get_B_0_gamma_B_1()
-    #     A_pspl = self._get_A_pspl()
-    #     d_B_0_gamma_dB_1 = self._get_dB_0_gamma_dB_1()
-    #
-    #     d_A_d_u = d_A_pspl_d_u * B_0_gamma_B_1
-    #     d_A_d_u += (A_pspl / self.model.parameters.rho) * d_B_0_gamma_dB_1
-    #
-    #     return d_A_d_u
+    def get_d_A_d_u_for_FSPL_model(self):
+        raise NotImplementedError('This function was deprecated in Version 3.')
 
     def get_d_A_d_u_for_point_lens_model(self):
-        """
-        Calculate dA/du for point-source--point-lens model. For finite source
-        models see :py:class:`FSPLDerivs` or
-        py:func:`get_d_A_d_params_for_point_lens_model()`
-
-        Returns :
-            dA_du: *np.ndarray*
-                Derivative dA/du.
-        """
-        if self.model.parameters.is_finite_source():
-            # Something that will hopefully be fixed in Version 3:
-            raise NotImplementedError(
-                'd_A_d_u for FSPL models is implemented through the ' +
-                'FSPLDerivs class.')
-        else:
-            d_A_d_u = self.get_d_A_d_u_for_PSPL_model()
-
-        return d_A_d_u
-
-    def _get_d_u_d_params(self, parameters):
-        """
-        Calculate d u / d parameters
-
-        Returns a *dict*.
-        """
-        # Setup
-        gradient = {param: 0 for param in parameters}
-        as_dict = self.model.parameters.as_dict()
-
-        # Get source location
-        trajectory = self.get_dataset_trajectory()
-        u_ = np.sqrt(trajectory.x**2 + trajectory.y**2)
-
-        # Calculate derivatives
-        d_u_d_x = trajectory.x / u_
-        d_u_d_y = trajectory.y / u_
-        dt = self.dataset.time - as_dict['t_0']
-
-        # Exactly 2 out of (u_0, t_E, t_eff) must be defined and
-        # gradient depends on which ones are defined.
-        t_E = self.model.parameters.t_E
-        t_eff = self.model.parameters.t_eff
-        if 't_eff' not in as_dict:
-            gradient['t_0'] = -d_u_d_x / t_E
-            gradient['u_0'] = d_u_d_y
-            gradient['t_E'] = d_u_d_x * -dt / t_E**2
-        elif 't_E' not in as_dict:
-            gradient['t_0'] = -d_u_d_x * as_dict['u_0'] / t_eff
-            gradient['u_0'] = (d_u_d_y + d_u_d_x * dt / t_eff)
-            gradient['t_eff'] = (d_u_d_x * -dt * as_dict['u_0'] / t_eff**2)
-        elif 'u_0' not in as_dict:
-            gradient['t_0'] = -d_u_d_x / t_E
-            gradient['t_E'] = (d_u_d_x * dt - d_u_d_y * t_eff) / t_E**2
-            gradient['t_eff'] = d_u_d_y / t_E
-        else:
-            raise KeyError(
-                'Something is wrong with ModelParameters in ' +
-                'FitData.calculate_chi2_gradient():\n', as_dict)
-
-        # Below we deal with parallax only.
-        if 'pi_E_N' in parameters or 'pi_E_E' in parameters:
-            delta_N = trajectory.parallax_delta_N_E['N']
-            delta_E = trajectory.parallax_delta_N_E['E']
-
-            gradient['pi_E_N'] = d_u_d_x * delta_N + d_u_d_y * delta_E
-            gradient['pi_E_E'] = d_u_d_x * delta_E - d_u_d_y * delta_N
-
-        return gradient
-
-    def get_d_A_d_rho(self):
-        """
-        Calculate the derivative of the magnification with respect to rho.
-
-        Returns:
-            d_A_d_rho: *np.ndarray*
-                derivative
-        """
-        derivs = self.FSPL_Derivatives(self)
-        return derivs.get_d_A_d_rho()
+        raise NotImplementedError('This function was deprecated in Version 3.')
 
     @property
     def chi2_gradient(self):
@@ -875,17 +842,19 @@ class FitData(object):
         If *None*, you need to run :py:func:`~fit_fluxes()` or
         :py:func:`~update()` to execute the linear fit.
         """
-        if self._model.n_sources != 2:
+        if self._model.n_sources == 1:
             msg = ("source_flux is defined only for models" +
-                   " with TWO sources, you have" +
-                   " {0}".format(self._model.n_sources) +
-                   " sources.")
+                   " with multiple sources; you have 1 source.")
             raise NameError(msg)
-
-        if self.fix_source_flux_ratio:
-            return self.fix_source_flux_ratio
         else:
-            return self.source_fluxes[1] / self.source_fluxes[0]
+            source_flux_ratios = []
+            for i in range(1, self._model.n_sources):
+                if (self.fix_source_flux_ratio is False) or (self.fix_source_flux_ratio[i-1] is False):
+                    source_flux_ratios.append(self.source_fluxes[i] / self.source_fluxes[0])
+                else:
+                    source_flux_ratios.append(self.fix_source_flux_ratio[i-1])
+
+            return source_flux_ratios
 
     @property
     def dataset(self):
@@ -932,6 +901,26 @@ class FitData(object):
         return self._data_magnification
 
     @property
+    def magnification_curve(self):
+        """
+        Returns previously calculated magnification curve.
+        """
+        return self._data_magnification_curve
+
+    @property
+    def magnification_curves(self):
+        """
+        Returns previously calculated magnification curves.
+
+        Returns :
+            *tuple* of
+            *:py:class:`~MulensModel.magnification.MagnificationCurve* objects,
+            i.e., the model magnification curve evaluated for each datapoint.
+        """
+        return (self._data_magnification_curve_1,
+                self._data_magnification_curve_2)
+
+    @property
     def gamma(self):
         """
         *float*
@@ -943,164 +932,9 @@ class FitData(object):
         return self._gamma
 
     class FSPL_Derivatives(object):
-        """
-        Calculates derivatives of an FSPL model for each datapoint.
 
-        Arguments :
-            fit: py:class:`FitData` object
-
-        """
         def __init__(self, fit):
-            # The fact that this takes a FitData object as an argument seems
-            # circular.
-            #
-            # Another problem with this code: the ephemerides file is tied to
-            # the dataset, so satellite parallax properties need to be defined
-            # relative to the dataset *not* the model (which may not have an
-            # ephemerides file). This creates bookkeeping problems.
-
-            # Define the initialization functions
-            def _get_u():
-                """
-                Calculate u (lens-source separation) for all dataset epochs.
-                """
-                # This calculation gets repeated = Not efficient. Should
-                # trajectory be a property of model? No. Wouldn't include
-                # dataset ephemerides.
-                trajectory = self.fit.get_dataset_trajectory()
-                u_ = np.sqrt(trajectory.x ** 2 + trajectory.y ** 2)
-                return u_
-
-            def _get_dataset_satellite_skycoord():
-                """
-                If set, get satellite_skycoordinates from the dataset.
-                Otherwise, return None.
-                """
-                satellite_skycoord = None
-                if self.dataset.ephemerides_file is not None:
-                    satellite_skycoord = self.dataset.satellite_skycoord
-
-                return satellite_skycoord
-
-            def _get_magnification_curve():
-                """
-                Get the
-                :py:class:`~MulensModel.magnificationcurve.MagnificationCurve.`
-                evaluated at the dataset epochs.
-                """
-                # This code was copied directly from model.py --> indicates a
-                # refactor is needed.
-                # Also, shouldn't satellite_skycoord be stored as a property of
-                # mm.Model?
-                magnification_curve = mm.MagnificationCurve(
-                    self.dataset.time, parameters=self.model.parameters,
-                    parallax=self.model.get_parallax(),
-                    coords=self.model.coords,
-                    satellite_skycoord=self._dataset_satellite_skycoord,
-                    gamma=self.gamma)
-                magnification_curve.set_magnification_methods(
-                    self.model.methods,
-                    self.model.default_magnification_method)
-
-                return magnification_curve
-
-            def _get_a_pspl():
-                """ Calculate and return the point lens magnification. """
-                zip_ = self.model.parameters.parameters.items()
-                point_source_params = {key: value for (key, value) in zip_}
-                point_source_params.pop('rho')
-                point_source_curve = mm.MagnificationCurve(
-                    self.dataset.time,
-                    parameters=mm.ModelParameters(point_source_params),
-                    parallax=self.model.get_parallax(),
-                    coords=self.model.coords,
-                    satellite_skycoord=self._dataset_satellite_skycoord)
-
-                a_pspl = point_source_curve.get_magnification()
-                return a_pspl
-
-            def _get_b0_gamma_b1_and_derivs():
-                """
-                Retrieve B0 - gamma * B1 and its derivative for each epoch.
-                For uniform source, return B0 and its derivative.
-                """
-                z_ = self.u_ / self.model.parameters.rho
-
-                b0_gamma_b1 = np.ones(len(self.dataset.time))
-                db0_gamma_db1 = np.zeros(len(self.dataset.time))
-                B0B1 = self._B0B1_data
-                # This section was copied from magnificationcurve.py. Addl
-                # evidence a refactor is needed.
-                methods = np.array(
-                    self._magnification_curve.methods_for_epochs)
-                for method in set(methods):
-                    selection = (methods == method) & (
-                                 z_ < B0B1.z_max_interpolation)
-                    z = z_[selection]
-                    method_ = method.lower()
-                    if method_ == 'point_source':
-                        pass  # These cases are already taken care of.
-                    elif method_ == 'finite_source_uniform_Gould94'.lower():
-                        b0_gamma_b1[selection] = B0B1.interpolate_B0(z)
-                        db0_gamma_db1[selection] = B0B1.interpolate_B0prime(z)
-                    elif method_ == 'finite_source_LD_Yoo04'.lower():
-                        B0 = B0B1.interpolate_B0(z)
-                        B0_prime = B0B1.interpolate_B0prime(z)
-                        B1 = B0B1.interpolate_B1(z)
-                        B1_prime = B0B1.interpolate_B1prime(z)
-
-                        b0_gamma_b1[selection] = B0 - self.gamma * B1
-                        db0_gamma_db1[selection] = (
-                            B0_prime - self.gamma * B1_prime)
-                    else:
-                        msg = "dA/drho only implemented for 'finite_source_"
-                        msg += "uniform_Gould94' and 'finite_source_LD"
-                        msg += "_Yoo04'. Your value: {:}"
-                        raise ValueError(msg.format(method))
-
-                return (b0_gamma_b1, db0_gamma_db1)
-
-            # Actual Initializations
-            self.fit = fit
-            self.dataset = self.fit.dataset
-            self.model = self.fit.model
-            self.gamma = self.fit.gamma
-
-            self._B0B1_data = mm.PointLensFiniteSource()
-            self.u_ = _get_u()
-            self._dataset_satellite_skycoord = (
-                _get_dataset_satellite_skycoord())
-            self._magnification_curve = _get_magnification_curve()
-            self.a_pspl = _get_a_pspl()
-            b0_gamma_b1_and_derivs = _get_b0_gamma_b1_and_derivs()
-            self.b0_gamma_b1 = b0_gamma_b1_and_derivs[0]
-            self.db0_gamma_db1 = b0_gamma_b1_and_derivs[1]
-
-        def get_gradient(self, parameters):
-            """
-            Return the gradient of the magnification with respect to the
-            FSPL parameters.
-            """
-            d_A_pspl_d_u = self.fit.get_d_A_d_u_for_PSPL_model()
-            factor = self.a_pspl * self.db0_gamma_db1
-            factor /= self.model.parameters.rho
-            factor += d_A_pspl_d_u * self.b0_gamma_b1
-
-            gradient = self.fit._get_d_u_d_params(parameters)
-            for key in parameters:
-                if key == 'rho':
-                    gradient[key] = self.get_d_A_d_rho()
-                else:
-                    gradient[key] *= factor
-
-            return gradient
-
-        def get_d_A_d_rho(self):
-            """
-            Return the derivative of the magnification with respect to rho.
-            """
-            d_A_d_rho = self.a_pspl
-            d_A_d_rho *= -self.u_ / self.model.parameters.rho**2
-            d_A_d_rho *= self.db0_gamma_db1
-
-            return d_A_d_rho
+            raise NotImplementedError(
+                'The FSPL_Derivatives class was deprecated in Version 3. ' +
+                'Its various functions were incorporated into the new ' +
+                'PointLens classes.')

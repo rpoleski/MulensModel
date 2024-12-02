@@ -14,7 +14,10 @@ VBBinaryLensing_BinaryMagDark_wrapper(PyObject *self, PyObject *args) {
 
   if (!PyArg_ParseTuple(args, "ddddddd", &a, &q, &y1, &y2, &RSv, &tolerance, &a1)) return NULL;
 
-  mag = VBBL.BinaryMagDark(a, q, y1, y2, RSv, a1, tolerance);
+  VBBL.Tol = tolerance;
+  VBBL.a1 = a1;
+
+  mag = VBBL.BinaryMag2(a, q, y1, y2, RSv);
 
   return Py_BuildValue("d", mag);
 }

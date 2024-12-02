@@ -5,7 +5,6 @@ Change how the binary magnification is calculated based on
 - the time stamp of the model
 - the magnification of the model (???)
 """
-from astropy import units as u
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -17,7 +16,7 @@ t_0 = 2455747.049357
 t_E = 21.6796
 model = mm.Model(
     {'t_0': t_0, 'u_0': 0.00352, 't_E': t_E, 'rho': 0.001647,
-     'alpha': 41.35*u.deg, 's': 0.5486, 'q': 0.00532})
+     'alpha': 41.35, 's': 0.5486, 'q': 0.00532})
 
 # times to calculate the magnification
 times = np.arange(t_0 - 1., t_0 + 1., 0.001)

@@ -24,7 +24,7 @@ plt.show()
 keys = {'s_21', 's_31', 'psi', 'q_21', 'q_31'}  # We need only these keys
 caustic_parameters = {key: parameters[key] for key in keys}
 # New initialization of Caustics:
-caustics_1 = mm.Caustics(**caustic_parameters)
+caustics_1 = mm.CausticsBinary(**caustic_parameters)
 caustics_1.plot()
 plt.show()
 
@@ -32,7 +32,7 @@ plt.show()
 positions = model_parameters.lens_positions()  # This is new function. One can
 # add parameter: epoch=2456789.01 so that orbital motion is taken into account.
 print(positions)  # Prints a (3,2) numpy array
-caustics_2 = mm.Caustics(
+caustics_2 = mm.CausticsBinary(
     q_21=parameters['q_21'], q_31=parameters['q_31'],
     lens_positions=positions)  # This keyword should also work for binary lens.
 caustics_2.plot()
@@ -42,7 +42,7 @@ plt.show()
 # (this is why we want two ways to init Caustics for 3L events)
 positions[1, 0] += 0.1
 positions[1, 1] += 0.5
-caustics_3 = mm.Caustics(
+caustics_3 = mm.CausticsBinary(
     q_21=parameters['q_21'], q_31=parameters['q_31'],
     lens_positions=positions)
 caustics_3.plot()

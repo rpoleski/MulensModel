@@ -5,7 +5,7 @@ from scipy.interpolate import interp1d
 import MulensModel as mm
 
 
-class PointLensFiniteSource(object):
+class B0B1Utils(object):
     """
     Data and methods used for interpolation for finite-source point-lens
     magnification calculations.
@@ -18,7 +18,7 @@ class PointLensFiniteSource(object):
     def __init__(self):
         self._B0B1_file = join(mm.DATA_PATH, 'interpolation_table_b0b1_v3.dat')
 
-        if not PointLensFiniteSource._B0B1_file_read:
+        if not B0B1Utils._B0B1_file_read:
             self._read_B0B1_file()
 
     def _read_B0B1_file(self):
@@ -31,18 +31,18 @@ class PointLensFiniteSource(object):
         (z, B0, B0_minus_B1, B1, B0_prime, B1_prime) = file_info
 
         kwargs = {'kind': 'cubic', 'bounds_error': False, 'fill_value': 1.}
-        PointLensFiniteSource._B0_interpolation = interp1d(z, B0, **kwargs)
+        B0B1Utils._B0_interpolation = interp1d(z, B0, **kwargs)
         kwargs['fill_value'] = 0.
-        PointLensFiniteSource._B0_minus_B1_interpolation = interp1d(
+        B0B1Utils._B0_minus_B1_interpolation = interp1d(
             z, B0_minus_B1, **kwargs)
-        PointLensFiniteSource._B1_interpolation = interp1d(z, B1, **kwargs)
-        PointLensFiniteSource._B0_prime_interpolation = interp1d(
+        B0B1Utils._B1_interpolation = interp1d(z, B1, **kwargs)
+        B0B1Utils._B0_prime_interpolation = interp1d(
             z, B0_prime, **kwargs)
-        PointLensFiniteSource._B1_prime_interpolation = interp1d(
+        B0B1Utils._B1_prime_interpolation = interp1d(
             z, B1_prime, **kwargs)
-        PointLensFiniteSource._z_min = np.min(z)
-        PointLensFiniteSource._z_max = np.max(z)
-        PointLensFiniteSource._B0B1_file_read = True
+        B0B1Utils._z_min = np.min(z)
+        B0B1Utils._z_max = np.max(z)
+        B0B1Utils._B0B1_file_read = True
 
     def interpolate_B0(self, z):
         """
@@ -56,7 +56,7 @@ class PointLensFiniteSource(object):
             B0: *np.ndarray*
                 Values of B_0.
         """
-        return PointLensFiniteSource._B0_interpolation(z)
+        return B0B1Utils._B0_interpolation(z)
 
     def interpolate_B0minusB1(self, z):
         """
@@ -70,7 +70,7 @@ class PointLensFiniteSource(object):
             B0_minus_B1: *np.ndarray*
                 Values of B_0(z)-B_1(z).
         """
-        return PointLensFiniteSource._B0_minus_B1_interpolation(z)
+        return B0B1Utils._B0_minus_B1_interpolation(z)
 
     def interpolate_B1(self, z):
         """
@@ -84,7 +84,7 @@ class PointLensFiniteSource(object):
             B1: *np.ndarray*
                 Values of B_1(z).
         """
-        return PointLensFiniteSource._B1_interpolation(z)
+        return B0B1Utils._B1_interpolation(z)
 
     def interpolate_B0prime(self, z):
         """
@@ -98,7 +98,7 @@ class PointLensFiniteSource(object):
             dB0_dz: *np.ndarray*
                 Values of d B_0(z)/d z.
         """
-        return PointLensFiniteSource._B0_prime_interpolation(z)
+        return B0B1Utils._B0_prime_interpolation(z)
 
     def interpolate_B1prime(self, z):
         """
@@ -112,7 +112,7 @@ class PointLensFiniteSource(object):
             dB1_dz: *np.ndarray*
                 Values of d B_1(z)/d z.
         """
-        return PointLensFiniteSource._B1_prime_interpolation(z)
+        return B0B1Utils._B1_prime_interpolation(z)
 
     def get_interpolation_mask(self, z):
         """
@@ -127,8 +127,8 @@ class PointLensFiniteSource(object):
             mask: *np.ndarray*
                 Mask indicating for which z values interpolation is allowed.
         """
-        mask = (z > PointLensFiniteSource._z_min)
-        mask &= (z < PointLensFiniteSource._z_max)
+        mask = (z > B0B1Utils._z_min)
+        mask &= (z < B0B1Utils._z_max)
         return mask
 
     @property
@@ -138,4 +138,4 @@ class PointLensFiniteSource(object):
 
         *float*
         """
-        return PointLensFiniteSource._z_max
+        return B0B1Utils._z_max

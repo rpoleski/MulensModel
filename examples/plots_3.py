@@ -28,7 +28,7 @@ MOA_data = MulensData(
 # Define a model with a 2-body lens (these parameters slightly differ
 # from Bond et al. 2004):
 model_1S2L = Model({'t_0': 2452848.06, 'u_0': 0.1317, 't_E': 61.5,
-                    'rho': 0.00096, 'q': 0.0039, 's': 1.120, 'alpha': 223.72})
+                    'rho': 0.00096, 'q': 0.0039, 's': 1.120, 'alpha': 43.72})
 
 # Since rho is set, define a time range and method to apply finite
 # source effects:

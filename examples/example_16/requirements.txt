@@ -1,6 +1,7 @@
 numpy
 scipy>=0.18.0
 matplotlib
+plotly
 yaml
 emcee
 corner

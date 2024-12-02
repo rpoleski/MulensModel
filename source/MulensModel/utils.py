@@ -48,7 +48,7 @@ class Utils(object):
             mag: *np.ndarray* or *float*
                 Values to be transformed.
 
-            zeropoint: *float*
+            zeropoint: *float*, optional
                 Zeropoint of magnitude scale.
                 Defaults to 22. - double check if you want to change this.
 

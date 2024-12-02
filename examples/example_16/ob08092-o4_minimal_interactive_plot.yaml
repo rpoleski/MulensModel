@@ -1,0 +1,9 @@
+photometry_files: data/OB08092/phot_ob08092_O4.dat
+# Define model to be plotted:
+model:
+    parameters: t_0 u_0 t_E
+    values: 2455379.5716130617 0.5236953977433282 17.926270401551196
+# Now set the file where you want the light curve to be plotted:
+plots:
+    best model:
+        interactive: ob08092-o4_minimal_plot.html
