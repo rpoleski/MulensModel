@@ -26,7 +26,7 @@ jobs:
         # Skips PyPy
         os: [ubuntu-latest, macos-latest]
         cibw_archs: [auto64, arm64]
-        cibw_build: [cp38-*, cp39-*, cp310-*, cp311-*]
+        cibw_build: [cp38, cp39, cp310, cp311]
         cibw_skip: [pp*]
         exclude:
         - os: ubuntu-latest
