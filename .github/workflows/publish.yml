@@ -81,7 +81,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    steps:
     - name: Download sdist and wheelhouse artifacts to dist/
       uses: actions/download-artifact@v4
       with:
