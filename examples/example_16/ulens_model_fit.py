@@ -3965,7 +3965,7 @@ class UlensModelFit(object):
         """
         traces_lc = []
         subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
-        times = np.linspace(t_start, t_stop, num=5000) - subtract
+        times = np.linspace(t_start, t_stop, num=5000)
 
         if isinstance(name, type(None)):
             showlegend = False
