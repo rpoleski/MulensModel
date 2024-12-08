@@ -3976,6 +3976,7 @@ class UlensModelFit(object):
             if dataset.ephemerides_file is None:
                 lc = self._model.get_lc(
                     times=times, source_flux=f_source_0, blend_flux=f_blend_0, gamma=gamma, bandpass=bandpass)
+                times = times - subtract
                 traces_lc.append(self._make_interactive_scatter_lc(
                     times, lc, name, showlegend, colors[1], sizes[1], dash))
                 break
