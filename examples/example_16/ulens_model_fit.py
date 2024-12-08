@@ -3965,7 +3965,7 @@ class UlensModelFit(object):
         """
         traces_lc = []
         subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
-        times = np.linspace(t_start, t_stop, num=5000) - subtract
+        times = np.linspace(t_start, t_stop, num=5000)
 
         if isinstance(name, type(None)):
             showlegend = False
@@ -3976,6 +3976,7 @@ class UlensModelFit(object):
             if dataset.ephemerides_file is None:
                 lc = self._model.get_lc(
                     times=times, source_flux=f_source_0, blend_flux=f_blend_0, gamma=gamma, bandpass=bandpass)
+                times = times - subtract
                 traces_lc.append(self._make_interactive_scatter_lc(
                     times, lc, name, showlegend, colors[1], sizes[1], dash))
                 break
