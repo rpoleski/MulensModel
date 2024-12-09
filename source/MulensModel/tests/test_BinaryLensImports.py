@@ -21,23 +21,35 @@ def test_VBBL_dark():
 
     out = mm.binarylensimports._vbbl_binary_mag_dark(
         1.35, 0.00578, 0.6598560303179819, -0.05280389642190758, 0.01,
-        0.001, 0.0)
+        0.001, 0.0, 0.0)
     assert_almost_equal(out, 1.635980468652538)
 
 
 def test_VBBL_finite():
     """
-    Directly (hence, calling private function) test imported VBBL function:
-    _vbbl_binary_mag_finite()
+    Directly (hence, calling private function) test imported VBBL function: _vbbl_binary_mag_finite()
     """
     if not mm.binarylensimports._vbbl_wrapped:
         warnings.warn("VBBL not imported", UserWarning)
         return
 
     out = mm.binarylensimports._vbbl_binary_mag_finite(
-        0.8, 0.1, 0.01, 0.01, 0.01, 0.001)
+        0.8, 0.1, 0.01, 0.01, 0.01, 0.001, 0.)
     assert_almost_equal(out, 18.283392940574107)
 
+
+def test_VBBL_finite_reltol():
+    """
+    Directly (hence, calling private function) test imported VBBL function: _vbbl_binary_mag_finite()
+    with relative tollerance on magnification.
+    """
+    if not mm.binarylensimports._vbbl_wrapped:
+        warnings.warn("VBBL not imported", UserWarning)
+        return
+
+    out = mm.binarylensimports._vbbl_binary_mag_finite(
+        0.8, 0.1, 0.01, 0.01, 0.01, 0.01, 0.1)
+    assert_almost_equal(out, 18.243254475178)
 
 def test_VBBL_point():
     """
