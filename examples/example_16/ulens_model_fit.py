@@ -4089,9 +4089,11 @@ class UlensModelFit(object):
                 show_errorbars=show_errorbars, show_bad=show_bad, **kwargs_interactive)
             traces_data.extend(trace_data)
             if "second Y scale" in self._plots['best model'] and dataset_index == 0:
+                kwargs_interactive_secY = kwargs_interactive.copy()
+                kwargs_interactive_secY['opacity'] = 0.
                 trace_data = self._make_one_interactive_data_trace(
                     dataset_index, times, y_value, y_err, xaxis='x', yaxis='y3', showlegend=False,
-                    show_errorbars=show_errorbars, show_bad=show_bad, **kwargs_interactive)
+                    show_errorbars=show_errorbars, show_bad=show_bad, **kwargs_interactive_secY)
                 traces_data.extend(trace_data)
         for trace in traces_data:
             self._interactive_fig.add_trace(trace)
@@ -4136,10 +4138,11 @@ class UlensModelFit(object):
     def _make_interactive_data_trace(self, x, y, y_err, dataset, opacity, sizes, xaxis, yaxis,
                                      showlegend, show_errorbars, color_override=None, error_visible=True):
         """Creates single plotly.graph_objects.Scatter object for good or bad data."""
+        label = dataset.plot_properties['label']
         color = color_override if color_override else dataset.plot_properties['color']
         error_y = dict(type='data', array=y_err, visible=error_visible, thickness=sizes[2], width=sizes[3])
         marker = dict(color=color, size=sizes[0], line=dict(color=color, width=1))
-        return go.Scatter(x=x, y=y, opacity=opacity, name=dataset.plot_properties['label'], mode='markers',
+        return go.Scatter(x=x, y=y, opacity=opacity, name=label, legendgroup=label, mode='markers',
                           showlegend=showlegend, error_y=error_y, marker=marker, xaxis=xaxis, yaxis=yaxis)
 
     def _make_interactive_bad_data_trace(self, dataset, times, y_value, y_err, opacity, sizes,
