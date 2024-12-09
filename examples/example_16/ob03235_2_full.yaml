@@ -120,6 +120,7 @@ plots:
     best model:
         # You can skip the line below - the light curve will be plotted on screen.
         file: ob03235_2_model.png
+        # In case you want an interactive plot made using plotly:
         interactive : ob03235_2_model.html
         time range: 2452820 2452855
         magnitude range: 19.3 16.9
