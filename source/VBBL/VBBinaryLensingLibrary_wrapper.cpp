@@ -3,10 +3,11 @@
 #include "VBBinaryLensingLibrary.h"
 
 extern "C" {
-  double VBBinaryLensing_BinaryMagDark(double a, double q, double y1, double y2, double RSv, double tolerance, double a1) {
+  double VBBinaryLensing_BinaryMagDark(double a, double q, double y1, double y2, double RSv, double tolerance, double Reltolerance, double a1) {
     static VBBinaryLensing VBBL;
 
     VBBL.Tol = tolerance;
+    VBBL.RelTol = Reltolerance;
     VBBL.a1 = a1;
 
     return VBBL.BinaryMag2(a, q, y1, y2, RSv);
@@ -14,10 +15,11 @@ extern "C" {
 }
 
 extern "C" {
-  double VBBinaryLensing_BinaryMagFinite(double a, double q, double y1, double y2, double RSv, double tolerance) {
+  double VBBinaryLensing_BinaryMagFinite(double a, double q, double y1, double y2, double RSv, double tolerance, double Reltolerance) {
     static VBBinaryLensing VBBL;
 
     VBBL.Tol = tolerance;
+    VBBL.RelTol = Reltolerance;
 
     return VBBL.BinaryMag2(a, q, y1, y2, RSv);
   }

@@ -56,8 +56,8 @@ def _import_compiled_VBBL():
         function.argtypes = n_double * [ctypes.c_double]
         function.restype = ctypes.c_double
 
-    _set_in_out(vbbl.VBBinaryLensing_BinaryMagDark, 7)
-    _set_in_out(vbbl.VBBinaryLensing_BinaryMagFinite, 6)
+    _set_in_out(vbbl.VBBinaryLensing_BinaryMagDark, 8)
+    _set_in_out(vbbl.VBBinaryLensing_BinaryMagFinite, 7)
     _set_in_out(vbbl.VBBinaryLensing_BinaryMagPoint, 4)
     _set_in_out(vbbl.VBBinaryLensing_BinaryMagPointShear, 7)
 
