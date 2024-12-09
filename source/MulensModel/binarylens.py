@@ -550,18 +550,23 @@ class BinaryLensVBBLMagnification(_BinaryLensPointSourceMagnification, _LimbDark
         accuracy: *float*, optional
             Requested accuracy of the result.
 
+        relative_accuracy: *float*, optional
+            Requested relative accuracy of the result.
+            Following the VBBL approach, if both `accuracy` and `relative_accuracy` are provided,
+            then calculations are stopped after one of the two criteria is matched.
     """
 
-    def __init__(self, gamma=None, u_limb_darkening=None, accuracy=0.001, **kwargs):
+    def __init__(self, gamma=None, u_limb_darkening=None, accuracy=0.001, relative_accuracy=0.0, **kwargs):
         super().__init__(**kwargs)
         self._set_LD_coeffs(u_limb_darkening=u_limb_darkening, gamma=gamma)
         self._set_and_check_rho()
 
-        if accuracy <= 0.:
+        if accuracy < 0.:
             raise ValueError(
-                "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" +
+                "VBBL requires accuracy >= 0 e.g. 0.01 or 0.001;" +
                 "\n{:} was  provided".format(accuracy))
         self._accuracy = float(accuracy)
+        self._relative_accuracy = float(relative_accuracy)
 
         if not _vbbl_wrapped:
             raise ValueError('VBBL was not imported properly')
@@ -575,7 +580,7 @@ class BinaryLensVBBLMagnification(_BinaryLensPointSourceMagnification, _LimbDark
         """
         Calculate 1 magnification using VBBL.
         """
-        args = [float(separation), self._q, float(x), float(y), self._rho, self._accuracy]
+        args = [float(separation), self._q, float(x), float(y), self._rho, self._accuracy, self._relative_accuracy]
         if self._u_limb_darkening is not None:
             args += [self._u_limb_darkening]
 
