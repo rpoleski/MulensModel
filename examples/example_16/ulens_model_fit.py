@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.41.0'
+__version__ = '0.41.1'
 
 
 class UlensModelFit(object):
@@ -879,10 +879,6 @@ class UlensModelFit(object):
         """
         Check if there is no problem with interactive best plot
         """
-        if "second Y scale" in self._plots['best model']:
-            msg = "Interactive plot will not have a second Y scale. This feature is not yet implemented."
-            raise NotImplementedError(msg)
-
     def _check_plots_parameters_best_model_Y_scale(self):
         """
         Check if parameters for second Y scale make sense.
@@ -3885,6 +3881,9 @@ class UlensModelFit(object):
             **kwargs_model,
             **kwargs_interactive
         )
+        if "second Y scale" in self._plots['best model']:
+            layout = self._add_second_Y_axis_to_interactive_layout(layout, ylim)
+        layout = go.Layout(layout)
         return layout, kwargs_model, kwargs_interactive, kwargs
 
     def _get_kwargs_for_plotly_plot(self, scale):
@@ -3931,10 +3930,10 @@ class UlensModelFit(object):
                        tickwidth=sizes[6], linewidth=sizes[6], linecolor=colors[0], tickfont=font_base)
         kwargs_y = {'mirror': 'all', **kwargs_}
         kwargs_x = {'range': [t_start, t_stop], **kwargs_}
-        layout = go.Layout(
+        layout = dict(
             autosize=True, width=width, height=height, showlegend=True,
-            legend=dict(
-                x=1.02, y=.98, bgcolor=paper_bgcolor, bordercolor=colors[2], borderwidth=sizes[6], font=font_legend),
+            legend=dict(x=0, y=-0.2, yanchor='top', bgcolor=paper_bgcolor, bordercolor=colors[2],
+                        borderwidth=sizes[6], font=font_legend),
             paper_bgcolor=paper_bgcolor, plot_bgcolor=paper_bgcolor, font=font_base,
             yaxis=dict(title_text='Magnitude', domain=[hsplit+(hspace/2), 1], range=ylim, **kwargs_y),
             yaxis2=dict(title_text='Residuals', domain=[0, hsplit-(hspace/2)], anchor="x", range=ylim_residuals,
@@ -3944,6 +3943,45 @@ class UlensModelFit(object):
             xaxis2=dict(title_text=xtitle, anchor="y2", mirror='all', scaleanchor='x', matches='x', **kwargs_x)
             )
         return layout
+
+    def _add_second_Y_axis_to_interactive_layout(self, layout, ylim):
+        """Modifiing  plotly.graph_objects.Layout object by adding second Y axis
+        """
+        layout['yaxis']['mirror'] = False
+        layout['yaxis3'] = layout['yaxis'].copy()
+        layout['yaxis3'].update(dict(overlaying="y", side="right", scaleanchor="y"))
+        layout['yaxis3'].update(self._get_interactive_second_Y_axis_settings_(ylim))
+        return layout
+
+    def _get_interactive_second_Y_axis_settings_(self, ylim):
+        """Creats dictionary with settings for the second Y axis for the interactive plot
+        """
+        (magnifications, color, label, labels, ax2) = self._interactive_second_Y_axis_settings()
+        (A_range, ref_fluxes) = self._second_Y_axis_get_fluxes(ylim)
+        out1, out2 = False, False
+        if magnifications == "optimal":
+            (magnifications, labels, out1) = self._second_Y_axis_optimal(
+                ax2, *A_range)
+            self._second_Y_axis_minor_ticks(ax2, magnifications, ref_fluxes)
+        flux = ref_fluxes[0] * np.array(magnifications) + ref_fluxes[1]
+        out2 = self._second_Y_axis_warnings(flux, labels, magnifications,
+                                            *A_range)
+        if out1 or out2:
+            return {}
+        ticks = mm.Utils.get_mag_from_flux(flux)
+        return dict(title_text=label, linecolor=color, tickmode='array', tickvals=ticks, ticktext=labels)
+
+    def _interactive_second_Y_axis_settings(self):
+        """
+        Get settings for the interactive second Y axis
+        """
+        settings = self._plots['best model']["second Y scale"]
+        magnifications = settings['magnifications']
+        color = settings.get("color", "black")
+        label = settings.get("label", "Magnification")
+        labels = settings.get("labels")
+        ax2 = plt.gca().twinx()
+        return (magnifications, color, label, labels, ax2)
 
     def _get_time_span_data(self):
         """
@@ -4050,7 +4088,11 @@ class UlensModelFit(object):
                 dataset_index, times, y_value, y_err, xaxis='x', yaxis='y', showlegend=True,
                 show_errorbars=show_errorbars, show_bad=show_bad, **kwargs_interactive)
             traces_data.extend(trace_data)
-
+            if "second Y scale" in self._plots['best model'] and dataset_index == 0:
+                trace_data = self._make_one_interactive_data_trace(
+                    dataset_index, times, y_value, y_err, xaxis='x', yaxis='y3', showlegend=False,
+                    show_errorbars=show_errorbars, show_bad=show_bad, **kwargs_interactive)
+                traces_data.extend(trace_data)
         for trace in traces_data:
             self._interactive_fig.add_trace(trace)
 
