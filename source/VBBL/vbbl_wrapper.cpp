@@ -12,9 +12,10 @@ VBBinaryLensing_BinaryMagDark_wrapper(PyObject *self, PyObject *args) {
   double a, q, y1, y2, RSv, a1, tolerance, mag;
   static VBBinaryLensing VBBL;
 
-  if (!PyArg_ParseTuple(args, "ddddddd", &a, &q, &y1, &y2, &RSv, &tolerance, &a1)) return NULL;
+  if (!PyArg_ParseTuple(args, "dddddddd", &a, &q, &y1, &y2, &RSv, &tolerance, &relative_tolerance, &a1)) return NULL;
 
   VBBL.Tol = tolerance;
+  VBBL.RelTol = relative_tolerance;
   VBBL.a1 = a1;
 
   mag = VBBL.BinaryMag2(a, q, y1, y2, RSv);
@@ -27,9 +28,10 @@ VBBinaryLensing_BinaryMagFinite_wrapper(PyObject *self, PyObject *args) {
   double a, q, y1, y2, RSv, tolerance, mag;
   static VBBinaryLensing VBBL;
 
-  if (!PyArg_ParseTuple(args, "dddddd", &a, &q, &y1, &y2, &RSv, &tolerance)) return NULL;
+  if (!PyArg_ParseTuple(args, "ddddddd", &a, &q, &y1, &y2, &RSv, &tolerance, &relative_tolerance)) return NULL;
 
   VBBL.Tol = tolerance;
+  VBBL.RelTol = relative_tolerance;
 
   mag = VBBL.BinaryMag2(a, q, y1, y2, RSv);
 
