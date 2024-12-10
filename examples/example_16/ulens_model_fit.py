@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.41.0'
+__version__ = '0.42.0'
 
 
 class UlensModelFit(object):
@@ -879,10 +879,6 @@ class UlensModelFit(object):
         """
         Check if there is no problem with interactive best plot
         """
-        if "second Y scale" in self._plots['best model']:
-            msg = "Interactive plot will not have a second Y scale. This feature is not yet implemented."
-            raise NotImplementedError(msg)
-
     def _check_plots_parameters_best_model_Y_scale(self):
         """
         Check if parameters for second Y scale make sense.
@@ -3695,21 +3691,16 @@ class UlensModelFit(object):
         Mark the second (right-hand side) scale for Y axis in
         the best model plot
         """
-        (magnifications, labels, ylim, ax2) = self._second_Y_axis_settings()
-        (A_range, ref_fluxes) = self._second_Y_axis_get_fluxes(ylim)
-        out1, out2 = False, False
-        if magnifications == "optimal":
-            (magnifications, labels, out1) = self._second_Y_axis_optimal(
-                ax2, *A_range)
-            self._second_Y_axis_minor_ticks(ax2, magnifications, ref_fluxes)
-        flux = ref_fluxes[0] * np.array(magnifications) + ref_fluxes[1]
-        out2 = self._second_Y_axis_warnings(flux, labels, magnifications,
-                                            *A_range)
-        if out1 or out2:
+        (warning1, warning2, label, ylim, color, ax2, labels, ticks, minor_ticks) = self._get_second_Y_axis_settings()
+        if warning1 or warning2:
             ax2.get_yaxis().set_visible(False)
-            return
+            return   
+        if minor_ticks is not None:
+            ax2.set_yticks(minor_ticks, minor=True)
+        ax2.set_ylabel(label).set_color(color)
+        ax2.spines['right'].set_color(color)
+        ax2.tick_params(axis='y', direction="in", which="both", colors=color)
 
-        ticks = mm.Utils.get_mag_from_flux(flux)
         try:  # matplotlib version 3.5 or later
             ax2.set_yticks(ticks=ticks, labels=labels)
         except Exception:  # matplotlib version 3.4.X or smaller
@@ -3718,23 +3709,36 @@ class UlensModelFit(object):
 
         ax2.set_ylim(ylim[0], ylim[1])
 
+    def _get_second_Y_axis_settings(self, ylim=False):
+        """Creats settings for the second Y axis for the best model plot
+        """
+        if not ylim:
+            ylim = plt.ylim()
+        (magnifications, color, label, labels,  ax2) = self._second_Y_axis_settings()
+        (A_range, ref_fluxes) = self._second_Y_axis_get_fluxes(ylim)
+        warning1, warning2 = False, False
+        minor_ticks = None
+        if magnifications == "optimal":
+            (magnifications, labels, warning1) = self._second_Y_axis_optimal(
+                ax2, *A_range)
+            minor_ticks = self._second_Y_axis_minor_ticks(ax2, magnifications, ref_fluxes)
+        flux = ref_fluxes[0] * np.array(magnifications) + ref_fluxes[1]
+        warning2 = self._second_Y_axis_warnings(flux, labels, magnifications, *A_range)
+        ticks = mm.Utils.get_mag_from_flux(flux)
+        
+        return (warning1, warning2, label, ylim, color, ax2, labels, ticks, minor_ticks)
+
     def _second_Y_axis_settings(self):
         """
-        Get and apply settings for the second Y axis
+        Get settings for the second Y axis
         """
         settings = self._plots['best model']["second Y scale"]
         magnifications = settings['magnifications']
         color = settings.get("color", "black")
         label = settings.get("label", "Magnification")
         labels = settings.get("labels")
-        ylim = plt.ylim()
-
         ax2 = plt.gca().twinx()
-        ax2.set_ylabel(label).set_color(color)
-        ax2.spines['right'].set_color(color)
-        ax2.tick_params(axis='y', direction="in", which="both", colors=color)
-
-        return (magnifications, labels, ylim, ax2)
+        return (magnifications, color, label, labels,  ax2)
 
     def _second_Y_axis_get_fluxes(self, ylim):
         """
@@ -3783,10 +3787,9 @@ class UlensModelFit(object):
         ax2.minorticks_on()
         minor_ticks_A = np.array(ax2.yaxis.get_ticklocs(minor=True))
         minor_ticks_A = minor_ticks_A[~np.isin(minor_ticks_A, A_values)]
-
         minor_ticks_flux = ref_fluxes[0] * minor_ticks_A + ref_fluxes[1]
         minor_ticks_mag = mm.Utils.get_mag_from_flux(minor_ticks_flux)
-        ax2.set_yticks(minor_ticks_mag, minor=True)
+        return minor_ticks_mag
 
     def _second_Y_axis_warnings(self, flux, labels, A_values, A_min, A_max):
         """
@@ -3885,6 +3888,9 @@ class UlensModelFit(object):
             **kwargs_model,
             **kwargs_interactive
         )
+        if "second Y scale" in self._plots['best model']:
+            layout = self._add_second_Y_axis_to_interactive_layout(layout, ylim)
+        layout = go.Layout(layout)
         return layout, kwargs_model, kwargs_interactive, kwargs
 
     def _get_kwargs_for_plotly_plot(self, scale):
@@ -3931,10 +3937,10 @@ class UlensModelFit(object):
                        tickwidth=sizes[6], linewidth=sizes[6], linecolor=colors[0], tickfont=font_base)
         kwargs_y = {'mirror': 'all', **kwargs_}
         kwargs_x = {'range': [t_start, t_stop], **kwargs_}
-        layout = go.Layout(
+        layout = dict(
             autosize=True, width=width, height=height, showlegend=True,
-            legend=dict(
-                x=1.02, y=.98, bgcolor=paper_bgcolor, bordercolor=colors[2], borderwidth=sizes[6], font=font_legend),
+            legend=dict(x=0, y=-0.2, yanchor='top', bgcolor=paper_bgcolor, bordercolor=colors[2],
+                        borderwidth=sizes[6], font=font_legend),
             paper_bgcolor=paper_bgcolor, plot_bgcolor=paper_bgcolor, font=font_base,
             yaxis=dict(title_text='Magnitude', domain=[hsplit+(hspace/2), 1], range=ylim, **kwargs_y),
             yaxis2=dict(title_text='Residuals', domain=[0, hsplit-(hspace/2)], anchor="x", range=ylim_residuals,
@@ -3944,6 +3950,28 @@ class UlensModelFit(object):
             xaxis2=dict(title_text=xtitle, anchor="y2", mirror='all', scaleanchor='x', matches='x', **kwargs_x)
             )
         return layout
+    
+    def _add_second_Y_axis_to_interactive_layout(self, layout, ylim):
+        """Modifiing  plotly.graph_objects.Layout object by adding second Y axis
+        """
+        layout['yaxis']['mirror'] = False
+        layout['yaxis3'] = layout['yaxis'].copy()
+        layout['yaxis3'].update(dict(overlaying="y", side="right", scaleanchor="y"))
+        settings = self._get_interactive_second_Y_axis_settings(ylim)
+        layout['yaxis3'].update(settings)
+        return layout
+
+    def _get_interactive_second_Y_axis_settings(self, ylim):
+        """Creats dictionary with settings for the second Y axis for the interactive plot
+        """
+        (warning1, warning2, label, ylim, color, ax2, labels, ticks,
+         minor_ticks) = self._get_second_Y_axis_settings(ylim)
+        if warning1 or warning2:
+            return {}
+        if minor_ticks is not None:
+            minor_ticks = dict(ticks='inside', tickmode='array', tickvals=minor_ticks)
+        return dict(title_text=label, linecolor=color, tickcolor=color, tickmode='array', tickvals=ticks, 
+                    ticktext=labels, minor=minor_ticks)
 
     def _get_time_span_data(self):
         """
@@ -3965,7 +3993,8 @@ class UlensModelFit(object):
         """
         traces_lc = []
         subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
-        times = np.linspace(t_start, t_stop, num=5000) - subtract
+        time_grid = int(t_stop-t_start)*7
+        times = np.linspace(t_start, t_stop, num=time_grid)
 
         if isinstance(name, type(None)):
             showlegend = False
@@ -3976,6 +4005,7 @@ class UlensModelFit(object):
             if dataset.ephemerides_file is None:
                 lc = self._model.get_lc(
                     times=times, source_flux=f_source_0, blend_flux=f_blend_0, gamma=gamma, bandpass=bandpass)
+                times = times - subtract
                 traces_lc.append(self._make_interactive_scatter_lc(
                     times, lc, name, showlegend, colors[1], sizes[1], dash))
                 break
@@ -4049,7 +4079,13 @@ class UlensModelFit(object):
                 dataset_index, times, y_value, y_err, xaxis='x', yaxis='y', showlegend=True,
                 show_errorbars=show_errorbars, show_bad=show_bad, **kwargs_interactive)
             traces_data.extend(trace_data)
-
+            if "second Y scale" in self._plots['best model'] and dataset_index == 0:
+                kwargs_interactive_secY = kwargs_interactive.copy()
+                kwargs_interactive_secY['opacity'] = 0.
+                trace_data = self._make_one_interactive_data_trace(
+                    dataset_index, times, y_value, y_err, xaxis='x', yaxis='y3', showlegend=False,
+                    show_errorbars=show_errorbars, show_bad=show_bad, **kwargs_interactive_secY)
+                traces_data.extend(trace_data)
         for trace in traces_data:
             self._interactive_fig.add_trace(trace)
 
@@ -4093,10 +4129,11 @@ class UlensModelFit(object):
     def _make_interactive_data_trace(self, x, y, y_err, dataset, opacity, sizes, xaxis, yaxis,
                                      showlegend, show_errorbars, color_override=None, error_visible=True):
         """Creates single plotly.graph_objects.Scatter object for good or bad data."""
+        label = dataset.plot_properties['label']
         color = color_override if color_override else dataset.plot_properties['color']
         error_y = dict(type='data', array=y_err, visible=error_visible, thickness=sizes[2], width=sizes[3])
         marker = dict(color=color, size=sizes[0], line=dict(color=color, width=1))
-        return go.Scatter(x=x, y=y, opacity=opacity, name=dataset.plot_properties['label'], mode='markers',
+        return go.Scatter(x=x, y=y, opacity=opacity, name=label, legendgroup=label, mode='markers',
                           showlegend=showlegend, error_y=error_y, marker=marker, xaxis=xaxis, yaxis=yaxis)
 
     def _make_interactive_bad_data_trace(self, dataset, times, y_value, y_err, opacity, sizes,
