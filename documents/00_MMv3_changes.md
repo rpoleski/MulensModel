@@ -1,19 +1,15 @@
 # MulensModel V3
 
 There were two major goals for MulensModel V3:
-- Allow for N sources (However, xallarap can only be used with binary source 
-models)
-- Allow the user direct access to derivatives relative to the point lens model 
-(in addition to derivatives relative to chi2)
+- Allow for N sources (However, xallarap can only be used with binary source models)
+- Allow the user a direct access to partial derivatives of the magnification relative to the point lens model parameters (in addition to chi2 derivatives)
 
 Implementing these changes involved some major updates to the internal 
 architecture, but these should mostly be invisible to the user (although they 
 add new functionality).
 
-We have also cleaned up some problems/bugs/features that will impact the user 
-experience:
-- Shifted the convention of `alpha` by 180 deg to make MM compatible with 
-convention of Skowron et al. 2011.
+We have also cleaned up some problems/bugs/features that will impact the user experience:
+- Shifted the convention of `alpha` by 180 deg to make MM compatible with convention of Skowron et al. 2011.
 - Removing `astropy` units from microlensing parameters.
 - Generally improving consistency in naming conventions.
 - Deprecated functions and properties removed.
@@ -35,21 +31,16 @@ Use `fix_blend_flux` instead.
 
 ### Model Class
 
-- ADDED `get_magnification_curve()` and `get_magnification_curves()` 
-(for multi-source models).
-- `get_lc()`: updated documentation to reflect that this returns MAGNITUDES 
-(not magnifications)
+- ADDED `get_magnification_curve()` and `get_magnification_curves()` (for multi-source models).
+- `get_lc()`: updated documentation to reflect that this returns MAGNITUDES (not magnifications)
 - `get_magnification()`: 
    - REMOVED keyword `flux_ratio_constraint`
-   - default value of `separate` changed to None (which defaults to `True` if 
-`source_flux_ratio` is provided and to `False` otherwise).
+   - default value of `separate` changed to None (which defaults to `True` if `source_flux_ratio` is provided and to `False` otherwise).
 - REMOVED deprecated functions and attributes:
   - `plot_magnification()`: REMOVED keyword `flux_ratio_constraint`.
-  - `plot_lc()`: REMOVED keywords `data_ref`, `flux_ratio_constraint`, 
-`fit_blending`, `f_source`, and `f_blend`.
+  - `plot_lc()`: REMOVED keywords `data_ref`, `flux_ratio_constraint`, `fit_blending`, `f_source`, and `f_blend`.
   - `plot_trajectory()`: REMOVED keyword `show_data`.
-  - `set_default_magnification_method()`. Use 
-`Model.default_magnification_method = XXX`, instead.
+  - `set_default_magnification_method()`. Use `Model.default_magnification_method = XXX`, instead.
   - `magnification()` replaced by `get_magnification()`.
   - `reset_plot_properties()`
 
@@ -60,21 +51,14 @@ immediately converted into a `ModelParameters` object, so many of these changes
 could affect the user experience, even if they had not been interacting directly 
 with the `ModelParameters` class.
 
-- `Astropy` units REMOVED (i.e., now everything is a `float`) from properties: 
-`t_star`, `t_eff`, `t_E`, `alpha`, `ds_dt`, `dalpha_dt`, `t_star_1`, `t_star_2`, 
-`gamma_parallel`, `gamma_perp`, and `gamma`. Also REMOVED from function 
-`get_alpha()`.
+- `Astropy` units REMOVED (i.e., now everything is a `float`) from properties: `t_star`, `t_eff`, `t_E`, `alpha`, `ds_dt`, `dalpha_dt`, `t_star_1`, `t_star_2`, `gamma_parallel`, `gamma_perp`, and `gamma`. Also REMOVED from function `get_alpha()`.
 
 - Property `pi_E` REMOVED. Properties `pi_E_E` and `pi_E_N` are still there.
-- Properties that are not defined now raise `AttributeError` (previously `rho` 
-was returning None, and some other ones raised `KeyError`).
-- Warnings for unexpected values of angles (e.g., 1000 deg) are not raised 
-anymore.
+- Properties that are not defined now raise `AttributeError` (previously `rho` was returning None, and some other ones raised `KeyError`).
+- Warnings for unexpected values of angles (e.g., 1000 deg) are not raised anymore.
 - Changes in default values for `t_0_par` and `t_0_kep`:
-  - If `t_0_par` is not defined, then it defaults to `t_0_kep`, `t_0`, `t_0_1` 
-in that order. 
-  - If `t_0_kep` is not defined, then it defaults to `t_0_par`, `t_0`, `t_0_1` 
-in that order.
+  - If `t_0_par` is not defined, then it defaults to `t_0_kep`, `t_0`, `t_0_1` in that order. 
+  - If `t_0_kep` is not defined, then it defaults to `t_0_par`, `t_0`, `t_0_1` in that order.
 
 Also, REMOVED `which_parameters()` from modelparameters.py because it not very 
 useful and it was very complicated.
@@ -99,8 +83,7 @@ instead of the `times` argument.
 - ADDED:
   - `get_d_A_d_rho()`
   - `magnification_curve` and `magnification_curves`
-- DEPRECATED subclass `FSPL_Derivatives`. Most its methods are replaced by 
-`PointLens` class(es)
+- DEPRECATED subclass `FSPL_Derivatives`. Most its methods are replaced by `PointLens` class(es)
 
 - DEPRECATED:
   - `get_d_A_d_u_for_PSPL_model()` 
@@ -118,8 +101,7 @@ could be accessed instead through `FitData.magnification_curve.XXX()`.
 The PointLens and BinaryLens classes were subdivided into separate classes for 
 each magnification method.
 
-- Function `get_pspl_magnification()` from `pointlens.py` was removed. Use 
-classes listed in next point instead.
+- Function `get_pspl_magnification()` from `pointlens.py` was removed. Use classes listed in next point instead.
 - Point Lens classes ADDED:
   - `PointSourcePointLensMagnification` 
   - `FiniteSourceUniformGould94Magnification` 

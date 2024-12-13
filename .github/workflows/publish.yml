@@ -44,7 +44,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wheelhouse
+          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
 
   build_source:
@@ -69,8 +69,8 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: sdist
-        path: ./dist/*.tar.gz
+        name: cibw-sdist
+        path: dist/*.tar.gz
 
   publish:
     name: Publish to PyPI
@@ -81,17 +81,25 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Download sdist artifacts to dist/
-      uses: actions/download-artifact@v4.1.7
+    - name: Download sdist and wheelhouse artifacts to dist/
+      uses: actions/download-artifact@v4
       with:
-        name: sdist
-        path: dist/
+        # unpacks all CIBW artifacts into dist/
+        pattern: cibw-*
+        path: dist
+        merge-multiple: true
 
-    - name: Download wheelhouse artifacts to dist/
-      uses: actions/download-artifact@v4.1.7
-      with:
-        name: wheelhouse
-        path: dist/
+#    - name: Download sdist artifacts to dist/
+#      uses: actions/download-artifact@v4
+#      with:
+#        name: sdist
+#        path: dist/
+
+#    - name: Download wheelhouse artifacts to dist/
+#      uses: actions/download-artifact@v4
+#      with:
+#        name: wheelhouse
+#        path: dist/
 
     - name: Publish package to PyPI
       # All files in dist/ are published
