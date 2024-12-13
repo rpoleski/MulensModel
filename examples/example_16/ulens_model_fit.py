@@ -3691,8 +3691,8 @@ class UlensModelFit(object):
         Mark the second (right-hand side) scale for Y axis in
         the best model plot
         """
-        (warning1, warning2, label, ylim, color, ax2, labels, ticks, minor_ticks) = self._get_second_Y_axis_settings()
-        if warning1 or warning2:
+        (warning, label, ylim, color, ax2, labels, ticks, minor_ticks) = self._get_second_Y_axis_settings()
+        if warning:
             ax2.get_yaxis().set_visible(False)
             return   
         if minor_ticks is not None:
@@ -3716,17 +3716,16 @@ class UlensModelFit(object):
             ylim = plt.ylim()
         (magnifications, color, label, labels,  ax2) = self._second_Y_axis_settings()
         (A_range, ref_fluxes) = self._second_Y_axis_get_fluxes(ylim)
-        warning1, warning2 = False, False
+        warning1 = False
         minor_ticks = None
         if magnifications == "optimal":
-            (magnifications, labels, warning1) = self._second_Y_axis_optimal(
-                ax2, *A_range)
+            (magnifications, labels, warning1) = self._second_Y_axis_optimal(ax2, *A_range)
             minor_ticks = self._second_Y_axis_minor_ticks(ax2, magnifications, ref_fluxes)
         flux = ref_fluxes[0] * np.array(magnifications) + ref_fluxes[1]
         warning2 = self._second_Y_axis_warnings(flux, labels, magnifications, *A_range)
         ticks = mm.Utils.get_mag_from_flux(flux)
         
-        return (warning1, warning2, label, ylim, color, ax2, labels, ticks, minor_ticks)
+        return (warning1 or warning2, label, ylim, color, ax2, labels, ticks, minor_ticks)
 
     def _second_Y_axis_settings(self):
         """
@@ -3964,9 +3963,8 @@ class UlensModelFit(object):
     def _get_interactive_second_Y_axis_settings(self, ylim):
         """Creats dictionary with settings for the second Y axis for the interactive plot
         """
-        (warning1, warning2, label, ylim, color, ax2, labels, ticks,
-         minor_ticks) = self._get_second_Y_axis_settings(ylim)
-        if warning1 or warning2:
+        (warning, label, ylim, color, ax2, labels, ticks, minor_ticks) = self._get_second_Y_axis_settings(ylim)
+        if warning:
             return {}
         if minor_ticks is not None:
             minor_ticks = dict(ticks='inside', tickmode='array', tickvals=minor_ticks)
