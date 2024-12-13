@@ -3694,9 +3694,11 @@ class UlensModelFit(object):
         (warning, label, ylim, color, ax2, labels, ticks, minor_ticks) = self._get_second_Y_axis_settings()
         if warning:
             ax2.get_yaxis().set_visible(False)
-            return   
+            return
+
         if minor_ticks is not None:
             ax2.set_yticks(minor_ticks, minor=True)
+
         ax2.set_ylabel(label).set_color(color)
         ax2.spines['right'].set_color(color)
         ax2.tick_params(axis='y', direction="in", which="both", colors=color)
@@ -3710,10 +3712,12 @@ class UlensModelFit(object):
         ax2.set_ylim(ylim[0], ylim[1])
 
     def _get_second_Y_axis_settings(self, ylim=False):
-        """Creats settings for the second Y axis for the best model plot
+        """
+        Creates settings for the second Y axis for the best model plot
         """
         if not ylim:
             ylim = plt.ylim()
+
         (magnifications, color, label, labels,  ax2) = self._second_Y_axis_settings()
         (A_range, ref_fluxes) = self._second_Y_axis_get_fluxes(ylim)
         warning1 = False
@@ -3721,10 +3725,11 @@ class UlensModelFit(object):
         if magnifications == "optimal":
             (magnifications, labels, warning1) = self._second_Y_axis_optimal(ax2, *A_range)
             minor_ticks = self._second_Y_axis_minor_ticks(ax2, magnifications, ref_fluxes)
+
         flux = ref_fluxes[0] * np.array(magnifications) + ref_fluxes[1]
         warning2 = self._second_Y_axis_warnings(flux, labels, magnifications, *A_range)
         ticks = mm.Utils.get_mag_from_flux(flux)
-        
+
         return (warning1 or warning2, label, ylim, color, ax2, labels, ticks, minor_ticks)
 
     def _second_Y_axis_settings(self):
@@ -3949,9 +3954,10 @@ class UlensModelFit(object):
             xaxis2=dict(title_text=xtitle, anchor="y2", mirror='all', scaleanchor='x', matches='x', **kwargs_x)
             )
         return layout
-    
+
     def _add_second_Y_axis_to_interactive_layout(self, layout, ylim):
-        """Modifiing  plotly.graph_objects.Layout object by adding second Y axis
+        """
+        Modifying plotly.graph_objects.Layout object by adding second Y axis
         """
         layout['yaxis']['mirror'] = False
         layout['yaxis3'] = layout['yaxis'].copy()
@@ -3961,14 +3967,17 @@ class UlensModelFit(object):
         return layout
 
     def _get_interactive_second_Y_axis_settings(self, ylim):
-        """Creats dictionary with settings for the second Y axis for the interactive plot
+        """
+        Creates a dictionary with settings for the second Y axis for the interactive plot
         """
         (warning, label, ylim, color, ax2, labels, ticks, minor_ticks) = self._get_second_Y_axis_settings(ylim)
         if warning:
             return {}
+
         if minor_ticks is not None:
             minor_ticks = dict(ticks='inside', tickmode='array', tickvals=minor_ticks)
-        return dict(title_text=label, linecolor=color, tickcolor=color, tickmode='array', tickvals=ticks, 
+
+        return dict(title_text=label, linecolor=color, tickcolor=color, tickmode='array', tickvals=ticks,
                     ticktext=labels, minor=minor_ticks)
 
     def _get_time_span_data(self):
@@ -4084,6 +4093,7 @@ class UlensModelFit(object):
                     dataset_index, times, y_value, y_err, xaxis='x', yaxis='y3', showlegend=False,
                     show_errorbars=show_errorbars, show_bad=show_bad, **kwargs_interactive_secY)
                 traces_data.extend(trace_data)
+
         for trace in traces_data:
             self._interactive_fig.add_trace(trace)
 
