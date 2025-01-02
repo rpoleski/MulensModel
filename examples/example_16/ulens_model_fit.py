@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.42.0'
+__version__ = '0.42.1'
 
 
 class UlensModelFit(object):
@@ -1109,13 +1109,10 @@ class UlensModelFit(object):
                 try:
                     self._yaml_results_file = open(value, 'w')
                 except Exception:
-                    raise ValueError('Error while opening output '
-                                     'YAML file ' + str(value))
-                self._yaml_kwargs = {'file': self._yaml_results_file,
-                                     'flush': True}
+                    raise ValueError('Error while opening output YAML file ' + str(value))
+                self._yaml_kwargs = {'file': self._yaml_results_file, 'flush': True}
             else:
-                raise KeyError("Unrecognized key: " + str(key) +
-                               "\nExpected keys: 'file name'.")
+                raise KeyError("Unrecognized key: " + str(key) + "\nExpected keys: 'file name'.")
 
     def _parse_other_output_parameters_residuals(self, values):
         """
@@ -2897,8 +2894,7 @@ class UlensModelFit(object):
             blob_samples = self._get_fluxes_to_print_EMCEE()
             self._print_results(blob_samples, names='fluxes')
             if self._yaml_results:
-                print("Fitted fluxes: # (source and blending)",
-                      **self._yaml_kwargs)
+                print("Fitted fluxes: # (source and blending)", **self._yaml_kwargs)
                 self._print_yaml_results(blob_samples, names='fluxes')
 
         self._print_best_model()
@@ -2906,8 +2902,7 @@ class UlensModelFit(object):
             self._print_yaml_best_model()
 
         if self._shift_t_0 and self._yaml_results:
-            print("Plots shift_t_0 : {:}".format(self._shift_t_0_val),
-                  **self._yaml_kwargs)
+            print("Plots shift_t_0 : {:}".format(self._shift_t_0_val), **self._yaml_kwargs)
 
     def _extract_posterior_samples_EMCEE(self):
         """
@@ -2998,8 +2993,7 @@ class UlensModelFit(object):
             raise ValueError("internal bug")
 
         print("# [median, sigma+, sigma-]", **self._yaml_kwargs)
-        print(self._format_results(ids, results, yaml=True, begin=begin),
-              **self._yaml_kwargs)
+        print(self._format_results(ids, results, yaml=True, begin=begin), **self._yaml_kwargs)
 
     def _get_fluxes_names_to_print(self):
         """
@@ -3181,8 +3175,7 @@ class UlensModelFit(object):
         if self._yaml_results:
             print(out, **self._yaml_kwargs)
         if self._return_fluxes:
-            print("Fitted parameters and fluxes (source and blending) "
-                  "plus best model info:")
+            print("Fitted parameters and fluxes (source and blending) plus best model info:")
         else:
             print("Fitted parameters:")
 
@@ -3212,17 +3205,14 @@ class UlensModelFit(object):
         self._print_results(samples, mode=i_mode)
 
         if self._yaml_results:
-            fmt = ("MODE {:}:\n  probability: {:}\n  "
-                   "probability_sigma: {:}\n  Fitted parameters: ")
-            print(fmt.format(i_mode+1, probability, err),
-                  end="", **self._yaml_kwargs)
+            fmt = ("MODE {:}:\n  probability: {:}\n  probability_sigma: {:}\n  Fitted parameters: ")
+            print(fmt.format(i_mode+1, probability, err), end="", **self._yaml_kwargs)
             self._print_yaml_results(samples, mode=i_mode)
 
         if self._return_fluxes:
             self._print_results(fluxes, names="fluxes")
             if self._yaml_results:
-                print("  Fitted fluxes: # source and blending ", end="",
-                      **self._yaml_kwargs)
+                print("  Fitted fluxes: # source and blending ", end="", **self._yaml_kwargs)
                 self._print_yaml_results(fluxes, names="fluxes")
 
         print("{:.4f}".format(mode['chi2']))
@@ -3249,8 +3239,7 @@ class UlensModelFit(object):
             flux_samples = self._get_fluxes_to_print_MultiNest()
             self._print_results(flux_samples, names='fluxes')
             if self._yaml_results:
-                print("Fitted fluxes: # (source and blending)",
-                      **self._yaml_kwargs)
+                print("Fitted fluxes: # (source and blending)", **self._yaml_kwargs)
                 self._print_yaml_results(flux_samples, names='fluxes')
 
     def _set_mode_probabilities(self):
