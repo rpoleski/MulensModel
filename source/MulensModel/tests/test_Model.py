@@ -389,13 +389,13 @@ class TestMethodsParameters(unittest.TestCase):
         self.model_1 = mm.Model(parameters=self.params)
         self.model_1.set_magnification_methods(methods)
 
-        vbbl_options_2 = {'accuracy': 0.1}
+        vbbl_options_2 = {'relative_accuracy': 0.1}
         methods_parameters_2 = {'VBBL': vbbl_options_2}
         self.model_2 = mm.Model(parameters=self.params)
         self.model_2.set_magnification_methods(methods)
         self.model_2.set_magnification_methods_parameters(methods_parameters_2)
 
-        vbbl_options_3 = {'accuracy': 1.e-5}
+        vbbl_options_3 = {'relative_accuracy': 1.e-5}
         methods_parameters_3 = {'VBBL': vbbl_options_3}
         self.model_3 = mm.Model(parameters=self.params)
         self.model_3.set_magnification_methods(methods)
@@ -403,11 +403,8 @@ class TestMethodsParameters(unittest.TestCase):
 
     def test_methods(self):
         def test_model_methods(model):
-            assert (model.default_magnification_method == 'point_source')
-            assert (model.methods ==
-                    [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
-                     2456116.5,
-                     'VBBL', 2456117.5])
+            assert model.default_magnification_method == 'point_source'
+            assert model.methods == [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5, 'VBBL', 2456117.5]
 
         test_model_methods(self.model_1)
         test_model_methods(self.model_2)
@@ -415,13 +412,9 @@ class TestMethodsParameters(unittest.TestCase):
 
     def test_get_magnification_methods(self):
         assert (self.model_1.get_magnification_methods() ==
-                [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
-                 2456116.5,
-                 'VBBL', 2456117.5])
+                [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5, 'VBBL', 2456117.5])
         assert (self.model_1.get_magnification_methods(source=1) ==
-                [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
-                 2456116.5,
-                 'VBBL', 2456117.5])
+                [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5, 'VBBL', 2456117.5])
         with self.assertRaises(IndexError):
             self.model_1.get_magnification_methods(source=2)
 
@@ -438,10 +431,8 @@ class TestMethodsParameters(unittest.TestCase):
         with self.assertRaises(KeyError):
             self.model_1.get_magnification_methods_parameters('vbbl')
 
-        assert (self.model_2.get_magnification_methods_parameters(
-            'vbbl') == {'vbbl': {'accuracy': 0.1}})
-        assert (self.model_3.get_magnification_methods_parameters(
-            'vbbl') == {'vbbl': {'accuracy': 1.e-5}})
+        assert (self.model_2.get_magnification_methods_parameters('vbbl') == {'vbbl': {'relative_accuracy': 0.1}})
+        assert (self.model_3.get_magnification_methods_parameters('vbbl') == {'vbbl': {'relative_accuracy': 1.e-5}})
 
     def test_default_magnification_methods(self):
         """

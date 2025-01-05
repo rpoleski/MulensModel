@@ -556,7 +556,7 @@ class BinaryLensVBBLMagnification(_BinaryLensPointSourceMagnification, _LimbDark
             then calculations are stopped after one of the two criteria is matched.
     """
 
-    def __init__(self, gamma=None, u_limb_darkening=None, accuracy=0.001, relative_accuracy=0.0, **kwargs):
+    def __init__(self, gamma=None, u_limb_darkening=None, accuracy=0.0, relative_accuracy=0.001, **kwargs):
         super().__init__(**kwargs)
         self._set_LD_coeffs(u_limb_darkening=u_limb_darkening, gamma=gamma)
         self._set_and_check_rho()

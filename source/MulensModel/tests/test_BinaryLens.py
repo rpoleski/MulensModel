@@ -157,23 +157,27 @@ def test_BinaryLensVBBLMagnification_2():
 
 def test_BinaryLensVBBLMagnification_LD():
     """
-    Make sure VBBL with limb darkening works properly
+    Make sure VBBL with limb darkening works properly. First with old defaults
     """
     s = 0.8
     q = 0.001
     x = 0.001
     y = 0.001
     rho = 0.001
-
     trajectory = make_trajectory([x, y], {'s': s, 'q': q, 'rho': rho})
-    lens_LD = mm.BinaryLensVBBLMagnification(u_limb_darkening=0.51, trajectory=trajectory)
-    result_LD = lens_LD.get_magnification()
-    lens = mm.BinaryLensVBBLMagnification(trajectory=trajectory)
-    result = lens.get_magnification()
 
-    np.testing.assert_almost_equal(result_LD, 683.31177335)
-    np.testing.assert_almost_equal(result, 687.80333614)
+    kwargs_ = [{'accuracy': 0.001, 'relative_accuracy': 0.0}, dict()]
+    expected_ = [[683.31177335, 687.80333614], [683.5659722, 687.8504898]]
     # Above values are taken from VBBL.
+
+    for (kwargs, expected) in zip(kwargs_, expected_):
+        lens_LD = mm.BinaryLensVBBLMagnification(u_limb_darkening=0.51, trajectory=trajectory, **kwargs)
+        result_LD = lens_LD.get_magnification()
+        np.testing.assert_almost_equal(result_LD, expected[0])
+
+        lens = mm.BinaryLensVBBLMagnification(trajectory=trajectory, **kwargs)
+        result = lens.get_magnification()
+        np.testing.assert_almost_equal(result, expected[1])
 
 
 def test_BinaryLensAdaptiveContouringMagnification():
