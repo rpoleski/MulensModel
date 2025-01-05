@@ -563,9 +563,12 @@ class BinaryLensVBBLMagnification(_BinaryLensPointSourceMagnification, _LimbDark
 
         if accuracy < 0.:
             raise ValueError(
-                "VBBL requires accuracy >= 0 e.g. 0.01 or 0.001;" +
-                "\n{:} was  provided".format(accuracy))
+                "VBBL requires accuracy >= 0 e.g. 0.01 or 0.001;\n{:} was  provided".format(accuracy))
         self._accuracy = float(accuracy)
+
+        if relative_accuracy < 0.:
+            raise ValueError(
+                "VBBL requires relative_accuracy >= 0 e.g. 0.001;\n{:} was  provided".format(relative_accuracy))
         self._relative_accuracy = float(relative_accuracy)
 
         if not _vbbl_wrapped:
