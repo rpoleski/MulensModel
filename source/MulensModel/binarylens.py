@@ -48,7 +48,7 @@ class _BinaryLensPointSourceMagnification(_AbstractMagnification):
         self._source_x = self.trajectory.x
         self._source_y = self.trajectory.y
         self._separations = self.trajectory.parameters.get_s(self.trajectory.times)
-        if isinstance(self._separations, float):
+        if isinstance(self._separations, (float, int)):
             self._separations = self._separations * np.ones(len(self._source_x))
         self._zip_kwargs = None
 
