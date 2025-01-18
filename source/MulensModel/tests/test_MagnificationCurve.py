@@ -94,6 +94,15 @@ def test_fspl():
     np.testing.assert_almost_equal(expected/results, 1., decimal=4)
 
 
+def test_NEW():
+    t_vec = np.array([3.5, 2., 1., 0.5, 0.])
+    params_0 = mm.ModelParameters({'t_0': 0., 'u_0': 0.5, 't_E': 1., 'rho': 1.})
+    mag_curve_0 = mm.MagnificationCurve(times=t_vec, parameters=params_0)
+    mag_curve_0.set_magnification_methods([-5., 'finite_source_uniform_Lee09', 5.], 'point_source')
+    print(mag_curve_0.methods_indices)
+    mag_curve_0.set_magnification_methods([-5., 'finite_source_uniform_WittMao94', 5.], 'point_source')
+    print(mag_curve_0.methods_indices)
+
 def test_Lee09_and_WittMao94():
     """
     test Lee et al. 2009 and Witt & Mao 1994 finite source calculation
