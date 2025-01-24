@@ -28,11 +28,11 @@ try:
     import corner
 except Exception:
     import_failed.add("corner")
-try:
-    from pymultinest.run import run as mn_run
-    from pymultinest.analyse import Analyzer
-except Exception:
-    import_failed.add("pymultinest")
+#try:
+#    from pymultinest.run import run as mn_run
+#    from pymultinest.analyse import Analyzer
+#except Exception:
+#    import_failed.add("pymultinest")
 try:
     import ultranest
 except Exception:
@@ -818,7 +818,7 @@ class UlensModelFit(object):
         Check if parameters of best model make sense
         """
         allowed = set(['file', 'time range', 'magnitude range', 'legend',
-                       'rcParams', 'second Y scale', 'interactive'])
+                       'rcParams', 'second Y scale', 'interactive', 'title'])
         unknown = set(self._plots['best model'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
@@ -855,6 +855,9 @@ class UlensModelFit(object):
         if 'second Y scale' in self._plots['best model']:
             self._check_plots_parameters_best_model_Y_scale()
 
+        if 'title' in self._plots['best model']:
+            self._check_plots_parameters_best_model_title()
+
     def _set_time_range_for_plot(self, plot_type):
         """
         set time range for best model or triangle plots
@@ -879,6 +882,11 @@ class UlensModelFit(object):
         """
         Check if there is no problem with interactive best plot
         """
+    def _check_plots_parameters_best_model_title(self):
+        """
+        Check if there is no problem with interactive best plot
+        """
+        
     def _check_plots_parameters_best_model_Y_scale(self):
         """
         Check if parameters for second Y scale make sense.
@@ -3500,6 +3508,7 @@ class UlensModelFit(object):
         self._plot_models_for_best_model_plot(fluxes, kwargs_model)
 
         self._plot_legend_for_best_model_plot()
+        self._plot_title_for_best_model_plot()
         plt.xlim(*xlim)
         if ylim is not None:
             plt.ylim(*ylim)
@@ -3674,6 +3683,18 @@ class UlensModelFit(object):
                     print("\npyplot.legend() failed with kwargs:")
                     print(self._plots['best model']['legend'], "\n")
                     raise
+
+
+    def _plot_title_for_best_model_plot(self):
+        if 'title' not in self._plots['best model']:
+                plt.title()
+        else:
+            try:
+                plt.title(self._plots['best model']['title'])
+            except Exception:
+                print("\npyplot.title() failed with kwargs:")
+                #print(self._plots['best model']['title'], "\n")
+                raise
 
     def _mark_second_Y_axis_in_best_plot(self):
         """

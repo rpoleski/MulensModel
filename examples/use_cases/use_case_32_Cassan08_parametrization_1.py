@@ -15,9 +15,9 @@ import matplotlib.pyplot as plt
 import MulensModel as mm
 
 
-model = mm.Model({'s': 1.01, 'q': 0.1, 'rho': 0.002,
-                  'x_caustic_in': 0.15, 'x_caustic_out': 0.84,
-                  't_caustic_in': 6543.123, 't_caustic_out': 6550.987})
+model = mm.Model({'s': 1.5, 'q': 0.2, 'rho': 0.00271,
+                  'x_caustic_in': 0.16698, 'x_caustic_out': 0.81166,
+                  't_caustic_in': 6021.43701, 't_caustic_out': 6056.25338})
 
 print("Number of lenses and sources:")
 print(model.n_lenses, model.n_sources)  # Returns "2 1".
@@ -37,6 +37,6 @@ print(model.parameters.t_star)
 model.plot_trajectory(caustics=True)
 plt.show()
 # and the magnification curve:
-model.set_magnification_methods([6540., 'VBBL', 6555.])
+model.set_magnification_methods([5900., 'VBBL', 6200.])
 model.plot_magnification(dt=0.01)
 plt.show()
