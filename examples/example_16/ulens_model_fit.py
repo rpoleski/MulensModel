@@ -884,8 +884,9 @@ class UlensModelFit(object):
         """
     def _check_plots_parameters_best_model_title(self):
         """
-        Check if there is no problem with interactive best plot
+        Check if there is no problem with best model title
         """
+        pass
         
     def _check_plots_parameters_best_model_Y_scale(self):
         """
@@ -3684,20 +3685,18 @@ class UlensModelFit(object):
                     print(self._plots['best model']['legend'], "\n")
                     raise
 
-
     def _plot_title_for_best_model_plot(self):
         """
         Creates title for the best model plot
         """
-        if 'title' not in self._plots['best model']:
-                pass
-        else:
-            try:
-                plt.title(self._plots['best model']['title'])
+        plt.title(self._plots['best model']['title'])
             except Exception:
                 print("\npyplot.title() failed with kwargs:")
+                print(self._plots['best model']['title'], "\n")
                 raise
-
+        if 'title' not in self._plots['best model']:
+                return
+            
     def _mark_second_Y_axis_in_best_plot(self):
         """
         Mark the second (right-hand side) scale for Y axis in
