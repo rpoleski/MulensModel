@@ -334,7 +334,7 @@ class UlensModelFit(object):
             The values are also dicts and currently accepted keys are:
             1) for ``best model``:
             ``'file'``,``'interactive' ``'time range'``, ``'magnitude range'``,
-            ``'legend'``,`and ``'rcParams'``,
+            ``'title'``,``'legend'``,`and ``'rcParams'``,
             2) for ``triangle`` and ``trace``:
             ``'file'`` and ``'shift t_0'`` (*bool*, *True* is default)
             3) for ``trajectory``:
@@ -361,6 +361,7 @@ class UlensModelFit(object):
                       'legend':
                           'ncol': 2
                           'loc': 'lower center'
+                      'title': 'my fit best'
                       'rcParams':
                           'font.size': 15
               }
@@ -3508,8 +3509,9 @@ class UlensModelFit(object):
 
         self._plot_models_for_best_model_plot(fluxes, kwargs_model)
 
-        self._plot_legend_for_best_model_plot()
         self._plot_title_for_best_model_plot()
+        
+        self._plot_legend_for_best_model_plot()
         plt.xlim(*xlim)
         if ylim is not None:
             plt.ylim(*ylim)
