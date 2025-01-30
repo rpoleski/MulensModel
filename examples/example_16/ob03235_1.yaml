@@ -41,4 +41,4 @@ fitting_parameters:
 plots:
     best model:
         file: ob03235_1_model_prior.png
-        title: "OB03235 model prior"
+        title: "title"

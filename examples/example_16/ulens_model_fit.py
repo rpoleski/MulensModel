@@ -3691,13 +3691,15 @@ class UlensModelFit(object):
         """
         Creates title for the best model plot
         """
-        plt.title(self._plots['best model']['title'])
+        if 'title' in self._plots['best model']:
+            try:
+                plt.title(self._plots['best model']['title'])
             except Exception:
                 print("\npyplot.title() failed with kwargs:")
                 print(self._plots['best model']['title'], "\n")
                 raise
-        if 'title' not in self._plots['best model']:
-                return
+        else:
+            return
             
     def _mark_second_Y_axis_in_best_plot(self):
         """
