@@ -94,9 +94,14 @@ class ModelParameters(object):
         properties NOT of self, but self._source_X_parameters,
         which both are of the same type as self.
         """
-        delta_1 = self._source_1_parameters._get_xallarap_position()
-        self._source_1_parameters._xallarap_reference_position = delta_1
-        self._source_2_parameters._xallarap_reference_position = delta_1
+        if self.n_sources == 1:
+            self._xallarap_reference_position = self._get_xallarap_position()
+        elif self.n_sources == 2:
+            delta_1 = self._source_1_parameters._get_xallarap_position()
+            self._source_1_parameters._xallarap_reference_position = delta_1
+            self._source_2_parameters._xallarap_reference_position = delta_1
+        else:
+            raise ValueError('internal error')
 
     def _get_xallarap_position(self, parameters=None):
         """
@@ -769,6 +774,9 @@ class ModelParameters(object):
         Note that pi_E_N and pi_E_E are changed separately.
         """
         if self.n_sources == 1:
+            if self.is_xallarap:
+                self._update_sources_xallarap_reference()
+
             return
 
         for i in range(self.n_sources):

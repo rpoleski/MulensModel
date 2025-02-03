@@ -111,6 +111,24 @@ class TestBinaryLensQuadrupoleMagnification(TestBinaryLensHexadecapoleMagnificat
         self._test_gamma_quad(1.0, self.reference_10[1])
 
 
+def test_int_input():
+    """
+    Check binary lens calculation with s of int type.
+    """
+    arg_1 = [0.001, 0.001]
+    arg_2 = {'s': 1., 'q': 0.1}
+    trajectory_1 = make_trajectory(arg_1, arg_2)
+    lens_1 = mm.BinaryLensPointSourceMagnification(trajectory=trajectory_1)
+    result_1 = lens_1.get_magnification()
+
+    arg_2['s'] = int(arg_2['s'])
+    trajectory_2 = make_trajectory(arg_1, arg_2)
+    lens_2 = mm.BinaryLensPointSourceMagnification(trajectory=trajectory_2)
+    result_2 = lens_2.get_magnification()
+
+    assert result_1 == result_2
+
+
 def test_BinaryLensVBBLMagnification_1():
     """
     check basic magnification calculation using VBBL
