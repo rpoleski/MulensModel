@@ -163,28 +163,28 @@ def test_limb_darkening():
 
 def test_diff_limb_darkening():
     """testing effect of different limb darkening"""
-    model_dict = {'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'rho': 0.001}
-    model_1 = mm.Model(model_dict)
-    model_2 = mm.Model({**model_dict, 't_0': 2450000. + 50.})
+    t_0 = 2450000.
+    u_0 = 0.001
+    t_E = 100.
+    model_1 = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': 0.1})
+    model_2 = mm.Model({'t_0': t_0 + 50, 'u_0': u_0, 't_E': t_E, 'rho': 0.002})
     model_1.set_limb_coeff_gamma('I', -1)
     model_2.set_limb_coeff_gamma('I', 2)
 
-    times = np.arange(model_dict['t_0']-model_dict['t_E'],
-                      model_dict['t_0']+model_dict['t_E'], 0.5)
+    times = np.arange(t_0 - t_E, t_0 + t_E, 0.5)
     mag_method = [2449900., 'finite_source_uniform_Gould94', 2450100.]
     model_1.set_magnification_methods(mag_method)
     model_2.set_magnification_methods(mag_method)
     mag_1 = model_1.get_magnification(times)
     mag_2 = model_2.get_magnification(times)
 
-    dict_1l2s = {'t_0_1': model_dict['t_0'], 'u_0_1': model_dict['u_0'],
-                 't_0_2': model_dict['t_0']+50., 'u_0_2': model_dict['u_0'],
-                 't_E': model_dict['t_E'], 'rho_1': model_dict['rho'],
-                 'rho_2': model_dict['rho']}
+    dict_1l2s = {'t_0_1': t_0, 'u_0_1': u_0, 't_0_2': t_0 + 50, 'u_0_2': u_0,
+                 't_E': t_E, 'rho_1': 0.1, 'rho_2': 0.002}
     model_1l2s = mm.Model(dict_1l2s)
     model_1l2s.set_limb_coeff_gamma('I', -1)  # both -1 and 2 works...
     model_1l2s.set_magnification_methods(mag_method)
     mags = model_1l2s.get_magnification(times, separate=True)
+    # model_1l2s.plot_magnification(source_flux_ratio=0.05)
 
     assert (mag_1 == mags[0]).all()
     assert (mag_2 == mags[1]).all()

@@ -1015,7 +1015,7 @@ class Model(object):
 
         return parameters
 
-    def set_limb_coeff_gamma(self, bandpass, coeff):
+    def set_limb_coeff_gamma(self, bandpass, coeff, source=None):
         """
         Store gamma limb darkening coefficient for given band. See
         also
@@ -1027,6 +1027,10 @@ class Model(object):
 
             coeff: *float*
                 Value of the coefficient.
+
+            source: *int* or *None*, optional
+                Which source do the given methods apply to? Accepts 1, 2, or
+                *None* (i.e., all sources). Default is *None*
         """
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)
