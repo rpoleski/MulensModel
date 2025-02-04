@@ -868,6 +868,7 @@ class Model(object):
             raise ValueError("In Model.set_magnification_methods() the parameter 'source' has to be *int* or None.")
 
         self._check_methods(methods, source)
+        self._check_limb_darkening(methods)
 
         if (source is None) or (self.n_sources == 1):
             if isinstance(self._methods, dict):
@@ -908,6 +909,30 @@ class Model(object):
                 if source in [i+1, None]:
                     if not self.parameters.__getattr__('source_{0}_parameters'.format(i+1)).is_finite_source():
                         raise ValueError(fmt.format("no. {0}".format(i+1), difference))
+
+    def _check_limb_darkening(self, methods=None):
+        """
+        Check if limb darkening is used with finite source methods.
+
+        Parameters :
+            methods: *list*, optional
+                List of methods used for magnification calculation. If None,
+                the function is called from functions set_limb_coeff_gamma()
+                or set_limb_coeff_u().
+        """
+        forbidden = ["finite_source_uniform_Gould94"]
+        if methods is not None:
+            if bool(set(forbidden) & set(methods)) and self._bandpasses:
+                raise ValueError("You cannot set finite_source_uniform_Gould94"
+                                 " method with limb darkening.")
+
+        else:
+            methods = self.get_magnification_methods() or []
+            methods = [self.default_magnification_method] + methods
+            if bool(set(forbidden) & set(methods)):
+                raise ValueError(
+                    'You cannot set limb darkening coefficients for ' +
+                    'finite_source_uniform_Gould94 method.')
 
     def get_magnification_methods(self, source=None):
         """
@@ -1032,6 +1057,7 @@ class Model(object):
                 Which source do the given methods apply to? Accepts 1, 2, or
                 *None* (i.e., all sources). Default is *None*
         """
+        self._check_limb_darkening()
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)
         self._limb_darkening_coeffs.set_limb_coeff_gamma(bandpass, coeff)
@@ -1084,6 +1110,7 @@ class Model(object):
                 Value of the coefficient.
 
         """
+        self._check_limb_darkening()
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)
         self._limb_darkening_coeffs.set_limb_coeff_u(bandpass, coeff)
