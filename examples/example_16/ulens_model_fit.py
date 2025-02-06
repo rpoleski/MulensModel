@@ -28,11 +28,11 @@ try:
     import corner
 except Exception:
     import_failed.add("corner")
-#try:
-#    from pymultinest.run import run as mn_run
-#    from pymultinest.analyse import Analyzer
-#except Exception:
-#    import_failed.add("pymultinest")
+try:
+    from pymultinest.run import run as mn_run
+    from pymultinest.analyse import Analyzer
+except Exception:
+    import_failed.add("pymultinest")
 try:
     import ultranest
 except Exception:
@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.42.1'
+__version__ = '0.43.1'
 
 
 class UlensModelFit(object):
