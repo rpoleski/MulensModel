@@ -358,10 +358,10 @@ class UlensModelFit(object):
                       'interactive' : 'my_fit_best.html'
                       'time range': 2456000. 2456300.
                       'magnitude range': 15.123 13.012
+                      'title': 'my fit best'
                       'legend':
                           'ncol': 2
                           'loc': 'lower center'
-                      'title': 'my fit best'
                       'rcParams':
                           'font.size': 15
               }
@@ -883,12 +883,14 @@ class UlensModelFit(object):
         """
         Check if there is no problem with interactive best plot
         """
+        pass
+
     def _check_plots_parameters_best_model_title(self):
         """
         Check if there is no problem with best model title
         """
         pass
-        
+
     def _check_plots_parameters_best_model_Y_scale(self):
         """
         Check if parameters for second Y scale make sense.
