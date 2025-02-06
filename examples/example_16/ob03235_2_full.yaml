@@ -124,6 +124,7 @@ plots:
         interactive : ob03235_2_model.html
         time range: 2452820 2452855
         magnitude range: 19.3 16.9
+        title: "ob03235_2_model"
         rcParams:
         # This allows setting many matplotlib parameters, e.g.:
             font.size: 14
