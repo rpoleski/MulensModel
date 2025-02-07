@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.43.1'
+__version__ = '0.43.0'
 
 
 class UlensModelFit(object):
@@ -3512,7 +3512,7 @@ class UlensModelFit(object):
         self._plot_models_for_best_model_plot(fluxes, kwargs_model)
 
         self._plot_title_for_best_model_plot()
-        
+
         self._plot_legend_for_best_model_plot()
         plt.xlim(*xlim)
         if ylim is not None:
@@ -3702,7 +3702,7 @@ class UlensModelFit(object):
                 raise
         else:
             return
-            
+
     def _mark_second_Y_axis_in_best_plot(self):
         """
         Mark the second (right-hand side) scale for Y axis in
