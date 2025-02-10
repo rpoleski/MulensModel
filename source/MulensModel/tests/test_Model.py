@@ -181,13 +181,15 @@ def test_diff_limb_darkening():
     dict_1l2s = {'t_0_1': t_0, 'u_0_1': u_0, 't_0_2': t_0 + 50, 'u_0_2': u_0,
                  't_E': t_E, 'rho_1': 0.1, 'rho_2': 0.002}
     model_1l2s = mm.Model(dict_1l2s)
-    model_1l2s.set_limb_coeff_gamma('I', -1)
+    model_1l2s.set_limb_coeff_gamma('I', -1, source=1)
+    model_1l2s.set_limb_coeff_gamma('I', 2, source=2)
     model_1l2s.set_magnification_methods(mag_method)
-    # mags = model_1l2s.get_magnification(times, bandpass='I', separate=True)
-    # model_1l2s.plot_magnification(source_flux_ratio=0.05)
+    mags = model_1l2s.get_magnification(times, bandpass='I', separate=True)
+    model_1l2s.plot_magnification(source_flux_ratio=0.05)
 
-    # assert (mag_1 == mags[0]).all()
-    # assert (mag_2 == mags[1]).all()
+    assert (mag_1 == mags[0]).all()  # passes
+    assert (mag_2 == mags[1]).all()  # does not pass, most points equal to 2-3 digits
+    # np.testing.assert_allclose(mag_2, mags[1], atol=1e-3)
 
 
 def test_t_E():
@@ -710,7 +712,7 @@ def test_repr():
 
     model = mm.Model(parameters)
     model.set_limb_coeff_gamma("I", 0.5)
-    expected = begin + end + "\nlimb-darkening coeffs (gamma): {'I': 0.5}"
+    expected = begin + end + "\nlimb-darkening coeffs (gamma): [{'I': 0.5}]"
     assert str(model) == expected
 
 
