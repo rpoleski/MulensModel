@@ -50,6 +50,7 @@ except Exception:
 __version__ = '0.43.0'
 
 
+
 class UlensModelFit(object):
     """
     Class for fitting microlensing model using *MulensModel* package.
@@ -695,8 +696,9 @@ class UlensModelFit(object):
             if self._plots is not None and 'triangle' in self._plots:
                 required_packages.add('corner')
 
-        if self._plots['best model'] and 'interactive' in self._plots['best model']:
-            required_packages.add('plotly')
+        if self._plots is not None:
+            if self._plots['best model'] and 'interactive' in self._plots['best model']:
+                required_packages.add('plotly')
 
         failed = import_failed.intersection(required_packages)
 
@@ -2913,7 +2915,7 @@ class UlensModelFit(object):
         if self._yaml_results:
             self._print_yaml_best_model()
 
-        if self._shift_t_0 and self._yaml_results:
+        if hasattr(self, "_shift_t_0_val") and self._shift_t_0 and self._yaml_results:
             print("Plots shift_t_0 : {:}".format(self._shift_t_0_val), **self._yaml_kwargs)
 
     def _extract_posterior_samples_EMCEE(self):
