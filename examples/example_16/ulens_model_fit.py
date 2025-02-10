@@ -47,7 +47,8 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.42.2'
+__version__ = '0.43.0'
+
 
 
 class UlensModelFit(object):
@@ -334,7 +335,7 @@ class UlensModelFit(object):
             The values are also dicts and currently accepted keys are:
             1) for ``best model``:
             ``'file'``,``'interactive' ``'time range'``, ``'magnitude range'``,
-            ``'legend'``,`and ``'rcParams'``,
+            ``'title'``,``'legend'``,`and ``'rcParams'``,
             2) for ``triangle`` and ``trace``:
             ``'file'`` and ``'shift t_0'`` (*bool*, *True* is default)
             3) for ``trajectory``:
@@ -358,6 +359,7 @@ class UlensModelFit(object):
                       'interactive' : 'my_fit_best.html'
                       'time range': 2456000. 2456300.
                       'magnitude range': 15.123 13.012
+                      'title': 'my fit best'
                       'legend':
                           'ncol': 2
                           'loc': 'lower center'
@@ -819,7 +821,7 @@ class UlensModelFit(object):
         Check if parameters of best model make sense
         """
         allowed = set(['file', 'time range', 'magnitude range', 'legend',
-                       'rcParams', 'second Y scale', 'interactive'])
+                       'rcParams', 'second Y scale', 'interactive', 'title'])
         unknown = set(self._plots['best model'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
@@ -856,6 +858,9 @@ class UlensModelFit(object):
         if 'second Y scale' in self._plots['best model']:
             self._check_plots_parameters_best_model_Y_scale()
 
+        if 'title' in self._plots['best model']:
+            self._check_plots_parameters_best_model_title()
+
     def _set_time_range_for_plot(self, plot_type):
         """
         set time range for best model or triangle plots
@@ -880,6 +885,14 @@ class UlensModelFit(object):
         """
         Check if there is no problem with interactive best plot
         """
+        pass
+
+    def _check_plots_parameters_best_model_title(self):
+        """
+        Check if there is no problem with best model title
+        """
+        pass
+
     def _check_plots_parameters_best_model_Y_scale(self):
         """
         Check if parameters for second Y scale make sense.
@@ -3500,6 +3513,8 @@ class UlensModelFit(object):
 
         self._plot_models_for_best_model_plot(fluxes, kwargs_model)
 
+        self._plot_title_for_best_model_plot()
+
         self._plot_legend_for_best_model_plot()
         plt.xlim(*xlim)
         if ylim is not None:
@@ -3675,6 +3690,20 @@ class UlensModelFit(object):
                     print("\npyplot.legend() failed with kwargs:")
                     print(self._plots['best model']['legend'], "\n")
                     raise
+
+    def _plot_title_for_best_model_plot(self):
+        """
+        Creates title for the best model plot
+        """
+        if 'title' in self._plots['best model']:
+            try:
+                plt.title(self._plots['best model']['title'])
+            except Exception:
+                print("\npyplot.title() failed with kwargs:")
+                print(self._plots['best model']['title'], "\n")
+                raise
+        else:
+            return
 
     def _mark_second_Y_axis_in_best_plot(self):
         """
