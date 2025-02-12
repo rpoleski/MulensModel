@@ -1758,6 +1758,8 @@ class UlensModelFit(object):
                 self._parse_fit_constraints_soft_blending(key, value)
             elif key in ['color', 'color source 1', 'color source 2']:
                 self._parse_fit_constraints_color(key, value)
+            elif key in ['2 sources flux ratio']: 
+                self._parse_fit_constraints_ratio(key, value)
 
     def _parse_fit_constraints_soft_blending(self, key, value):
         """
