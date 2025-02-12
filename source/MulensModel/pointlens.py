@@ -4,6 +4,7 @@ from math import sin, cos, sqrt, log10
 from scipy import integrate
 from scipy.special import ellipk, ellipe
 # These are complete elliptic integrals of the first and the second kind.
+from scipy.interpolate import RegularGridInterpolator as RGI
 from sympy.functions.special.elliptic_integrals import elliptic_pi as ellip3
 
 import MulensModel as mm
@@ -675,11 +676,12 @@ class FiniteSourceUniformWittMao94Magnification(_PointLensMagnification):
 
         return self._magnification
 
-    def _get_magnification_WM94(self, u):
+    def _get_magnification_WM94(self, u, rho=None):
         """
         Get point-lens finite-source magnification without LD.
         """
-        rho = self.trajectory.parameters.rho
+        if rho is None:
+            rho = self.trajectory.parameters.rho
 
         if u == rho:
             u2 = u**2
@@ -740,7 +742,10 @@ class FiniteSourceUniformWittMao94Magnification(_PointLensMagnification):
         cond_4 = (k <= self._ellip_data._interpolate_3_max_y)
 
         if cond_1 and cond_2 and cond_3 and cond_4:
-            return self._ellip_data._interpolate_3(n, k)[0]
+            if isinstance(self._ellip_data._interpolate_3, RGI):
+                return float(self._ellip_data._interpolate_3((n, k)).T)
+            else:
+                return self._ellip_data._interpolate_3(n, k)[0]
 
         return ellip3(n, k)
 
