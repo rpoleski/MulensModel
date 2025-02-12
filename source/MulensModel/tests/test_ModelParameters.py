@@ -894,6 +894,33 @@ def test_reference_position():
     assert text_1 == text_2
 
 
+def test_change_of_xallarap_reference_position_1():
+    """
+    Make sure that changing xallarap parameters changes the reference position.
+    """
+    parameters = setup_xallarap('t_0')[0]
+    reference_1 = parameters.xallarap_reference_position
+    parameters.xi_omega_periapsis = 45.
+    reference_2 = parameters.xallarap_reference_position
+    assert np.all(reference_1 != reference_2)
+
+
+def test_change_of_xallarap_reference_position_2():
+    """
+    Make sure that the xallarap reference position is based on the current parameters.
+    """
+    new_value = 45.
+    parameters_1 = mm.ModelParameters({**xallarap_parameters})
+    parameters_1.xi_omega_periapsis = new_value
+    reference_1 = parameters_1.xallarap_reference_position
+
+    changed_values = {**xallarap_parameters, 'xi_omega_periapsis': new_value}
+    parameters_2 = mm.ModelParameters({**changed_values})
+    reference_2 = parameters_2.xallarap_reference_position
+
+    assert np.all(reference_1 == reference_2)
+
+
 class Test1L3SModels(unittest.TestCase):
 
     def setUp(self):
