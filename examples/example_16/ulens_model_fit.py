@@ -2674,7 +2674,7 @@ class UlensModelFit(object):
             index_plus: *int*
                 For a single source, index_plus=0;
                 for a binary source, index_plus=0 or 1.;
-                for blend flux index_plus=self._n_fluxes_per_dataset
+                for blend flux index_plus=self._n_fluxes_per_dataset-1 
         Returns :
             inside: *float*
                 Evaluated ln_prior contribution
