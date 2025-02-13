@@ -276,6 +276,16 @@ class UlensModelFit(object):
             for negative values; the value provided should be on the order of
             *20.*
 
+            ``'negative_source_flux_sigma_mag'`` - impose a prior that disfavors models 
+            with negative source flux (or negative flux for both sources in a binary source model)
+            by applying a Gaussian prior to negative values.
+            
+            ``'negative_source_1_flux_sigma_mag'`` - same as ``'negative_source_flux_sigma_mag'``
+            but applied only to the primary source flux.            
+            
+            ``'negative_source_2_flux_sigma_mag'`` - same as ``'negative_source_flux_sigma_mag'``
+            but applied only to the secondary source flux.
+        
             ``'color'`` - specify gaussian prior for colors of the sources.
             Parameters:
                 *mean* and *sigma* are floats in magnitudes, *dataset_label*
@@ -1702,28 +1712,32 @@ class UlensModelFit(object):
         """
         Validate the keys in the provided fit_constraints.
         """
-        allowed_keys_flux = {"no_negative_blending_flux", "negative_blending_flux_sigma_mag"}
+        allowed_keys_blending_flux = {"no_negative_blending_flux", "negative_blending_flux_sigma_mag"}
+        allowed_keys_source_flux = {"negative_source_flux_sigma_mag","negative_source_1_flux_sigma_mag",
+                                    "negative_source_2_flux_sigma_mag" }
         allowed_keys_ratio = {"2 sources flux ratio"}
         allowed_keys_color = {'color', 'color source 1', 'color source 2'}
 
-        allowed_keys = {*allowed_keys_flux, *allowed_keys_color,
-                        *allowed_keys_ratio, "prior",
-                        "posterior parsing"}
+        allowed_keys = {*allowed_keys_blending_flux, *allowed_keys_color, *allowed_keys_source_flux,
+                        *allowed_keys_ratio, "prior", "posterior parsing"}
 
         used_keys = set(self._fit_constraints.keys())
         if len(used_keys - allowed_keys) > 0:
             raise ValueError('unrecognized constraint: {:}'.format(
                 used_keys - allowed_keys))
-        if len(used_keys.intersection(allowed_keys_flux)) == 2:
+        if len(used_keys.intersection(allowed_keys_blending_flux)) == 2:
             raise ValueError(
                 'you cannot specify both no_negative_blending_flux and ' +
                 'negative_blending_flux_sigma_mag')
+            
         if "no_negative_blending_flux" not in self._fit_constraints:
             self._fit_constraints["no_negative_blending_flux"] = False
 
-        self._check_color_constraints_conflict(allowed_keys_color)
-        self._check_ratio_constraints_conflict(allowed_keys_ratio)
+        self._check_flux_constraints_conflict(allowed_keys_color,'color')
+        self._check_flux_constraints_conflict(allowed_keys_source_flux,'flux')
 
+        self._check_ratio_constraints_conflict(allowed_keys_ratio)
+        
     def _set_default_fit_constraints(self):
         """
         Set default fitting constraints if none are provided.
@@ -1734,55 +1748,60 @@ class UlensModelFit(object):
     def _check_ratio_constraints_conflict(self, allowed_keys_ratio):
         """
         Check for conflicts among 2 source flux ratio constraints.
-        ???
+        XXX
         """
+        pass
 
-    def _check_color_constraints_conflict(self, allowed_keys_color):
+    def _check_flux_constraints_conflict(self, allowed_keys, instance):
         """
-        Check for conflicts among color constraints.
+        Check for conflicts among flux or color constraints.
         """
         used_keys = set(self._fit_constraints.keys())
+        if instance == 'color' :
+            key = 'color'
+        elif instance == 'flux':
+            key = 'negative_source_flux_sigma_mag'
 
         if len(used_keys.intersection(allowed_keys_color)) >= 2:
-            if 'color' in used_keys:
+            if key in used_keys:
                 raise ValueError(
-                    'You cannot specify both color and ' +
-                    str(used_keys.intersection(allowed_keys_color)-{'color'}))
-
+                    'You cannot specify both '+ key + ' and ' +
+                    str(used_keys.intersection(allowed_keys)-{key}))
+                
     def _parse_fit_constraints_fluxes(self):
         """
         Process each constraint fit_constraints.
         """
         for key, value in self._fit_constraints.items():
             if key == "negative_blending_flux_sigma_mag":
-                self._parse_fit_constraints_soft_blending(key, value)
+                self._parse_fit_constraints_soft_no_negative(key, value)
             elif key in ['color', 'color source 1', 'color source 2']:
                 self._parse_fit_constraints_color(key, value)
             elif key in ['2 sources flux ratio']: 
                 self._parse_fit_constraints_ratio(key, value)
-
-    def _parse_fit_constraints_soft_blending(self, key, value):
+            elif key in ["negative_source_flux_sigma_mag", "negative_source_1_flux_sigma_mag",
+                         "negative_source_2_flux_sigma_mag"] :
+                self._parse_fit_constraints_soft_no_negative(key, value)
+                
+    def _parse_fit_constraints_soft_no_negative(self, key, value):
         """
-        Check if soft fit constraint on blending flux are correctly defined.
+        Check if soft fit constraint on fluxes are correctly defined.
         """
         if isinstance(value,  float):
             sigma = float(value)
             sets = list(range(len(self._datasets)))
-
         else:
-
             sigma = float(value.split()[0])
             sets = list(map(self._get_no_of_dataset,
                             shlex.split(value, posix=False)[1:]))
             if len(sets) > len(self._datasets):
                 raise ValueError(
                     "dataset number specified in" +
-                    "negative_blending_flux_sigma_mag" +
+                    key +
                     "do not match with provided datasets")
-
         self._fit_constraints[key] = [
             mm.Utils.get_flux_from_mag(sigma), sets]
-
+        
     def _parse_fit_constraints_color(self, key, value):
         """
         Check if fit constraint on color are correctly defined.
@@ -2573,7 +2592,99 @@ class UlensModelFit(object):
 
         return fluxes
 
-    def _sumup_inside_prior(self, fluxes, key, inside, index_plus):
+    def _run_flux_checks_ln_prior(self, fluxes):
+        """
+        Run the checks on fluxes - are they in the prior?
+        """
+        inside = 0.
+        outside = -np.inf
+
+        if self._fit_constraints["no_negative_blending_flux"]:
+            blend_index = self._n_fluxes_per_dataset - 1
+            if fluxes[blend_index] < 0.:
+                return outside
+
+        inside += self._apply_negative_flux_sigma_mag_prior(fluxes)
+        
+        if self._fit_method == "EMCEE":
+            inside += self._apply_color_prior(fluxes)
+            inside += self._apply_2source_prior(fluxes)
+
+        return inside
+    
+    def _apply_negative_flux_sigma_mag_prior(self, fluxes):
+        """
+        Apply the negative flux sigma magnitude prior.
+        """
+        inside = 0.0
+        
+        key = "negative_blending_flux_sigma_mag"
+        if key in self._fit_constraints:
+            inside += self._sumup_flux_prior(fluxes, key, self._n_fluxes_per_dataset)
+        
+        key = "negative_source_flux_sigma_mag"
+        if key in self._fit_constraints:
+            for i in range(self._n_fluxes_per_dataset - 1):
+                inside += self._sumup_flux_prior(fluxes, key, i)
+                    
+        key = "negative_source_1_flux_sigma_mag"  
+        if key in self._fit_constraints:
+                 inside += self._sumup_flux_prior(fluxes, key, 0)
+                 
+        key = "negative_source_2_flux_sigma_mag"  
+        if key in self._fit_constraints:
+                 inside += self._sumup_flux_prior(fluxes, key, 1) 
+                 
+        return inside
+    
+    def  _sumup_flux_prior(self, fluxes, key, index_plus):
+        """
+        Calculates the contribution to the ln_prior
+        from specified no negative flux constraints
+        Parameters :
+            fluxes: *array*
+                Array with fluxes of the current model.
+            key: *str*
+                constrain key.
+            inside: *float*
+                ln_prior contribution
+            index_plus: *int*
+                For a single source, index_plus=0;
+                for a binary source, index_plus=0 or 1.;
+                for blend flux index_plus=self._n_fluxes_per_dataset
+        Returns :
+            inside: *float*
+                Evaluated ln_prior contribution
+        """
+        inside=0.0
+        sigma, datasets = self._fit_constraints[key]
+        for i, dataset in enumerate(self._datasets):
+                if i in datasets:
+                    index=self._get_index_of_flux(i, index_plus)
+                    if fluxes[index] < 0.0:
+                        inside += -0.5 * (fluxes[index] / sigma) ** 2
+        return inside
+                        
+    def _apply_color_prior(self, fluxes):
+        """
+        Apply the color constraints.
+        """
+        inside = 0.0
+        key = 'color'
+        if key in self._fit_constraints:
+            for i in range(self._n_fluxes_per_dataset - 1):
+                inside += self._sumup_inside_color_prior(fluxes, key, i)
+
+        key = 'color source 1'
+        if key in self._fit_constraints:
+            inside += self._sumup_inside_color_prior(fluxes, key, 0)
+
+        key = 'color source 2'
+        if key in self._fit_constraints:
+            inside += self._sumup_inside_color_prior(fluxes, key, 1)
+        return inside
+    
+    def _sumup_inside_color_prior(self, fluxes, key, index_plus):
         """
         Calculates the contribution to the ln_prior
         from specified color constraints
@@ -2591,6 +2702,7 @@ class UlensModelFit(object):
             inside: *float*
                 Evaluated ln_prior contribution
         """
+        inside = 0.0
         settings = self._fit_constraints[key]
 
         index1 = self._get_index_of_flux(settings[3], index_plus)
@@ -2600,61 +2712,6 @@ class UlensModelFit(object):
             fluxes[index1])-mm.Utils.get_mag_from_flux(fluxes[index2])
         inside += self._get_ln_prior_for_1_parameter(value, settings[:-2])
 
-        return inside
-
-    def _run_flux_checks_ln_prior(self, fluxes):
-        """
-        Run the checks on fluxes - are they in the prior?
-        """
-        inside = 0.
-        outside = -np.inf
-
-        if self._fit_constraints["no_negative_blending_flux"]:
-            blend_index = self._n_fluxes_per_dataset - 1
-            if fluxes[blend_index] < 0.:
-                return outside
-
-        inside += self._apply_negative_blending_flux_sigma_mag_prior(fluxes)
-        if self._fit_method == "EMCEE":
-            inside += self._apply_color_prior(fluxes)
-            inside += self._apply_2source_prior(fluxes)
-
-        return inside
-
-    def _apply_negative_blending_flux_sigma_mag_prior(self, fluxes):
-        """
-        Apply the negative blending flux sigma magnitude priotr.
-        """
-        inside = 0.0
-        key = "negative_blending_flux_sigma_mag"
-
-        if key in self._fit_constraints:
-            sigma, datasets = self._fit_constraints[key]
-            for i, dataset in enumerate(self._datasets):
-                if i in datasets:
-                    blend_index = ((i + 1) * self._n_fluxes_per_dataset) - 1
-                    if fluxes[blend_index] < 0.0:
-                        inside += -0.5 * (fluxes[blend_index] / sigma) ** 2
-
-        return inside
-
-    def _apply_color_prior(self, fluxes):
-        """
-        Apply the color constraints.
-        """
-        inside = 0.0
-        key = 'color'
-        if key in self._fit_constraints:
-            for i in range(self._n_fluxes_per_dataset - 1):
-                inside += self._sumup_inside_prior(fluxes, key, inside, i)
-
-        key = 'color source 1'
-        if key in self._fit_constraints:
-            inside += self._sumup_inside_prior(fluxes, key, inside, 0)
-
-        key = 'color source 2'
-        if key in self._fit_constraints:
-            inside += self._sumup_inside_prior(fluxes, key, inside, 1)
         return inside
 
     def _apply_2source_prior(self, fluxes):
