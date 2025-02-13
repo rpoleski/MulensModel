@@ -285,27 +285,30 @@ class UlensModelFit(object):
             ``'negative_source_2_flux_sigma_mag'`` - same as ``'negative_source_flux_sigma_mag'``
             but applied only to the secondary source flux.
 
-            ``'color'`` - specify gaussian prior for colors of the sources.
+            ``'color'`` *list* or *str*- specify gaussian prior for colors of the sources.
+            If *list* it will be used multiple times for each color
             Parameters:
                 *mean* and *sigma* are floats in magnitudes, *dataset_label*
                 are str defined in MulensData.plot_properties['label']
 
-            ``'color source 1'`` - specify gaussian prior for color of
+            ``'color source 1'`` *list* or *str* - specify gaussian prior for color of
             the primary source in binary source model.
+            If *list* it will be used multiple times for each color
             Parameters:
                 *mean* and *sigma* are floats in magnitudes, *dataset_label*
                 are str defined in MulensData.plot_properties['label']
 
-            ``'color source 2'`` - Specify a Gaussian prior on the flux ratio
-            of binary sources between datasets (with the same passband).``
+            ``'color source 2'`` *list* or *str*  - Specify a Gaussian prior on the flux ratio
+            of binary sources between datasets (with the same passband).
+            If *list* it will be used multiple times for each color
 
             Parameters:
                 *mean* and *sigma* are floats in magnitudes, *dataset_label*
                 are str defined in MulensData.plot_properties['label']
 
-            ``'2 sources flux ratio'`` - Specifies a Gaussian prior to keep
-            the flux ratio of sources in binary source models consistent
-            across all datasets taken in the same passband. This can be used
+            ``'2 sources flux ratio'`` *list* or *str* - Specifies a Gaussian prior
+            to keep the flux ratio of sources in binary source models consistent
+            across all datasets taken in the same passband. If *list* it will be used
             multiple times for each passband.
             Parameters:
             *sigma*: A float representing the flux ratio uncertainty.
@@ -1771,13 +1774,14 @@ class UlensModelFit(object):
         """
         Process each constraint fit_constraints.
         """
+        print(self._fit_constraints)
         for key, value in self._fit_constraints.items():
             if key == "negative_blending_flux_sigma_mag":
                 self._parse_fit_constraints_soft_no_negative(key, value)
             elif key in ['color', 'color source 1', 'color source 2']:
-                self._parse_fit_constraints_color(key, value)
+                self._parse_fit_constraints_rations(key, value, 'color')
             elif key in ['2 sources flux ratio']:
-                self._parse_fit_constraints_ratio(key, value)
+                self._parse_fit_constraints_rations(key, value, 'flux')
             elif key in ["negative_source_flux_sigma_mag", "negative_source_1_flux_sigma_mag",
                          "negative_source_2_flux_sigma_mag"]:
                 self._parse_fit_constraints_soft_no_negative(key, value)
@@ -1801,13 +1805,32 @@ class UlensModelFit(object):
         self._fit_constraints[key] = [
             mm.Utils.get_flux_from_mag(sigma), sets]
 
-    def _parse_fit_constraints_color(self, key, value):
+    def _parse_fit_constraints_rations(self, key, values, instance):
         """
-        Check if fit constraint on color are correctly defined.
+        Check if fit constraint on flux rations are correctly defined.
         """
-        self._check_unique_datasets_labels()
-        words = shlex.split(value, posix=False)
+        if instance == 'color':
+            get_settings = self._get_settings_fit_constraints_color
+        if instance == 'flux':
+            get_settings = self._get_settings_fit_constraints_ratio
 
+        self._check_unique_datasets_labels()
+        settings_all = []
+        if isinstance(values, str):
+            settings_all = [get_settings(key, values)]
+        elif isinstance(values, list):
+            for value in values:
+                settings_all.append(get_settings(key, value))
+        else:
+            raise TypeError('Type error in parsing: ' + key)
+
+        self._fit_constraints[key] = settings_all
+
+    def _get_settings_fit_constraints_color(self, key, value):
+        """
+        Get settings of fit constraint on color.
+        """
+        words = shlex.split(value, posix=False)
         if len(words) != 5 or words[0] != 'gauss':
             msg = "Something went wrong in parsing prior for "
             msg += "{:}: {:}"
@@ -1836,21 +1859,21 @@ class UlensModelFit(object):
                 "label specified in color prior" +
                 "do not match with provided datasets")
 
-        self._fit_constraints[key] = settings
+        return settings
 
-    def _parse_fit_constraints_ratio(self, key, value):
+    def _get_settings_fit_constraints_ratio(self, key, value):
         """
-        Check if fit constraint on flux ratio of 2 sources are correctly defined.
+        Get settings of fit constraint on flux ratio of 2 sources.
         """
-        self._check_unique_datasets_labels()
         settings = shlex.split(value, posix=False)
+        print('settings', settings)
         try:
             settings[0] = float(settings[0])
         except Exception:
             raise ValueError('error in parsing: ' + key + " " + settings[0])
 
         if settings[0] < 0.:
-            raise ValueError('sigma in' + key+' cannot be negative: ' + settings[0])
+            raise ValueError('sigma in' + key + ' cannot be negative: ' + settings[0])
 
         n = len(self._datasets)-1
         for i in range(1, len(settings)):
@@ -1862,8 +1885,8 @@ class UlensModelFit(object):
 
         if len(settings) != len(set(settings)):
             raise ValueError('datesets' + key+' cannot repeat themselves : ' + settings[1:])
-
-        self._fit_constraints[key] = settings
+        print('settings', settings)
+        return settings
 
     def _check_unique_datasets_labels(self):
         """
@@ -2618,8 +2641,9 @@ class UlensModelFit(object):
         inside = 0.0
 
         key = "negative_blending_flux_sigma_mag"
+
         if key in self._fit_constraints:
-            inside += self._sumup_flux_prior(fluxes, key, self._n_fluxes_per_dataset)
+            inside += self._sumup_flux_prior(fluxes, key, self._n_fluxes_per_dataset-1)
 
         key = "negative_source_flux_sigma_mag"
         if key in self._fit_constraints:
@@ -2722,8 +2746,9 @@ class UlensModelFit(object):
         name = '2 sources flux ratio'
         for i, key in enumerate(self._fit_constraints):
             if key == name:
-                settings = self._fit_constraints[key]
-                inside += self._sumup_2sources_prior(settings, fluxes)
+                settings_all = self._fit_constraints[key]
+                for settings in settings_all:
+                    inside += self._sumup_2sources_prior(settings, fluxes)
         return inside
 
     def _sumup_2sources_prior(self, settings, fluxes):
