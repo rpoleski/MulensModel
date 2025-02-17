@@ -1444,9 +1444,9 @@ class Model(object):
                 the same length as time parameter. Use only for satellite
                 parallax calculations.
 
-            gamma: *float*, optional
-                The limb-darkening coefficient in gamma convention. Default is
-                0 which means no limb darkening effect.
+            gamma: *float* or *list*, optional
+                The limb-darkening coefficient in gamma convention. Default is 0 which means no limb darkening effect.
+                The *list* input allows providing separate gamma for each source.
 
         Return:
             *list* of
@@ -1464,6 +1464,9 @@ class Model(object):
                 methods = self._methods.get(i + 1, None)
             else:
                 methods = self._methods
+
+            if isinstance(gamma, (list)):
+                kwargs['gamma'] = gamma[i]
 
             mag_curve = MagnificationCurve(
                  parameters=self.parameters.__getattr__('source_{0}_parameters'.format(i+1)), **kwargs)
