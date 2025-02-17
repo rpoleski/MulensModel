@@ -301,7 +301,6 @@ class UlensModelFit(object):
             ``'color source 2'`` *list* or *str*  - Specify a Gaussian prior on the flux ratio
             of binary sources between datasets (with the same passband).
             If *list* it will be used multiple times for each color
-
             Parameters:
                 *mean* and *sigma* are floats in magnitudes, *dataset_label*
                 are str defined in MulensData.plot_properties['label']
@@ -311,15 +310,23 @@ class UlensModelFit(object):
             across all datasets taken in the same passband. If *list* it will be used
             multiple times for each passband.
             Parameters:
-            *sigma*: A float representing the flux ratio uncertainty.
-            *dataset_label*: A string defined in
-            MulensData.plot_properties['label'].
-            The first *dataset_label* refers to the reference dataset,
-            while the following ones correspond to all other datasets in
-            the same passband.
+                *sigma*: A float representing the flux ratio uncertainty.
+                *dataset_label*: A string defined in `MulensData.plot_properties['label']`.
+                The first *dataset_label* refers to the reference dataset,
+                while the following ones correspond to all other datasets in
+                the same passband.
+
+             '2 source flux size relation' *str* - Specifies a Gaussian prior
+                flux_1/flux_2 = (rho_1/rho_2)^k in binary source models.
+            Parameters:
+                *k*: Exponent of the relation. In most cases, k=2.
+                *sigma*: A float representing the uncertainty of the relation.
+                *dataset_label*: A string defined in `MulensData.plot_properties['label']`,
+                specifying for which datasets the prior should be used. If `None`,
+                the relation will be applied to all datasets.
 
             ``'prior'`` - specifies the priors for quantities. It's also
-            a *dict*. Possible key-value pairs:
+                a *dict*. Possible key-value pairs:
 
                 ``'t_E': 'Mroz et al. 2017'`` - efficiency-corrected t_E
                 distribution from that paper with two modifications: 1) it is
@@ -1718,10 +1725,11 @@ class UlensModelFit(object):
         allowed_keys_source_flux = {"negative_source_flux_sigma_mag", "negative_source_1_flux_sigma_mag",
                                     "negative_source_2_flux_sigma_mag"}
         allowed_keys_ratio = {"2 sources flux ratio"}
+        allowed_keys_size = {'2 source flux size relation'}
         allowed_keys_color = {'color', 'color source 1', 'color source 2'}
 
         allowed_keys = {*allowed_keys_blending_flux, *allowed_keys_color, *allowed_keys_source_flux,
-                        *allowed_keys_ratio, "prior", "posterior parsing"}
+                        *allowed_keys_ratio, *allowed_keys_size, "prior", "posterior parsing"}
 
         used_keys = set(self._fit_constraints.keys())
         if len(used_keys - allowed_keys) > 0:
@@ -1739,6 +1747,7 @@ class UlensModelFit(object):
         self._check_flux_constraints_conflict(allowed_keys_source_flux, 'flux')
 
         self._check_ratio_constraints_conflict(allowed_keys_ratio)
+        self._check_size_constraints_conflict(allowed_keys_size)
 
     def _set_default_fit_constraints(self):
         """
@@ -1752,7 +1761,28 @@ class UlensModelFit(object):
         Check for conflicts among 2 source flux ratio constraints.
         XXX
         """
-        pass
+        self._check_binary_source(allowed_keys_ratio)
+
+    def _check_size_constraints_conflict(self, allowed_keys_size):
+        """
+        Check for conflicts among 2 source flux size relation constraints.
+        """
+        self._check_binary_source(allowed_keys_size)
+        needed = ['rho_1', 'rho_2']
+        for parameter in needed:
+            if parameter not in self._model_parameters.parameters:
+                raise ValueError("2 source flux size relation constraints should be used only with finite " +
+                                 "source model, so " + parameter + " should be defined")
+
+    def _check_binary_source(self, allowed_keys):
+        """
+        Check if fitted model is a binary source model
+        """
+        for key in allowed_keys:
+            if key in self._fit_constraints:
+                if self._n_fluxes_per_dataset != 2:
+                    raise ValueError(key + ' fitting \
+                        prior should be used only with binary source model')
 
     def _check_flux_constraints_conflict(self, allowed_keys, instance):
         """
@@ -1779,9 +1809,11 @@ class UlensModelFit(object):
             if key == "negative_blending_flux_sigma_mag":
                 self._parse_fit_constraints_soft_no_negative(key, value)
             elif key in ['color', 'color source 1', 'color source 2']:
-                self._parse_fit_constraints_rations(key, value, 'color')
+                self._parse_fit_constraints_ratios(key, value, 'color')
             elif key in ['2 sources flux ratio']:
-                self._parse_fit_constraints_rations(key, value, 'flux')
+                self._parse_fit_constraints_ratios(key, value, 'flux')
+            elif key in ['2 source flux size relation']:
+                self._parse_fit_constraints_size(key, value)
             elif key in ["negative_source_flux_sigma_mag", "negative_source_1_flux_sigma_mag",
                          "negative_source_2_flux_sigma_mag"]:
                 self._parse_fit_constraints_soft_no_negative(key, value)
@@ -1795,19 +1827,14 @@ class UlensModelFit(object):
             sets = list(range(len(self._datasets)))
         else:
             sigma = float(value.split()[0])
-            sets = list(map(self._get_no_of_dataset,
-                            shlex.split(value, posix=False)[1:]))
-            if len(sets) > len(self._datasets):
-                raise ValueError(
-                    "dataset number specified in" +
-                    key +
-                    "do not match with provided datasets")
+            sets = self._fill_no_of_datasets(shlex.split(value, posix=False)[1:])
+
         self._fit_constraints[key] = [
             mm.Utils.get_flux_from_mag(sigma), sets]
 
-    def _parse_fit_constraints_rations(self, key, values, instance):
+    def _parse_fit_constraints_ratios(self, key, values, instance):
         """
-        Check if fit constraint on flux rations are correctly defined.
+        Check if fit constraint on flux ratios are correctly defined.
         """
         if instance == 'color':
             get_settings = self._get_settings_fit_constraints_color
@@ -1825,6 +1852,50 @@ class UlensModelFit(object):
             raise TypeError('Type error in parsing: ' + key)
 
         self._fit_constraints[key] = settings_all
+        self._flat_priors = False
+
+    def _parse_fit_constraints_size(self, key, value):
+        """
+        Check if fit constraint on flux-size relation of 2 sources is correctly defined.
+        """
+        self._check_unique_datasets_labels()
+        settings = shlex.split(value, posix=False)
+
+        try:
+            for i in range(2):
+                settings[i] = float([settings[i]])
+        except Exception:
+            raise ValueError('error in parsing: ' + key + " " + settings[i])
+
+        # power exponent
+        if settings[0] < 0.:
+            warnings.warn('In ' + key + ' flux most likely should increase with rho, hence the exponent `k` \
+                in the relation flux_1/flux_2 = (rho_1/rho_2)^k should be positive, instead of ' + settings[1])
+        power = settings[0]
+        # sigma
+        if settings[1] < 0.:
+            raise ValueError('sigma in' + key+' cannot be negative: ' + settings[0])
+        sigma = settings[1]
+
+        if len(settings) == 2:
+            sets = list(range(len(self._datasets)))
+        else:
+            sets = self._fill_no_of_datasets(settings[2:], key)
+
+        self._fit_constraints[key] = [power, sigma, sets]
+        self._flat_priors = False
+
+    def _fill_no_of_datasets(self, values, key):
+        """
+        For a list with datasets labels return list with theirs indexes
+        """
+        sets = list(map(self._get_no_of_dataset, values))
+        if len(sets) > len(self._datasets):
+            raise ValueError(
+                "dataset specified in" +
+                key +
+                "should not repeat")
+        return sets
 
     def _get_settings_fit_constraints_color(self, key, value):
         """
@@ -1866,7 +1937,6 @@ class UlensModelFit(object):
         Get settings of fit constraint on flux ratio of 2 sources.
         """
         settings = shlex.split(value, posix=False)
-        print('settings', settings)
         try:
             settings[0] = float(settings[0])
         except Exception:
@@ -1885,7 +1955,7 @@ class UlensModelFit(object):
 
         if len(settings) != len(set(settings)):
             raise ValueError('datesets' + key+' cannot repeat themselves : ' + settings[1:])
-        print('settings', settings)
+
         return settings
 
     def _check_unique_datasets_labels(self):
@@ -2739,7 +2809,16 @@ class UlensModelFit(object):
 
     def _apply_2source_prior(self, fluxes):
         """
-        Apply prior on flux ratio of binnay sources
+        Apply priors of binnary sources
+        """
+        inside = 0.0
+        inside += self._apply_2source_ratio_prior(fluxes)
+        inside += self._apply_2source_size_prior(fluxes)
+        return inside
+
+    def _apply_2source_ratio_prior(self, fluxes):
+        """
+        Apply prior on flux ratio of binnary sources
         """
         inside = 0.0
         name = '2 sources flux ratio'
@@ -2748,6 +2827,24 @@ class UlensModelFit(object):
                 settings_all = self._fit_constraints[key]
                 for settings in settings_all:
                     inside += self._sumup_2sources_prior(settings, fluxes)
+        return inside
+
+    def _apply_2source_size_prior(self, fluxes):
+        """
+        Apply prior on flux-size relation of binnary sources
+        """
+        inside = 0.0
+        key = '2 source flux size relation'
+        if key in self._fit_constraints:
+            power, sigma, datasets = self._fit_constraints[key]
+            rho_ratio = self._model.parameters.parameters['rho_1']/self._model.parameters.parameters['rho_2']**power
+            for i, dataset in enumerate(self._datasets):
+                if i in datasets:
+                    index1 = self._get_index_of_flux(i, 0)
+                    index2 = self._get_index_of_flux(i, 1)
+                    flux_ratio = fluxes[index1]/fluxes[index2]
+                    inside += self._get_ln_prior_for_1_parameter(rho_ratio, ['gauss', flux_ratio, sigma])
+
         return inside
 
     def _sumup_2sources_prior(self, settings, fluxes):
