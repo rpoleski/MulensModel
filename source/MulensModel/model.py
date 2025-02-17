@@ -1056,14 +1056,19 @@ class Model(object):
                 Value of the coefficient.
 
             source: *int* or *None*, optional
-                Which source do the given methods apply to? Accepts 1, 2, or
-                *None* (i.e., all sources). Default is *None*
+                Which source do the given methods apply to? Accepts integers
+                up to the number of sources, or *None* (i.e., all sources).
+                Default is *None*
         """
         # self._check_limb_darkening()
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)
-        idx = source - 1 if source is not None else 0
-        self._limb_darkening_coeffs[idx].set_limb_coeff_gamma(bandpass, coeff)
+
+        if source is not None:
+            self._limb_darkening_coeffs[source - 1].set_limb_coeff_gamma(bandpass, coeff)
+        else:
+            for i in range(self.n_sources):
+                self._limb_darkening_coeffs[i].set_limb_coeff_gamma(bandpass, coeff)
 
     def get_limb_coeff_gamma(self, bandpass, source=None):
         """
@@ -1124,19 +1129,23 @@ class Model(object):
             bandpass: *str*
                 Bandpass for which coefficient you provide.
 
-            source: *int* or *None*, optional
-                Which source do the given methods apply to? Accepts 1, 2, or
-                *None* (i.e., all sources). Default is *None*
-
             coeff: *float*
                 Value of the coefficient.
 
+            source: *int* or *None*, optional
+                Which source do the given methods apply to? Accepts integers
+                up to the number of sources, or *None* (i.e., all sources).
+                Default is *None*
         """
         # self._check_limb_darkening()
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)
-        idx = source - 1 if source is not None else 0
-        self._limb_darkening_coeffs[idx].set_limb_coeff_u(bandpass, coeff)
+
+        if source is not None:
+            self._limb_darkening_coeffs[source - 1].set_limb_coeff_u(bandpass, coeff)
+        else:
+            for i in range(self.n_sources):
+                self._limb_darkening_coeffs[i].set_limb_coeff_u(bandpass, coeff)
 
     def get_limb_coeff_u(self, bandpass, source=None):
         """
@@ -1145,17 +1154,27 @@ class Model(object):
         Parameters :
             bandpass: *str*
                 Bandpass for which coefficient will be provided.
+
             source: *int* or *None*, optional
-                Which source do the given methods apply to? Accepts 1, 2, or
-                *None* (i.e., all sources). Default is *None*
+                Which source do the given methods apply to? Accepts integers
+                up to the number of sources, or *None* (i.e., all sources).
+                Default is *None*
 
         Returns :
             u: *float*
                 limb darkening coefficient
 
         """
-        idx = source - 1 if source is not None else 0
-        return self._limb_darkening_coeffs[idx].get_limb_coeff_u(bandpass)
+        if source is not None and not (1 <= source <= self.n_sources):
+            raise ValueError('Source number must be between 1 and n_sources ='
+                             ' {:}.'.format(self.n_sources))
+
+        coefficients = self._limb_darkening_coeffs
+        if source is not None:
+            return coefficients[source - 1].get_limb_coeff_u(bandpass)
+        elif self.n_sources == 1:
+            return coefficients[0].get_limb_coeff_u(bandpass)
+        return [coeff.get_limb_coeff_u(bandpass) for coeff in coefficients]
 
     def parallax(
             self, earth_orbital=None, satellite=None, topocentric=None):
