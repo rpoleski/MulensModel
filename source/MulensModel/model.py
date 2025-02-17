@@ -1074,8 +1074,9 @@ class Model(object):
                 Bandpass for which coefficient will be provided.
 
             source: *int* or *None*, optional
-                Which source do the given methods apply to? Accepts 1, 2, or
-                *None* (i.e., all sources). Default is *None*
+                Which source do the given methods apply to? Accepts integers
+                up to the number of sources, or *None* (i.e., all sources).
+                Default is *None*
 
         Returns :
             gamma: *float* or *list*
@@ -1083,12 +1084,15 @@ class Model(object):
                 of multiple sources.
 
         """
+        if source is not None and not (1 <= source <= self.n_sources):
+            raise ValueError('Source number must be between 1 and n_sources ='
+                             ' {:}.'.format(self.n_sources))
+
         coefficients = self._limb_darkening_coeffs
         if source is not None:
             return coefficients[source - 1].get_limb_coeff_gamma(bandpass)
         elif self.n_sources == 1:
             return coefficients[0].get_limb_coeff_gamma(bandpass)
-
         return [coeff.get_limb_coeff_gamma(bandpass) for coeff in coefficients]
 
     def _get_limb_coeff_gamma(self, bandpass, gamma, source=None):
@@ -1098,16 +1102,13 @@ class Model(object):
         if (bandpass is not None) and (gamma is not None):
             raise ValueError('Only one of bandpass and gamma can be set')
         elif (bandpass is None) and (gamma is None):
-            gamma = 0.
+            gamma = 0. if self.n_sources == 1 else [0.]*self.n_sources
         elif bandpass is not None:
             if bandpass not in self._bandpasses:
                 raise KeyError(
                     'No limb-darkening coefficient set for {0}'.format(
                         bandpass))
             else:
-                if source is not None and not (1 <= source <= self.n_sources):
-                    raise ValueError('Source number cannot be larger than the'
-                                     f'number of sources {self.n_sources}.')
                 gamma = self.get_limb_coeff_gamma(bandpass, source)
         else:
             pass
