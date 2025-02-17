@@ -253,9 +253,9 @@ class Model(object):
         then raise exception.
         The gamma value of *None* or *0* indicates that limb-darkening is off.
         """
-        if gamma is None or float(gamma) == 0.0:
+        if gamma is None or self.n_sources == 1:
             return
-        if self.n_sources == 1:
+        if set(gamma) == {0.0}:
             return
 
         n_finite = 0
@@ -870,7 +870,7 @@ class Model(object):
             raise ValueError("In Model.set_magnification_methods() the parameter 'source' has to be *int* or None.")
 
         self._check_methods(methods, source)
-        self._check_limb_darkening(methods)
+        # self._check_limb_darkening(methods)
 
         if (source is None) or (self.n_sources == 1):
             if isinstance(self._methods, dict):
@@ -1059,7 +1059,7 @@ class Model(object):
                 Which source do the given methods apply to? Accepts 1, 2, or
                 *None* (i.e., all sources). Default is *None*
         """
-        self._check_limb_darkening()
+        # self._check_limb_darkening()
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)
         idx = source - 1 if source is not None else 0
@@ -1078,12 +1078,18 @@ class Model(object):
                 *None* (i.e., all sources). Default is *None*
 
         Returns :
-            gamma: *float*
-                limb darkening coefficient
+            gamma: *float* or *list*
+                limb darkening coefficient or list of coefficients, in case
+                of multiple sources.
 
         """
-        idx = source - 1 if source is not None else 0
-        return self._limb_darkening_coeffs[idx].get_limb_coeff_gamma(bandpass)
+        coefficients = self._limb_darkening_coeffs
+        if source is not None:
+            return coefficients[source - 1].get_limb_coeff_gamma(bandpass)
+        elif self.n_sources == 1:
+            return coefficients[0].get_limb_coeff_gamma(bandpass)
+
+        return [coeff.get_limb_coeff_gamma(bandpass) for coeff in coefficients]
 
     def _get_limb_coeff_gamma(self, bandpass, gamma, source=None):
         """
@@ -1099,6 +1105,9 @@ class Model(object):
                     'No limb-darkening coefficient set for {0}'.format(
                         bandpass))
             else:
+                if source is not None and not (1 <= source <= self.n_sources):
+                    raise ValueError('Source number cannot be larger than the'
+                                     f'number of sources {self.n_sources}.')
                 gamma = self.get_limb_coeff_gamma(bandpass, source)
         else:
             pass
@@ -1122,7 +1131,7 @@ class Model(object):
                 Value of the coefficient.
 
         """
-        self._check_limb_darkening()
+        # self._check_limb_darkening()
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)
         idx = source - 1 if source is not None else 0
