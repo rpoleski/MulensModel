@@ -767,13 +767,15 @@ class UlensModelFit(object):
         self._get_parameters_ordered()
         self._get_parameters_latex()
         self._set_prior_limits()
-        self._parse_fit_constraints()
+
         if self._fit_method == "EMCEE":
             self._parse_starting_parameters()
 
         self._check_fixed_parameters()
         self._make_model_and_event()
         self._parse_fitting_parameters()
+        self._parse_fit_constraints()
+
         if self._fit_method == "EMCEE":
             self._get_starting_parameters()
 
@@ -1770,7 +1772,7 @@ class UlensModelFit(object):
         self._check_binary_source(allowed_keys_size)
         needed = ['rho_1', 'rho_2']
         for parameter in needed:
-            if parameter not in self._model_parameters.parameters:
+            if parameter not in self._fit_parameters_unsorted:
                 raise ValueError("2 source flux size relation constraints should be used only with finite " +
                                  "source model, so " + parameter + " should be defined")
 
@@ -1780,9 +1782,9 @@ class UlensModelFit(object):
         """
         for key in allowed_keys:
             if key in self._fit_constraints:
-                if self._n_fluxes_per_dataset != 2:
-                    raise ValueError(key + ' fitting \
-                        prior should be used only with binary source model')
+                if self._n_fluxes_per_dataset != 3:
+                    raise ValueError(key + ' fitting ' +
+                                     'prior should be used only with binary source model')
 
     def _check_flux_constraints_conflict(self, allowed_keys, instance):
         """
@@ -1804,7 +1806,6 @@ class UlensModelFit(object):
         """
         Process each constraint fit_constraints.
         """
-        print(self._fit_constraints)
         for key, value in self._fit_constraints.items():
             if key == "negative_blending_flux_sigma_mag":
                 self._parse_fit_constraints_soft_no_negative(key, value)
@@ -1863,7 +1864,7 @@ class UlensModelFit(object):
 
         try:
             for i in range(2):
-                settings[i] = float([settings[i]])
+                settings[i] = float(settings[i])
         except Exception:
             raise ValueError('error in parsing: ' + key + " " + settings[i])
 
@@ -3388,6 +3389,10 @@ class UlensModelFit(object):
         else:
             self._ln_like(self._best_model_theta)
             print("chi2: {:.4f}".format(self._event.get_chi2()))
+            fluxes = self._get_fluxes()
+            ln_prior_flux = self._run_flux_checks_ln_prior(fluxes)
+            ln_prior = self._ln_prior(self._best_model_theta)
+            print("ln_prior: {:.4f}".format(ln_prior_flux+ln_prior))
         print(*self._fit_parameters)
         print(*list(self._best_model_theta))
         if self._return_fluxes:
@@ -3415,7 +3420,12 @@ class UlensModelFit(object):
                         mode['parameters'][self._n_fit_parameters:])
             chi2 = mode['chi2']
 
+        fluxes = self._get_fluxes()
+        ln_prior_flux = self._run_flux_checks_ln_prior(fluxes)
+        ln_prior = ln_prior_flux + self._ln_prior(self._best_model_theta)
+
         yaml_txt += (begin + "  chi2: {:.4f}\n").format(chi2)
+        yaml_txt += (begin + "  ln_prior: {:.4f}\n").format(ln_prior)
         yaml_txt += begin + "  Parameters:\n"
         format_ = begin + "    {:}: {:}\n"
         for (parameter, results_) in zip_1:
