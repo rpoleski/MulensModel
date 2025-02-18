@@ -108,7 +108,6 @@ class Model(object):
         self._methods_parameters = {}
         self._caustics = None
 
-        # self._limb_darkening_coeffs = [LimbDarkeningCoeffs()] * self.n_sources
         self._limb_darkening_coeffs = [LimbDarkeningCoeffs() for _ in range(self.n_sources)]
         self._bandpasses = []
 

@@ -161,6 +161,21 @@ def test_limb_darkening():
     almost(model.get_limb_coeff_u('I'), u)
 
 
+def test_limb_darkening_source():
+    """check if limb_darkening is properly set using source=None"""
+    gamma = 0.4555
+    u = 3. * gamma / (2. + gamma)
+    dict_1l2s = {'t_0_1': t_0, 'u_0_1': u_0, 't_0_2': t_0 + 50, 'u_0_2': u_0,
+                 't_E': t_E, 'rho_1': 0.1, 'rho_2': 0.002}
+    model = mm.Model(dict_1l2s)
+
+    model.set_limb_coeff_gamma('I', gamma, source=None)
+    assert model.get_limb_coeff_gamma('I', source=1) == gamma
+    assert (model.get_limb_coeff_gamma('I') == [gamma]*model.n_sources)
+    assert model.get_limb_coeff_u('I', source=2) == u
+    assert (model.get_limb_coeff_u('I') == [u]*model.n_sources)
+
+
 def test_diff_limb_darkening():
     """testing effect of different limb darkening"""
     t_0 = 2450000.
@@ -187,9 +202,8 @@ def test_diff_limb_darkening():
     mags = model_1l2s.get_magnification(times, bandpass='I', separate=True)
     model_1l2s.plot_magnification(source_flux_ratio=0.05)
 
-    assert (mag_1 == mags[0]).all()  # passes
-    assert (mag_2 == mags[1]).all()  # does not pass, most points equal to 2-3 digits
-    # np.testing.assert_allclose(mag_2, mags[1], atol=1e-3)
+    assert (mag_1 == mags[0]).all()
+    assert (mag_2 == mags[1]).all()
 
 
 def test_t_E():
