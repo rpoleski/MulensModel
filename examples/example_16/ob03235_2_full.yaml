@@ -68,6 +68,8 @@ fit_constraints:
     #and/or 
     #color source 2 :  gauss 0.3 0.01  "OGLE I-band" "OB03235_MOA.txt"
     #2 sources flux ratio : 0.1 "OGLE I-band" "OB03235_MOA.txt"
+    #2 source flux size relation : 2. 0.1
+    
     prior:
         t_E: Mroz et al. 2017
         # Other possibility:
