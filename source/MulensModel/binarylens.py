@@ -296,12 +296,15 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
                         "Skowron_and_Gould_12 method is selected in automated " +
                         "way if VBBL is imported properly.")
             distance = sqrt(self._zeta.real**2 + self._zeta.imag**2)
-            if self._mass_2 > 1.e-6 * self._mass_1 and (distance < 15. or distance < 2. * separation):
-                txt += ("\n\nThis is surprising error - please contact code " +
-                        "authors and provide the above error message.")
-            elif distance > 200.:
-                txt += ("\n\nYou try to calculate magnification at huge " +
-                        "distance from the source and this is causing an error.")
+            if distance > 200.:
+                txt += ("\n\nYou try to calculate magnification for a huge distance between source and lens, "
+                        "which is causing the error.")
+            elif separation > 100.:
+                txt += "\n\nYou try to calculate magnification for a huge separation, which is causing the error."
+            elif self._mass_2 > 1.e-6 * self._mass_1 and (distance < 15. or distance < 2. * separation):
+                txt += ("\n\nThis is a surprising error - "
+                        "please contact code authors and provide the above error message.")
+
             txt += "\nMulensModel version: {:}".format(mm_version)
 
             raise ValueError(txt)
