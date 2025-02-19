@@ -286,7 +286,7 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
                    "that it's different from 'point_source' method.")
             txt = msg.format(
                 len(out), repr(self._mass_1), repr(self._mass_2), repr(separation),
-                repr(self._source_x), repr(self._source_y), self._solver)
+                repr(self._zeta.real), repr(self._zeta.imag), self._solver)
 
             if self._solver != "Skowron_and_Gould_12":
                 txt += (
@@ -295,7 +295,7 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
                         "numpy.polynomial.polynomial.polyroots(). " +
                         "Skowron_and_Gould_12 method is selected in automated " +
                         "way if VBBL is imported properly.")
-            distance = sqrt(self._source_x**2 + self._source_y**2)
+            distance = sqrt(self._zeta.real**2 + self._zeta.imag**2)
             if self._mass_2 > 1.e-6 * self._mass_1 and (distance < 15. or distance < 2. * separation):
                 txt += ("\n\nThis is surprising error - please contact code " +
                         "authors and provide the above error message.")
