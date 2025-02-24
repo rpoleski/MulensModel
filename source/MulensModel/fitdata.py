@@ -80,8 +80,6 @@ class FitData(object):
         self._data_magnification = None
         self._data_magnification_curve = None
         self._data_magnification_curves = None
-        self._data_magnification_curve_1 = None
-        self._data_magnification_curve_2 = None
 
     def __getattr__(self, item):
         return object.__getattribute__(self, item)
@@ -192,8 +190,7 @@ class FitData(object):
 
         else:
             msg = ("{0} ".format(self._model.n_sources) +
-                   "sources used. Function model.get_magnification can " +
-                   "only handle <=2 sources")
+                   "sources used. Function model.get_magnification can only handle <=2 sources")
             raise NotImplementedError(msg)
 
         if bad:
@@ -899,8 +896,7 @@ class FitData(object):
         Returns previously calculated magnification curves.
 
         Returns :
-            *tuple* of
-            *:py:class:`~MulensModel.magnification.MagnificationCurve* objects,
+            *tuple* of *:py:class:`~MulensModel.magnification.MagnificationCurve* objects
             i.e., the model magnification curve evaluated for each datapoint.
         """
         out = ()
