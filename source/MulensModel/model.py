@@ -161,8 +161,6 @@ class Model(object):
                 'source_flux_ratio. Note that plotted magnification will ' +
                 'be the effective magnification of the sources.')
 
-        self._check_gamma_for_N_sources(gamma)
-
         if times is None:
             times = self.set_times(
                 t_range=t_range, t_start=t_start, t_stop=t_stop, dt=dt,
@@ -236,7 +234,6 @@ class Model(object):
         (source_flux, source_flux_ratio, blend_flux) = fluxes
 
         gamma = self._get_limb_coeff_gamma(bandpass, gamma)
-        self._check_gamma_for_N_sources(gamma)
 
         magnitudes = self._get_lc(
             times=times, t_range=t_range, t_start=t_start, t_stop=t_stop,
@@ -244,30 +241,6 @@ class Model(object):
             blend_flux=blend_flux, return_times=False)
 
         return magnitudes
-
-    def _check_gamma_for_N_sources(self, gamma):
-        """
-        Check if the user tries to use limb darkening for binary source model
-        with finite source effect of both sources. If that is the case,
-        then raise exception.
-        The gamma value of *None* or *0* indicates that limb-darkening is off.
-        """
-        if gamma is None or self.n_sources == 1:
-            return
-        if set(gamma) == {0.0}:
-            return
-
-        n_finite = 0
-        for i in range(self.n_sources):
-            if self._parameters.__getattr__('source_{0}_parameters'.format(i+1)).is_finite_source():
-                n_finite += 1
-
-        if n_finite > 1:
-            # raise NotImplementedError(
-            #     "You're requesting binary source model with both sources " +
-            #     "showing finite source effect and you're specifying " +
-            #     "limb-darkening coefficient. This is not yet implemented.")
-            pass
 
     def _parse_fluxes_for_get_lc(self, source_flux, source_flux_ratio,
                                  blend_flux):
@@ -390,7 +363,6 @@ class Model(object):
         (source_flux, source_flux_ratio, blend_flux) = fluxes
 
         gamma = self._get_limb_coeff_gamma(bandpass, gamma)
-        self._check_gamma_for_N_sources(gamma)
 
         (times, mag_or_flux) = self._get_lc(
             times=times, t_range=t_range, t_start=t_start, t_stop=t_stop,
@@ -1293,7 +1265,6 @@ class Model(object):
                         source_flux_ratio))
 
         gamma = self._get_limb_coeff_gamma(bandpass, gamma)
-        self._check_gamma_for_N_sources(gamma)
 
         if self.n_sources > 1:
             if (source_flux_ratio is None) and (separate is False):
