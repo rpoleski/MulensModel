@@ -660,7 +660,9 @@ class FitData(object):
                 Values are the partial derivatives for that parameter
                 evaluated at each data point.
         """
-        # Need to consider what happens when we move to 2 sources.
+        if self._model.n_sources > 1:
+            raise NotImplementedError("gradient for multi-source models is not implemented/tested")
+
         if self._data_magnification_curve is None:
             self._set_data_magnification_curves()
 
@@ -679,7 +681,9 @@ class FitData(object):
                 Values are the partial derivatives for rho
                 evaluated at each data point.
         """
-        # Need to consider what happens when we move to 2 sources.
+        if self._model.n_sources > 1:
+            raise NotImplementedError("gradient for multi-source models is not implemented/tested")
+
         if 'rho' not in self.model.parameters.parameters:
             raise AttributeError('dA/drho cannot be calculated for a model without rho')
 
