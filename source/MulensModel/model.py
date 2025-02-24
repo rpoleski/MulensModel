@@ -1068,8 +1068,7 @@ class Model(object):
 
         """
         if source is not None and not (1 <= source <= self.n_sources):
-            raise ValueError('Source number must be between 1 and n_sources ='
-                             ' {:}.'.format(self.n_sources))
+            raise ValueError(f'Source number must be between 1 and n_sources = {self.n_sources}.')
 
         coefficients = self._limb_darkening_coeffs
         if source is not None:
@@ -1083,14 +1082,12 @@ class Model(object):
         Get gamma from either bandpass or gamma
         """
         if (bandpass is not None) and (gamma is not None):
-            raise ValueError('Only one of bandpass and gamma can be set')
+            raise ValueError('Only one of bandpass and gamma can be set.')
         elif (bandpass is None) and (gamma is None):
             gamma = 0. if self.n_sources == 1 else [0.]*self.n_sources
         elif bandpass is not None:
             if bandpass not in self._bandpasses:
-                raise KeyError(
-                    'No limb-darkening coefficient set for {0}'.format(
-                        bandpass))
+                raise KeyError(f'No limb-darkening coefficient set for {bandpass}.')
             else:
                 gamma = self.get_limb_coeff_gamma(bandpass, source)
         else:
@@ -1144,8 +1141,7 @@ class Model(object):
 
         """
         if source is not None and not (1 <= source <= self.n_sources):
-            raise ValueError('Source number must be between 1 and n_sources ='
-                             ' {:}.'.format(self.n_sources))
+            raise ValueError(f'Source number must be between 1 and n_sources = {self.n_sources}.')
 
         coefficients = self._limb_darkening_coeffs
         if source is not None:
