@@ -893,8 +893,13 @@ class Model(object):
                 the function is called from functions set_limb_coeff_gamma()
                 or set_limb_coeff_u().
         """
-        forbidden = {"finite_source_uniform_Gould94", "finite_source_uniform_Gould94_direct",
-                     "finite_source_uniform_WittMao94", "finite_source_uniform_Lee09"}
+        forbidden = {
+            "finite_source_uniform_Gould94",
+            "finite_source_uniform_Gould94_direct",
+            "finite_source_uniform_WittMao94",
+            "finite_source_uniform_Lee09",
+        }
+
         if methods is not None:
             methods = {m for m in methods if isinstance(m, str)}
             if not (methods - forbidden) and self._bandpasses:
@@ -1323,6 +1328,10 @@ class Model(object):
                    "the above model. For all above epochs magnifications are NaN.")
             msg = fmt.format(time[np.isnan(magnification)], self.__repr__())
             raise ValueError(msg)
+
+        if gamma is not None and gamma != 0.:
+            methods = self.get_magnification_methods()
+            self._check_limb_darkening(methods)
         return magnification
 
     def get_magnification_curve(self, time, satellite_skycoord, gamma):

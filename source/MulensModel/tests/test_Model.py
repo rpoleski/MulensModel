@@ -1,6 +1,7 @@
 import numpy as np
 from numpy.testing import assert_almost_equal as almost
 from math import isclose
+import pytest
 import unittest
 import os.path
 
@@ -176,8 +177,25 @@ def test_limb_darkening_source():
     assert (model.get_limb_coeff_u('I') == [u]*model.n_sources)
 
 
-def test_diff_limb_darkening():
-    """testing effect of different limb darkening"""
+def test_limb_darkening_uniform_methods():
+    """check if limb_darkening fails if only uniform methods are set"""
+    model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'rho': 0.001})
+    model.default_magnification_method = "finite_source_uniform_Gould94"
+
+    forbidden = {
+        "finite_source_uniform_Gould94",
+        "finite_source_uniform_Gould94_direct",
+        "finite_source_uniform_WittMao94",
+        "finite_source_uniform_Lee09",
+    }
+    for method in forbidden:
+        model.set_magnification_methods([2449900., method, 2450100.])
+        with pytest.raises(ValueError):
+            model.set_limb_coeff_gamma('I', 0.5)
+
+
+def test_different_limb_darkening():
+    """testing effect of different limb darkening for different sources"""
     t_0 = 2450000.
     u_0 = 0.001
     t_E = 100.
