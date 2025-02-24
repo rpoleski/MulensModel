@@ -435,12 +435,19 @@ class FitData(object):
         if bad:
             self._calculate_magnifications(bad=True)
 
-        model_flux = np.ones(self._dataset.n_epochs) * self.blend_flux
+        return self._get_model_flux(self.source_fluxes, self.blend_flux)
+
+    def _get_model_flux(self, source_fluxes, blend_flux):
+        """
+        Calculate model flux based on self._data_magnification.
+        """
+        model_flux = blend_flux * np.ones(self._dataset.n_epochs)
+
         if self._model.n_sources == 1:
-            model_flux += self.source_flux * self._data_magnification
+            model_flux += source_fluxes * self._data_magnification
         else:
             for i in range(self._model.n_sources):
-                model_flux += self.source_fluxes[i] * self._data_magnification[i]
+                model_flux += source_fluxes[i] * self._data_magnification[i]
 
         return model_flux
 
@@ -540,26 +547,16 @@ class FitData(object):
             errorbars = self._dataset.err_flux
         elif phot_fmt == 'scaled':
             if source_flux is None or blend_flux is None:
-                raise ValueError(
-                    'If phot_fmt=scaled, source_flux and blend_flux must also be specified.')
+                raise ValueError('If phot_fmt=scaled, source_flux and blend_flux must also be specified.')
 
-            magnification = self._data_magnification
-            if self._model.n_sources == 1:
-                model_flux = source_flux * magnification
-            else:
-                model_flux = source_flux[0] * magnification[0]
-                model_flux += source_flux[1] * magnification[1]
-
-            model_flux += blend_flux
-
+            model_flux = self._get_model_flux(source_flux, blend_flux)
             model_mag = mm.Utils.get_mag_from_flux(model_flux)
             (flux, err_flux) = self.scale_fluxes(source_flux, blend_flux)
             (mag, errorbars) = mm.Utils.get_mag_and_err_from_flux(flux, err_flux)
             residuals = mag - model_mag
         else:
             raise ValueError(
-                'phot_fmt must be one of "mag", "flux", or "scaled". Your ' +
-                'value: {0}'.format(phot_fmt))
+                'phot_fmt must be one of "mag", "flux", or "scaled". Your value: {0}'.format(phot_fmt))
 
         return (residuals, errorbars)
 
@@ -574,17 +571,14 @@ class FitData(object):
         implemented = {'t_0', 't_E', 'u_0', 't_eff', 'pi_E_N', 'pi_E_E', 'rho'}
         if len(set(parameters) - implemented) > 0:
             raise NotImplementedError((
-                "chi^2 gradient is implemented only for {:}\nCannot work " +
-                "with {:}").format(implemented, parameters))
+                "chi^2 gradient is implemented only for {:}\nCannot work with {:}").format(implemented, parameters))
 
-        # Implemented for the number of sources in the model?
+        # Implemented for the number of lenses in the model?
         if self.model.n_lenses != 1:
-            raise NotImplementedError(
-                'chi2_gradient() only implemented for single lens models')
+            raise NotImplementedError('chi2_gradient() only implemented for single lens models')
 
         if self.model.parameters.is_xallarap:
-            raise NotImplementedError('Gradient for xallarap models is not '
-                                      'implemented yet')
+            raise NotImplementedError('Gradient for xallarap models is not implemented yet')
 
     def get_chi2_gradient(self, parameters):
         """
