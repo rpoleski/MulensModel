@@ -841,7 +841,7 @@ class Model(object):
             raise ValueError("In Model.set_magnification_methods() the parameter 'source' has to be *int* or None.")
 
         self._check_methods(methods, source)
-        # self._check_limb_darkening(methods)
+        self._check_limb_darkening(methods)
 
         if (source is None) or (self.n_sources == 1):
             if isinstance(self._methods, dict):
@@ -885,7 +885,7 @@ class Model(object):
 
     def _check_limb_darkening(self, methods=None):
         """
-        Check if limb darkening is used with finite source methods.
+        Check if limb darkening is used with uniform finite source methods.
 
         Parameters :
             methods: *list*, optional
@@ -893,19 +893,21 @@ class Model(object):
                 the function is called from functions set_limb_coeff_gamma()
                 or set_limb_coeff_u().
         """
-        forbidden = ["finite_source_uniform_Gould94"]
+        forbidden = {"finite_source_uniform_Gould94", "finite_source_uniform_Gould94_direct",
+                     "finite_source_uniform_WittMao94", "finite_source_uniform_Lee09"}
         if methods is not None:
-            if bool(set(forbidden) & set(methods)) and self._bandpasses:
-                raise ValueError("You cannot set finite_source_uniform_Gould94"
-                                 " method with limb darkening.")
+            methods = {m for m in methods if isinstance(m, str)}
+            if not (methods - forbidden) and self._bandpasses:
+                raise ValueError("You cannot set uniform finite source methods with limb darkening.")
 
         else:
             methods = self.get_magnification_methods() or []
-            methods = [self.default_magnification_method] + methods
-            if bool(set(forbidden) & set(methods)):
-                raise ValueError(
-                    'You cannot set limb darkening coefficients for ' +
-                    'finite_source_uniform_Gould94 method.')
+            methods = list(methods.values()) if isinstance(methods, dict) else [methods]
+            for method in methods:
+                method = [self.default_magnification_method] + method
+                method = {m for m in method if isinstance(m, str)}
+                if not (method - forbidden):
+                    raise ValueError("You cannot set uniform finite source methods with limb darkening.")
 
     def get_magnification_methods(self, source=None):
         """
@@ -1031,7 +1033,7 @@ class Model(object):
                 up to the number of sources, or *None* (i.e., all sources).
                 Default is *None*
         """
-        # self._check_limb_darkening()
+        self._check_limb_darkening()
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)
 
@@ -1108,7 +1110,7 @@ class Model(object):
                 up to the number of sources, or *None* (i.e., all sources).
                 Default is *None*
         """
-        # self._check_limb_darkening()
+        self._check_limb_darkening()
         if bandpass not in self._bandpasses:
             self._bandpasses.append(bandpass)
 
