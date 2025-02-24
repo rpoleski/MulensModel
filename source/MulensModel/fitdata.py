@@ -903,9 +903,11 @@ class FitData(object):
             *:py:class:`~MulensModel.magnification.MagnificationCurve* objects,
             i.e., the model magnification curve evaluated for each datapoint.
         """
-        # Need to consider ... - wrong one
-        return (self._data_magnification_curve_1,
-                self._data_magnification_curve_2)
+        out = ()
+        for i in range(self._model.n_sources):
+            out.append(self.__getattr__('_data_magnification_curve_{0}'.format(i+1)).get_magnification())
+
+        return out
 
     @property
     def gamma(self):
