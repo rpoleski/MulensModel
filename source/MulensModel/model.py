@@ -903,7 +903,7 @@ class Model(object):
         if methods is not None:
             methods = {m for m in methods if isinstance(m, str)}
             if not (methods - forbidden) and self._bandpasses:
-                raise ValueError("You cannot set uniform finite source methods with limb darkening.")
+                raise ValueError("You cannot set uniform finite source methods with limb darkening.")  ### COV!
 
         else:
             methods = self.get_magnification_methods() or []
@@ -1068,7 +1068,7 @@ class Model(object):
 
         """
         if source is not None and not (1 <= source <= self.n_sources):
-            raise ValueError(f'Source number must be between 1 and n_sources = {self.n_sources}.')
+            raise ValueError(f'Source number must be between 1 and n_sources = {self.n_sources}.')  ### COV!
 
         coefficients = self._limb_darkening_coeffs
         if source is not None:
@@ -1082,12 +1082,12 @@ class Model(object):
         Get gamma from either bandpass or gamma
         """
         if (bandpass is not None) and (gamma is not None):
-            raise ValueError('Only one of bandpass and gamma can be set.')
+            raise ValueError('Only one of bandpass and gamma can be set.')  ### COV!
         elif (bandpass is None) and (gamma is None):
             gamma = 0. if self.n_sources == 1 else [0.]*self.n_sources
         elif bandpass is not None:
             if bandpass not in self._bandpasses:
-                raise KeyError(f'No limb-darkening coefficient set for {bandpass}.')
+                raise KeyError(f'No limb-darkening coefficient set for {bandpass}.')  ### COV!
             else:
                 gamma = self.get_limb_coeff_gamma(bandpass, source)
         else:
@@ -1117,7 +1117,7 @@ class Model(object):
             self._bandpasses.append(bandpass)
 
         if source is not None:
-            self._limb_darkening_coeffs[source - 1].set_limb_coeff_u(bandpass, coeff)
+            self._limb_darkening_coeffs[source - 1].set_limb_coeff_u(bandpass, coeff)  ### COV!
         else:
             for i in range(self.n_sources):
                 self._limb_darkening_coeffs[i].set_limb_coeff_u(bandpass, coeff)
@@ -1141,7 +1141,7 @@ class Model(object):
 
         """
         if source is not None and not (1 <= source <= self.n_sources):
-            raise ValueError(f'Source number must be between 1 and n_sources = {self.n_sources}.')
+            raise ValueError(f'Source number must be between 1 and n_sources = {self.n_sources}.')  ### COV!
 
         coefficients = self._limb_darkening_coeffs
         if source is not None:

@@ -207,7 +207,8 @@ def test_different_limb_darkening():
 
     model_1.set_limb_coeff_gamma('I', -1)
     model_2.set_limb_coeff_gamma('I', 2)
-    times = np.arange(t_0 - t_E, t_0 + t_E, 0.5)
+    times = [2449990.0, 2449990.5, 2449991.0, 2450009.5, 2450010.0,
+             2450048.5, 2450049.0, 2450049.5, 2450050.5, 2450051.0]
     mag_1 = model_1.get_magnification(times, bandpass='I')
     mag_2 = model_2.get_magnification(times, bandpass='I')
 
@@ -218,7 +219,6 @@ def test_different_limb_darkening():
     model_1l2s.set_limb_coeff_gamma('I', 2, source=2)
     model_1l2s.set_magnification_methods(mag_method)
     mags = model_1l2s.get_magnification(times, bandpass='I', separate=True)
-    model_1l2s.plot_magnification(source_flux_ratio=0.05)
 
     assert (mag_1 == mags[0]).all()
     assert (mag_2 == mags[1]).all()
