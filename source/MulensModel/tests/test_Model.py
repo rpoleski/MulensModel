@@ -185,12 +185,31 @@ def test_limb_darkening_source():
     model.set_limb_coeff_gamma('I', gamma, source=None)
     assert model.get_limb_coeff_gamma('I', source=1) == gamma
     assert (model.get_limb_coeff_gamma('I') == [gamma]*model.n_sources)
+    model.set_limb_coeff_u('I', u, source=1)
     assert model.get_limb_coeff_u('I', source=2) == u
     assert (model.get_limb_coeff_u('I') == [u]*model.n_sources)
 
 
+def test_errors_in_limb_darkening():
+    """check if limb_darkening errors are properly raised"""
+    gamma = 0.4555
+    model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'rho': 0.001})
+    model.set_limb_coeff_gamma('I', gamma, source=None)
+
+    with pytest.raises(ValueError):
+        model.get_limb_coeff_gamma('I', source=3)
+    with pytest.raises(ValueError):
+        model.get_limb_coeff_u('I', source=3)
+
+    times = np.arange(2449900., 2450101., 50)
+    with pytest.raises(ValueError):
+        model.get_magnification(times, bandpass='I', gamma=gamma)
+    with pytest.raises(KeyError):
+        model.get_magnification(times, bandpass='V')
+
+
 def test_limb_darkening_uniform_methods():
-    """check if limb_darkening fails if only uniform methods are set"""
+    """check if setting limb_darkening fails using only uniform methods"""
     model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'rho': 0.001})
     model.default_magnification_method = "finite_source_uniform_Gould94"
 
@@ -204,6 +223,19 @@ def test_limb_darkening_uniform_methods():
         model.set_magnification_methods([2449900., method, 2450100.])
         with pytest.raises(ValueError):
             model.set_limb_coeff_gamma('I', 0.5)
+
+
+def test_get_magnification_limb_darkening_uniform_methods():
+    """
+    Fail get_magnification() call with LD if only uniform methods are set
+    """
+    model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'rho': 0.001})
+    model.set_limb_coeff_gamma('I', -1)
+    model.default_magnification_method = "finite_source_uniform_Gould94"
+
+    times = np.arange(2449900., 2450101., 50)
+    with pytest.raises(ValueError):
+        model.get_magnification(times, bandpass='I')
 
 
 def test_different_limb_darkening():
