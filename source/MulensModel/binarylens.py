@@ -253,16 +253,13 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
         """verified roots of polynomial i.e. roots of lens equation"""
         roots = self._get_polynomial_roots()
 
-        # Two lines below are simplified assuming
-        # self._position_z1.imag = 0 and same for z2.
+        # Two lines below are simplified assuming self._position_z1.imag = 0 and same for z2.
         roots_conj = np.conjugate(roots)
-        solutions = (self._zeta +
-                     self._mass_1 / (roots_conj - self._position_z1) +
-                     self._mass_2 / (roots_conj - self._position_z2))
-        # This backs-up the lens equation.
+        solutions = (self._zeta +  # This backs-up the lens equation.
+                     self._mass_1 / (roots_conj - self._position_z1) + self._mass_2 / (roots_conj - self._position_z2))
 
         out = []
-        distances = []
+        distances = []  # The values in distances[] are a diagnostic on how good the numerical accuracy is.
         for (i, root) in enumerate(roots):
             distances_from_root = abs((solutions - root) ** 2)
             min_distance_arg = np.argmin(distances_from_root)
@@ -270,46 +267,42 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
             if i == min_distance_arg:
                 out.append(root)
                 distances.append(distances_from_root[min_distance_arg])
-            # The values in distances[] are a diagnostic on how good the
-            # numerical accuracy is.
 
-        # If the lens equation is solved correctly, there should be
-        # either 3 or 5 solutions (corresponding to 3 or 5 images)
+        # If the lens equation is solved correctly, there should be 3 or 5 solutions (corresponding to 3 or 5 images).
         if len(out) not in [3, 5]:
-            separation = -self._position_z1.real
-            msg = ("Wrong number of solutions to the lens equation of binary" +
-                   " lens.\nGot {:} and expected 3 or 5.\nThe parameters " +
-                   "(m1, m2, s, source_x, source_y, solver) are:\n" +
-                   "{:} {:} {:} {:} {:}  {:}\n\n" +
-                   "Consider using 'point_source_point_lens' method for " +
-                   "epochs when the source is very far from the lens. Note " +
-                   "that it's different from 'point_source' method.")
-            txt = msg.format(
-                len(out), repr(self._mass_1), repr(self._mass_2), repr(separation),
-                repr(self._source_x), repr(self._source_y), self._solver)
-
-            if self._solver != "Skowron_and_Gould_12":
-                txt += (
-                        "\n\nYou should switch to using Skowron_and_Gould_12" +
-                        " polynomial root solver. It is much more accurate than " +
-                        "numpy.polynomial.polynomial.polyroots(). " +
-                        "Skowron_and_Gould_12 method is selected in automated " +
-                        "way if VBBL is imported properly.")
-            distance = sqrt(self._source_x**2 + self._source_y**2)
-            if self._mass_2 > 1.e-6 * self._mass_1 and (distance < 15. or distance < 2. * separation):
-                txt += ("\n\nThis is surprising error - please contact code " +
-                        "authors and provide the above error message.")
-            elif distance > 200.:
-                txt += ("\n\nYou try to calculate magnification at huge " +
-                        "distance from the source and this is causing an error.")
-            txt += "\nMulensModel version: {:}".format(mm_version)
-
-            raise ValueError(txt)
+            self._raise_error_wrong_number_of_solutions(n_solutions=len(out))
 
         if return_distances:
             return (np.array(out), np.array(distances))
         else:
             return np.array(out)
+
+    def _raise_error_wrong_number_of_solutions(self, n_solutions):
+        """Format error message and raise error for wrong number of solutions"""
+        separation = -self._position_z1.real
+        msg = ("Wrong number of solutions to the lens equation of binary lens.\nGot {:} and expected 3 or 5.\nThe "
+               "parameters (m1, m2, s, source_x, source_y, solver) are:\n{:} {:} {:} {:} {:}  {:}\n\n"
+               "Consider using 'point_source_point_lens' method for epochs when the source is very far from the lens. "
+               "Note that it's different from 'point_source' method.")
+        txt = msg.format(n_solutions, repr(self._mass_1), repr(self._mass_2), repr(separation),
+                         repr(self._zeta.real), repr(self._zeta.imag), self._solver)
+
+        if self._solver != "Skowron_and_Gould_12":
+            txt += ("\n\nYou should switch to using Skowron_and_Gould_12  polynomial root solver. It is much more "
+                    "accurate than numpy.polynomial.polynomial.polyroots(). Skowron_and_Gould_12 method is selected "
+                    "in automated way if VBBL is imported properly.")
+
+        distance = sqrt(self._zeta.real**2 + self._zeta.imag**2)
+        if distance > 200.:
+            txt += ("\n\nYou try to calculate magnification for a huge distance between source and lens, "
+                    "which is causing the error.")
+        elif separation > 100.:
+            txt += "\n\nYou try to calculate magnification for a huge separation, which is causing the error."
+        elif self._mass_2 > 1.e-6 * self._mass_1 and (distance < 15. or distance < 2. * separation):
+            txt += "\n\nThis is a surprising error - please contact code authors and provide the above error message."
+
+        txt += "\nMulensModel version: {:}".format(mm_version)
+        raise ValueError(txt)
 
 
 class BinaryLensPointSourceVBBLMagnification(_BinaryLensPointSourceMagnification):
