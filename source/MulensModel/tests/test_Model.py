@@ -138,6 +138,18 @@ def test_coords_transformation():
     almost(model.coords.ecliptic_lat.value, -6.77579203, decimal=2)
 
 
+def test_coords_input():
+    """
+    Test if wrong coords input raises an error.
+    Only test that was missing to have 100% coverage in __init__.
+    """
+    ra, dec = "17:54:32.1", "-30:12:34.0"
+    with pytest.raises(AttributeError):
+        _ = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.}, ra=ra)
+    with pytest.raises(AttributeError):
+        _ = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.}, dec=dec)
+
+
 def test_init_parameters():
     """are parameters properly passed between Model and ModelParameters?"""
     t_0 = 6141.593
