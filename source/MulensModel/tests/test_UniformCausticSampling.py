@@ -49,9 +49,9 @@ def test_UniformCausticSampling():
     np.testing.assert_almost_equal(standard['u_0'], 0.0076099741)
     np.testing.assert_almost_equal(standard['t_E'], 142.7154375)
     np.testing.assert_almost_equal(standard['alpha'], 0.54305134)
+
     (t_in, t_out) = sampling.get_t_in_t_out(
-        x_caustic_in=min(x_list), x_caustic_out=max(x_list),
-        t_0=standard['t_0'], t_E=standard['t_E'])
+        x_caustic_in=min(x_list), x_caustic_out=max(x_list), t_0=standard['t_0'], t_E=standard['t_E'])
     np.testing.assert_almost_equal(t_in, 0., decimal=5)
     np.testing.assert_almost_equal(t_out, 10., decimal=6)
 
@@ -69,8 +69,7 @@ def test_UniformCausticSampling():
 
 def test_get_uniform_sampling():
     """
-    Basic test for get_uniform_sampling() - only if the shape of output is
-    correct
+    Basic test for get_uniform_sampling() - only if the shape of output is correct
     """
     n = 50
 

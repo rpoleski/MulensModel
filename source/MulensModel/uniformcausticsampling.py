@@ -311,8 +311,6 @@ class UniformCausticSampling(object):
         cusps_z_1 = [add] + cusps_z_1
         cusps_z_1 += [cusps_z_1[0].conjugate()]
 
-        cusps_zeta_1 = [self._zeta(z) for z in cusps_z_1]
-
         indexes = self._get_indexes_of_inflection_points(self._sum_2)
         value_2 = [float(i)/self._n_points for i in indexes]
         self._inflections_fractions[2] = value_2
@@ -320,8 +318,6 @@ class UniformCausticSampling(object):
         if self._n_caustics == 2:
             cusps_z_2 = [self._z_all[indexes[1], 0]] + cusps_z_2
             cusps_z_2 += [cusps_z_2[0].conjugate()]
-
-        cusps_zeta_2 = [self._zeta(z) for z in cusps_z_2]
 
         length_1 = 2. * self._sum_1[-1]
         lengths_sum = length_1
@@ -462,10 +458,8 @@ class UniformCausticSampling(object):
         """
         Calculate ``t_caustic_in`` and ``t_caustic_out`` for given trajectory.
 
-        Note: if you use :py:func:`get_x_in_x_out()` to obtain
-        ``x_caustic_in/out`` then you can obtain 0, 2, 4, or 6 points and you
-        have to decide which ones and in what order should be provided here
-        as input parameters.
+        Note: if you use :py:func:`get_x_in_x_out()` to obtain ``x_caustic_in/out`` then you can obtain 0, 2, 4,
+        or 6 points and you have to decide which ones and in what order should be provided here as input parameters.
 
         Parameters :
             x_caustic_in: *float*
@@ -489,8 +483,7 @@ class UniformCausticSampling(object):
         """
         if set(kwargs) != set("x_caustic_in x_caustic_out t_0 t_E".split()):
             raise KeyError(
-                "get_t_in_t_out() requires following parameters: "
-                "'x_caustic_in', 'x_caustic_out', 't_0', and 't_E'")
+                "get_t_in_t_out() requires following parameters: 'x_caustic_in', 'x_caustic_out', 't_0', and 't_E'")
 
         zeta_in = self.caustic_point(kwargs['x_caustic_in'])
         zeta_out = self.caustic_point(kwargs['x_caustic_out'])
