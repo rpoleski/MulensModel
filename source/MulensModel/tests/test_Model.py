@@ -251,8 +251,8 @@ def test_different_limb_darkening():
 
     model_1.set_limb_coeff_gamma('I', -1)
     model_2.set_limb_coeff_gamma('I', 2)
-    times = [2449990.0, 2449990.5, 2449991.0, 2450009.5, 2450010.0,
-             2450048.5, 2450049.0, 2450049.5, 2450050.5, 2450051.0]
+    times = [2449990.0, 2449990.5, 2449991.0, 2450000.0, 2450010.0,
+             2450048.5, 2450049.0, 2450049.9, 2450050.5, 2450051.0]
     mag_1 = model_1.get_magnification(times, bandpass='I')
     mag_2 = model_2.get_magnification(times, bandpass='I')
 
