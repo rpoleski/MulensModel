@@ -889,7 +889,7 @@ class TestFSPLGradient(unittest.TestCase):
         n_t_star = 9.
         t_lim_1 = model.parameters.t_0 - n_t_star * t_star
         t_lim_2 = model.parameters.t_0 + n_t_star * t_star
-        model.set_magnification_methods([t_lim_1, 'finite_source_uniform_WittMao94', t_lim_2])
+        model.set_magnification_methods([t_lim_1, 'finite_source_LD_WittMao94', t_lim_2])
         fit = mm.FitData(model=model, dataset=self.datasets[0])
         with self.assertRaises(NotImplementedError):
             fit.get_d_A_d_rho()

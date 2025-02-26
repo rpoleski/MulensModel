@@ -61,4 +61,4 @@ If you want to contribute to MulensModel, then please see [this file](CONTRIBUTI
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/MulensModel)
 ![example workflow](https://github.com/rpoleski/MulensModel/actions/workflows/python-app.yml/badge.svg)
 
-file revised Jan 2025
+file revised Feb 2025

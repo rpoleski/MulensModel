@@ -1,6 +1,7 @@
 import numpy as np
 from numpy.testing import assert_almost_equal as almost
 from math import isclose
+import pytest
 import unittest
 import os.path
 
@@ -137,6 +138,18 @@ def test_coords_transformation():
     almost(model.coords.ecliptic_lat.value, -6.77579203, decimal=2)
 
 
+def test_coords_input():
+    """
+    Test if wrong coords input raises an error.
+    Only test that was missing to have 100% coverage in __init__.
+    """
+    ra, dec = "17:54:32.1", "-30:12:34.0"
+    with pytest.raises(AttributeError):
+        _ = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.}, ra=ra)
+    with pytest.raises(AttributeError):
+        _ = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100.}, dec=dec)
+
+
 def test_init_parameters():
     """are parameters properly passed between Model and ModelParameters?"""
     t_0 = 6141.593
@@ -159,6 +172,100 @@ def test_limb_darkening():
 
     almost(model.get_limb_coeff_gamma('I'), gamma)
     almost(model.get_limb_coeff_u('I'), u)
+
+
+def test_limb_darkening_source():
+    """check if limb_darkening is properly set using source=None"""
+    gamma = 0.4555
+    u = 3. * gamma / (2. + gamma)
+    dict_1l2s = {'t_0_1': t_0, 'u_0_1': u_0, 't_0_2': t_0 + 50, 'u_0_2': u_0,
+                 't_E': t_E, 'rho_1': 0.1, 'rho_2': 0.002}
+    model = mm.Model(dict_1l2s)
+
+    model.set_limb_coeff_gamma('I', gamma, source=None)
+    assert model.get_limb_coeff_gamma('I', source=1) == gamma
+    assert (model.get_limb_coeff_gamma('I') == [gamma]*model.n_sources)
+    model.set_limb_coeff_u('I', u, source=1)
+    assert model.get_limb_coeff_u('I', source=2) == u
+    assert (model.get_limb_coeff_u('I') == [u]*model.n_sources)
+
+
+def test_errors_in_limb_darkening():
+    """check if limb_darkening errors are properly raised"""
+    gamma = 0.4555
+    model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'rho': 0.001})
+    model.set_limb_coeff_gamma('I', gamma, source=None)
+
+    with pytest.raises(ValueError):
+        model.get_limb_coeff_gamma('I', source=3)
+    with pytest.raises(ValueError):
+        model.get_limb_coeff_u('I', source=3)
+
+    times = np.arange(2449900., 2450101., 50)
+    with pytest.raises(ValueError):
+        model.get_magnification(times, bandpass='I', gamma=gamma)
+    with pytest.raises(KeyError):
+        model.get_magnification(times, bandpass='V')
+
+
+#def test_limb_darkening_uniform_methods():
+#    """check if setting limb_darkening fails using only uniform methods"""
+#    model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'rho': 0.001})
+#    model.default_magnification_method = "finite_source_uniform_Gould94"
+#
+#    forbidden = {
+#        "finite_source_uniform_Gould94",
+#        "finite_source_uniform_Gould94_direct",
+#        "finite_source_uniform_WittMao94",
+#        "finite_source_uniform_Lee09",
+#    }
+#    for method in forbidden:
+#        model.set_magnification_methods([2449900., method, 2450100.])
+#        with pytest.raises(ValueError):
+#            model.set_limb_coeff_gamma('I', 0.5)
+
+
+#def test_get_magnification_limb_darkening_uniform_methods():
+#    """
+#    Fail get_magnification() call with LD if only uniform methods are set
+#    """
+#    model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'rho': 0.001})
+#    model.set_limb_coeff_gamma('I', -1)
+#    model.default_magnification_method = "finite_source_uniform_Gould94"
+#
+#    times = np.arange(2449900., 2450101., 50)
+#    with pytest.raises(ValueError):
+#        model.get_magnification(times, bandpass='I')
+
+
+def test_different_limb_darkening():
+    """testing effect of different limb darkening for different sources"""
+    t_0 = 2450000.
+    u_0 = 0.001
+    t_E = 100.
+    model_1 = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 'rho': 0.1})
+    model_2 = mm.Model({'t_0': t_0 + 50, 'u_0': u_0, 't_E': t_E, 'rho': 0.002})
+    mag_method = [2449900., 'finite_source_LD_Yoo04', 2450100.]
+    model_1.set_magnification_methods(mag_method)
+    model_2.set_magnification_methods(mag_method)
+
+    model_1.set_limb_coeff_gamma('I', -1)
+    model_2.set_limb_coeff_gamma('I', 2)
+    times = [2449990.0, 2449990.5, 2449991.0, 2450000.0, 2450010.0,
+             2450048.5, 2450049.0, 2450049.9, 2450050.5, 2450051.0]
+    mag_1 = model_1.get_magnification(times, bandpass='I')
+    mag_2 = model_2.get_magnification(times, bandpass='I')
+
+    dict_1l2s = {'t_0_1': t_0, 'u_0_1': u_0, 't_0_2': t_0 + 50, 'u_0_2': u_0,
+                 't_E': t_E, 'rho_1': 0.1, 'rho_2': 0.002}
+    model_1l2s = mm.Model(dict_1l2s)
+    model_1l2s.set_limb_coeff_gamma('I', -1, source=1)
+    model_1l2s.set_limb_coeff_gamma('I', 2, source=2)
+    model_1l2s.set_magnification_methods(mag_method)
+    mags = model_1l2s.get_magnification(times, bandpass='I', separate=True)
+
+    assert (mag_1 == mags[0]).all()
+    assert (mag_2 == mags[1]).all()
 
 
 def test_t_E():
@@ -681,7 +788,7 @@ def test_repr():
 
     model = mm.Model(parameters)
     model.set_limb_coeff_gamma("I", 0.5)
-    expected = begin + end + "\nlimb-darkening coeffs (gamma): {'I': 0.5}"
+    expected = begin + end + "\nlimb-darkening coeffs (gamma): [{'I': 0.5}]"
     assert str(model) == expected
 
 
