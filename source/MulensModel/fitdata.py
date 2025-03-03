@@ -80,8 +80,6 @@ class FitData(object):
         self._data_magnification = None
         self._data_magnification_curve = None
         self._data_magnification_curves = None
-        self._data_magnification_curve_1 = None
-        self._data_magnification_curve_2 = None
 
     def __getattr__(self, item):
         return object.__getattribute__(self, item)
@@ -170,8 +168,7 @@ class FitData(object):
 
         if self._model.n_sources == 1:
             self._data_magnification_curve = \
-                self._model.get_magnification_curve(
-                    time=self._dataset.time[select], **magnification_kwargs)
+                self._model.get_magnification_curve(time=self._dataset.time[select], **magnification_kwargs)
         elif self._model.n_sources >= 2:
             self._data_magnification_curves = self._model.get_magnification_curves(
                         time=self._dataset.time[select], **magnification_kwargs)
@@ -189,30 +186,25 @@ class FitData(object):
         elif self._model.n_sources >= 2:
             mag_matrix = []
             for i in range(self._model.n_sources):
-                mag_matrix.append(
-                    self.__getattr__('_data_magnification_curve_{0}'.format(i+1)).get_magnification())
+                mag_matrix.append(self.__getattr__('_data_magnification_curve_{0}'.format(i+1)).get_magnification())
 
         else:
             msg = ("{0} ".format(self._model.n_sources) +
-                   "sources used. Function model.get_magnification can " +
-                   "only handle <=2 sources")
+                   "sources used. Function model.get_magnification can only handle <=2 sources")
             raise NotImplementedError(msg)
 
         if bad:
             self._data_magnification = mag_matrix
         else:
             if self._model.n_sources == 1:
-                self._data_magnification = np.zeros(
-                    self._dataset.n_epochs)
+                self._data_magnification = np.zeros(self._dataset.n_epochs)
                 self._data_magnification[self._dataset.good] = mag_matrix
             else:
                 self._data_magnification = [np.zeros(self._dataset.n_epochs)]
                 self._data_magnification[0][self._dataset.good] = mag_matrix[0]
                 for source in range(1, self.model.n_sources):
-                    self._data_magnification.append(
-                        np.zeros(self._dataset.n_epochs))
-                    self._data_magnification[
-                        source][self._dataset.good] = mag_matrix[source]
+                    self._data_magnification.append(np.zeros(self._dataset.n_epochs))
+                    self._data_magnification[source][self._dataset.good] = mag_matrix[source]
 
     def _get_xy_qflux(self):
         """
@@ -221,21 +213,17 @@ class FitData(object):
              = f_1 * [ A_1 + sum_i>1(q_i * A_i)] + f_b
         """
         y = self._dataset.flux[self._dataset.good]
-        x = np.array(
-            self._data_magnification[0][self._dataset.good])
+        x = np.array(self._data_magnification[0][self._dataset.good])
         self.n_fluxes = 1
         for i in range(1, self._model.n_sources):
             if self.fix_source_flux_ratio[i-1] is False:
-                x = np.vstack(
-                    (x, self._data_magnification[i][self._dataset.good]))
+                x = np.vstack((x, self._data_magnification[i][self._dataset.good]))
                 self.n_fluxes += 1
             else:
                 if len(x.shape) == 1:
-                    x += (self.fix_source_flux_ratio[i-1] *
-                          self._data_magnification[i][self._dataset.good])
+                    x += self.fix_source_flux_ratio[i-1] * self._data_magnification[i][self._dataset.good]
                 else:
-                    x[0, :] += (self.fix_source_flux_ratio[i-1] *
-                                self._data_magnification[i][self._dataset.good])
+                    x[0, :] += self.fix_source_flux_ratio[i-1] * self._data_magnification[i][self._dataset.good]
 
         return (x, y)
 
@@ -254,8 +242,7 @@ class FitData(object):
         else:
             x = None
             if self._model.n_sources == 1:
-                y -= (self.fix_source_flux[0] *
-                      self._data_magnification[self._dataset.good])
+                y -= self.fix_source_flux[0] * self._data_magnification[self._dataset.good]
             else:
                 for i in range(self._model.n_sources):
                     if self.fix_source_flux[i] is False:
@@ -263,13 +250,10 @@ class FitData(object):
                         if x is None:
                             x = self._data_magnification[i][self._dataset.good]
                         else:
-                            x = np.vstack(
-                                (x, self._data_magnification[i][
-                                    self._dataset.good]))
+                            x = np.vstack((x, self._data_magnification[i][self._dataset.good]))
 
                     else:
-                        y -= (self.fix_source_flux[i] *
-                              self._data_magnification[i][self._dataset.good])
+                        y -= self.fix_source_flux[i] * self._data_magnification[i][self._dataset.good]
 
         return (x, y)
 
@@ -446,20 +430,24 @@ class FitData(object):
                 The model flux evaluated for each datapoint.
         """
         if self.source_fluxes is None:
-            raise AttributeError(
-                'you need to run FitData.fit_fluxes() first to execute the' +
-                'linear fit.')
+            raise AttributeError('you need to run FitData.fit_fluxes() first to execute the linear fit.')
 
         if bad:
             self._calculate_magnifications(bad=True)
 
-        model_flux = np.ones(self._dataset.n_epochs) * self.blend_flux
+        return self._get_model_flux(self.source_fluxes, self.blend_flux)
+
+    def _get_model_flux(self, source_fluxes, blend_flux):
+        """
+        Calculate model flux based on self._data_magnification.
+        """
+        model_flux = blend_flux * np.ones(self._dataset.n_epochs)
+
         if self._model.n_sources == 1:
-            model_flux += self.source_flux * self._data_magnification
+            model_flux += source_fluxes * self._data_magnification
         else:
             for i in range(self._model.n_sources):
-                model_flux += self.source_fluxes[i] \
-                    * self._data_magnification[i]
+                model_flux += source_fluxes[i] * self._data_magnification[i]
 
         return model_flux
 
@@ -551,8 +539,7 @@ class FitData(object):
 
         if phot_fmt == 'mag':
             warnings.warn(
-                '"mag" returns residuals in the original data flux system.' +
-                ' To scale the residuals, use "scaled".')
+                '"mag" returns residuals in the original data flux system. To scale the residuals, use "scaled".')
             residuals = self._dataset.mag - self.get_model_magnitudes()
             errorbars = self._dataset.err_mag
         elif phot_fmt == 'flux':
@@ -560,26 +547,16 @@ class FitData(object):
             errorbars = self._dataset.err_flux
         elif phot_fmt == 'scaled':
             if source_flux is None or blend_flux is None:
-                raise ValueError(
-                    'If phot_fmt=scaled, source_flux and blend_flux must ' +
-                    'also be specified.')
+                raise ValueError('If phot_fmt=scaled, source_flux and blend_flux must also be specified.')
 
-            magnification = self._data_magnification
-            if self._model.n_sources == 1:
-                model_flux = source_flux * magnification
-            else:
-                model_flux = source_flux[0] * magnification[0]
-                model_flux += source_flux[1] * magnification[1]
-            model_flux += blend_flux
+            model_flux = self._get_model_flux(source_flux, blend_flux)
             model_mag = mm.Utils.get_mag_from_flux(model_flux)
             (flux, err_flux) = self.scale_fluxes(source_flux, blend_flux)
-            (mag, errorbars) = mm.Utils.get_mag_and_err_from_flux(
-                flux, err_flux)
+            (mag, errorbars) = mm.Utils.get_mag_and_err_from_flux(flux, err_flux)
             residuals = mag - model_mag
         else:
             raise ValueError(
-                'phot_fmt must be one of "mag", "flux", or "scaled". Your ' +
-                'value: {0}'.format(phot_fmt))
+                'phot_fmt must be one of "mag", "flux", or "scaled". Your value: {0}'.format(phot_fmt))
 
         return (residuals, errorbars)
 
@@ -594,17 +571,14 @@ class FitData(object):
         implemented = {'t_0', 't_E', 'u_0', 't_eff', 'pi_E_N', 'pi_E_E', 'rho'}
         if len(set(parameters) - implemented) > 0:
             raise NotImplementedError((
-                "chi^2 gradient is implemented only for {:}\nCannot work " +
-                "with {:}").format(implemented, parameters))
+                "chi^2 gradient is implemented only for {:}\nCannot work with {:}").format(implemented, parameters))
 
-        # Implemented for the number of sources in the model?
+        # Implemented for the number of lenses in the model?
         if self.model.n_lenses != 1:
-            raise NotImplementedError(
-                'chi2_gradient() only implemented for single lens models')
+            raise NotImplementedError('chi2_gradient() only implemented for single lens models')
 
         if self.model.parameters.is_xallarap:
-            raise NotImplementedError('Gradient for xallarap models is not '
-                                      'implemented yet')
+            raise NotImplementedError('Gradient for xallarap models is not implemented yet')
 
     def get_chi2_gradient(self, parameters):
         """
@@ -677,12 +651,13 @@ class FitData(object):
                 Values are the partial derivatives for that parameter
                 evaluated at each data point.
         """
-        # Need to consider what happens when we move to 2 sources.
+        if self._model.n_sources > 1:
+            raise NotImplementedError("gradient for multi-source models is not implemented/tested")
+
         if self._data_magnification_curve is None:
             self._set_data_magnification_curves()
 
-        d_A_d_params = self._data_magnification_curve.get_d_A_d_params(
-            parameters)
+        d_A_d_params = self._data_magnification_curve.get_d_A_d_params(parameters)
 
         return d_A_d_params
 
@@ -697,7 +672,9 @@ class FitData(object):
                 Values are the partial derivatives for rho
                 evaluated at each data point.
         """
-        # Need to consider what happens when we move to 2 sources.
+        if self._model.n_sources > 1:
+            raise NotImplementedError("gradient for multi-source models is not implemented/tested")
+
         if 'rho' not in self.model.parameters.parameters:
             raise AttributeError('dA/drho cannot be calculated for a model without rho')
 
@@ -913,12 +890,14 @@ class FitData(object):
         Returns previously calculated magnification curves.
 
         Returns :
-            *tuple* of
-            *:py:class:`~MulensModel.magnification.MagnificationCurve* objects,
+            *tuple* of *:py:class:`~MulensModel.magnification.MagnificationCurve* objects
             i.e., the model magnification curve evaluated for each datapoint.
         """
-        return (self._data_magnification_curve_1,
-                self._data_magnification_curve_2)
+        out = ()
+        for i in range(self._model.n_sources):
+            out.append(self.__getattr__('_data_magnification_curve_{0}'.format(i+1)).get_magnification())
+
+        return out
 
     @property
     def gamma(self):
@@ -936,5 +915,4 @@ class FitData(object):
         def __init__(self, fit):
             raise NotImplementedError(
                 'The FSPL_Derivatives class was deprecated in Version 3. ' +
-                'Its various functions were incorporated into the new ' +
-                'PointLens classes.')
+                'Its various functions were incorporated into the new PointLens classes.')
