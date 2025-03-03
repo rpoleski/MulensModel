@@ -208,34 +208,18 @@ def test_errors_in_limb_darkening():
         model.get_magnification(times, bandpass='V')
 
 
-#def test_limb_darkening_uniform_methods():
-#    """check if setting limb_darkening fails using only uniform methods"""
-#    model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'rho': 0.001})
-#    model.default_magnification_method = "finite_source_uniform_Gould94"
-#
-#    forbidden = {
-#        "finite_source_uniform_Gould94",
-#        "finite_source_uniform_Gould94_direct",
-#        "finite_source_uniform_WittMao94",
-#        "finite_source_uniform_Lee09",
-#    }
-#    for method in forbidden:
-#        model.set_magnification_methods([2449900., method, 2450100.])
-#        with pytest.raises(ValueError):
-#            model.set_limb_coeff_gamma('I', 0.5)
+def test_get_magnification_limb_darkening_uniform_methods():
+    """
+    Fail get_magnification() call with LD if no methods with LD are used.
+    """
+    model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'rho': 0.001})
+    model.set_limb_coeff_gamma('I', -1)
+    mag_method = [2449900., 'finite_source_uniform_Gould94', 2450100.]
+    model.set_magnification_methods(mag_method)
 
-
-#def test_get_magnification_limb_darkening_uniform_methods():
-#    """
-#    Fail get_magnification() call with LD if only uniform methods are set
-#    """
-#    model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'rho': 0.001})
-#    model.set_limb_coeff_gamma('I', -1)
-#    model.default_magnification_method = "finite_source_uniform_Gould94"
-#
-#    times = np.arange(2449900., 2450101., 50)
-#    with pytest.raises(ValueError):
-#        model.get_magnification(times, bandpass='I')
+    times = np.arange(2449900., 2450101., 50)
+    with pytest.raises(ValueError):
+        model.get_magnification(times, bandpass='I')
 
 
 def test_different_limb_darkening():
