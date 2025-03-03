@@ -400,16 +400,214 @@ def test_t_0_kep():
     np.testing.assert_almost_equal(motion_2.get_s(epoch_2), 1.2395)
 
 
+def setup_keplerian(dict_to_add):
+    """
+    Setup dictionary for tests of circular keplerian motion
+    """
+    dict_static = {'t_0': 2456789.01234, 'u_0': 1., 't_E': 12.345,
+                   's': 1.2345, 'q': 0.01234, 'alpha': 30., 'rho': 0.001}
+
+    return {**dict_static, **dict_to_add}
+
+
+class test_Keplerian(unittest.TestCase):
+    def test_keplerian_both_inputs(self):
+        """s_z and ds_z_dt are given with ds_dt and dalpha_dt"""
+        dict_2 = setup_keplerian({'ds_dt': 0.1, 'dalpha_dt': 10.,
+                                  's_z': 0.1, 'ds_z_dt': 1.9})
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(dict_2)
+
+    def test_keplerian_no_ds_dt(self):
+        """fails if s_z and ds_z_dt are given with dalpha_dt"""
+        dict_3 = setup_keplerian({'dalpha_dt': 10., 's_z': 0.1,
+                                  'ds_z_dt': 1.9})
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(dict_3)
+
+    def test_keplerian_only_z(self):
+        """fails if s_z and ds_z_dt are given only"""
+        dict_4 = setup_keplerian({'s_z': 0.1, 'ds_z_dt': 1.9})
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(dict_4)
+
+
+def test_is_not_keplerian():
+    """
+    Make sure that is_keplerian() works properly for static model.
+    """
+    params_static = setup_keplerian({})
+    model_static = mm.ModelParameters(params_static)
+    assert model_static.is_static()
+    assert not model_static.is_keplerian()
+
+
+def test_keplerian_motion_s_z_only():
+    """tests if only s_z is given"""
+    dict_1 = setup_keplerian({'ds_dt': 0.1, 'dalpha_dt': 10., 's_z': 0.1})
+    keplerian = mm.ModelParameters(dict_1)
+    assert not keplerian.is_static()
+    assert keplerian.is_keplerian()
+
+
+def test_keplerian_motion_ds_z_dt_only():
+    """tests if only ds_z_dt is given"""
+    dict_1 = setup_keplerian({'ds_dt': 0.1, 'dalpha_dt': 10., 'ds_z_dt': 1.9})
+    keplerian = mm.ModelParameters(dict_1)
+    assert not keplerian.is_static()
+    assert keplerian.is_keplerian()
+
+
+def test_circular_motion_setting_s_z():
+    """
+    Check if s_z is properly set.
+    """
+    params = setup_keplerian({'ds_dt': 0.2, 'dalpha_dt': 10., 's_z': 0.1})
+    model = mm.ModelParameters(params)
+    assert model.s_z == 0.1
+
+
+def test_circular_motion_setting_ds_z_dt():
+    """
+    Check if ds_z_dt is properly set.
+    """
+    params = setup_keplerian({'ds_dt': 0.2, 'dalpha_dt': 10., 'ds_z_dt': 0.1})
+    model = mm.ModelParameters(params)
+    assert model.ds_z_dt == 0.1
+
+
+def test_calculation_ds_z_dt_for_circular_motion_1():
+    """
+    Set s_z for circular motion and test if ds_z_dt is calculated properly.
+    """
+    params = setup_keplerian({'ds_dt': 0.2, 'dalpha_dt': 10., 's_z': 0.1})
+    model = mm.ModelParameters(params)
+    np.testing.assert_almost_equal(model.ds_z_dt, -2.469)
+
+
+def test_calculation_s_z_for_circular_motion_1():
+    """
+    Set ds_z_dt for circular motion and test if s_z is calculated properly.
+    """
+    params = setup_keplerian({'ds_dt': 0.2, 'dalpha_dt': 10., 'ds_z_dt': 0.1})
+    model = mm.ModelParameters(params)
+    np.testing.assert_almost_equal(model.s_z, -2.469)
+
+
+def test_calculation_ds_z_dt_for_circular_motion_2():
+    """
+    Set s_z for circular motion and test if ds_z_dt is calculated properly.
+    """
+    params = setup_keplerian({'ds_dt': 0.2, 'dalpha_dt': 10., 's_z': 0.01})
+    model = mm.ModelParameters(params)
+    model.s_z = 0.1
+    np.testing.assert_almost_equal(model.ds_z_dt, -2.469)
+
+
+def test_calculation_s_z_for_circular_motion_2():
+    """
+    Set ds_z_dt for circular motion and test if s_z is calculated properly.
+    """
+    params = setup_keplerian({'ds_dt': 0.2, 'dalpha_dt': 10., 'ds_z_dt': 1.0})
+    model = mm.ModelParameters(params)
+    model.ds_z_dt = 0.1
+    np.testing.assert_almost_equal(model.s_z, -2.469)
+
+
+def test_calculation_s_z_for_circular_motion_3():
+    """
+    Set ds_z_dt for circular motion and test if s_z is calculated properly.
+    This time access gamma_parallel in the meantime.
+    This test was failing at some point.
+    """
+    dict_params = setup_orbital_motion_gammas(
+        {'dalpha_dt': 10, 'ds_dt': 0., 'ds_z_dt': 10*2**-0.5*(np.pi/180.)})
+    model = mm.ModelParameters(dict_params)
+    model.gamma_parallel
+    np.testing.assert_almost_equal(model.s_z, 0.)
+
+
+def test_access_to_ds_z_dt():
+    """
+    Make sure that accessing ds_z_dt doesn't change s_z.
+    """
+    params = setup_keplerian({'ds_dt': 0.2, 'dalpha_dt': 10., 's_z': 0.01})
+    model = mm.ModelParameters(params)
+    model.s_z = 0.1
+    model.ds_z_dt
+    assert model.s_z == 0.1
+
+
+def test_access_to_s_z():
+    """
+    Make sure that accessing s_z doesn't change ds_z_dt.
+    """
+    params = setup_keplerian({'ds_dt': 0.2, 'dalpha_dt': 10., 'ds_z_dt': 0.01})
+    model = mm.ModelParameters(params)
+    model.ds_z_dt = 0.1
+    model.s_z
+    assert model.ds_z_dt == 0.1
+
+
+def test_access_to_s_z_2():
+    """
+    Make sure that accessing s_z doesn't fix it
+    (i.e., it changes when ds_z_dt changes).
+    """
+    params = setup_keplerian({'ds_dt': 0.2, 'dalpha_dt': 10., 'ds_z_dt': 0.01})
+    model = mm.ModelParameters(params)
+    np.testing.assert_almost_equal(model.s_z, -24.69)
+    model.ds_z_dt = 0.1
+    np.testing.assert_almost_equal(model.s_z, -2.469)
+
+
+def setup_orbital_motion_gammas(dict_to_add):
+    """
+    Setup dictionary for tests of gammas in orbital motion
+    """
+    dict_pars = {'t_0': 2457123.456, 'u_0': 0.0345, 't_E': 30.00, 's': 1.5,
+                 'q': 0.987, 'alpha': 12.345}
+
+    return {**dict_pars, **dict_to_add}
+
+
 def test_orbital_motion_gammas():
     """test .gamma_parallel .gamma_perp .gamma"""
-    dict_params = {'t_0': 2457123.456, 'u_0': 0.0345, 't_E': 30.00,
-                   's': 1.5, 'ds_dt': 0.5, 'q': 0.987,
-                   'alpha': 192.345, 'dalpha_dt': 50.}
+
+    dict_params = setup_orbital_motion_gammas({'ds_dt': 0.5, 'dalpha_dt': 50.})
     params = mm.ModelParameters(dict_params)
 
     np.testing.assert_almost_equal(params.gamma_parallel, 0.333333333)
     np.testing.assert_almost_equal(params.gamma_perp, -0.872664626)
     np.testing.assert_almost_equal(params.gamma, 0.934159869)
+
+
+def test_orbital_motion_gamma_z():
+    """test .gamma_z .gamma"""
+    dict_pars = setup_orbital_motion_gammas({'ds_dt': 0.5, 'dalpha_dt': 50.,
+                                             's_z': 0.5})
+    params = mm.ModelParameters(dict_pars)
+
+    np.testing.assert_almost_equal(params.gamma_z, -1.)
+    np.testing.assert_almost_equal(params.gamma, 1.368449729)
+
+
+def test_lens_orbital_parameters_circular_1():
+    """
+    Check if parameters of face-on circular orbital motion
+    are properly calculated.
+    """
+    dict_params = setup_orbital_motion_gammas(
+        {'dalpha_dt': 36./2**.5, 'ds_dt': 0., 'ds_z_dt': -36./2**.5*(np.pi/180.)*1.5})
+    dict_params['alpha'] = 90.
+
+    parameters = mm.ModelParameters(dict_params)
+
+    np.testing.assert_almost_equal(parameters.lens_semimajor_axis, 1.5)
+    np.testing.assert_almost_equal(parameters.lens_period, 10.)
+    np.testing.assert_almost_equal(parameters.lens_inclination, 45.)
+    np.testing.assert_almost_equal(parameters.lens_Omega_node, 0.)
+    np.testing.assert_almost_equal(parameters.lens_argument_of_latitude_reference, 90.)
 
 
 def test_binary_source():
@@ -805,7 +1003,7 @@ def test_xallarap_n_sources():
 def _test_2S1L_xallarap_individual_source_parameters(xi_u):
     """
     Make sure that parameters of both sources are properly set.
-    Most importantly, xi_u is shifted by 180 deg and xi_a is scaled by q_source.
+    Most importantly, xi_u is shifted by 180deg and xi_a is scaled by q_source.
     """
     q_source = 1.23456
     parameters_1st = {**xallarap_parameters}
