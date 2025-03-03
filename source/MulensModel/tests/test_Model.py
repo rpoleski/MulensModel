@@ -214,8 +214,7 @@ def test_get_magnification_limb_darkening_uniform_methods():
     """
     model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'rho': 0.001})
     model.set_limb_coeff_gamma('I', -1)
-    mag_method = [2449900., 'finite_source_uniform_Gould94', 2450100.]
-    model.set_magnification_methods(mag_method)
+    model.default_magnification_method = 'finite_source_uniform_Gould94'
 
     times = np.arange(2449900., 2450101., 50)
     with pytest.raises(ValueError):
