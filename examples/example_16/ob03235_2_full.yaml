@@ -59,14 +59,33 @@ fit_constraints:
     negative_blending_flux_sigma_mag: 20.  
     #one can specify for which dataset soft constrain on blending flux should be applied: sigma dataset_label(s)
     #negative_blending_flux_sigma_mag: 20.  "OGLE I-band"  "OB03235_MOA.txt"
+    #Alternative for binary source models: 
+    #negative_source_1_flux_sigma_mag: 20.
+    #and/or 
+    #negative_source_2_flux_sigma_mag: 20.  "OGLE I-band"  "OB03235_MOA.txt"
     # Alternative sharp constraint:
     # no_negative_blending_flux: True
     #color constrains, where color=source_mag_from_dataset_k-source_mag_from_dataset_m: gauss, mu ,sigma, k, m 
     color : gauss 0.3 0.01 "OGLE I-band" "OB03235_MOA.txt" 
+    #or
+    #color : 
+    #  - gauss 0.3 0.01 "OGLE I-band" "OB03235_MOA.txt" 
+    #  - (...)
     #Alternative for binary source models: 
     #color source 1 :  gauss  0.3 0.01 "OGLE I-band" "OB03235_MOA.txt" 
     #and/or 
     #color source 2 :  gauss 0.3 0.01  "OGLE I-band" "OB03235_MOA.txt"
+
+    #constrain on binary source flux ratio:  gauss reference_dataset_label/mean sigma (optional: selected_dataset_label(s))
+    #2 sources flux ratio : gauss "OGLE I-band" 0.1  "OB03235_MOA.txt"
+    #or 
+    #2 sources flux ratio :
+    #    - gauss "OGLE I-band" 0.1  "OB03235_MOA.txt"
+    #    - gauss  0.44  0.1 
+
+    #constrain for binary source models flux_1/flux_2 = (rho_1/rho_2)^k : gauss k sigma (optional: selected_dataset_label(s))
+    #2 source flux size relation : gauss 2. 0.1
+
     prior:
         t_E: Mroz et al. 2017
         # Other possibility:
