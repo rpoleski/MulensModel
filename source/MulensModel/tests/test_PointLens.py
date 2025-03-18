@@ -51,6 +51,23 @@ def test_B_1_function():
     np.testing.assert_almost_equal(test_b_1, data['b_1'], decimal=4)
 
 
+def test_B_1_function_direct_and_interpolated():
+    """
+    FiniteSourceLDYoo04Magnification was failing at some point with normalized trajectory positions
+    sqrt(x**2+y**2)/rho both smaller and larger than 10^4 (limit of interpolation).
+    Here we compare magnification to PSPL with small correction
+    """
+    model_1 = mm.ModelParameters({'t_0': 0, 'u_0': 0.9, 't_E': 1., 'rho': 0.0001})
+    model_2 = mm.ModelParameters({'t_0': 0, 'u_0': 0.9, 't_E': 1.})
+    trajectory_1 = mm.Trajectory([0., 1., 1.8], model_1)
+    trajectory_2 = mm.Trajectory([0., 1., 1.8], model_2)
+    test_FSPL_LD = mm.FiniteSourceLDYoo04Magnification(trajectory=trajectory_1, gamma=0.44)
+    test_PSPL = mm.PointSourcePointLensMagnification(trajectory=trajectory_2)
+    mag_1 = test_FSPL_LD.get_magnification()[1:]
+    mag_2 = test_PSPL.get_magnification()[1:]
+    np.testing.assert_almost_equal(mag_1/mag_2, 1., decimal=6)
+
+
 def test_get_point_lens_finite_source_magnification():
     """test PLFS"""
     (data, _, trajectory) = get_variables()
