@@ -905,7 +905,7 @@ class Model(object):
             method = {m for m in method if isinstance(m, str)}
             method.add(self.default_magnification_method)
             for bandpass in self._bandpasses:
-                gamma = self.get_limb_coeff_gamma(bandpass, i+1)
+                gamma = self.get_limb_coeff_gamma(bandpass, source=i+1)
                 if gamma != 0 and not (method - forbidden):
                     raise ValueError("Limb darkening requires at least one method that includes LD.")
 

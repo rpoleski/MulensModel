@@ -208,9 +208,10 @@ def test_errors_in_limb_darkening():
         model.get_magnification(times, bandpass='V')
 
 
-def test_get_magnification_limb_darkening_uniform_methods():
+def test_limb_darkening_with_uniform_methods_single_source():
     """
-    Fail get_magnification() call with LD if no methods with LD are used.
+    Fail get_magnification() call with LD if no methods with LD are used,
+    in case of a model with single source.
     """
     model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'rho': 0.001})
     model.set_limb_coeff_gamma('I', -1)
@@ -227,6 +228,28 @@ def test_get_magnification_limb_darkening_uniform_methods():
         model.set_magnification_methods([2449900., method, 2450100.])
         with pytest.raises(ValueError):
             model.get_magnification(times, bandpass='I')
+
+
+def test_limb_darkening_with_uniform_methods_multi_source():
+    """
+    Fail get_magnification() with only uniform methods, for multiple source.
+    """
+    t_0 = 2450000.
+    u_0 = 0.1
+    dict_1l2s = {'t_0_1': t_0, 'u_0_1': u_0, 't_0_2': t_0 + 50, 'u_0_2': u_0,
+                 't_E': 100., 'rho_1': 0.001, 'rho_2': 0.1}
+    model = mm.Model(dict_1l2s)
+    model.set_limb_coeff_gamma('I', -1)
+    # is it possible to use LD for only one of the sources???
+    model.default_magnification_method = 'finite_source_uniform_Gould94'
+    times = np.arange(2449900., 2450101., 50)
+
+    model.set_magnification_methods(
+        [2449900., 'finite_source_uniform_WittMao94', 2450100.], source=1)
+    model.set_magnification_methods(
+        [2449950., 'finite_source_uniform_Lee09', 2450150.], source=2)
+    with pytest.raises(ValueError):
+        model.get_magnification(times, bandpass='I')
 
 
 def test_different_limb_darkening():
