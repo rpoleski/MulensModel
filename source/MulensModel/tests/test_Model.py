@@ -283,6 +283,34 @@ def test_different_limb_darkening():
     assert (mag_2 == mags[1]).all()
 
 
+def test_set_magnification_methods_errors():
+    """
+    Testing if set_magnification_methods() works properly.
+    This improved five lines of code coverage missing in model.py.
+    """
+    t_0 = 2450000.
+    u_0 = 0.1
+    dict_1l2s = {'t_0_1': t_0, 'u_0_1': u_0, 't_0_2': t_0 + 50, 'u_0_2': u_0,
+                 't_E': 100., 'rho_1': 0.001, 'rho_2': 0.1}
+    model = mm.Model(dict_1l2s)
+    model_2 = mm.Model(dict_1l2s)
+    methods = [2449900., 'point_source', 2450100.]
+
+    with pytest.raises(TypeError):
+        model.set_magnification_methods(2449900.)
+    with pytest.raises(ValueError):
+        model.set_magnification_methods(methods, source=0.1)
+    with pytest.raises(ValueError):
+        model.set_magnification_methods(methods, source=3)
+
+    model.set_magnification_methods(methods, source=1)
+    with pytest.raises(ValueError):
+        model.set_magnification_methods(methods)
+    model_2.set_magnification_methods(methods)
+    with pytest.raises(ValueError):
+        model_2.set_magnification_methods(methods, source=1)
+
+
 def test_t_E():
     """make sure t_E can be accessed properly"""
     t_0 = 2460000.

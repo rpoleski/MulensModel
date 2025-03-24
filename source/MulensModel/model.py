@@ -1291,7 +1291,6 @@ class Model(object):
         if satellite_skycoord is None:
             satellite_skycoord = self.get_satellite_coords(time)
 
-        # To-Do: add different approach for single or multi-source...
         if gamma is not None and gamma != 0.:
             methods = self.get_magnification_methods()
             self._check_limb_darkening(methods)
