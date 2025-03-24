@@ -241,14 +241,17 @@ def test_limb_darkening_with_uniform_methods_multi_source():
                  't_E': 100., 'rho_1': 0.001, 'rho_2': 0.1}
     model = mm.Model(dict_1l2s)
     model.set_limb_coeff_gamma('I', -1, source=1)
-    #model.set_limb_coeff_gamma('I', 0, source=2)
     model.default_magnification_method = 'finite_source_uniform_Gould94'
-    times = np.arange(2449900., 2450101., 50)
 
+    times = np.arange(2449900., 2450101., 50)
     model.set_magnification_methods(
         [2449900., 'finite_source_uniform_WittMao94', 2450100.], source=1)
+    with pytest.raises(ValueError):
+        model.get_magnification(times, bandpass='I')
+
+    model.set_limb_coeff_gamma('I', 2, source=2)
     model.set_magnification_methods(
-        [2449950., 'point_source', 2450150.], source=2)
+        [2449950., 'finite_source_uniform_Lee09', 2450150.], source=2)
     with pytest.raises(ValueError):
         model.get_magnification(times, bandpass='I')
 
