@@ -241,7 +241,7 @@ def test_limb_darkening_with_uniform_methods_multi_source():
                  't_E': 100., 'rho_1': 0.001, 'rho_2': 0.1}
     model = mm.Model(dict_1l2s)
     model.set_limb_coeff_gamma('I', -1, source=1)
-    model.set_limb_coeff_gamma('I', 0, source=2)
+    #model.set_limb_coeff_gamma('I', 0, source=2)
     model.default_magnification_method = 'finite_source_uniform_Gould94'
     times = np.arange(2449900., 2450101., 50)
 

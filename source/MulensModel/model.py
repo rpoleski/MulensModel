@@ -1069,7 +1069,24 @@ class Model(object):
             return coefficients[source - 1].get_limb_coeff_gamma(bandpass)
         elif self.n_sources == 1:
             return coefficients[0].get_limb_coeff_gamma(bandpass)
-        return [coeff.get_limb_coeff_gamma(bandpass) for coeff in coefficients]
+
+        return self._get_limb_coeff_gamma_all(bandpass)
+
+    def _get_limb_coeff_gamma_all(self, bandpass):
+        """
+        Extract limb coeffs for all sources and given band.
+        """
+        out = []
+        for coeff in self._limb_darkening_coeffs:
+            try:
+                out.append(coeff.get_limb_coeff_gamma(bandpass))
+            except KeyError:
+                out.append(None)
+
+        if set(out) == set([None]):
+            raise ValueError('None of the sources has limb darkening coeff for bandpass ' + bandpass)
+
+        return out
 
     def _get_limb_coeff_gamma(self, bandpass, gamma, source=None):
         """
