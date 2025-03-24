@@ -182,6 +182,9 @@ def test_limb_darkening_source():
                  't_E': t_E, 'rho_1': 0.1, 'rho_2': 0.002}
     model = mm.Model(dict_1l2s)
 
+    with pytest.raises(ValueError):
+        model.get_limb_coeff_gamma('I', source=None)
+
     model.set_limb_coeff_gamma('I', gamma, source=None)
     assert model.get_limb_coeff_gamma('I', source=1) == gamma
     assert (model.get_limb_coeff_gamma('I') == [gamma]*model.n_sources)
