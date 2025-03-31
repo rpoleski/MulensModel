@@ -131,6 +131,11 @@ class MagnificationCurve(object):
         self._methods_epochs = np.array(epochs)
         self._methods_names = names
 
+        self._methods_for_epochs = None
+        self._methods_indices = None
+        _ = self.methods_for_epochs
+        _ = self.methods_indices
+
     def set_magnification_methods_parameters(self, methods_parameters):
         """
         Set additional parameters for magnification calculation methods.
