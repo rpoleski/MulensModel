@@ -1905,8 +1905,8 @@ class ModelParameters(object):
         h = np.cross(position, velocity)
         cos_i = h[2] / np.sqrt(np.sum(h**2))
         sin_i = np.sqrt(h[0]**2+h[1]**2) / np.sqrt(np.sum(h**2))
-        #self._lens_keplerian['inclination'] = np.arcsin(sin_i) * 180 / np.pi
-        self._lens_keplerian['inclination'] = np.arctan2(sin_i, cos_i) * 180. / np.pi
+        self._lens_keplerian['inclination'] = np.arcsin(sin_i) * 180 / np.pi
+        #self._lens_keplerian['inclination'] = np.arctan2(sin_i, cos_i) * 180. / np.pi
         cos_Omega = -h[1] / np.sqrt(h[0]**2+h[1]**2)
         sin_Omega = h[0] / np.sqrt(h[0]**2+h[1]**2)
         self._lens_keplerian['Omega'] = np.arctan2(sin_Omega, cos_Omega) * 180. / np.pi
