@@ -10,6 +10,8 @@ class TestModelParameters(unittest.TestCase):
         """
         Make sure that over-defining parallax fails.
         """
+        print(mm.__version__)
+        print(mm.__file__)
         params = {'t_0': 0, 't_E': 1., 'u_0': 0.1}
         with self.assertRaises(KeyError):
             mm.ModelParameters({**params, 'pi_E': (1., 1.), 'pi_E_N': 1.})
