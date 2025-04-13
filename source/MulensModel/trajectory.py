@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 
 from astropy import units as u
@@ -87,6 +88,10 @@ class Trajectory(object):
         else:
             m = 'parameters is a required and must be a ModelParameters object'
             raise TypeError(m)
+
+        if self.parameters.is_xallarap:
+            warnings.warn("WARNING - xallarap calculations have a bug that is being corrected currently. "
+                          "Please contact RP if you need it now.")
 
         self._set_parallax_and_coords(parallax, coords, satellite_skycoord, earth_coords)
 
