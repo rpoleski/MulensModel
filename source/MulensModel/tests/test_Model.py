@@ -193,6 +193,28 @@ def test_limb_darkening_source():
     assert (model.get_limb_coeff_u('I') == [u]*model.n_sources)
 
 
+def test_errors_in_get_magnification():
+    """check if errors in get_magnification() are properly raised"""
+    t_0 = 2450000.
+    u_0 = 0.1
+    dict_1l2s = {'t_0_1': t_0, 'u_0_1': u_0, 't_0_2': t_0 + 50, 'u_0_2': u_0,
+                 't_E': 100., 'rho_1': 0.001, 'rho_2': 0.1}
+    model = mm.Model(dict_1l2s)
+
+    with pytest.raises(TypeError):
+        model.get_magnification(2450000., source_flux_ratio=1)
+    with pytest.raises(ValueError):
+        model.get_magnification(2450000., separate=False)
+
+    model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'rho': 0.001})
+    with pytest.raises(ValueError):
+        model.get_magnification(2450000., source_flux_ratio=0.5)
+    with pytest.raises(ValueError):
+        model.get_magnification(2450000., separate=True)
+    with pytest.raises(ValueError):
+        model.get_magnification([np.nan])
+
+
 def test_errors_in_limb_darkening():
     """check if limb_darkening errors are properly raised"""
     gamma = 0.4555
