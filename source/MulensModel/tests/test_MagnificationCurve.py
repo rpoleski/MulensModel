@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 import unittest
 import warnings
 
@@ -32,6 +33,40 @@ def test_methods_none():
     expected = 0.19949906 * (u_0**2 + 2.) / np.sqrt(u_0**2 * (u_0**2 + 4.))
     # The above value was calculated by Andy Gould (file b0b1.dat).
     np.testing.assert_almost_equal(expected, result, decimal=4)
+
+
+def test_methods_error_list():
+    """
+    Test if set_magnification_methods() raises error if list is not given.
+    """
+    t_0 = 2456789.012345
+    t_E = 1e-4
+    params = mm.ModelParameters(
+        {'t_0': t_0, 'u_0': 23.4567, 't_E': t_E, 'rho': 1e-3})
+    mag_curve = mm.MagnificationCurve([t_0], params)
+
+    methods = (t_0-t_E, 'finite_source_uniform_Gould94', t_0+t_E)
+    with pytest.raises(TypeError):
+        mag_curve.set_magnification_methods(methods, 'point_source')
+
+
+def test_methods_update():
+    """
+    Test if set_magnification_methods() updates correctly.
+    """
+    t_vec = np.array([3.5, 2., 1., 0.5, 0.])
+    params = mm.ModelParameters({'t_0': 0., 'u_0': 0.5, 't_E': 1., 'rho': 1.})
+    mag_curve = mm.MagnificationCurve(times=t_vec, parameters=params)
+
+    mag_curve.set_magnification_methods([-5., 'finite_source_uniform_Lee09', 5.], 'point_source')
+    indices = mag_curve.methods_indices
+    assert indices.keys() == {'finite_source_uniform_Lee09'}
+    np.testing.assert_equal(indices['finite_source_uniform_Lee09'], np.ones_like(t_vec, bool))
+
+    mag_curve.set_magnification_methods([-5., 'finite_source_uniform_WittMao94', 5.], 'point_source')
+    indices = mag_curve.methods_indices
+    assert indices.keys() == {'finite_source_uniform_WittMao94'}
+    np.testing.assert_equal(indices['finite_source_uniform_WittMao94'], np.ones_like(t_vec, bool))
 
 
 def test_fspl_noLD():

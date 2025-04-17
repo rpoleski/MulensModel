@@ -109,6 +109,19 @@ class MagnificationCurve(object):
             self._methods_names = []
             return
 
+        epochs, names = self._raise_errors_set_magnification_methods(methods)
+        self._methods_epochs = np.array(epochs)
+        self._methods_names = names
+
+        self._methods_for_epochs = None
+        self._methods_indices = None
+        _ = self.methods_for_epochs
+        _ = self.methods_indices
+
+    def _raise_errors_set_magnification_methods(self, methods):
+        """
+        Check if the list of methods is valid and raise errors if not.
+        """
         if not isinstance(methods, list):
             msg = ('MagnificationCurve.set_magnification_methods() ' +
                    'requires a list as a parameter')
@@ -128,8 +141,7 @@ class MagnificationCurve(object):
                        ' be earlier)')
                 raise ValueError(msg.format(e_beg, e_end))
 
-        self._methods_epochs = np.array(epochs)
-        self._methods_names = names
+        return epochs, names
 
     def set_magnification_methods_parameters(self, methods_parameters):
         """
