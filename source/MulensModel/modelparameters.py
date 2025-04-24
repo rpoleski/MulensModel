@@ -1917,8 +1917,7 @@ class ModelParameters(object):
         sin_Omega = h[0] / np.sqrt(np.sum(n**2))
         self._lens_keplerian['Omega'] = np.arctan2(sin_Omega, cos_Omega) * 180. / np.pi
         u = np.arccos(np.dot(n,position) / (np.sqrt(np.sum(n**2))*np.sqrt(np.sum(position**2))))
-        self._lens_keplerian['argument_of_latitude'] = u* 180. / np.pi
-        lam = self._lens_keplerian['Omega'] + self._lens_keplerian['argument_of_latitude']
+        self._lens_keplerian['argument_of_latitude'] = u * 180. / np.pi
         
     @property
     def lens_semimajor_axis(self):
