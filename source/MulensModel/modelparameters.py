@@ -1904,8 +1904,8 @@ class ModelParameters(object):
         self._lens_keplerian['semimajor_axis'] = a
         self._lens_keplerian['period'] = 2 * np.pi * a / np.sqrt(np.sum(velocity_cm**2))
         h = np.cross(position, velocity_cm)
-        i = np.array([1, 0, 0])
-        n = np.cross(i,h)
+        j = np.array([0, 1, 0])
+        n = np.cross(j,h)
         cos_i = h[2] / np.sqrt(np.sum(h**2))
         sin_i = np.sqrt(h[0]**2+h[1]**2) / np.sqrt(np.sum(h**2))
         self._lens_keplerian['inclination'] = np.arctan2(sin_i, cos_i) * 180. / np.pi
