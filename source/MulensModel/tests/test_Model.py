@@ -197,9 +197,10 @@ def test_errors_in_get_magnification():
     """check if errors in get_magnification() are properly raised"""
     t_0 = 2450000.
     u_0 = 0.1
-    dict_1l2s = {'t_0_1': t_0, 'u_0_1': u_0, 't_0_2': t_0 + 50, 'u_0_2': u_0,
-                 't_E': 100., 'rho_1': 0.001, 'rho_2': 0.1}
+    dict_1l2s = {'t_0_1': t_0, 'u_0_1': u_0, 't_0_2': t_0 + 9, 'u_0_2': u_0, 't_E': 10., 'rho_1': 0.01, 'rho_2': 0.1}
     model = mm.Model(dict_1l2s)
+    model.set_magnification_methods([2449999., "finite_source_uniform_Gould94", 2450001.], source=1)
+    model.set_magnification_methods([2450008., "finite_source_uniform_Gould94", 2450010.], source=2)
 
     with pytest.raises(TypeError):
         model.get_magnification(2450000., source_flux_ratio=1)
@@ -207,6 +208,7 @@ def test_errors_in_get_magnification():
         model.get_magnification(2450000., separate=False)
 
     model = mm.Model({'t_0': 2450000., 'u_0': 0.1, 't_E': 100., 'rho': 0.001})
+    model.set_magnification_methods([2449999., "finite_source_uniform_Gould94", 2450001.])
     with pytest.raises(ValueError):
         model.get_magnification(2450000., source_flux_ratio=0.5)
     with pytest.raises(ValueError):
