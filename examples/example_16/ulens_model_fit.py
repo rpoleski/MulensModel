@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.44.0'
+__version__ = '0.44.1'
 
 
 class UlensModelFit(object):
@@ -1753,7 +1753,6 @@ class UlensModelFit(object):
     def _check_ratio_constraints_conflict(self, allowed_keys_ratio):
         """
         Check for conflicts among 2 source flux ratio constraints.
-        XXX
         """
         self._check_binary_source(allowed_keys_ratio)
 
@@ -1761,12 +1760,15 @@ class UlensModelFit(object):
         """
         Check for conflicts among 2 source flux size relation constraints.
         """
-        self._check_binary_source(allowed_keys_size)
-        needed = ['rho_1', 'rho_2']
-        for parameter in needed:
-            if parameter not in self._fit_parameters_unsorted:
-                raise ValueError("2 source flux size relation constraints should be used only with finite " +
-                                 "source model, so " + parameter + " should be defined")
+        for key in allowed_keys_size:
+            if key not in self._fit_constraints:
+                continue
+            self._check_binary_source({key})
+            needed = ['rho_1', 'rho_2']
+            for parameter in needed:
+                if parameter not in self._fit_parameters_unsorted:
+                    raise ValueError("2 source flux size relation constraints should be used only with finite " +
+                                     "source model, so " + parameter + " should be defined")
 
     def _check_binary_source(self, allowed_keys):
         """
@@ -1775,7 +1777,7 @@ class UlensModelFit(object):
         for key in allowed_keys:
             if key in self._fit_constraints:
                 if self._model.n_sources != 2:
-                    raise ValueError(key + ' fitting ' + 'prior should be used only with binary source model')
+                    raise ValueError(key + ' fitting prior should be used only with binary source model')
 
     def _check_flux_constraints_conflict(self, allowed_keys, instance):
         """
