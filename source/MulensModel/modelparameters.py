@@ -1886,7 +1886,7 @@ class ModelParameters(object):
 
     def _set_lens_keplerian_orbit(self):
         """
-        XXX
+        Set parameters of the lens keplerian orbit i.e. self._lens_keplerian.
         """
         position = [self.s, 0, self.s_z]
         velocity = [self.gamma_parallel, self.gamma_perp, self.gamma_z]
@@ -1894,21 +1894,26 @@ class ModelParameters(object):
         if new_input == self._lens_keplerian_last_input:
             return
 
-        self._lens_keplerian_last_input = new_input 
+        self._lens_keplerian_last_input = new_input
 
         position = np.array(position)
-        velocity = self.s * np.array(velocity)
+        velocity_relative = self.s * np.array(velocity)
+        velocity_cm = -velocity_relative
 
         a = np.sqrt(np.sum(position**2))
         self._lens_keplerian['semimajor_axis'] = a
-        self._lens_keplerian['period'] = 2 * np.pi * a / np.sqrt(np.sum(velocity**2))
-        h = np.cross(position, velocity)
+        self._lens_keplerian['period'] = 2 * np.pi * a / np.sqrt(np.sum(velocity_cm**2))
+        h = np.cross(position, velocity_cm)
+        j = np.array([0, 1, 0])
+        n = np.cross(j, h)
         cos_i = h[2] / np.sqrt(np.sum(h**2))
-        self._lens_keplerian['inclination'] = np.arccos(cos_i) * 180 / np.pi
+        sin_i = np.sqrt(h[0]**2+h[1]**2) / np.sqrt(np.sum(h**2))
+        self._lens_keplerian['inclination'] = np.arctan2(sin_i, cos_i) * 180. / np.pi
         cos_Omega = -h[1] / np.sqrt(h[0]**2+h[1]**2)
         sin_Omega = h[0] / np.sqrt(h[0]**2+h[1]**2)
         self._lens_keplerian['Omega'] = np.arctan2(sin_Omega, cos_Omega) * 180. / np.pi
-        
+        u = np.arccos(np.dot(n, position) / (np.sqrt(np.sum(n**2))*np.sqrt(np.sum(position**2))))
+        self._lens_keplerian['argument_of_latitude'] = u * 180. / np.pi
 
     @property
     def lens_semimajor_axis(self):
@@ -1950,7 +1955,7 @@ class ModelParameters(object):
         XXX
         """
         self._set_lens_keplerian_orbit()
-        return None
+        return self._lens_keplerian['argument_of_latitude']
 
     def is_finite_source(self):
         """

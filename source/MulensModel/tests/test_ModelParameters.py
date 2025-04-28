@@ -607,7 +607,7 @@ def test_lens_orbital_parameters_circular_1():
     np.testing.assert_almost_equal(parameters.lens_period, 10.)
     np.testing.assert_almost_equal(parameters.lens_inclination, 45.)
     np.testing.assert_almost_equal(parameters.lens_Omega_node, 0.)
-    np.testing.assert_almost_equal(parameters.lens_argument_of_latitude_reference, 90.)
+    np.testing.assert_almost_equal(parameters.lens_argument_of_latitude_reference, 0.)
 
 
 def test_binary_source():
