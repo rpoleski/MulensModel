@@ -918,6 +918,10 @@ class Model(object):
             source: *int* or *None*, optional
                 Which source do the given methods apply to? Accepts 1, 2, or
                 *None* (i.e., all sources). Default is *None*.
+
+        Returns :
+            methods *list* or *dict*
+                Methods used in a form of a *list* or *dict* of *lists*.
         """
         if (source is None):
             return self.methods
@@ -934,8 +938,12 @@ class Model(object):
 
     @property
     def methods(self):
-        """*list* of methods used for magnification calculation or *dict* of
-        *lists* if there are multiple sources."""
+        """
+        *list*
+
+        List of methods used for magnification calculation (single source) or
+        *dict* of such lists (multiple sources).
+        """
         return self._methods
 
     @property
