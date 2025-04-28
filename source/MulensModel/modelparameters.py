@@ -1886,7 +1886,7 @@ class ModelParameters(object):
 
     def _set_lens_keplerian_orbit(self):
         """
-        XXX
+        Set parameters of the lens keplerian orbit i.e. self._lens_keplerian.
         """
         position = [self.s, 0, self.s_z]
         velocity = [self.gamma_parallel, self.gamma_perp, self.gamma_z]
@@ -1894,10 +1894,9 @@ class ModelParameters(object):
         if new_input == self._lens_keplerian_last_input:
             return
 
-        self._lens_keplerian_last_input = new_input 
+        self._lens_keplerian_last_input = new_input
 
         position = np.array(position)
-        print(position)
         velocity_relative = self.s * np.array(velocity)
         velocity_cm = -velocity_relative
 
@@ -1906,9 +1905,7 @@ class ModelParameters(object):
         self._lens_keplerian['period'] = 2 * np.pi * a / np.sqrt(np.sum(velocity_cm**2))
         h = np.cross(position, velocity_cm)
         k = np.array([0, 0, 1])
-        n = np.cross(k,h)
-
-        #np.sqrt(np.sum(n**2))
+        n = np.cross(k, h)
 
         cos_i = h[2] / np.sqrt(np.sum(h**2))
         sin_i = np.sqrt(np.sum(n**2)) / np.sqrt(np.sum(h**2))
@@ -1916,9 +1913,9 @@ class ModelParameters(object):
         cos_Omega = -h[1] / np.sqrt(np.sum(n**2))
         sin_Omega = h[0] / np.sqrt(np.sum(n**2))
         self._lens_keplerian['Omega'] = np.arctan2(sin_Omega, cos_Omega) * 180. / np.pi
-        cos_u = np.dot(n,position) / np.sqrt(np.sum(n**2))*np.sqrt(np.sum(position**2))
+        cos_u = np.dot(n, position) / np.sqrt(np.sum(n**2))*np.sqrt(np.sum(position**2))
         self._lens_keplerian['argument_of_latitude_reference'] = np.acos(cos_u) * 180. / np.pi
-        
+
     @property
     def lens_semimajor_axis(self):
         """
