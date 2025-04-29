@@ -598,7 +598,7 @@ def test_lens_orbital_parameters_circular_1():
     are properly calculated.
     """
     dict_params = setup_orbital_motion_gammas(
-        {'dalpha_dt': 36./2**.5, 'ds_dt': 0., 'ds_z_dt': -36./2**.5*(np.pi/180.)*1.5})
+        {'dalpha_dt': -36./2**.5, 'ds_dt': 0., 'ds_z_dt': 36./2**.5*(np.pi/180.)*1.5})
     dict_params['alpha'] = 90.
 
     parameters = mm.ModelParameters(dict_params)

@@ -1897,13 +1897,12 @@ class ModelParameters(object):
         self._lens_keplerian_last_input = new_input
 
         position = np.array(position)
-        velocity_relative = self.s * np.array(velocity)
-        velocity_cm = -velocity_relative
+        velocity = self.s * np.array(velocity)
 
         a = np.sqrt(np.sum(position**2))
         self._lens_keplerian['semimajor_axis'] = a
-        self._lens_keplerian['period'] = 2 * np.pi * a / np.sqrt(np.sum(velocity_cm**2))
-        h = np.cross(position, velocity_cm)
+        self._lens_keplerian['period'] = 2 * np.pi * a / np.sqrt(np.sum(velocity**2))
+        h = np.cross(position, velocity)
         j = np.array([0, 1, 0])
         n = np.cross(j, h)
         cos_i = h[2] / np.sqrt(np.sum(h**2))
