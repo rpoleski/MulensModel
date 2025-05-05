@@ -721,7 +721,7 @@ class UlensModelFit(object):
                 required_packages.add('corner')
 
         if self._plots is not None:
-            if self._plots['best model'] and 'interactive' in self._plots['best model']:
+            if 'interactive' in self._plots.get('best model', {}):
                 required_packages.add('plotly')
 
         failed = import_failed.intersection(required_packages)
@@ -3786,9 +3786,8 @@ class UlensModelFit(object):
         # the best model.
 
         self._reset_rcParams()
-        if 'rcParams' in self._plots['best model']:
-            for (key, value) in self._plots['best model']['rcParams'].items():
-                rcParams[key] = value
+        for (key, value) in self._plots['best model'].get('rcParams', {}).items():
+            rcParams[key] = value
 
         kwargs_all = self._get_kwargs_for_best_model_plot()
         (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2) = kwargs_all[:6]
@@ -4167,9 +4166,8 @@ class UlensModelFit(object):
         self._ln_like(self._best_model_theta)  # Sets all parameters to the best model.
 
         self._reset_rcParams()
-        if 'rcParams' in self._plots['best model']:
-            for (key, value) in self._plots['best model']['rcParams'].items():
-                rcParams[key] = value
+        for (key, value) in self._plots['best model'].get('rcParams', {}).items():
+            rcParams[key] = value
 
         kwargs_all = self._get_kwargs_for_best_model_plot()
         (ylim, ylim_residuals) = self._get_ylim_for_best_model_plot(*kwargs_all[4:6])
