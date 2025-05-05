@@ -10,7 +10,7 @@ fit_constraints:
     prior:
         t_E: Mroz et al. 2020
 fitting_parameters:
-    log directory: outputs_ultranest/
+    log directory: ultranest_outputs/
     derived parameter names: flux_s_1 flux_b_1
     show_status: True
     n_live_points: 1000
