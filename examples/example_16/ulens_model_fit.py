@@ -77,6 +77,12 @@ class UlensModelFit(object):
             ``'scale_errorbars': {'factor': kappa, 'minimum': epsilon}``
             to scale uncertainties.
 
+            ``'bad'`` : *list* or *str*
+            to set bad flags in MulensData
+            When *str* then it should point to the file containing
+            indexes or time-stamps of bad epochs,
+            when *list* then as for  MulensData 'bad' parameter.
+
         fit_method: *str*
             Method of fitting. Currently accepted values are ``EMCEE``,
             ``MultiNest``, and ``UltraNest``. If not provided, the script
@@ -1229,6 +1235,8 @@ class UlensModelFit(object):
         Construct a single dataset and possibly rescale uncertainties in it.
         """
         scaling = file_.pop("scale_errorbars", None)
+        bad = file_.pop("bad", None)
+
         try:
             dataset = mm.MulensData(**{**kwargs, **file_})
         except FileNotFoundError:
@@ -1242,8 +1250,55 @@ class UlensModelFit(object):
 
         if scaling is not None:
             dataset.scale_errorbars(**scaling)
+        if bad is not None:
+            self._parse_bad(bad, dataset)
 
         return dataset
+
+    def _parse_bad(self, bad, dataset):
+        """
+        Read the bad flags from photometry_files['bad'] in yaml file
+        """
+        print(dataset.plot_properties['label']+" flags set to: " + bad)
+        if path.isfile(bad):
+            bad_array = np.genfromtxt(bad)
+            if len(bad_array) > 0:
+                if bad_array.dtype == np.dtype('bool'):
+                    if len(bad) == dataset.n_epochs:
+                        bad_bool = bad_array
+                    else:
+                        raise ValueError(
+                            'File {:s} with boolean values should have'.format(str(bad))+'the same length as' +
+                            ' the corresponding dataset')
+
+                elif bad_array.dtype == np.dtype('float'):
+                    bad_bool = np.full(dataset.n_epochs, False, dtype=bool)
+                    for (i, time) in enumerate(dataset.time):
+                        if i in np.int64(bad_array):
+                            bad_bool[i] = True
+                        if time in bad_array:
+                            bad_bool[i] = True
+                else:
+                    raise ValueError(
+                        'Wrong declaration of bad data points in file {:s}'.format(str(bad)),
+                        'File should consists of boolean array of dataset\'s length or identifies of bad epochs' +
+                        'in form of indexes: *int* or JD stamps:*floats*')
+
+                self._set_bool_bad(dataset, bad_bool)
+
+        elif bad.dtype == np.dtype('bool'):
+            self._set_bool_bad(dataset, bad)
+
+    def _set_bool_bad(self, dataset, bad_bool):
+        """
+        Setting bad flags for dataset base on argument photometry_files['bad'] in yaml file
+        """
+        try:
+            dataset.bad = bad_bool
+        except TypeError:
+            raise ValueError(
+                'Something wrong with provided bad flags for dataset ' + dataset.plot_properties['label'] + '\n ' +
+                str(bad_bool[0]))
 
     def _check_ulens_model_parameters(self):
         """
