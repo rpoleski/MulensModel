@@ -973,10 +973,10 @@ class TestFSPLGradient2(TestFSPLGradient):
                 sfit_gradient = np.sum(-2. * sfit_res * partials / sig2)
                 assert_allclose(gradient[j], sfit_gradient, rtol=0.01)
 
-    # def test_dAdu_FSPLError(self):
-    #     for i, fit in enumerate(self.fits):
-    #         with self.assertRaises(NotImplementedError):
-    #             fit.get_d_A_d_u_for_point_lens_model()
+    def test_dAdu_FSPLError(self):
+        for i, fit in enumerate(self.fits):
+            with self.assertRaises(NotImplementedError):
+                fit.get_d_A_d_u_for_point_lens_model()
 
     def test_dAdu_PSPL(self):
         params = ['t_0', 'u_0', 't_E']
