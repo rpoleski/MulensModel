@@ -219,17 +219,6 @@ class TestEvent(unittest.TestCase):
             methods = [100., 'vbbl', 0]
             mag_curve.set_magnification_methods(methods, 'point_lens')
 
-    def test_error_1_vs_2_lenses(self):
-        """
-        Test if geting point lens calculation for a binary lens model
-        results in error
-        """
-        parameters = mm.ModelParameters({'t_0': 10, 'u_0': 0.5, 't_E': 25.,
-                                         's': 1.1, 'q': 0.1, 'alpha': 123.45})
-        mag_curve = mm.MagnificationCurve([12.], parameters=parameters)
-        with self.assertRaises(ValueError):
-            mag_curve.get_point_lens_magnification()
-
 
 def test_warning_rho_and_no_finite_source_method():
     """

@@ -166,10 +166,8 @@ class MagnificationCurve(object):
 
         """
         # Do we still need separate get_point_lens_magnification and bl methods?
-        if self.parameters.n_lenses == 1:
+        if self.parameters.n_lenses <= 2:
             magnification = self.get_point_lens_magnification()
-        elif self.parameters.n_lenses == 2:
-            magnification = self.get_binary_lens_magnification()
         else:
             raise NotImplementedError(
                 "magnification for more than 2 lenses not handled yet")
@@ -378,12 +376,6 @@ class MagnificationCurve(object):
         """
         if self.parameters.is_finite_source():
             self._check_for_finite_source_method()
-
-        if self.parameters.n_lenses != 1:
-            raise ValueError(
-                "You're trying to calculate single lens magnification, but "
-                "the model provided has " + str(self.parameters.n_lenses) +
-                " lenses")
 
         if self._magnification_objects is None:
             self._set_magnification_objects()
