@@ -1203,6 +1203,7 @@ class UlensModelFit(object):
         """
         construct a list of MulensModel.MulensData objects
         """
+        self._satellites_names = []
         kwargs = {'add_2450000': True}
         if isinstance(self._photometry_files, str):
             self._photometry_files = [self._photometry_files]
@@ -1242,6 +1243,9 @@ class UlensModelFit(object):
 
         if scaling is not None:
             dataset.scale_errorbars(**scaling)
+
+        if dataset.ephemerides_file is not None:
+            self._satellites_names.append(dataset.plot_properties['label'])
 
         return dataset
 
@@ -4317,35 +4321,47 @@ class UlensModelFit(object):
             showlegend = False
         else:
             showlegend = True
-
+        times_substracted = times - subtract
         for dataset in self._datasets:
             if dataset.ephemerides_file is None:
                 lc = self._model.get_lc(
                     times=times, source_flux=f_source_0, blend_flux=f_blend_0, gamma=gamma, bandpass=bandpass)
-                times = times - subtract
                 traces_lc.append(self._make_interactive_scatter_lc(
-                    times, lc, name, showlegend, colors[1], sizes[1], dash))
+                    times_substracted, lc, name, showlegend, colors[1], sizes[1], dash))
                 break
-
         traces_lc.extend(self._make_interactive_scatter_lc_satellite(
             traces_lc, times, f_source_0, f_blend_0, gamma, bandpass, colors, sizes, dash, subtract, showlegend))
+
         return traces_lc
 
     def _make_interactive_scatter_lc_satellite(
             self, traces, times, f_source_0, f_blend_0, gamma,
             bandpass, colors, sizes, dash, subtract, showlegend):
         """Generates Plotly Scatter traces for the light-curve satellite models."""
-
+        traces = []
+        times_substracted = times - subtract
         for (i, model) in enumerate(self._models_satellite):
-            name = self._event.datasets[i].plot_properties['label']
+            times_ = self._set_times_satellite(times, model)
+            name = self._satellites_names[i]
+            showlegend_ = True
             model.parameters.parameters = {**self._model.parameters.parameters}
-            lc = self._model.get_lc(times=times, source_flux=f_source_0, blend_flux=f_blend_0,
-                                    gamma=gamma, bandpass=bandpass)
-            times = times - subtract
+            lc = model.get_lc(times=times_, source_flux=f_source_0, blend_flux=f_blend_0, gamma=gamma,
+                              bandpass=bandpass)
             trace = self._make_interactive_scatter_lc(
-                times, lc, name, showlegend, colors[1], sizes[1], dash)
+                times_substracted, lc, name, showlegend_, colors[1], sizes[1], dash)
             traces.append(trace)
         return traces
+
+    def _set_times_satellite(self, times, model):
+        """
+        Set times for the satellite model whihin the time range of ephemerides
+        """
+        satellite_skycoords = mm.SatelliteSkyCoord(
+            ephemerides_file=model.ephemerides_file)
+        satellite_skycoords._prepare_horizons()
+        min_ = np.min(satellite_skycoords._horizons.time)
+        max_ = np.max(satellite_skycoords._horizons.time)
+        return times[(times >= np.max([min_, np.min(times)])) & (times <= np.min([max_, max(times)]))]
 
     def _make_interactive_scatter_lc(
             self, times, lc, name,
