@@ -4338,17 +4338,19 @@ class UlensModelFit(object):
             self, traces, times, f_source_0, f_blend_0, gamma,
             bandpass, colors, sizes, dash, subtract, showlegend):
         """Generates Plotly Scatter traces for the light-curve satellite models."""
+        dash_types = ['dot', 'dash', 'longdash', 'dashdot', 'longdashdot']
         traces = []
         times_substracted = times - subtract
         for (i, model) in enumerate(self._models_satellite):
             times_ = self._set_times_satellite(times, model)
             name = self._satellites_names[i]
             showlegend_ = True
+            dash_ = dash_types[i % len(dash_types)]
             model.parameters.parameters = {**self._model.parameters.parameters}
             lc = model.get_lc(times=times_, source_flux=f_source_0, blend_flux=f_blend_0, gamma=gamma,
                               bandpass=bandpass)
             trace = self._make_interactive_scatter_lc(
-                times_substracted, lc, name, showlegend_, colors[1], sizes[1], dash)
+                times_substracted, lc, name, showlegend_, colors[1], sizes[1], dash_)
             traces.append(trace)
         return traces
 
