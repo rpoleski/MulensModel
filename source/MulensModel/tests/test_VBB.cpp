@@ -26,15 +26,15 @@ int main()
         pr[5] = log(tE);
         pr[6] = t0;
 
-        const int np = 101;
+        const int np = 5;
         double t_array[np];
 
         for (int i = 0; i < np; i++) {
                 t_array[i] = t0 - 3 * tE + i * (6 * tE / (np - 1));
         }
 
-	//char coordinatefile[256] = "OB151212coords.txt";
-        //VBBL.SetObjectCoordinates(coordinatefile);
+	
+        VBBL.SetObjectCoordinates("18:00:00 -26:00:00");
 
 	double w1, w2, w3;
         w1 = 0.013;
@@ -48,11 +48,10 @@ int main()
 	double mag_orbital_array[np], y1_orbital_array[np], y2_orbital_array[np], sep_array[np];
         VBBL.BinaryLightCurveOrbital(pr, t_array, mag_orbital_array, y1_orbital_array, y2_orbital_array, sep_array, np);
 
-        printf("Trajectory with circular orbital motion\n");
         for (int i = 0; i < np; i++) {
-                printf("t: %lf  y1: %lf y2: %lf\n", t_array[i], y1_orbital_array[i], y2_orbital_array[i]);
+                printf("%lf  %lf %lf\n", t_array[i], y1_orbital_array[i], y2_orbital_array[i]);
         }
-
+}
 
 
 
