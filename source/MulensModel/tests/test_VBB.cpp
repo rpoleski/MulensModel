@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "VBBinaryLensingLibrary.h"
+#include <math.h>
 
 int main()
 {
@@ -13,7 +14,7 @@ int main()
         s = 1.2; //separation between the two lenses^M
         q = 0.123;
         u0 = 0.555; // Impact parameter^M
-        alpha = 0.3054326190991; //17.5; // Angle between a vector pointing to the left and the source velocity^M
+        alpha = 17.5 * M_PI/180; // Angle between a vector pointing to the left and the source velocity^M
         t0 = 5500; // Time of closest approach to the center of mass^M
         tE = 100; // Einstein time^M
         Rs = 0.01; // Source radius in Einstein radii of the total mass.^M
@@ -37,9 +38,9 @@ int main()
         VBBL.SetObjectCoordinates("18:00:00 -26:00:00");
 
 	double w1, w2, w3;
-        w1 = 0.013;
+        w1 = 0.013 * 1/1.239896769896591;
         w2 = -0.2 ;
-        w3 = 0.05;
+        w3 = 0.05 * 1/1.239896769896591;
 
         pr[9] = w1;
         pr[10] = w2;
@@ -47,6 +48,7 @@ int main()
 
 	double mag_orbital_array[np], y1_orbital_array[np], y2_orbital_array[np], sep_array[np];
         VBBL.BinaryLightCurveOrbital(pr, t_array, mag_orbital_array, y1_orbital_array, y2_orbital_array, sep_array, np);
+        
 
         for (int i = 0; i < np; i++) {
                 printf("%lf  %lf %lf\n", t_array[i], y1_orbital_array[i], y2_orbital_array[i]);
