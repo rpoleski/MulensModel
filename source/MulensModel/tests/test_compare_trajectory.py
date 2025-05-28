@@ -27,18 +27,25 @@ parameters_classic = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's'
 
 parameters_extra = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha,'rho': rho, 'ds_dt': ds_dt, 'dalpha_dt': dalpha_dt, 'ds_z_dt': ds_z_dt})
 
-s_z = parameters_extra.s_z
+def unit_change_for_VBB(ds_dt_MM, da_dt_MM, dsz_dt_MM):
+    s_z = parameters_extra.s_z
+    s_prim = np.sqrt(s**2 + s_z**2)
+    
+    ds_dt_VBB = ds_dt_MM * 1/s_prim * 1/365
+    da_dt_VBB = da_dt_MM * np.pi/180 * 1/365
+    dsz_dt_VBB = dsz_dt_MM * 1/s_prim * 1/365
+    return ds_dt_VBB, da_dt_VBB, dsz_dt_VBB
 
-s_prim = np.sqrt(s**2 + s_z**2)# s in VBB: 1.239896769896591
+#print(unit_change_for_VBB(ds_dt, dalpha_dt, ds_z_dt))
 
 def test_init_parameters():
     """
     compare trajectory
     """
     trajectory = mm.Trajectory(parameters=parameters_extra, times=times)
-
-    x_VBB = [-2.957182, -0.290786, 0.166892, 1.24777, 1.958753]
-    y_VBB = [0.750398, -1.572727, -0.529313, -1.000548, 2.339083]
+    
+    x_VBB = [3.026951, 1.597578, 0.166892, -1.265083, -2.698321]
+    y_VBB = [0.381569, -0.075952, -0.529313, -0.978565, -1.423758]
 
     np.testing.assert_almost_equal(trajectory.x, x_VBB)
     np.testing.assert_almost_equal(trajectory.y, y_VBB)

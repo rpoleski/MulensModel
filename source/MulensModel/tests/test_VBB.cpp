@@ -38,9 +38,9 @@ int main()
         VBBL.SetObjectCoordinates("18:00:00 -26:00:00");
 
 	double w1, w2, w3;
-        w1 = 0.013 * 1/1.239896769896591;
-        w2 = -0.2 ;
-        w3 = 0.05 * 1/1.239896769896591;
+        w1 = 2.8725325543944145e-05;
+        w2 = -9.563447956133312e-06;
+        w3 = 0.00011048202132286211;
 
         pr[9] = w1;
         pr[10] = w2;
@@ -50,9 +50,13 @@ int main()
         VBBL.BinaryLightCurveOrbital(pr, t_array, mag_orbital_array, y1_orbital_array, y2_orbital_array, sep_array, np);
         
 
-        for (int i = 0; i < np; i++) {
-                printf("%lf  %lf %lf\n", t_array[i], y1_orbital_array[i], y2_orbital_array[i]);
-        }
+        //for (int i = 0; i < np; i++) {
+                //printf("%lf  %lf %lf\n", t_array[i], y1_orbital_array[i], y2_orbital_array[i]);
+        //}
+	printf("[%lf, %lf, %lf, %lf, %lf]\n", y1_orbital_array[0], y1_orbital_array[1], y1_orbital_array[2], y1_orbital_array[3], y1_orbital_array[4]);
+	printf("[%lf, %lf, %lf, %lf, %lf]\n", y2_orbital_array[0], y2_orbital_array[1], y2_orbital_array[2], y2_orbital_array[3], y2_orbital_array[4]);
+
+
 }
 
 
