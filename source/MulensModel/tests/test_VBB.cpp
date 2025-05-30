@@ -41,9 +41,9 @@ int main()
 	double s_z, s_prim, conv_factor;
 	double ds_dt_VBB, da_dt_VBB, dsz_dt_VBB;
 
-	ds_dt = 0.13; //the rate of change of the separation per year
-        dalpha_dt = -0.2; //rate of change of alpha deg per year
-        ds_z_dt = 0.5; // rate of change of the distance along the line of sight per year
+	ds_dt = 20.2; //the rate of change of the separation per year
+        dalpha_dt = -30.3; //rate of change of alpha deg per year
+        ds_z_dt = 20; // rate of change of the distance along the line of sight per year
 
 	conv_factor = -ds_dt * s;
         s_z = conv_factor/ds_z_dt; //distance along the line of sight

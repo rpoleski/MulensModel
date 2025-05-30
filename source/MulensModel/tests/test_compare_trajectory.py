@@ -18,9 +18,9 @@ def test_trajectory():
     t_E = 100
     rho = 0.01
 
-    ds_dt = 0.13
-    dalpha_dt = -0.2
-    ds_z_dt = 0.5
+    ds_dt = 20.2
+    dalpha_dt = -30.3
+    ds_z_dt = 20
 
     N = 5
     times = []
@@ -32,8 +32,10 @@ def test_trajectory():
 
     trajectory = mm.Trajectory(parameters=parameters_extra, times=times)
     
-    x_VBB = [3.026807, 1.597584, 0.166892, -1.265043, -2.698163]
-    y_VBB = [0.382709, -0.075836, -0.529313, -0.978617, -1.424058] 
+    x_VBB = [-3.022993, 1.593023, 0.166892, 1.311142, 2.705857]
+    y_VBB = [-0.411752, -0.142487, -0.529313, 0.915932, 1.409384]
+
+ 
 
     np.testing.assert_almost_equal(trajectory.x, x_VBB)
     np.testing.assert_almost_equal(trajectory.y, y_VBB)
