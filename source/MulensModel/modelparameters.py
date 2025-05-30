@@ -1942,10 +1942,10 @@ class ModelParameters(object):
     @property
     def lens_period(self):
         """
-        XXX
+        XXX in years
         """
         self._set_lens_keplerian_orbit()
-        return self._lens_keplerian['period']
+        return self._lens_keplerian['period'] / 365.25
 
     @property
     def lens_inclination(self):
