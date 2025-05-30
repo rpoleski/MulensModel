@@ -49,9 +49,9 @@ int main()
         s_z = conv_factor/ds_z_dt; //distance along the line of sight
         s_prim = sqrt(pow(s,2) + pow(s_z,2)); 
 
-        ds_dt_VBB = ds_dt * 1/s_prim * 1/365; // the rate of change of the separation per day
-        da_dt_VBB = dalpha_dt * M_PI/180 * 1/365; // rate of change of alpha radian per day
-        dsz_dt_VBB = ds_z_dt * 1/s_prim * 1/365; // rate of change of the distance along the line of sight per year
+        ds_dt_VBB = ds_dt * 1/s_prim * 1/365.2422; // the rate of change of the separation per day
+        da_dt_VBB = dalpha_dt * M_PI/180 * 1/365.2422; // rate of change of alpha radian per day
+        dsz_dt_VBB = ds_z_dt * 1/s_prim * 1/365.2422; // rate of change of the distance along the line of sight per year
 
 
         pr[9] = ds_dt_VBB;

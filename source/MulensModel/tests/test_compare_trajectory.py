@@ -31,12 +31,10 @@ def test_trajectory():
     parameters_extra = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha,'rho': rho, 'ds_dt': ds_dt, 'dalpha_dt': dalpha_dt, 'ds_z_dt': ds_z_dt})
 
     trajectory = mm.Trajectory(parameters=parameters_extra, times=times)
-    
-    x_VBB = [-3.022993, 1.593023, 0.166892, 1.311142, 2.705857]
-    y_VBB = [-0.411752, -0.142487, -0.529313, 0.915932, 1.409384]
 
+    x_VBB = [-3.023197, 1.593006, 0.166892, 1.310978, 2.705571]
+    y_VBB = [-0.410250, -0.142673, -0.529313, 0.916167, 1.409933]
  
-
     np.testing.assert_almost_equal(trajectory.x, x_VBB)
     np.testing.assert_almost_equal(trajectory.y, y_VBB)
 
