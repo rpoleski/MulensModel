@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.44.1'
+__version__ = '0.44.2'
 
 
 class UlensModelFit(object):
@@ -727,7 +727,7 @@ class UlensModelFit(object):
                 required_packages.add('corner')
 
         if self._plots is not None:
-            if self._plots['best model'] and 'interactive' in self._plots['best model']:
+            if 'interactive' in self._plots.get('best model', {}):
                 required_packages.add('plotly')
 
         failed = import_failed.intersection(required_packages)
@@ -2517,12 +2517,9 @@ class UlensModelFit(object):
 
         NOTE: we're using np.log(), i.e., natural logarithms.
         """
-        if self._fit_method == "EMCEE":
-            ln_prior = self._ln_prior(theta)
-            if not np.isfinite(ln_prior):
-                return self._return_ln_prob(-np.inf)
-        elif self._fit_method == "UltraNest":
-            ln_prior = self._ln_prior_t_E() if self._prior_t_E else 0.
+        ln_prior = self._ln_prior(theta)
+        if not np.isfinite(ln_prior):
+            return self._return_ln_prob(-np.inf)
 
         ln_like = self._ln_like(theta)
         if not np.isfinite(ln_like):
@@ -2598,24 +2595,27 @@ class UlensModelFit(object):
         inside = 0.
         outside = -np.inf
 
-        for (index, limit) in self._min_values_indexed.items():
-            if theta[index] < limit:
-                return outside
+        if self._fit_method == "EMCEE":
+            for (index, limit) in self._min_values_indexed.items():
+                if theta[index] < limit:
+                    return outside
 
-        for (index, limit) in self._max_values_indexed.items():
-            if theta[index] > limit:
-                return outside
+            for (index, limit) in self._max_values_indexed.items():
+                if theta[index] > limit:
+                    return outside
 
-        if "x_caustic_in" in self._model.parameters.parameters:
-            self._set_model_parameters(theta)
-            if not self._check_valid_Cassan08_trajectory():
-                return outside
+            if "x_caustic_in" in self._model.parameters.parameters:
+                self._set_model_parameters(theta)
+                if not self._check_valid_Cassan08_trajectory():
+                    return outside
 
         ln_prior = inside
 
         if self._prior_t_E is not None:
             self._set_model_parameters(theta)
             ln_prior += self._ln_prior_t_E()
+        if self._fit_method == "UltraNest":
+            return ln_prior
 
         if self._priors is not None:
             self._set_model_parameters(theta)
@@ -3838,9 +3838,8 @@ class UlensModelFit(object):
         # the best model.
 
         self._reset_rcParams()
-        if 'rcParams' in self._plots['best model']:
-            for (key, value) in self._plots['best model']['rcParams'].items():
-                rcParams[key] = value
+        for (key, value) in self._plots['best model'].get('rcParams', {}).items():
+            rcParams[key] = value
 
         kwargs_all = self._get_kwargs_for_best_model_plot()
         (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2) = kwargs_all[:6]
@@ -4219,9 +4218,8 @@ class UlensModelFit(object):
         self._ln_like(self._best_model_theta)  # Sets all parameters to the best model.
 
         self._reset_rcParams()
-        if 'rcParams' in self._plots['best model']:
-            for (key, value) in self._plots['best model']['rcParams'].items():
-                rcParams[key] = value
+        for (key, value) in self._plots['best model'].get('rcParams', {}).items():
+            rcParams[key] = value
 
         kwargs_all = self._get_kwargs_for_best_model_plot()
         (ylim, ylim_residuals) = self._get_ylim_for_best_model_plot(*kwargs_all[4:6])
