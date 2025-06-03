@@ -381,8 +381,7 @@ class MagnificationCurve(object):
                 "the model provided has " + str(self.parameters.n_lenses) +
                 " lenses")
 
-        magnification = self._get_magnification_universal()
-        return magnification
+        return self._get_magnification_universal()
 
     def _set_binary_lens_magnification_objects(self):
         """ For simple binary lens models, create a *dict* of magnification
@@ -507,8 +506,7 @@ class MagnificationCurve(object):
                 "the model provided has " + str(self.parameters.n_lenses) +
                 " lenses")
 
-        magnification = self._get_magnification_universal()
-        return magnification
+        return self._get_magnification_universal()
 
     def _get_magnification_universal(self):
         """
