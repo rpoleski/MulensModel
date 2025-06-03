@@ -976,6 +976,10 @@ class TestFSPLGradient2(TestFSPLGradient):
     def test_dAdu_FSPLError(self):
         for i, fit in enumerate(self.fits):
             with self.assertRaises(NotImplementedError):
+                fit.get_d_A_d_u_for_PSPL_model()
+            with self.assertRaises(NotImplementedError):
+                fit.get_d_A_d_u_for_FSPL_model()
+            with self.assertRaises(NotImplementedError):
                 fit.get_d_A_d_u_for_point_lens_model()
 
     def test_dAdu_PSPL(self):
