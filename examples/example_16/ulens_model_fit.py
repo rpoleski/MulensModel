@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.44.2'
+__version__ = '0.44.3'
 
 
 class UlensModelFit(object):
@@ -4358,10 +4358,19 @@ class UlensModelFit(object):
         """
         satellite_skycoords = mm.SatelliteSkyCoord(
             ephemerides_file=model.ephemerides_file)
-        satellite_skycoords._prepare_horizons()
-        min_ = np.min(satellite_skycoords._horizons.time)
-        max_ = np.max(satellite_skycoords._horizons.time)
-        return times[(times >= np.max([min_, np.min(times)])) & (times <= np.min([max_, max(times)]))]
+
+        horizons = satellite_skycoords.get_horizons()
+        min_time_ephemerides = np.min(horizons.time)
+        max_time_ephemerides = np.max(horizons.time)
+        min_times = np.min(times)
+        max_times = np.max(times)
+
+        min_ajusted = np.max([min_time_ephemerides, min_times])
+        max_ajusted = np.min([max_time_ephemerides, max_times])
+
+        times_ajusted = times[(times >= min_ajusted) & (times <= max_ajusted)]
+
+        return times_ajusted
 
     def _make_interactive_scatter_lc(
             self, times, lc, name,
