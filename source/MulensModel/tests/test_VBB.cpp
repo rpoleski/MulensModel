@@ -65,6 +65,7 @@ int main()
 
 	printf("[%lf, %lf, %lf, %lf, %lf]\n", y1_orbital_array[0], y1_orbital_array[1], y1_orbital_array[2], y1_orbital_array[3], y1_orbital_array[4]);
 	printf("[%lf, %lf, %lf, %lf, %lf]\n", y2_orbital_array[0], y2_orbital_array[1], y2_orbital_array[2], y2_orbital_array[3], y2_orbital_array[4]);
+	printf("[%lf, %lf, %lf, %lf, %lf]\n", sep_array[0], sep_array[1], sep_array[2], sep_array[3], sep_array[4]);
 
 
 }
