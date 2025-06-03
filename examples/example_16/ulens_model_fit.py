@@ -1286,9 +1286,6 @@ class UlensModelFit(object):
 
                 self._set_bool_bad(dataset, bad_bool)
 
-        elif bad.dtype == np.dtype('bool'):
-            self._set_bool_bad(dataset, bad)
-
     def _set_bool_bad(self, dataset, bad_bool):
         """
         Setting bad flags for dataset base on argument photometry_files['bad'] in yaml file
