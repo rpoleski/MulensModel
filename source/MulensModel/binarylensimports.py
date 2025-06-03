@@ -8,6 +8,7 @@ except Exception:
     _vbbl_wrapped = False
 else:
     _vbbl_wrapped = True
+
 try:
     import MulensModel.AdaptiveContouring as mm_ac
 except Exception:
@@ -18,20 +19,22 @@ else:
 
 def _try_load(path, name):
     """
-    Try loading compiled C library.
-    Input is *str* or *list* of *str*.
+    Try loading compiled C library. Input is *str* or *list* of *str*.
     """
     if isinstance(path, str):
         path = [path]
+
     for path_ in path:
         try:
             out = ctypes.cdll.LoadLibrary(path_)
-        except OSError:
+        except OSError as error:
             print("WARNING - File not loaded:", path_)
+            print("OSError:\n", error)
             print("Everything should work except:", name)
             pass
         else:
             return out
+
     return None
 
 
