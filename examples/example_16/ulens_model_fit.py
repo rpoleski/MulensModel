@@ -3682,6 +3682,8 @@ class UlensModelFit(object):
                 self._make_interactive_plot()
         if 'trajectory' in self._plots:
             self._make_trajectory_plot()
+            if 'interactive' in self._plots['trajectory']:
+                self._make_interactive_plot_trajectory()
 
     def _triangle_plot(self):
         """
@@ -4155,10 +4157,7 @@ class UlensModelFit(object):
 
         self._reset_rcParams()
 
-        if 'time range' in self._plots['trajectory']:
-            t_range = self._get_time_limits_for_plot(tau, 'trajectory')
-        else:
-            t_range = self._get_time_limits_for_plot(tau, 'best model')
+        t_range = self._set_time_limits_for_trajectory_plot(tau)
         kwargs = {'caustics': True, 't_range': t_range}
 
         self._model.plot_trajectory(**kwargs)
@@ -4200,7 +4199,7 @@ class UlensModelFit(object):
         self._add_interactive_data_traces(kwargs_interactive, **kwargs)
         self._add_interactive_residuals_traces(kwargs_interactive, **kwargs_model)
 
-        self._save_interactive_fig()
+        self._save_interactive_fig(self._interactive_fig, 'best model')
 
     def _prepare_interactive_layout(self, scale, kwargs_all, ylim, ylim_residuals):
         """Prepares the layout for the interactive plot."""
@@ -4504,7 +4503,7 @@ class UlensModelFit(object):
         )
 
     def _add_interactive_residuals_traces(self,  kwargs_interactive, phot_fmt='mag', data_ref=None, show_errorbars=True,
-                                          show_bad=None, subtract_2450000=False, subtract_2460000=False, **kwargs,):
+                                          show_bad=None, subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Creates plotly.graph_objects.Scatter object for residuals points
         per each data set.
@@ -4537,16 +4536,169 @@ class UlensModelFit(object):
         for trace in traces_residuals:
             self._interactive_fig.add_trace(trace)
 
-    def _save_interactive_fig(self):
+    def _save_interactive_fig(self, fig, typ):
         """
         Saving interactive figure
         """
-        file_ = self._plots['best model']['interactive']
+        file_ = self._plots[typ]['interactive']
         if path.exists(file_):
             if path.isfile(file_):
                 msg = "Existing file " + file_ + " will be overwritten"
                 warnings.warn(msg)
-        self._interactive_fig.write_html(file_, full_html=True)
+        fig.write_html(file_, full_html=True)
+
+    def _make_interactive_plot_trajectory(self):
+        """
+        make and save interactive best trajectory plot
+        """
+        scale = 0.5  # original size=(1920:1440)
+        tau = 1.5
+
+        self._ln_like(self._best_model_theta)
+        self._reset_rcParams()
+        colors_trajectory = ['blue', 'orange']
+        t_range = self._set_time_limits_for_trajectory_plot(tau)
+        kwargs = {'caustics': True, 't_start': t_range[0], 't_stop': t_range[1], 'tau': tau,
+                  'colors_trajectory': colors_trajectory}
+        (layout, kwargs_interactive) = self._prepare_interactive_layout_trajectory(scale)
+        traces_trajectory = self._make_interactive_trajectory_traces(**kwargs, **kwargs_interactive)
+        self._interactive_fig_trajectory = go.Figure(data=traces_trajectory, layout=layout)
+
+        self._save_interactive_fig(self._interactive_fig_trajectory, 'trajectory')
+
+    def _set_time_limits_for_trajectory_plot(self, tau):
+        """
+        Chosing time limits for the trajectory plot
+        """
+        if 'time range' in self._plots['trajectory']:
+            t_range = self._get_time_limits_for_plot(tau, 'trajectory')
+        else:
+            t_range = self._get_time_limits_for_plot(tau, 'best model')
+
+        return t_range
+
+    def _prepare_interactive_layout_trajectory(self, scale):
+        """
+        Prepares the layout for the interactive trajectory plot.
+        """
+        kwargs_interactive = self._get_kwargs_for_plotly_plot(scale)
+
+        layout = self._make_interactive_layout_trajectory(
+            **kwargs_interactive)
+
+        return layout, kwargs_interactive
+
+    def _make_interactive_layout_trajectory(self, sizes, colors, opacity, width, height,
+                                            font, paper_bgcolor, **kwargs):
+        """
+        Creates imput dictionary for plotly.graph_objects.Layout for the interactive trajectory plot
+        """
+        xtitle = u'<i>\u03B8</i><sub>x</sub>/<i>\u03B8</i><sub>E</sub>'
+        ytitle = u'<i>\u03B8</i><sub>y</sub>/<i>\u03B8</i><sub>E</sub>'
+        font_base = dict(family=font, size=sizes[4], color=colors[1])
+        font_legend = dict(family=font, size=sizes[8])
+        kwargs_ = dict(showgrid=False, ticks='inside', showline=True, ticklen=sizes[7],
+                       tickwidth=sizes[6], linewidth=sizes[6], linecolor=colors[0], tickfont=font_base)
+        kwargs_y = {'mirror': 'all', **kwargs_}
+        kwargs_x = {'mirror': 'all', **kwargs_}
+        layout = dict(
+            autosize=True, width=width, height=height, showlegend=True,
+            legend=dict(x=1.01, y=1.01, yanchor='top', xanchor='left', bgcolor=paper_bgcolor, bordercolor=colors[2],
+                        borderwidth=sizes[6], font=font_legend),
+            paper_bgcolor=paper_bgcolor, plot_bgcolor=paper_bgcolor, font=font_base,
+            yaxis=dict(title_text=ytitle, anchor="x", **kwargs_y),
+            xaxis=dict(title_text=xtitle, anchor="y", **kwargs_x),
+            )
+        return layout
+
+    def _make_interactive_trajectory_traces(self, t_start, t_stop, sizes, colors_trajectory, opacity, font,
+                                            name=None, **kwargs):
+        """
+        Creates plotly.graph_objects.Scatter objects with model trajectory
+        """
+        traces = []
+        (times, times_extended) = self._get_times_for_interactive_trajectory_traces(t_start, t_stop)
+
+        name_source = ['']
+
+        if isinstance(name, type(None)) and self._model.n_sources == 1:
+            showlegend = False
+        else:
+            showlegend = True
+        if self._model.n_sources > 1:
+            name_source = [f"Source {i+1} " for i in range(self._model.n_sources)]
+        name = ''
+        for dataset in self._datasets:
+            if dataset.ephemerides_file is None:
+                trajectories = self._model.get_trajectory(times)
+                trajectories_extended = self._model.get_trajectory(times_extended)
+                if not isinstance(trajectories, (list, tuple)):
+                    trajectories = [trajectories]
+                    trajectories_extended = [trajectories_extended]
+                for (i, trajectory) in enumerate(trajectories):
+                    traces.append(self._make_interactive_scatter_trajectory(
+                        trajectory, name_source[i]+name, colors_trajectory[i], sizes[1], dash='solid',
+                        showlegend=showlegend))
+                    traces.append(self._make_interactive_scatter_trajectory(
+                        trajectories_extended[i], name_source[i]+name, colors_trajectory[i], sizes[1],  dash='dot',
+                        showlegend=False, opacity=0.5))
+                break
+
+        traces.extend(self._make_interactive_scatter_trajectory_satellite(
+            traces, times, times_extended, colors_trajectory, sizes, name_source))
+
+        return traces
+
+    def _get_times_for_interactive_trajectory_traces(self, t_start, t_stop):
+        """
+        Prepere times grid for the interactive trajectory traces
+        """
+        tau_exteded = 0.5
+        t_delta = t_stop - t_start
+        t_extended_stop = t_stop + t_delta * tau_exteded
+        t_extended_start = t_start - t_delta * tau_exteded
+        time_grid = int(t_stop-t_start)*7
+        times = np.linspace(t_start, t_stop, num=time_grid)
+        time_grid = int(t_extended_stop - t_extended_start)*2
+        times_extended = np.linspace(t_extended_start, t_extended_stop, num=time_grid)
+
+        return (times, times_extended)
+
+    def _make_interactive_scatter_trajectory(self, trajectory, name, color, size, dash, showlegend=False, opacity=1.):
+        """
+        Creates a Plotly Scatter trace for the trajectory
+        """
+        return go.Scatter(
+            x=trajectory.x, y=trajectory.y, name=name, showlegend=showlegend, mode='lines',
+            line=dict(color=color, width=size, dash=dash),
+            xaxis="x", yaxis="y")
+
+    def _make_interactive_scatter_trajectory_satellite(
+            self, traces, times, times_extended, colors_trajectory, sizes, name_source):
+        """
+        Creates Plotly Scatter traces for trajectories of satellite models.
+        """
+        dash_types = ['dot', 'dash', 'longdash', 'dashdot', 'longdashdot']
+        traces = []
+        for (i, model) in enumerate(self._models_satellite):
+            times_ = self._set_times_satellite(times, model)
+            times_extended_ = self._set_times_satellite(times_extended, model)
+            name = self._satellites_names[i]
+            showlegend_ = True
+            dash_ = dash_types[i % len(dash_types)]
+            model.parameters.parameters = {**self._model.parameters.parameters}
+            trajectories = model.get_trajectory(times_)
+            trajectories_extended = model.get_trajectory(times_extended_)
+            if not isinstance(trajectories, (list, tuple)):
+                trajectories = [trajectories]
+                trajectories_extended = [trajectories_extended]
+            for (i, trajectory) in enumerate(trajectories):
+                traces.append(self._make_interactive_scatter_trajectory(
+                    trajectory, name_source[i]+name, colors_trajectory[i], sizes[1], dash_, showlegend=showlegend_))
+                traces.append(self._make_interactive_scatter_trajectory(
+                    trajectories_extended[i], name_source[i]+name, colors_trajectory[i], sizes[1], dash_,
+                    showlegend=False, opacity=0.5))
+        return traces
 
 
 if __name__ == '__main__':
