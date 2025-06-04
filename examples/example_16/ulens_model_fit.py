@@ -4554,6 +4554,7 @@ class UlensModelFit(object):
         scale = 0.5  # original size=(1920:1440)
         tau = 1.5
         caustics = True
+        source = True
 
         self._ln_like(self._best_model_theta)
         self._reset_rcParams()
@@ -4562,12 +4563,19 @@ class UlensModelFit(object):
         kwargs = {'t_start': t_range[0], 't_stop': t_range[1], 'tau': tau,
                   'colors_trajectory': colors_trajectory}
         (layout, kwargs_interactive) = self._prepare_interactive_layout_trajectory(scale)
-        traces_trajectory = self._make_interactive_trajectory_traces(**kwargs, **kwargs_interactive)
+        (traces_trajectory, trajectories, times) = self._make_interactive_trajectory_traces(**kwargs,
+                                                                                            **kwargs_interactive)
         self._interactive_fig_trajectory = go.Figure(data=traces_trajectory, layout=layout)
 
         if caustics:
             traces_caustics = self._make_interactive_caustics_traces(**kwargs, **kwargs_interactive)
             self._interactive_fig_trajectory.add_traces(traces_caustics)
+
+        if source:
+            sources_shapes = self._make_interactive_source_shapes(
+                self._model, trajectories, times, **kwargs, **kwargs_interactive)
+            for shape in sources_shapes:
+                self._interactive_fig_trajectory.add_shape(shape)
 
         self._save_interactive_fig(self._interactive_fig_trajectory, 'trajectory')
 
@@ -4653,7 +4661,7 @@ class UlensModelFit(object):
         traces.extend(self._make_interactive_scatter_trajectory_satellite(
             traces, times, times_extended, colors_trajectory, sizes, name_source))
 
-        return traces
+        return (traces, trajectories, times)
 
     def _get_times_for_interactive_trajectory_traces(self, t_start, t_stop):
         """
@@ -4809,6 +4817,47 @@ class UlensModelFit(object):
                                     yaxis="y",
                                     )
         return trace_caustics
+
+    def _make_interactive_source_shapes(
+            self, model, trajectories, times, sizes, colors_trajectory, name=None, epoch=None, **kwargs):
+        """
+        Create list o dictionaryes with shapes of the sources in the interactive trajectory plot.
+        """
+        showlegend = True
+        if isinstance(name, type(None)):
+            name = ''
+
+        if model.n_sources > 1:
+            name_source = [name + f" Source {i+1} " for i in range(len(trajectories))]
+        else:
+            name_source = [name+' Source']
+
+        shapes = []
+        for i in range(model.n_sources):
+            if 'rho_'+str(i+1) in model.parameters.parameters:
+                rho = model.parameters.parameters['rho_'+str(i+1)]
+                t_0 = model.parameters.parameters['t_0_'+str(i+1)]
+            elif 'rho' in model.parameters.parameters:
+                rho = model.parameters.parameters['rho']
+                t_0 = model.parameters.parameters['t_0']
+            else:
+                rho = None
+            if rho is not None:
+                if epoch is None:
+                    trajectories = model.get_trajectory(t_0)
+                else:
+                    trajectories = model.get_trajectory(epoch)
+
+                if not isinstance(trajectories, (list, tuple)):
+                    trajectories = [trajectories]
+                x_0 = trajectories[i].x[0]
+                y_0 = trajectories[i].y[0]
+                shapes.append(dict(
+                    type="circle", xref="x", yref="y", opacity=0.8, x0=x_0-rho, y0=y_0-rho, x1=x_0+rho, y1=y_0+rho,
+                    name=name_source[i], showlegend=showlegend, legendgroup=name_source[i],
+                    line=dict(color=colors_trajectory[i], width=sizes[1])))
+
+        return shapes
 
 
 if __name__ == '__main__':
