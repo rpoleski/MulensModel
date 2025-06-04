@@ -1901,6 +1901,7 @@ class ModelParameters(object):
         """
         position = [self.s, 0, self.s_z]
         velocity = [self.gamma_parallel, self.gamma_perp, self.gamma_z]
+        # XXX is there a minus in front of self.gamma_perp?
         new_input = [*position, *velocity]
         if new_input == self._lens_keplerian_last_input:
             return
@@ -1908,8 +1909,8 @@ class ModelParameters(object):
         self._lens_keplerian_last_input = new_input
 
         position = np.array(position)
-        velocity = self.s * np.array(velocity)
-
+        factor = velocity[2] / np.sqrt(velocity[2]**2 + velocity[0]**2)
+        velocity =  factor * np.array(velocity) * self.s
         a = np.sqrt(np.sum(position**2))
         self._lens_keplerian['semimajor_axis'] = a
         self._lens_keplerian['period'] = 2 * np.pi * a / np.sqrt(np.sum(velocity**2)) * 365.25
