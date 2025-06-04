@@ -4553,16 +4553,21 @@ class UlensModelFit(object):
         """
         scale = 0.5  # original size=(1920:1440)
         tau = 1.5
+        caustics = True
 
         self._ln_like(self._best_model_theta)
         self._reset_rcParams()
         colors_trajectory = ['blue', 'orange']
         t_range = self._set_time_limits_for_trajectory_plot(tau)
-        kwargs = {'caustics': True, 't_start': t_range[0], 't_stop': t_range[1], 'tau': tau,
+        kwargs = {'t_start': t_range[0], 't_stop': t_range[1], 'tau': tau,
                   'colors_trajectory': colors_trajectory}
         (layout, kwargs_interactive) = self._prepare_interactive_layout_trajectory(scale)
         traces_trajectory = self._make_interactive_trajectory_traces(**kwargs, **kwargs_interactive)
         self._interactive_fig_trajectory = go.Figure(data=traces_trajectory, layout=layout)
+
+        if caustics:
+            traces_caustics = self._make_interactive_caustics_traces(**kwargs, **kwargs_interactive)
+            self._interactive_fig_trajectory.add_traces(traces_caustics)
 
         self._save_interactive_fig(self._interactive_fig_trajectory, 'trajectory')
 
@@ -4654,7 +4659,7 @@ class UlensModelFit(object):
         """
         Prepere times grid for the interactive trajectory traces
         """
-        tau_exteded = 0.5
+        tau_exteded = 1.5
         t_delta = t_stop - t_start
         t_extended_stop = t_stop + t_delta * tau_exteded
         t_extended_start = t_start - t_delta * tau_exteded
@@ -4693,6 +4698,7 @@ class UlensModelFit(object):
             if not isinstance(trajectories, (list, tuple)):
                 trajectories = [trajectories]
                 trajectories_extended = [trajectories_extended]
+            traces.append(self._make_interactive_trajectory_arrow(trajectories[0], times, sizes))
             for (i, trajectory) in enumerate(trajectories):
                 traces.append(self._make_interactive_scatter_trajectory(
                     trajectory, name_source[i]+name, colors_trajectory[i], sizes[1], dash_, showlegend=showlegend_))
@@ -4719,6 +4725,7 @@ class UlensModelFit(object):
                 x=[x_0, x_1],
                 y=[y_0, y_1],
                 mode="lines+markers",
+                opacity=0.9,
                 marker=dict(
                     symbol="arrow",
                     size=arrow_size,
@@ -4728,6 +4735,80 @@ class UlensModelFit(object):
                 showlegend=False,
             )
         return trace
+
+    def _make_interactive_caustics_traces(self, sizes, name=None, **kwargs):
+        """
+        Creates go.Scatter objects with caustics for the interactive trajectory plot
+        """
+        traces = []
+        if isinstance(name, type(None)):
+            showlegend = False
+        else:
+            showlegend = True
+
+        traces.append(self._make_interactive_scatter_caustic(
+                    model=self._model, name=name, sizes=sizes, showlegend=showlegend))
+        return traces
+
+    def _make_interactive_scatter_caustic(self, model, sizes, showlegend, epoch=None, name=None):
+        """
+        Creates a Plotly Scatter trace for the caustics of the model single and binary lense.
+        """
+        if isinstance(name, type(None)):
+            name = 'Caustic'
+        else:
+            name = 'Caustic ' + name
+        mass_sheet = model.parameters.is_external_mass_sheet_with_shear
+        if model.n_lenses == 1 and not mass_sheet:
+            trace = self._make_interactive_scatter_caustic_singe_lens(name, sizes, showlegend)
+        else:
+            model.update_caustics(epoch=epoch)
+            trace = self._make_interactive_scatter_caustic_binary_lens(model, name, sizes, showlegend)
+        return trace
+
+    def _make_interactive_scatter_caustic_binary_lens(self, model, name, sizes, showlegend, color='red'):
+        """
+        Creates a Plotly Scatter trace for the caustics of the binary lens model.
+        """
+        x, y = model.caustics.get_caustics(n_points=50000)
+        trace_caustics = go.Scatter(x=x,
+                                    y=y,
+                                    opacity=1.,
+                                    name=name,
+                                    mode='markers',
+                                    marker=dict(color=color,
+                                                size=sizes[1],
+                                                line=dict(
+                                                    color=color,
+                                                    width=1,
+                                                ),
+                                                ),
+                                    xaxis="x",
+                                    yaxis="y",
+                                    )
+        return trace_caustics
+
+    def _make_interactive_scatter_caustic_singe_lens(self, name, sizes, showlegend, color='red'):
+        """
+        Creates a Plotly Scatter trace for the caustics of the binary lens model.
+        """
+        trace_caustics = go.Scatter(x=[0.],
+                                    y=[0.],
+                                    opacity=1.,
+                                    mode='markers',
+                                    name=name,
+                                    marker=dict(color=color,
+                                                size=sizes[0],
+                                                line=dict(
+                                                    color=color,
+                                                    width=1,
+                                                ),
+                                                ),
+                                    showlegend=showlegend,
+                                    xaxis="x",
+                                    yaxis="y",
+                                    )
+        return trace_caustics
 
 
 if __name__ == '__main__':
