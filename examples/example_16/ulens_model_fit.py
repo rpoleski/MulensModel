@@ -358,12 +358,12 @@ class UlensModelFit(object):
             ``trajectory``, and ``best model``.
             The values are also dicts and currently accepted keys are:
             1) for ``best model``:
-            ``'file'``,``'interactive' ``'time range'``, ``'magnitude range'``,
+            ``'file'``, ``'interactive', ``'time range'``, ``'magnitude range'``,
             ``'title'``,``'legend'``,`and ``'rcParams'``,
             2) for ``triangle`` and ``trace``:
-            ``'file'`` and ``'shift t_0'`` (*bool*, *True* is default)
+            ``'file'``, and ``'shift t_0'`` (*bool*, *True* is default)
             3) for ``trajectory``:
-            ``'file'`` and ``'time range'`` (if not provided, then values
+            ``'file'``, ``'interactive'``, and ``'time range'`` (if not provided, then values
             from ``best model`` will be used)
             e.g.:
 
@@ -378,6 +378,7 @@ class UlensModelFit(object):
                   'trajectory':
                       'file': 'my_trajectory.png'
                       'time range': 2456050. 2456300.
+                      'interactive': 'my_trajectory.html'
                   'best model':
                       'file': 'my_fit_best.png'
                       'interactive' : 'my_fit_best.html'
@@ -721,7 +722,7 @@ class UlensModelFit(object):
                 required_packages.add('corner')
 
         if self._plots is not None:
-            if 'interactive' in self._plots.get('best model', {}):
+            if 'interactive' in {**self._plots.get('best model', {}), **self._plots.get('trajectory', {})}:
                 required_packages.add('plotly')
 
         failed = import_failed.intersection(required_packages)
@@ -736,7 +737,7 @@ class UlensModelFit(object):
                     "https://raw.githubusercontent.com/dfm/corner.py/" +
                     "v2.0.0/corner/corner.py")
             if "plotly" in failed:
-                message += ("\nThe plotly package is required for creating interactive best model plots.")
+                message += ("\nThe plotly package is required for creating interactive plots.")
 
             raise ImportError(message)
 
@@ -966,13 +967,22 @@ class UlensModelFit(object):
         """
         Check if parameters of trajectory plot make sense
         """
-        allowed = set(['file', 'time range'])
+        allowed = set(['file', 'time range', 'interactive'])
         unknown = set(self._plots['trajectory'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
                 'Unknown settings for "trajectory" plot: {:}'.format(unknown))
 
         self._set_time_range_for_plot('trajectory')
+
+        if 'interactive' in self._plots['trajectory']:
+            self._check_plots_parameters_trajectory_interactive()
+
+    def _check_plots_parameters_trajectory_interactive(self):
+        """
+        Check if there is no problem with interactive trajectory plot
+        """
+        pass
 
     def _check_plots_parameters_triangle(self):
         """

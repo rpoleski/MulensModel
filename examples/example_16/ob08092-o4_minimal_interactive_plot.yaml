@@ -7,3 +7,5 @@ model:
 plots:
     best model:
         interactive: ob08092-o4_minimal_plot.html
+    trajectory :
+        interactive: ob08092-o4_minimal_plot_trajectory.html
