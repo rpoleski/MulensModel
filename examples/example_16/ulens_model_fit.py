@@ -4635,6 +4635,7 @@ class UlensModelFit(object):
                 if not isinstance(trajectories, (list, tuple)):
                     trajectories = [trajectories]
                     trajectories_extended = [trajectories_extended]
+                traces.append(self._make_interactive_trajectory_arrow(trajectories[0], times, sizes))
                 for (i, trajectory) in enumerate(trajectories):
                     traces.append(self._make_interactive_scatter_trajectory(
                         trajectory, name_source[i]+name, colors_trajectory[i], sizes[1], dash='solid',
@@ -4699,6 +4700,34 @@ class UlensModelFit(object):
                     trajectories_extended[i], name_source[i]+name, colors_trajectory[i], sizes[1], dash_,
                     showlegend=False, opacity=0.5))
         return traces
+
+    def _make_interactive_trajectory_arrow(self, trajectory, times, sizes):
+        """
+        Creates Plotly Scatter trace with arrow pointing the direction of relative proper montion of the source
+        """
+        # size like the font in legend
+        arrow_size = sizes[8]
+        if len(times) > 2:
+            index = int(len(times)/2)
+        else:
+            index = 0
+        x_0 = trajectory.x[index]
+        y_0 = trajectory.y[index]
+        x_1 = trajectory.x[index+10]
+        y_1 = trajectory.y[index+10]
+        trace = go.Scatter(
+                x=[x_0, x_1],
+                y=[y_0, y_1],
+                mode="lines+markers",
+                marker=dict(
+                    symbol="arrow",
+                    size=arrow_size,
+                    color='black',
+                    angleref="previous",
+                ),
+                showlegend=False,
+            )
+        return trace
 
 
 if __name__ == '__main__':
