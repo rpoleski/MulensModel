@@ -165,6 +165,7 @@ plots:
             color: magenta
     trajectory:
         file: ob03235_2_trajectory.png
+        interactive : ob03235_2_trajectory.html
         time range: 2452700 2452855
     triangle:
         file: ob03235_2_triangle.png

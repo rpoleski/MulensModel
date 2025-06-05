@@ -4604,19 +4604,22 @@ class UlensModelFit(object):
         Prepares the layout for the interactive trajectory plot.
         """
         kwargs_interactive = self._get_kwargs_for_plotly_plot(scale)
-        xlim = self._get_xlim_for_interactive_trajectory_plot(t_range)
-        layout = self._make_interactive_layout_trajectory(xlim, **kwargs_interactive)
+        xyrange = self._get_xlim_for_interactive_trajectory_plot(t_range)
+        layout = self._make_interactive_layout_trajectory(
+            xyrange, **kwargs_interactive)
 
         return layout, kwargs_interactive
 
     def _get_xlim_for_interactive_trajectory_plot(self, t_range):
         """
-        Get x-axis limits for the interactive trajectory plot
+        Get axis limits for the interactive trajectory plot
         """
         trajectory = self._get_trajectories_as_list(self._model, t_range)
-        return [np.min(trajectory[0].x), np.max(trajectory[0].x)]
+        min = np.min([np.min(trajectory[0].x), np.min(trajectory[0].y)])
+        max = np.max([np.max(trajectory[0].x), np.max(trajectory[0].y)])
+        return [min, max]
 
-    def _make_interactive_layout_trajectory(self, xlim, sizes, colors, opacity, width, height,
+    def _make_interactive_layout_trajectory(self, xyrange, sizes, colors, opacity, width, height,
                                             font, paper_bgcolor, **kwargs):
         """
         Creates imput dictionary for plotly.graph_objects.Layout for the interactive trajectory plot
@@ -4625,7 +4628,7 @@ class UlensModelFit(object):
         ytitle = u'<i>\u03B8</i><sub>y</sub>/<i>\u03B8</i><sub>E</sub>'
         font_base = dict(family=font, size=sizes[4], color=colors[1])
         font_legend = dict(family=font, size=sizes[8])
-        kwargs_ = dict(range=xlim, showgrid=False, ticks='inside', showline=True, ticklen=sizes[7], mirror='all',
+        kwargs_ = dict(range=xyrange, showgrid=False, ticks='inside', showline=True, ticklen=sizes[7], mirror='all',
                        minor=dict(tickmode='auto', ticks='inside'), tickwidth=sizes[6], linewidth=sizes[6],
                        linecolor=colors[0], tickfont=font_base)
         kwargs_y = {**kwargs_}
@@ -4670,7 +4673,7 @@ class UlensModelFit(object):
         t_delta = t_stop - t_start
         t_extended_stop = t_stop + t_delta * tau_exteded
         t_extended_start = t_start - t_delta * tau_exteded
-        time_grid = int(t_stop-t_start)*7
+        time_grid = int(t_stop-t_start)*10
         times = np.linspace(t_start, t_stop, num=time_grid)
         time_grid = int(t_extended_stop - t_extended_start)*2
         times_extended = np.linspace(t_extended_start, t_extended_stop, num=time_grid)
