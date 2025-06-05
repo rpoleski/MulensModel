@@ -1269,7 +1269,6 @@ class UlensModelFit(object):
                         raise ValueError(
                             'File {:s} with boolean values should have'.format(str(bad))+'the same length as' +
                             ' the corresponding dataset')
-
                 elif bad_array.dtype == np.dtype('float'):
                     bad_bool = np.full(dataset.n_epochs, False, dtype=bool)
                     for (i, time) in enumerate(dataset.time):
@@ -1282,9 +1281,7 @@ class UlensModelFit(object):
                         'Wrong declaration of bad data points in file {:s}'.format(str(bad)),
                         'File should consists of boolean array of dataset\'s length or identifies of bad epochs' +
                         'in form of indexes: *int* or JD stamps:*floats*')
-
-                self._set_bool_bad(dataset, bad_bool)
-                self._print_out_bad_flags_file(dataset, bad)
+                self._set_bool_bad(dataset, bad, bad_bool)
 
     def _print_out_bad_flags_file(self, dataset, bad):
         """
@@ -1296,12 +1293,14 @@ class UlensModelFit(object):
         if self._yaml_results:
             print(out, **self._yaml_kwargs)
 
-    def _set_bool_bad(self, dataset, bad_bool):
+    def _set_bool_bad(self, dataset, bad, bad_bool):
         """
         Setting bad flags for dataset base on argument photometry_files['bad'] in yaml file
         """
         try:
             dataset.bad = bad_bool
+            self._print_out_bad_flags_file(dataset, bad)
+
         except TypeError:
             raise ValueError(
                 'Something wrong with provided bad flags for dataset ' + dataset.plot_properties['label'] + '\n ' +
