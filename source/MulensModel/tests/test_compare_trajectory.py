@@ -3,11 +3,11 @@ import numpy as np
 import unittest
 import pytest
 
-def get_times():
+def get_times(parameters):
     N = 5
     times = []
-    t_0 = get_parameters().t_0
-    t_E = get_parameters().t_E
+    t_0 = parameters.t_0
+    t_E = parameters.t_E
 
     for i in range(0,N,1):
         times.append(t_0 - 3 * t_E + i * (6 * t_E / (N - 1)))
@@ -37,8 +37,8 @@ def test_trajectory():
     """
     compares trajectory to values form VBBinaryLensing
     """
-    times = get_times()
     parameters = get_parameters()
+    times = get_times(parameters)
 
     trajectory = mm.Trajectory(parameters=parameters, times=times)
 

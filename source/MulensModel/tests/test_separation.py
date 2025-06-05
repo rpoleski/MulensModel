@@ -4,12 +4,13 @@ import unittest
 import pytest
 from test_compare_trajectory import get_parameters, get_times
 
+
 def test_separation():
     """
     compares separation to values form VBBinaryLensing
     """
     parameters = get_parameters()
-    times = get_times()
+    times = get_times(parameters)
 
     model = mm.Model(parameters=parameters)
   
