@@ -4571,7 +4571,6 @@ class UlensModelFit(object):
         tau = 1.5
         caustics = True
         sources = True
-
         self._ln_like(self._best_model_theta)
         self._reset_rcParams()
         colors_trajectory = ['blue', 'orange']
@@ -4645,8 +4644,7 @@ class UlensModelFit(object):
         """
         Creates plotly.graph_objects.Scatter objects with model trajectory
         """
-        traces_all = []
-        shapes_all = []
+        traces_all, shapes_all = [], []
         (times, times_extended) = self._get_times_for_interactive_trajectory_traces(t_start, t_stop)
         names_source = ['']
         if self._model.n_sources > 1:
@@ -4685,8 +4683,7 @@ class UlensModelFit(object):
         Creates Plotly Scatter traces for trajectories of satellite models.
         """
         dash_types = ['dash', 'longdash', 'dashdot', 'longdashdot']
-        traces_all = []
-        shapes_all = []
+        traces_all , shapes_all = [], []
         for (i, model) in enumerate(self._models_satellite):
             times_ = self._set_times_satellite(times, model)
             times_extended_ = self._set_times_satellite(times_extended, model)
@@ -4719,8 +4716,7 @@ class UlensModelFit(object):
             dash = 'solid'
         dash_extended = 'dot'
         showlegend = True
-        traces = []
-        shapes = []
+        traces, shapes = [], []
         (rho, t_0) = self._get_rho_t_0_for_interactive_trajectory(model)
         trajectories = self._get_trajectories_as_list(model, times)
         trajectories_extended = self._get_trajectories_as_list(model, times_extended)
@@ -4787,9 +4783,8 @@ class UlensModelFit(object):
         """
         Creates go.Scatter objects with caustics for the interactive trajectory plot
         """
-        showlegend = True
         trace = self._make_interactive_scatter_caustic(
-                    model=self._model, name=name, sizes=sizes, showlegend=showlegend)
+                    model=self._model, name=name, sizes=sizes, showlegend=True)
         return trace
 
     def _make_interactive_scatter_caustic(self, model, sizes, showlegend, epoch=None, name=None):
@@ -4817,7 +4812,7 @@ class UlensModelFit(object):
         x, y = model.caustics.get_caustics(n_points=50000)
         trace_caustics = go.Scatter(x=x, y=y, opacity=1., name=name,  mode='markers', xaxis="x", yaxis="y",
                                     showlegend=showlegend, marker=dict(color=color, size=sizes[1],
-                                                                       line=dict(color=color, width=1,),),)
+                                                                       line=dict(color=color, width=1,)))
         return trace_caustics
 
     def _make_interactive_scatter_caustic_singe_lens(self, name, sizes, showlegend, color='red'):
@@ -4825,7 +4820,7 @@ class UlensModelFit(object):
         Creates a Plotly Scatter trace for the caustics of the binary lens model.
         """
         trace_caustics = go.Scatter(x=[0.], y=[0.], opacity=1., mode='markers', name=name, showlegend=showlegend,
-                                    marker=dict(color=color, size=sizes[0], line=dict(color=color, width=1,),),
+                                    marker=dict(color=color, size=sizes[0], line=dict(color=color, width=1)),
                                     xaxis="x", yaxis="y")
         return trace_caustics
 
@@ -4837,7 +4832,6 @@ class UlensModelFit(object):
         shape = None
         if name is not None:
             name += 'Source'
-        showlegend = True
         if rho is not None:
             if epoch is None:
                 trajectories = self._get_trajectories_as_list(model, t_0)
@@ -4847,7 +4841,7 @@ class UlensModelFit(object):
             y_0 = trajectories[i].y[0]
             shape = dict(
                 type="circle", xref="x", yref="y", opacity=0.8, x0=x_0-rho, y0=y_0-rho, x1=x_0+rho, y1=y_0+rho,
-                name=name, showlegend=showlegend,
+                name=name, showlegend=True,
                 line=dict(color=color, width=sizes[1]))
 
         return shape
