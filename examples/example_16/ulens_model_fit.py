@@ -1259,7 +1259,6 @@ class UlensModelFit(object):
         """
         Read the bad flags from photometry_files['bad'] in yaml file
         """
-        print(dataset.plot_properties['label']+" flags set to: " + bad)
         if path.isfile(bad):
             bad_array = np.genfromtxt(bad)
             if len(bad_array) > 0:
@@ -1285,6 +1284,17 @@ class UlensModelFit(object):
                         'in form of indexes: *int* or JD stamps:*floats*')
 
                 self._set_bool_bad(dataset, bad_bool)
+                self._print_out_bad_flags_file(dataset, bad)
+
+    def _print_out_bad_flags_file(self, dataset, bad):
+        """
+        When bad flags sets from the file, print the file name
+        """
+        out = '{:} bad flags set from file: {:s}'.format(
+            dataset.plot_properties['label'], str(bad))
+        print(out)
+        if self._yaml_results:
+            print(out, **self._yaml_kwargs)
 
     def _set_bool_bad(self, dataset, bad_bool):
         """
