@@ -4683,7 +4683,7 @@ class UlensModelFit(object):
         Creates Plotly Scatter traces for trajectories of satellite models.
         """
         dash_types = ['dash', 'longdash', 'dashdot', 'longdashdot']
-        traces_all , shapes_all = [], []
+        traces_all, shapes_all = [], []
         for (i, model) in enumerate(self._models_satellite):
             times_ = self._set_times_satellite(times, model)
             times_extended_ = self._set_times_satellite(times_extended, model)
