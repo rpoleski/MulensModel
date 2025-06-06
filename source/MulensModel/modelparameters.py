@@ -1899,17 +1899,15 @@ class ModelParameters(object):
         """
         Set parameters of the lens keplerian orbit i.e. self._lens_keplerian.
         """
-        position = [self.s, 0, self.s_z]
-        velocity = [self.gamma_parallel, self.gamma_perp, self.gamma_z]
-        new_input = [*position, *velocity]
+        position = np.array([self.s, 0, self.s_z])
+        gamma = np.array([self.gamma_parallel, self.gamma_perp, self.gamma_z])
+        new_input = [*list(position), *list(gamma)] # XXX add other parameters here
         if new_input == self._lens_keplerian_last_input:
             return
 
         self._lens_keplerian_last_input = new_input
 
-        position = np.array(position)
-        factor = velocity[2] / np.sqrt(velocity[2]**2 + velocity[0]**2)
-        velocity =  factor * np.array(velocity) * self.s
+        velocity = self.s * gamma  # This is in units of R_E = D_L * theta_E.
         a = np.sqrt(np.sum(position**2))
         self._lens_keplerian['semimajor_axis'] = a
         self._lens_keplerian['period'] = 2 * np.pi * a / np.sqrt(np.sum(velocity**2)) * 365.25
