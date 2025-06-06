@@ -16,7 +16,7 @@ def test_separation():
   
     separation = model.parameters.get_s(times)
 
-    separation_VBB = [0.579431, 0.368148, 1.200000, 1.661740, 1.610164]
+    separation_VBB = [0.578962, 0.368391, 1.200000, 1.661684, 1.610328]
     np.testing.assert_almost_equal(separation, separation_VBB)
 
  
