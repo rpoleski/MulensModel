@@ -1807,7 +1807,8 @@ class ModelParameters(object):
 
         if self._type['full keplerian motion']:
             self._set_lens_keplerian_orbit()
-            raise NotImplementedError("NOT DONE YET")
+            sky_positions = self._lens_orbit.get_reference_plane_position(epoch)
+            s_of_t = np.sqrt(np.sum(sky_positions**2, axis=0))
         else:
             s_of_t = self.s + self.ds_dt * (epoch - self.t_0_kep) / 365.25
 
@@ -1832,7 +1833,6 @@ class ModelParameters(object):
 
         if isinstance(epoch, list):
             epoch = np.array(epoch)
-
 
         if self._type['full keplerian motion']:
             self._set_lens_keplerian_orbit()
@@ -1918,12 +1918,16 @@ class ModelParameters(object):
         sin_i = np.sqrt(h[0]**2+h[1]**2) / np.sqrt(np.sum(h**2))
         self._lens_keplerian['inclination'] = np.arctan2(sin_i, cos_i) * 180. / np.pi
         cos_Omega = -h[1] / np.sqrt(h[0]**2+h[1]**2)
-        sin_Omega = h[0] / np.sqrt(h[0]**2+h[1]**2)
+        sin_Omega = h[0] / np.sqrt(h[0]**2+h[1]**2)  # XXX - These sqrt-s can be removed
         self._lens_keplerian['Omega_node'] = np.arctan2(sin_Omega, cos_Omega) * 180. / np.pi
-        self._lens_keplerian['argument_of_latitude_reference'] = Utils.get_angle_between_vectors(n, position)
+        gamma_012 = np.sqrt(np.sum(gamma**2))
+        gamma_02 = np.sqrt(gamma[0]**2+gamma[2]**2)
+        phi_0 = np.arctan2(-gamma[0]*gamma_012, gamma[2]*gamma_02)
+        self._lens_keplerian['argument_of_latitude_reference'] = phi_0 * 180. / np.pi
+#        Utils.get_angle_between_vectors(n, position)
         self._lens_keplerian['epoch_reference'] = self.t_0_kep
-        print("ORBIT:")
-        print(self._lens_keplerian)
+#        print("ORBIT:")
+#        print(self._lens_keplerian)
         self._lens_orbit = Orbit(**self._lens_keplerian)
 
     @property
