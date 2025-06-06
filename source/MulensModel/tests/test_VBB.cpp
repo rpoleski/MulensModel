@@ -54,7 +54,7 @@ int main()
 
 
         pr[9] = ds_dt_VBB;
-	// discrepancy between VBB code and Skowron et al. In Skowron et al gamma_2 = - dalpha/dt in Bozza gamma_2 = dalpha/dt
+	// discrepancy between VBB code and Skowron et al 2011. In Skowron et al gamma_2 = - dalpha/dt in Bozza gamma_2 = dalpha/dt
         pr[10] = -da_dt_VBB;
         pr[11] = dsz_dt_VBB;
 
@@ -63,9 +63,9 @@ int main()
         VBBL.BinaryLightCurveOrbital(pr, t_array, mag_orbital_array, y1_orbital_array, y2_orbital_array, sep_array, np);
         
 
-	printf("[%lf, %lf, %lf, %lf, %lf]\n", y1_orbital_array[0], y1_orbital_array[1], y1_orbital_array[2], y1_orbital_array[3], y1_orbital_array[4]);
-	printf("[%lf, %lf, %lf, %lf, %lf]\n", y2_orbital_array[0], y2_orbital_array[1], y2_orbital_array[2], y2_orbital_array[3], y2_orbital_array[4]);
-	printf("[%lf, %lf, %lf, %lf, %lf]\n", sep_array[0], sep_array[1], sep_array[2], sep_array[3], sep_array[4]);
+	printf("[%.8f, %.8f, %.8f, %.8f, %.8f]\n", y1_orbital_array[0], y1_orbital_array[1], y1_orbital_array[2], y1_orbital_array[3], y1_orbital_array[4]);
+	printf("[%.8f, %.8f, %.8f, %.8f, %.8f]\n", y2_orbital_array[0], y2_orbital_array[1], y2_orbital_array[2], y2_orbital_array[3], y2_orbital_array[4]);
+	printf("[%.8f, %.8f, %.8f, %.8f, %.8f]\n", sep_array[0], sep_array[1], sep_array[2], sep_array[3], sep_array[4]);
 
 
 }
