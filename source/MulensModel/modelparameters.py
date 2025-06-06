@@ -1901,7 +1901,6 @@ class ModelParameters(object):
         """
         position = [self.s, 0, self.s_z]
         velocity = [self.gamma_parallel, self.gamma_perp, self.gamma_z]
-        # XXX is there a minus in front of self.gamma_perp?
         new_input = [*position, *velocity]
         if new_input == self._lens_keplerian_last_input:
             return
@@ -1925,8 +1924,8 @@ class ModelParameters(object):
         self._lens_keplerian['Omega_node'] = np.arctan2(sin_Omega, cos_Omega) * 180. / np.pi
         self._lens_keplerian['argument_of_latitude_reference'] = Utils.get_angle_between_vectors(n, position)
         self._lens_keplerian['epoch_reference'] = self.t_0_kep
-#        print("ORBIT:")
-#        print(self._lens_keplerian)
+        print("ORBIT:")
+        print(self._lens_keplerian)
         self._lens_orbit = Orbit(**self._lens_keplerian)
 
     @property
