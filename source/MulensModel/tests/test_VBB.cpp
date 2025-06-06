@@ -38,7 +38,7 @@ int main()
         VBBL.SetObjectCoordinates("18:00:00 -26:00:00");
 
 	double ds_dt, dalpha_dt, ds_z_dt;
-	double s_z, s_prim, conv_factor;
+	double s_z, conv_factor;
 	double ds_dt_VBB, da_dt_VBB, dsz_dt_VBB;
 
 	ds_dt = 20.2; //the rate of change of the separation per year
@@ -46,16 +46,16 @@ int main()
         ds_z_dt = 20; // rate of change of the distance along the line of sight per year
 
 	conv_factor = -ds_dt * s;
-        s_z = conv_factor/ds_z_dt; //distance along the line of sight
-        s_prim = sqrt(pow(s,2) + pow(s_z,2)); 
+        s_z = conv_factor/ds_z_dt; //distance along the line of sight 
 
-        ds_dt_VBB = ds_dt * 1/s_prim * 1/365.2422; // the rate of change of the separation per day
+        ds_dt_VBB = ds_dt * 1/s * 1/365.2422; // the rate of change of the separation per day
         da_dt_VBB = dalpha_dt * M_PI/180 * 1/365.2422; // rate of change of alpha radian per day
-        dsz_dt_VBB = ds_z_dt * 1/s_prim * 1/365.2422; // rate of change of the distance along the line of sight per year
+        dsz_dt_VBB = ds_z_dt * 1/s * 1/365.2422; // rate of change of the distance along the line of sight per year
 
 
         pr[9] = ds_dt_VBB;
-        pr[10] = da_dt_VBB;
+	// discrepancy between VBB code and Skowron et al. In Skowron et al gamma_2 = - dalpha/dt in Bozza gamma_2 = dalpha/dt
+        pr[10] = -da_dt_VBB;
         pr[11] = dsz_dt_VBB;
 
 	double mag_orbital_array[np], y1_orbital_array[np], y2_orbital_array[np], sep_array[np];
@@ -65,6 +65,7 @@ int main()
 
 	printf("[%lf, %lf, %lf, %lf, %lf]\n", y1_orbital_array[0], y1_orbital_array[1], y1_orbital_array[2], y1_orbital_array[3], y1_orbital_array[4]);
 	printf("[%lf, %lf, %lf, %lf, %lf]\n", y2_orbital_array[0], y2_orbital_array[1], y2_orbital_array[2], y2_orbital_array[3], y2_orbital_array[4]);
+	printf("[%lf, %lf, %lf, %lf, %lf]\n", sep_array[0], sep_array[1], sep_array[2], sep_array[3], sep_array[4]);
 
 
 }
