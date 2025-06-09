@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.44.2'
+__version__ = '0.45.0'
 
 
 class UlensModelFit(object):
@@ -1327,7 +1327,7 @@ class UlensModelFit(object):
         required = ints_required
 
         bools = ['progress']
-        ints = ['n_walkers', 'n_burn']
+        ints = ['n_walkers', 'n_burn', 'posterior file thin']
         strings = ['posterior file', 'posterior file fluxes']
         allowed = bools + ints + strings
 
@@ -3452,6 +3452,11 @@ class UlensModelFit(object):
             blobs = np.array(self._sampler.blobs)
             blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, :]
             samples = np.dstack((samples, blobs))
+
+        thin = self._fitting_parameters.get('posterior file thin', None)
+        if thin is not None:
+            samples = samples[:, ::thin, :]
+
         np.save(self._posterior_file_name, samples)
 
     def _parse_results_MultiNest(self):

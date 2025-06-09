@@ -121,6 +121,8 @@ fitting_parameters:
     progress: True
     posterior file: ob03235_2_models.npy
     posterior file fluxes: all
+    posterior file thin: 50
+    # Above is used to reduce the size of output posterior file.
     ## MultiNest only (basename, multimodal, evidence tolerance=0.5)
     # basename: out_ob08092_O4_MN-
     # multimodal: True
