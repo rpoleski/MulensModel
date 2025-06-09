@@ -4154,7 +4154,7 @@ class UlensModelFit(object):
         make and save plot of the best trajectory
         """
         dpi = 300
-        tau = 1.5
+        tau = 1.
 
         self._ln_like(self._best_model_theta)  # Sets all parameters to
         # the best model.
