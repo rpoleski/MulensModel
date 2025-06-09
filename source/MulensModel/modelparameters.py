@@ -1901,7 +1901,7 @@ class ModelParameters(object):
         """
         position = np.array([self.s, 0, self.s_z])
         gamma = np.array([self.gamma_parallel, self.gamma_perp, self.gamma_z])
-        new_input = [*list(position), *list(gamma)] # XXX add other parameters here
+        new_input = [*list(position), *list(gamma)] # XXX add other parameters here if needed.
         if new_input == self._lens_keplerian_last_input:
             return
 
@@ -1914,12 +1914,8 @@ class ModelParameters(object):
         h = np.cross(position, velocity)
         j = np.array([0, 1, 0])
         n = np.cross(j, h)
-        cos_i = h[2] / np.sqrt(np.sum(h**2))
-        sin_i = np.sqrt(h[0]**2+h[1]**2) / np.sqrt(np.sum(h**2))
-        self._lens_keplerian['inclination'] = np.arctan2(sin_i, cos_i) * 180. / np.pi
-        cos_Omega = -h[1] / np.sqrt(h[0]**2+h[1]**2)
-        sin_Omega = h[0] / np.sqrt(h[0]**2+h[1]**2)  # XXX - These sqrt-s can be removed
-        self._lens_keplerian['Omega_node'] = np.arctan2(sin_Omega, cos_Omega) * 180. / np.pi
+        self._lens_keplerian['inclination'] = np.arctan2(np.sqrt(h[0]**2+h[1]**2), h[2]) * 180. / np.pi
+        self._lens_keplerian['Omega_node'] = np.arctan2(h[0], -h[1]) * 180. / np.pi
         gamma_012 = np.sqrt(np.sum(gamma**2))
         gamma_02 = np.sqrt(gamma[0]**2+gamma[2]**2)
         phi_0 = np.arctan2(-gamma[0]*gamma_012, gamma[2]*gamma_02)
