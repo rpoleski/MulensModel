@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.44.3'
+__version__ = '0.46.0'
 
 
 class UlensModelFit(object):
@@ -4154,7 +4154,7 @@ class UlensModelFit(object):
         make and save plot of the best trajectory
         """
         dpi = 300
-        tau = 1.
+        tau = 1.5
 
         self._ln_like(self._best_model_theta)  # Sets all parameters to
         # the best model.
@@ -4540,11 +4540,11 @@ class UlensModelFit(object):
         for trace in traces_residuals:
             self._interactive_fig.add_trace(trace)
 
-    def _save_interactive_fig(self, fig, typ):
+    def _save_interactive_fig(self, fig, type_):
         """
         Saving interactive figure
         """
-        file_ = self._plots[typ]['interactive']
+        file_ = self._plots[type_]['interactive']
         if path.exists(file_):
             if path.isfile(file_):
                 msg = "Existing file " + file_ + " will be overwritten"
@@ -4568,7 +4568,7 @@ class UlensModelFit(object):
         Prepares the settings of interactive plot for the trajectory.
         """
         scale = 0.5  # original size=(1920:1440)
-        tau = 1.5
+        tau = 1.
         caustics = True
         sources = True
         self._ln_like(self._best_model_theta)
