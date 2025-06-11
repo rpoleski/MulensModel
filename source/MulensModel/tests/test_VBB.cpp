@@ -46,12 +46,13 @@ int main()
         ds_z_dt = 20; // rate of change of the distance along the line of sight per year
 
 	conv_factor = -ds_dt * s;
-        s_z = conv_factor/ds_z_dt; //distance along the line of sight 
+        s_z = conv_factor/ds_z_dt; //distance along the line of sight
+         	
 
         ds_dt_VBB = ds_dt * 1/s * 1/365.2422; // the rate of change of the separation per day
         da_dt_VBB = dalpha_dt * M_PI/180 * 1/365.2422; // rate of change of alpha radian per day
         dsz_dt_VBB = ds_z_dt * 1/s * 1/365.2422; // rate of change of the distance along the line of sight per year
-
+        
 
         pr[9] = ds_dt_VBB;
 	// discrepancy between VBB code and Skowron et al 2011. In Skowron et al gamma_2 = - dalpha/dt in Bozza gamma_2 = dalpha/dt
@@ -77,6 +78,12 @@ int main()
 
 	pr[12] = sr;
 	pr[13] = ar;
+
+	VBBL.BinaryLightCurveKepler(pr, t_array, mag_keplerian_array, y1_keplerian_array, y2_keplerian_array, sep_keplerian_array, np);
+
+	printf("[%.8f, %.8f, %.8f, %.8f, %.8f]\n", y1_keplerian_array[0], y1_keplerian_array[1], y1_keplerian_array[2], y1_keplerian_array[3], y1_keplerian_array[4]);
+        printf("[%.8f, %.8f, %.8f, %.8f, %.8f]\n", y2_keplerian_array[0], y2_keplerian_array[1], y2_keplerian_array[2], y2_keplerian_array[3], y2_keplerian_array[4]);
+        printf("[%.8f, %.8f, %.8f, %.8f, %.8f]\n", sep_keplerian_array[0], sep_keplerian_array[1], sep_keplerian_array[2], sep_keplerian_array[3], sep_keplerian_array[4]);
 
 
 
