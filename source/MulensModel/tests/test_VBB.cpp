@@ -67,6 +67,18 @@ int main()
 	printf("[%.8f, %.8f, %.8f, %.8f, %.8f]\n", y2_orbital_array[0], y2_orbital_array[1], y2_orbital_array[2], y2_orbital_array[3], y2_orbital_array[4]);
 	printf("[%.8f, %.8f, %.8f, %.8f, %.8f]\n", sep_array[0], sep_array[1], sep_array[2], sep_array[3], sep_array[4]);
 
+	// eliptical orbit
+	double mag_keplerian_array[np], y1_keplerian_array[np], y2_keplerian_array[np], sep_keplerian_array[np];
+        double sr, ar, a;
+
+	a = 2;
+	sr = s_z/s;
+        ar = a/sqrt(s_z*s_z + s*s);
+
+	pr[12] = sr;
+	pr[13] = ar;
+
+
 
 }
 
