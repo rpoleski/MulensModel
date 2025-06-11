@@ -2,6 +2,7 @@ import numpy as np
 
 from MulensModel.uniformcausticsampling import UniformCausticSampling
 from MulensModel.orbits.orbit import Orbit
+from MulensModel.utils import Utils
 
 
 class ModelParameters(object):
@@ -1804,7 +1805,12 @@ class ModelParameters(object):
         if isinstance(epoch, list):
             epoch = np.array(epoch)
 
-        s_of_t = self.s + self.ds_dt * (epoch - self.t_0_kep) / 365.25
+        if self._type['full keplerian motion']:
+            self._set_lens_keplerian_orbit()
+            sky_positions = self._lens_orbit.get_reference_plane_position(epoch)
+            s_of_t = np.sqrt(np.sum(sky_positions**2, axis=0))
+        else:
+            s_of_t = self.s + self.ds_dt * (epoch - self.t_0_kep) / 365.25
 
         return s_of_t
 
@@ -1828,7 +1834,12 @@ class ModelParameters(object):
         if isinstance(epoch, list):
             epoch = np.array(epoch)
 
-        alpha_of_t = self.alpha + self.dalpha_dt * (epoch - self.t_0_kep) / 365.25
+        if self._type['full keplerian motion']:
+            self._set_lens_keplerian_orbit()
+            sky_positions = self._lens_orbit.get_reference_plane_position(epoch)
+            alpha_of_t = self.alpha + np.arctan2(sky_positions[1, :], sky_positions[0, :]) * 180 / np.pi
+        else:
+            alpha_of_t = self.alpha + self.dalpha_dt * (epoch - self.t_0_kep) / 365.25
 
         return alpha_of_t
 
@@ -1888,31 +1899,32 @@ class ModelParameters(object):
         """
         Set parameters of the lens keplerian orbit i.e. self._lens_keplerian.
         """
-        position = [self.s, 0, self.s_z]
-        velocity = [self.gamma_parallel, self.gamma_perp, self.gamma_z]
-        new_input = [*position, *velocity]
+        position = np.array([self.s, 0, self.s_z])
+        gamma = np.array([self.gamma_parallel, self.gamma_perp, self.gamma_z])
+        new_input = [*list(position), *list(gamma)] # XXX add other parameters here if needed.
         if new_input == self._lens_keplerian_last_input:
             return
 
         self._lens_keplerian_last_input = new_input
 
-        position = np.array(position)
-        velocity = self.s * np.array(velocity)
-
+        velocity = self.s * gamma  # This is in units of R_E = D_L * theta_E.
         a = np.sqrt(np.sum(position**2))
         self._lens_keplerian['semimajor_axis'] = a
-        self._lens_keplerian['period'] = 2 * np.pi * a / np.sqrt(np.sum(velocity**2))
+        self._lens_keplerian['period'] = 2 * np.pi * a / np.sqrt(np.sum(velocity**2)) * 365.25
         h = np.cross(position, velocity)
         j = np.array([0, 1, 0])
         n = np.cross(j, h)
-        cos_i = h[2] / np.sqrt(np.sum(h**2))
-        sin_i = np.sqrt(h[0]**2+h[1]**2) / np.sqrt(np.sum(h**2))
-        self._lens_keplerian['inclination'] = np.arctan2(sin_i, cos_i) * 180. / np.pi
-        cos_Omega = -h[1] / np.sqrt(h[0]**2+h[1]**2)
-        sin_Omega = h[0] / np.sqrt(h[0]**2+h[1]**2)
-        self._lens_keplerian['Omega'] = np.arctan2(sin_Omega, cos_Omega) * 180. / np.pi
-        u = np.arccos(np.dot(n, position) / (np.sqrt(np.sum(n**2))*np.sqrt(np.sum(position**2))))
-        self._lens_keplerian['argument_of_latitude'] = u * 180. / np.pi
+        self._lens_keplerian['inclination'] = np.arctan2(np.sqrt(h[0]**2+h[1]**2), h[2]) * 180. / np.pi
+        self._lens_keplerian['Omega_node'] = np.arctan2(h[0], -h[1]) * 180. / np.pi
+        gamma_012 = np.sqrt(np.sum(gamma**2))
+        gamma_02 = np.sqrt(gamma[0]**2+gamma[2]**2)
+        phi_0 = np.arctan2(-gamma[0]*gamma_012, gamma[2]*gamma_02)
+        self._lens_keplerian['argument_of_latitude_reference'] = phi_0 * 180. / np.pi
+#        Utils.get_angle_between_vectors(n, position)
+        self._lens_keplerian['epoch_reference'] = self.t_0_kep
+#        print("ORBIT:")
+#        print(self._lens_keplerian)
+        self._lens_orbit = Orbit(**self._lens_keplerian)
 
     @property
     def lens_semimajor_axis(self):
@@ -1927,10 +1939,10 @@ class ModelParameters(object):
     @property
     def lens_period(self):
         """
-        XXX
+        XXX in years
         """
         self._set_lens_keplerian_orbit()
-        return self._lens_keplerian['period']
+        return self._lens_keplerian['period'] / 365.25
 
     @property
     def lens_inclination(self):
@@ -1946,7 +1958,7 @@ class ModelParameters(object):
         XXX
         """
         self._set_lens_keplerian_orbit()
-        return self._lens_keplerian['Omega']
+        return self._lens_keplerian['Omega_node']
 
     @property
     def lens_argument_of_latitude_reference(self):
@@ -1954,7 +1966,7 @@ class ModelParameters(object):
         XXX
         """
         self._set_lens_keplerian_orbit()
-        return self._lens_keplerian['argument_of_latitude']
+        return self._lens_keplerian['argument_of_latitude_reference']
 
     def is_finite_source(self):
         """

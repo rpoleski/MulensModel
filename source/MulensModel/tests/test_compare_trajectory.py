@@ -42,10 +42,8 @@ def test_trajectory():
 
     trajectory = mm.Trajectory(parameters=parameters, times=times)
 
-    x_VBB = [-3.00059505, 1.59070972, 0.16689172, -1.25159717, -2.66308834]
-    y_VBB = [-0.55177383, -0.16633580, -0.52931291, -0.99575576, -1.48861865]
-
-
+    x_VBB = [-3.00057308, 1.59071791, 0.16689172, -1.25159957, -2.66309601]
+    y_VBB = [-0.55189331, -0.16625747, -0.52931291, -0.99575273, -1.48860493]
 
     np.testing.assert_almost_equal(trajectory.x, x_VBB)
     np.testing.assert_almost_equal(trajectory.y, y_VBB)

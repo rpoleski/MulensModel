@@ -48,11 +48,16 @@ int main()
 	conv_factor = -ds_dt * s;
         s_z = conv_factor/ds_z_dt; //distance along the line of sight
          	
-
         ds_dt_VBB = ds_dt * 1/s * 1/365.2422; // the rate of change of the separation per day
         da_dt_VBB = dalpha_dt * M_PI/180 * 1/365.2422; // rate of change of alpha radian per day
         dsz_dt_VBB = ds_z_dt * 1/s * 1/365.2422; // rate of change of the distance along the line of sight per year
         
+
+        ds_dt_VBB = ds_dt * 1/s * 1/365.25; // the rate of change of the separation per day
+        da_dt_VBB = dalpha_dt * M_PI/180 * 1/365.25; // rate of change of alpha radian per day
+        dsz_dt_VBB = ds_z_dt * 1/s * 1/365.25; // rate of change of the distance along the line of sight per year
+
+
 
         pr[9] = ds_dt_VBB;
 	// discrepancy between VBB code and Skowron et al 2011. In Skowron et al gamma_2 = - dalpha/dt in Bozza gamma_2 = dalpha/dt
