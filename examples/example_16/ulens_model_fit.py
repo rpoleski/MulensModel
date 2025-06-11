@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.45.0'
+__version__ = '0.46.0'
 
 
 class UlensModelFit(object):
@@ -204,12 +204,11 @@ class UlensModelFit(object):
             It is possible to export posterior to a .npy file. Just provide
             the file name as ``posterior file`` parameter. You can read this
             file using ``numpy.load()``. You will get an array with a shape of
-            (``n_walkers``, ``n_steps-n_burn``, ``n_parameters``). You can
-            additionally add option ``posterior file fluxes`` for which
-            allowed values are ``all`` and *None* (``null`` in yaml file).
-            The value ``all`` means that additionally all source and blending
-            fluxes will be saved (``n_parameters`` increases by two times the
-            number of datasets).
+            (``n_walkers``, ``n_steps-n_burn``, ``n_parameters``).
+            You can additionally add option ``posterior file fluxes`` for which allowed values are ``all``,
+            *None* (``null`` in yaml file), or a list of dataset indexes. The value ``all`` means that all source and
+            blending fluxes will be saved. You may also provide a list of datasets label
+            (identical to the ones in ``MulensData.plot_properties['label']``).
 
             Second - pyMultiNest. There are no required parameters, but a few
             can be provided. Currently accepted ones are:
@@ -1328,16 +1327,16 @@ class UlensModelFit(object):
 
         bools = ['progress']
         ints = ['n_walkers', 'n_burn', 'posterior file thin']
-        strings = ['posterior file', 'posterior file fluxes']
-        allowed = bools + ints + strings
+        strings = ['posterior file']
+        strings_or_lists = ['posterior file fluxes']
+        allowed = bools + ints + strings + strings_or_lists
 
         self._check_required_and_allowed_parameters(required, allowed)
-        self._check_parameters_types(settings, bools=bools,
-                                     ints=ints+ints_required, strings=strings)
+        self._check_parameters_types(
+            settings, bools=bools, ints=ints+ints_required, strings=strings, strings_or_lists=strings_or_lists)
 
         self._kwargs_EMCEE = {'initial_state': None,  # It will be set later.
-                              'nsteps': self._fitting_parameters['n_steps'],
-                              'progress': False}
+                              'nsteps': self._fitting_parameters['n_steps'], 'progress': False}
 
         if 'progress' in settings:
             self._kwargs_EMCEE['progress'] = settings['progress']
@@ -1348,32 +1347,7 @@ class UlensModelFit(object):
         else:
             settings['n_burn'] = int(0.25*self._fitting_parameters['n_steps'])
 
-        if 'posterior file' not in settings:
-            self._posterior_file_name = None
-            if 'posterior file fluxes' in settings:
-                raise ValueError('You cannot set "posterior file fluxes" ' +
-                                 'without setting "posterior file"')
-        else:
-            name = settings['posterior file']
-            if name[-4:] != '.npy':
-                raise ValueError('"posterior file" must end in ".npy", ' +
-                                 'got: ' + name)
-            if path.exists(name):
-                if path.isfile(name):
-                    msg = "Existing file " + name + " will be overwritten"
-                    warnings.warn(msg)
-                else:
-                    raise ValueError("The path provided for posterior (" +
-                                     name + ") exists and is a directory")
-            self._posterior_file_name = name[:-4]
-            self._posterior_file_fluxes = None
-
-        if 'posterior file fluxes' in settings:
-            fluxes_allowed = ['all', None]
-            if settings['posterior file fluxes'] not in fluxes_allowed:
-                raise ValueError('Unrecognized "posterior file fluxes": ' +
-                                 settings['posterior file fluxes'])
-            self._posterior_file_fluxes = settings['posterior file fluxes']
+        self._parse_posterior_file_settings()
 
     def _check_required_and_allowed_parameters(self, required, allowed):
         """
@@ -1395,7 +1369,7 @@ class UlensModelFit(object):
                              str(set(settings.keys()) - set(full)))
 
     def _check_parameters_types(self, settings, bools=None,
-                                ints=None, floats=None, strings=None):
+                                ints=None, floats=None, strings=None, strings_or_lists=None):
         """
         Check if the settings have right type.
         For floats we accept ints as well.
@@ -1408,33 +1382,68 @@ class UlensModelFit(object):
             floats = []
         if strings is None:
             strings = []
+        if strings_or_lists is None:
+            strings_or_lists = []
 
         fmt = "For key {:} the expected type is {:}, but got {:}"
         for (key, value) in settings.items():
             if key in bools:
                 if not isinstance(value, bool):
-                    raise TypeError(
-                        fmt.format(key, "bool", str(type(value))))
+                    raise TypeError(fmt.format(key, "bool", str(type(value))))
             elif key in ints:
                 if not isinstance(value, int):
-                    raise TypeError(
-                        fmt.format(key, "int", str(type(value))))
+                    raise TypeError(fmt.format(key, "int", str(type(value))))
             elif key in floats:
                 if not isinstance(value, (float, int)):
-                    raise TypeError(
-                        fmt.format(key, "float", str(type(value))))
+                    raise TypeError(fmt.format(key, "float", str(type(value))))
             elif key in strings:
                 if not isinstance(value, str):
-                    raise TypeError(
-                        fmt.format(key, "string", str(type(value))))
+                    raise TypeError(fmt.format(key, "string", str(type(value))))
+            elif key in strings_or_lists:
+                if not isinstance(value, (str, list)):
+                    raise TypeError(fmt.format(key, "string or list", str(type(value))))
             else:
-                raise ValueError(
-                    "internal bug - no type for key " + key + " specified")
+                raise ValueError("internal bug - no type for key " + key + " specified")
+
+    def _parse_posterior_file_settings(self):
+        """Parse information about posterior file for EMCEE fitting."""
+        settings = self._fitting_parameters
+
+        if 'posterior file' not in settings:
+            self._posterior_file_name = None
+            if 'posterior file fluxes' in settings:
+                raise ValueError('You cannot set "posterior file fluxes" without setting "posterior file"')
+        else:
+            name = settings['posterior file']
+            if name[-4:] != '.npy':
+                raise ValueError('"posterior file" must end in ".npy", got: ' + name)
+            if path.exists(name):
+                if path.isfile(name):
+                    msg = "Existing file " + name + " will be overwritten"
+                    warnings.warn(msg)
+                else:
+                    raise ValueError("The path provided for posterior (" +
+                                     name + ") exists and is a directory")
+            self._posterior_file_name = name[:-4]
+            self._posterior_file_fluxes = None
+
+        if 'posterior file fluxes' in settings:
+            not_changed = ['all', None]
+            if settings['posterior file fluxes'] in not_changed:
+                self._posterior_file_fluxes = settings['posterior file fluxes']
+            elif isinstance(settings['posterior file fluxes'], list):
+                indexes = []
+                for label in settings['posterior file fluxes']:
+                    label_index = self._get_no_of_dataset(label)
+                    indexes += list(np.arange(self._n_fluxes_per_dataset) + self._n_fluxes_per_dataset * label_index)
+
+                self._posterior_file_fluxes = indexes
+            else:
+                raise ValueError('Unrecognized "posterior file fluxes": ' + str(settings['posterior file fluxes']))
 
     def _get_n_walkers(self):
         """
-        Guess how many walkers (and hence starting values) there will be.
-        EMCEE fitting only.
+        Guess how many walkers (and hence starting values) there will be. EMCEE fitting only.
         """
         if self._fit_method != 'EMCEE':
             raise ValueError('internal bug')
@@ -1445,8 +1454,7 @@ class UlensModelFit(object):
             if self._starting_parameters_type == 'draw':
                 self._n_walkers = 4 * self._n_fit_parameters
             elif self._starting_parameters_type != 'file':
-                raise ValueError(
-                    'Unexpected: ' + self._starting_parameters_type)
+                raise ValueError('Unexpected: ' + self._starting_parameters_type)
 
     def _parse_fitting_parameters_MultiNest(self):
         """
@@ -2044,19 +2052,22 @@ class UlensModelFit(object):
               or name of the data file if label is not specified,
               or a sequential index of the dataset.
 
+        RP NOTE: the above docstring seems wrong, i.e., int input is not parsed properly.
+
         Returns :
           index: *int*
           Sequential index of the dataset from [0,1,...,n_datasets-1]
 
         """
-
         if '"' in label:
             label = label.strip('"')
+
         for (i, dataset) in enumerate(self._datasets):
             if dataset.plot_properties['label'] == label:
                 return i
-        raise KeyError(
-            "Unrecognized dataset label in fit_constraints/prior: " + label)
+
+        raise KeyError("Unrecognized dataset label: " + label + "\nallowed labels: " +
+                       str([d.plot_properties['label'] for d in self._datasets]))
 
     def _read_prior_t_E_data(self):
         """
@@ -3448,9 +3459,17 @@ class UlensModelFit(object):
         """
         n_burn = self._fitting_parameters.get('n_burn', 0)
         samples = self._sampler.chain[:, n_burn:, :]
-        if self._posterior_file_fluxes == 'all':
+        if self._posterior_file_fluxes is not None:
             blobs = np.array(self._sampler.blobs)
             blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, :]
+            if self._posterior_file_fluxes == 'all':
+                pass
+            elif isinstance(self._posterior_file_fluxes, list):
+                blobs = blobs[:, :, self._posterior_file_fluxes]
+            else:
+                ValueError(
+                    "internal error: " + str(type(self._posterior_file_fluxes)) + str(self._posterior_file_fluxes))
+
             samples = np.dstack((samples, blobs))
 
         thin = self._fitting_parameters.get('posterior file thin', None)

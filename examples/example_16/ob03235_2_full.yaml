@@ -121,6 +121,8 @@ fitting_parameters:
     progress: True
     posterior file: ob03235_2_models.npy
     posterior file fluxes: all
+    # Above can be also a list of dataset indexes, e.g.,
+    # posterior file fluxes: ["OGLE I-band"]
     posterior file thin: 50
     # Above is used to reduce the size of output posterior file.
     ## MultiNest only (basename, multimodal, evidence tolerance=0.5)
