@@ -69,8 +69,6 @@ class Model(object):
     limb-darkening coefficients.
     """
 
-    _N_source_attr = ['_magnification_curve']
-
     def __init__(
             self, parameters=None, coords=None, ra=None, dec=None,
             ephemerides_file=None):
