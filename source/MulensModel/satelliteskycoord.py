@@ -69,6 +69,15 @@ class SatelliteSkyCoord(object):
 
         return self._satellite_skycoord
 
+    def get_horizons(self):
+        """
+        Returns an instance of Horizons class.
+        """
+        if self._horizons is None:
+            self._prepare_horizons()
+
+        return self._horizons
+
     def _prepare_horizons(self):
         """
         Prepare an instance of Horizons class and interpolation functions.
