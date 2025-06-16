@@ -12,7 +12,7 @@ import numpy as np
 import shlex
 from scipy.interpolate import interp1d
 from matplotlib import pyplot as plt
-from matplotlib import gridspec, rcParams, rcParamsDefault
+from matplotlib import gridspec, rcParams, rcParamsDefault, colors
 # from matplotlib.backends.backend_pdf import PdfPages
 
 import_failed = set()
@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.45.0'
+__version__ = '0.46.0'
 
 
 class UlensModelFit(object):
@@ -204,12 +204,11 @@ class UlensModelFit(object):
             It is possible to export posterior to a .npy file. Just provide
             the file name as ``posterior file`` parameter. You can read this
             file using ``numpy.load()``. You will get an array with a shape of
-            (``n_walkers``, ``n_steps-n_burn``, ``n_parameters``). You can
-            additionally add option ``posterior file fluxes`` for which
-            allowed values are ``all`` and *None* (``null`` in yaml file).
-            The value ``all`` means that additionally all source and blending
-            fluxes will be saved (``n_parameters`` increases by two times the
-            number of datasets).
+            (``n_walkers``, ``n_steps-n_burn``, ``n_parameters``).
+            You can additionally add option ``posterior file fluxes`` for which allowed values are ``all``,
+            *None* (``null`` in yaml file), or a list of dataset indexes. The value ``all`` means that all source and
+            blending fluxes will be saved. You may also provide a list of datasets label
+            (identical to the ones in ``MulensData.plot_properties['label']``).
 
             Second - pyMultiNest. There are no required parameters, but a few
             can be provided. Currently accepted ones are:
@@ -346,7 +345,7 @@ class UlensModelFit(object):
               https://ui.adsabs.harvard.edu/abs/2020ApJS..249...16M/abstract
 
             ``'posterior parsing'`` - additional settings that allow
-            modyfing posterior after it's calculated. Possile values:
+            modyfying posterior after it's calculated. Possile values:
 
                 ``'abs': [...]`` - calculate absolute values for parameters
                 from given list. It's useful for e.g. ``'u_0'`` for
@@ -358,12 +357,12 @@ class UlensModelFit(object):
             ``trajectory``, and ``best model``.
             The values are also dicts and currently accepted keys are:
             1) for ``best model``:
-            ``'file'``,``'interactive' ``'time range'``, ``'magnitude range'``,
+            ``'file'``, ``'interactive', ``'time range'``, ``'magnitude range'``,
             ``'title'``,``'legend'``,`and ``'rcParams'``,
             2) for ``triangle`` and ``trace``:
-            ``'file'`` and ``'shift t_0'`` (*bool*, *True* is default)
+            ``'file'``, and ``'shift t_0'`` (*bool*, *True* is default)
             3) for ``trajectory``:
-            ``'file'`` and ``'time range'`` (if not provided, then values
+            ``'file'``, ``'interactive'``, and ``'time range'`` (if not provided, then values
             from ``best model`` will be used)
             e.g.:
 
@@ -378,6 +377,7 @@ class UlensModelFit(object):
                   'trajectory':
                       'file': 'my_trajectory.png'
                       'time range': 2456050. 2456300.
+                      'interactive': 'my_trajectory.html'
                   'best model':
                       'file': 'my_fit_best.png'
                       'interactive' : 'my_fit_best.html'
@@ -721,7 +721,7 @@ class UlensModelFit(object):
                 required_packages.add('corner')
 
         if self._plots is not None:
-            if 'interactive' in self._plots.get('best model', {}):
+            if 'interactive' in {**self._plots.get('best model', {}), **self._plots.get('trajectory', {})}:
                 required_packages.add('plotly')
 
         failed = import_failed.intersection(required_packages)
@@ -736,7 +736,7 @@ class UlensModelFit(object):
                     "https://raw.githubusercontent.com/dfm/corner.py/" +
                     "v2.0.0/corner/corner.py")
             if "plotly" in failed:
-                message += ("\nThe plotly package is required for creating interactive best model plots.")
+                message += ("\nThe plotly package is required for creating interactive plots.")
 
             raise ImportError(message)
 
@@ -966,13 +966,22 @@ class UlensModelFit(object):
         """
         Check if parameters of trajectory plot make sense
         """
-        allowed = set(['file', 'time range'])
+        allowed = set(['file', 'time range', 'interactive'])
         unknown = set(self._plots['trajectory'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
                 'Unknown settings for "trajectory" plot: {:}'.format(unknown))
 
         self._set_time_range_for_plot('trajectory')
+
+        if 'interactive' in self._plots['trajectory']:
+            self._check_plots_parameters_trajectory_interactive()
+
+    def _check_plots_parameters_trajectory_interactive(self):
+        """
+        Check if there is no problem with interactive trajectory plot
+        """
+        pass
 
     def _check_plots_parameters_triangle(self):
         """
@@ -1203,6 +1212,8 @@ class UlensModelFit(object):
         """
         construct a list of MulensModel.MulensData objects
         """
+        self._satellites_names = []
+        self._satellites_colors = []
         kwargs = {'add_2450000': True}
         if isinstance(self._photometry_files, str):
             self._photometry_files = [self._photometry_files]
@@ -1242,6 +1253,10 @@ class UlensModelFit(object):
 
         if scaling is not None:
             dataset.scale_errorbars(**scaling)
+
+        if dataset.ephemerides_file is not None:
+            self._satellites_names.append(dataset.plot_properties['label'])
+            self._satellites_colors.append(dataset.plot_properties['color'])
 
         return dataset
 
@@ -1328,16 +1343,16 @@ class UlensModelFit(object):
 
         bools = ['progress']
         ints = ['n_walkers', 'n_burn', 'posterior file thin']
-        strings = ['posterior file', 'posterior file fluxes']
-        allowed = bools + ints + strings
+        strings = ['posterior file']
+        strings_or_lists = ['posterior file fluxes']
+        allowed = bools + ints + strings + strings_or_lists
 
         self._check_required_and_allowed_parameters(required, allowed)
-        self._check_parameters_types(settings, bools=bools,
-                                     ints=ints+ints_required, strings=strings)
+        self._check_parameters_types(
+            settings, bools=bools, ints=ints+ints_required, strings=strings, strings_or_lists=strings_or_lists)
 
         self._kwargs_EMCEE = {'initial_state': None,  # It will be set later.
-                              'nsteps': self._fitting_parameters['n_steps'],
-                              'progress': False}
+                              'nsteps': self._fitting_parameters['n_steps'], 'progress': False}
 
         if 'progress' in settings:
             self._kwargs_EMCEE['progress'] = settings['progress']
@@ -1348,32 +1363,7 @@ class UlensModelFit(object):
         else:
             settings['n_burn'] = int(0.25*self._fitting_parameters['n_steps'])
 
-        if 'posterior file' not in settings:
-            self._posterior_file_name = None
-            if 'posterior file fluxes' in settings:
-                raise ValueError('You cannot set "posterior file fluxes" ' +
-                                 'without setting "posterior file"')
-        else:
-            name = settings['posterior file']
-            if name[-4:] != '.npy':
-                raise ValueError('"posterior file" must end in ".npy", ' +
-                                 'got: ' + name)
-            if path.exists(name):
-                if path.isfile(name):
-                    msg = "Existing file " + name + " will be overwritten"
-                    warnings.warn(msg)
-                else:
-                    raise ValueError("The path provided for posterior (" +
-                                     name + ") exists and is a directory")
-            self._posterior_file_name = name[:-4]
-            self._posterior_file_fluxes = None
-
-        if 'posterior file fluxes' in settings:
-            fluxes_allowed = ['all', None]
-            if settings['posterior file fluxes'] not in fluxes_allowed:
-                raise ValueError('Unrecognized "posterior file fluxes": ' +
-                                 settings['posterior file fluxes'])
-            self._posterior_file_fluxes = settings['posterior file fluxes']
+        self._parse_posterior_file_settings()
 
     def _check_required_and_allowed_parameters(self, required, allowed):
         """
@@ -1395,7 +1385,7 @@ class UlensModelFit(object):
                              str(set(settings.keys()) - set(full)))
 
     def _check_parameters_types(self, settings, bools=None,
-                                ints=None, floats=None, strings=None):
+                                ints=None, floats=None, strings=None, strings_or_lists=None):
         """
         Check if the settings have right type.
         For floats we accept ints as well.
@@ -1408,33 +1398,68 @@ class UlensModelFit(object):
             floats = []
         if strings is None:
             strings = []
+        if strings_or_lists is None:
+            strings_or_lists = []
 
         fmt = "For key {:} the expected type is {:}, but got {:}"
         for (key, value) in settings.items():
             if key in bools:
                 if not isinstance(value, bool):
-                    raise TypeError(
-                        fmt.format(key, "bool", str(type(value))))
+                    raise TypeError(fmt.format(key, "bool", str(type(value))))
             elif key in ints:
                 if not isinstance(value, int):
-                    raise TypeError(
-                        fmt.format(key, "int", str(type(value))))
+                    raise TypeError(fmt.format(key, "int", str(type(value))))
             elif key in floats:
                 if not isinstance(value, (float, int)):
-                    raise TypeError(
-                        fmt.format(key, "float", str(type(value))))
+                    raise TypeError(fmt.format(key, "float", str(type(value))))
             elif key in strings:
                 if not isinstance(value, str):
-                    raise TypeError(
-                        fmt.format(key, "string", str(type(value))))
+                    raise TypeError(fmt.format(key, "string", str(type(value))))
+            elif key in strings_or_lists:
+                if not isinstance(value, (str, list)):
+                    raise TypeError(fmt.format(key, "string or list", str(type(value))))
             else:
-                raise ValueError(
-                    "internal bug - no type for key " + key + " specified")
+                raise ValueError("internal bug - no type for key " + key + " specified")
+
+    def _parse_posterior_file_settings(self):
+        """Parse information about posterior file for EMCEE fitting."""
+        settings = self._fitting_parameters
+
+        if 'posterior file' not in settings:
+            self._posterior_file_name = None
+            if 'posterior file fluxes' in settings:
+                raise ValueError('You cannot set "posterior file fluxes" without setting "posterior file"')
+        else:
+            name = settings['posterior file']
+            if name[-4:] != '.npy':
+                raise ValueError('"posterior file" must end in ".npy", got: ' + name)
+            if path.exists(name):
+                if path.isfile(name):
+                    msg = "Existing file " + name + " will be overwritten"
+                    warnings.warn(msg)
+                else:
+                    raise ValueError("The path provided for posterior (" +
+                                     name + ") exists and is a directory")
+            self._posterior_file_name = name[:-4]
+            self._posterior_file_fluxes = None
+
+        if 'posterior file fluxes' in settings:
+            not_changed = ['all', None]
+            if settings['posterior file fluxes'] in not_changed:
+                self._posterior_file_fluxes = settings['posterior file fluxes']
+            elif isinstance(settings['posterior file fluxes'], list):
+                indexes = []
+                for label in settings['posterior file fluxes']:
+                    label_index = self._get_no_of_dataset(label)
+                    indexes += list(np.arange(self._n_fluxes_per_dataset) + self._n_fluxes_per_dataset * label_index)
+
+                self._posterior_file_fluxes = indexes
+            else:
+                raise ValueError('Unrecognized "posterior file fluxes": ' + str(settings['posterior file fluxes']))
 
     def _get_n_walkers(self):
         """
-        Guess how many walkers (and hence starting values) there will be.
-        EMCEE fitting only.
+        Guess how many walkers (and hence starting values) there will be. EMCEE fitting only.
         """
         if self._fit_method != 'EMCEE':
             raise ValueError('internal bug')
@@ -1445,8 +1470,7 @@ class UlensModelFit(object):
             if self._starting_parameters_type == 'draw':
                 self._n_walkers = 4 * self._n_fit_parameters
             elif self._starting_parameters_type != 'file':
-                raise ValueError(
-                    'Unexpected: ' + self._starting_parameters_type)
+                raise ValueError('Unexpected: ' + self._starting_parameters_type)
 
     def _parse_fitting_parameters_MultiNest(self):
         """
@@ -2044,19 +2068,22 @@ class UlensModelFit(object):
               or name of the data file if label is not specified,
               or a sequential index of the dataset.
 
+        RP NOTE: the above docstring seems wrong, i.e., int input is not parsed properly.
+
         Returns :
           index: *int*
           Sequential index of the dataset from [0,1,...,n_datasets-1]
 
         """
-
         if '"' in label:
             label = label.strip('"')
+
         for (i, dataset) in enumerate(self._datasets):
             if dataset.plot_properties['label'] == label:
                 return i
-        raise KeyError(
-            "Unrecognized dataset label in fit_constraints/prior: " + label)
+
+        raise KeyError("Unrecognized dataset label: " + label + "\nallowed labels: " +
+                       str([d.plot_properties['label'] for d in self._datasets]))
 
     def _read_prior_t_E_data(self):
         """
@@ -3448,9 +3475,17 @@ class UlensModelFit(object):
         """
         n_burn = self._fitting_parameters.get('n_burn', 0)
         samples = self._sampler.chain[:, n_burn:, :]
-        if self._posterior_file_fluxes == 'all':
+        if self._posterior_file_fluxes is not None:
             blobs = np.array(self._sampler.blobs)
             blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, :]
+            if self._posterior_file_fluxes == 'all':
+                pass
+            elif isinstance(self._posterior_file_fluxes, list):
+                blobs = blobs[:, :, self._posterior_file_fluxes]
+            else:
+                ValueError(
+                    "internal error: " + str(type(self._posterior_file_fluxes)) + str(self._posterior_file_fluxes))
+
             samples = np.dstack((samples, blobs))
 
         thin = self._fitting_parameters.get('posterior file thin', None)
@@ -3673,6 +3708,8 @@ class UlensModelFit(object):
                 self._make_interactive_plot()
         if 'trajectory' in self._plots:
             self._make_trajectory_plot()
+            if 'interactive' in self._plots['trajectory']:
+                self._make_interactive_plot_trajectory()
 
     def _triangle_plot(self):
         """
@@ -3879,10 +3916,12 @@ class UlensModelFit(object):
         """
         find limits for the best model or trajectory plot
         """
-        if 'time range' in self._plots[plot_type]:
-            t_1 = self._plots[plot_type]['time range'][0]
-            t_2 = self._plots[plot_type]['time range'][1]
-            return (t_1, t_2)
+        plot = self._plots.get(plot_type, None)
+        if plot is not None:
+            if 'time range' in plot:
+                t_1 = plot['time range'][0]
+                t_2 = plot['time range'][1]
+                return (t_1, t_2)
 
         if self._model.n_sources == 1:
             t_1 = self._model.parameters.t_0
@@ -4146,10 +4185,7 @@ class UlensModelFit(object):
 
         self._reset_rcParams()
 
-        if 'time range' in self._plots['trajectory']:
-            t_range = self._get_time_limits_for_plot(tau, 'trajectory')
-        else:
-            t_range = self._get_time_limits_for_plot(tau, 'best model')
+        t_range = self._set_time_limits_for_trajectory_plot(tau)
         kwargs = {'caustics': True, 't_range': t_range}
 
         self._model.plot_trajectory(**kwargs)
@@ -4191,7 +4227,7 @@ class UlensModelFit(object):
         self._add_interactive_data_traces(kwargs_interactive, **kwargs)
         self._add_interactive_residuals_traces(kwargs_interactive, **kwargs_model)
 
-        self._save_interactive_fig()
+        self._save_interactive_fig(self._interactive_fig, 'best model')
 
     def _prepare_interactive_layout(self, scale, kwargs_all, ylim, ylim_residuals):
         """Prepares the layout for the interactive plot."""
@@ -4320,35 +4356,58 @@ class UlensModelFit(object):
             showlegend = False
         else:
             showlegend = True
-
+        times_substracted = times - subtract
         for dataset in self._datasets:
             if dataset.ephemerides_file is None:
                 lc = self._model.get_lc(
                     times=times, source_flux=f_source_0, blend_flux=f_blend_0, gamma=gamma, bandpass=bandpass)
-                times = times - subtract
                 traces_lc.append(self._make_interactive_scatter_lc(
-                    times, lc, name, showlegend, colors[1], sizes[1], dash))
+                    times_substracted, lc, name, showlegend, colors[1], sizes[1], dash))
                 break
-
         traces_lc.extend(self._make_interactive_scatter_lc_satellite(
             traces_lc, times, f_source_0, f_blend_0, gamma, bandpass, colors, sizes, dash, subtract, showlegend))
+
         return traces_lc
 
     def _make_interactive_scatter_lc_satellite(
             self, traces, times, f_source_0, f_blend_0, gamma,
             bandpass, colors, sizes, dash, subtract, showlegend):
         """Generates Plotly Scatter traces for the light-curve satellite models."""
-
+        dash_types = ['dot', 'dash', 'longdash', 'dashdot', 'longdashdot']
+        traces = []
+        times_substracted = times - subtract
         for (i, model) in enumerate(self._models_satellite):
-            name = self._event.datasets[i].plot_properties['label']
+            times_ = self._set_times_satellite(times, model)
+            name = self._satellites_names[i]
+            showlegend_ = True
+            dash_ = dash_types[i % len(dash_types)]
             model.parameters.parameters = {**self._model.parameters.parameters}
-            lc = self._model.get_lc(times=times, source_flux=f_source_0, blend_flux=f_blend_0,
-                                    gamma=gamma, bandpass=bandpass)
-            times = times - subtract
+            lc = model.get_lc(times=times_, source_flux=f_source_0, blend_flux=f_blend_0, gamma=gamma,
+                              bandpass=bandpass)
             trace = self._make_interactive_scatter_lc(
-                times, lc, name, showlegend, colors[1], sizes[1], dash)
+                times_substracted, lc, name, showlegend_, colors[1], sizes[1], dash_)
             traces.append(trace)
         return traces
+
+    def _set_times_satellite(self, times, model):
+        """
+        Set times for the satellite model whihin the time range of ephemerides
+        """
+        satellite_skycoords = mm.SatelliteSkyCoord(
+            ephemerides_file=model.ephemerides_file)
+
+        horizons = satellite_skycoords.get_horizons()
+        min_time_ephemerides = np.min(horizons.time)
+        max_time_ephemerides = np.max(horizons.time)
+        min_times = np.min(times)
+        max_times = np.max(times)
+
+        min_ajusted = np.max([min_time_ephemerides, min_times])
+        max_ajusted = np.min([max_time_ephemerides, max_times])
+
+        times_ajusted = times[(times >= min_ajusted) & (times <= max_ajusted)]
+
+        return times_ajusted
 
     def _make_interactive_scatter_lc(
             self, times, lc, name,
@@ -4472,7 +4531,7 @@ class UlensModelFit(object):
         )
 
     def _add_interactive_residuals_traces(self,  kwargs_interactive, phot_fmt='mag', data_ref=None, show_errorbars=True,
-                                          show_bad=None, subtract_2450000=False, subtract_2460000=False, **kwargs,):
+                                          show_bad=None, subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Creates plotly.graph_objects.Scatter object for residuals points
         per each data set.
@@ -4505,16 +4564,323 @@ class UlensModelFit(object):
         for trace in traces_residuals:
             self._interactive_fig.add_trace(trace)
 
-    def _save_interactive_fig(self):
+    def _save_interactive_fig(self, fig, type_):
         """
         Saving interactive figure
         """
-        file_ = self._plots['best model']['interactive']
+        file_ = self._plots[type_]['interactive']
         if path.exists(file_):
             if path.isfile(file_):
                 msg = "Existing file " + file_ + " will be overwritten"
                 warnings.warn(msg)
-        self._interactive_fig.write_html(file_, full_html=True)
+        fig.write_html(file_, full_html=True)
+
+    def _make_interactive_plot_trajectory(self):
+        """
+        make and save interactive best trajectory plot
+        """
+        (layout, kwargs_interactive, kwargs) = self._setup_interactive_plot_trajectory()
+        (traces, shapes) = self._make_interactive_trajectory_traces_all_models(
+            **kwargs, **kwargs_interactive)
+        layout['shapes'] = shapes
+        self._interactive_fig_trajectory = go.Figure(data=traces, layout=layout)
+        self._add_caustics_interactive_plot_trajectory(kwargs_interactive, **kwargs)
+        self._save_interactive_fig(self._interactive_fig_trajectory, 'trajectory')
+
+    def _setup_interactive_plot_trajectory(self):
+        """
+        Prepares the settings of interactive plot for the trajectory.
+        """
+        scale = 0.5  # original size=(1920:1440)
+        tau = 1.
+        caustics = True
+        sources = True
+        self._ln_like(self._best_model_theta)
+        self._reset_rcParams()
+        colors_trajectory = ['blue', 'orange']
+        t_range = self._set_time_limits_for_trajectory_plot(tau)
+        kwargs = {'t_start': t_range[0], 't_stop': t_range[1], 'tau': tau,
+                  'colors_trajectory': colors_trajectory, 'caustics': caustics, 'sources': sources}
+        (layout, kwargs_interactive) = self._prepare_interactive_layout_trajectory(scale, t_range)
+        return (layout, kwargs_interactive, kwargs)
+
+    def _add_caustics_interactive_plot_trajectory(self, kwargs_interactive, caustics, **kwargs):
+        """
+        Adds caustics to the interactive trajectory plot.
+        """
+        if caustics:
+            traces_caustics = self._make_interactive_caustics_traces(**kwargs, **kwargs_interactive)
+            self._interactive_fig_trajectory.add_traces(traces_caustics)
+
+    def _set_time_limits_for_trajectory_plot(self, tau):
+        """
+        Chosing time limits for the trajectory plot
+        """
+        if 'time range' in self._plots['trajectory']:
+            t_range = self._get_time_limits_for_plot(tau, 'trajectory')
+        else:
+            t_range = self._get_time_limits_for_plot(tau, 'best model')
+
+        return t_range
+
+    def _prepare_interactive_layout_trajectory(self, scale, t_range):
+        """
+        Prepares the layout for the interactive trajectory plot.
+        """
+        kwargs_interactive = self._get_kwargs_for_plotly_plot(scale)
+        xyrange = self._get_xlim_for_interactive_trajectory_plot(t_range)
+        layout = self._make_interactive_layout_trajectory(
+            xyrange, **kwargs_interactive)
+
+        return layout, kwargs_interactive
+
+    def _get_xlim_for_interactive_trajectory_plot(self, t_range):
+        """
+        Get axis limits for the interactive trajectory plot
+        """
+        trajectory = self._get_trajectories_as_list(self._model, t_range)
+        min = np.min([np.min(trajectory[0].x), np.min(trajectory[0].y)])
+        max = np.max([np.max(trajectory[0].x), np.max(trajectory[0].y)])
+        return [min, max]
+
+    def _make_interactive_layout_trajectory(self, xyrange, sizes, colors, opacity, width, height,
+                                            font, paper_bgcolor, **kwargs):
+        """
+        Creates imput dictionary for plotly.graph_objects.Layout for the interactive trajectory plot
+        """
+        xtitle = u'<i>\u03B8</i><sub>x</sub>/<i>\u03B8</i><sub>E</sub>'
+        ytitle = u'<i>\u03B8</i><sub>y</sub>/<i>\u03B8</i><sub>E</sub>'
+        font_base = dict(family=font, size=sizes[4], color=colors[1])
+        font_legend = dict(family=font, size=sizes[8])
+        kwargs_ = dict(range=xyrange, showgrid=False, ticks='inside', showline=True, ticklen=sizes[7], mirror='all',
+                       minor=dict(tickmode='auto', ticks='inside'), tickwidth=sizes[6], linewidth=sizes[6],
+                       linecolor=colors[0], tickfont=font_base)
+        kwargs_y = {**kwargs_}
+        kwargs_x = {**kwargs_}
+        layout = dict(
+            autosize=True, width=width, height=height, showlegend=True,
+            legend=dict(x=1.01, y=1.01, yanchor='top', xanchor='left', bgcolor=paper_bgcolor, bordercolor=colors[2],
+                        borderwidth=sizes[6], font=font_legend),
+            paper_bgcolor=paper_bgcolor, plot_bgcolor=paper_bgcolor, font=font_base,
+            yaxis=dict(title_text=ytitle, anchor="x", **kwargs_y),
+            xaxis=dict(title_text=xtitle, anchor="y", **kwargs_x),
+            )
+        return layout
+
+    def _make_interactive_trajectory_traces_all_models(self, t_start, t_stop, **kwargs):
+        """
+        Creates plotly.graph_objects.Scatter objects with model trajectory
+        """
+        traces_all, shapes_all = [], []
+        (times, times_extended) = self._get_times_for_interactive_trajectory_traces(t_start, t_stop)
+        names_source = ['']
+        if self._model.n_sources > 1:
+            names_source = [f"Source {i+1} " for i in range(self._model.n_sources)]
+        for dataset in self._datasets:
+            if dataset.ephemerides_file is None:
+                (traces, shapes) = self._make_interactive_trajectory_traces(
+                    self._model, times, times_extended, names_source, **kwargs)
+                traces_all.extend(traces)
+                shapes_all.extend(shapes)
+                break
+        (traces, shapes) = self._make_interactive_scatter_trajectory_satellite(
+            times, times_extended, names_source, **kwargs)
+        traces_all.extend(traces)
+        shapes_all.extend(shapes)
+        return (traces_all, shapes_all)
+
+    def _get_times_for_interactive_trajectory_traces(self, t_start, t_stop):
+        """
+        Prepere times grid for the interactive trajectory traces
+        """
+        tau_exteded = 1.5
+        t_delta = t_stop - t_start
+        t_extended_stop = t_stop + t_delta * tau_exteded
+        t_extended_start = t_start - t_delta * tau_exteded
+        time_grid = int(t_stop-t_start)*10
+        times = np.linspace(t_start, t_stop, num=time_grid)
+        time_grid = int(t_extended_stop - t_extended_start)*2
+        times_extended = np.linspace(t_extended_start, t_extended_stop, num=time_grid)
+
+        return (times, times_extended)
+
+    def _make_interactive_scatter_trajectory_satellite(
+            self, times, times_extended, names_source, colors_trajectory, **kwargs):
+        """
+        Creates Plotly Scatter traces for trajectories of satellite models.
+        """
+        dash_types = ['dash', 'longdash', 'dashdot', 'longdashdot']
+        traces_all, shapes_all = [], []
+        for (i, model) in enumerate(self._models_satellite):
+            times_ = self._set_times_satellite(times, model)
+            times_extended_ = self._set_times_satellite(times_extended, model)
+            names_source_sattelite = [self._satellites_names[i] + ' ' + item for item in names_source]
+            colors_trajectory = [self._satellites_colors[i], self._modify_color(self._satellites_colors[i])]
+            dash_ = dash_types[i % len(dash_types)]
+            model.parameters.parameters = {**self._model.parameters.parameters}
+            (traces, shapes) = self._make_interactive_trajectory_traces(
+                model, times_, times_extended_, names_source_sattelite, colors_trajectory, dash=dash_, **kwargs)
+            traces_all.extend(traces)
+            shapes_all.extend(shapes)
+
+        return (traces_all, shapes_all)
+
+    def _modify_color(self, color):
+        """
+        Slightly modifies the given color, specified as a matplotlib name or hex code.
+        """
+        rgb = colors.to_rgb(color)
+        modified_rgb = [(c - 0.15) % 1.0 for c in rgb]
+        return colors.to_hex(modified_rgb)
+
+    def _make_interactive_trajectory_traces(
+            self, model, times, times_extended, names_source, colors_trajectory, sizes,  sources, dash=None, **kwargs):
+        """
+        Prepare go.Scatter traces for all source trajectories, including arrows indicating the direction of
+        relative proper motion, and the shape of the source if a finite-source model is used.
+        """
+        if isinstance(dash, type(None)):
+            dash = 'solid'
+        dash_extended = 'dot'
+        showlegend = True
+        traces, shapes = [], []
+        (rho, t_0) = self._get_rho_t_0_for_interactive_trajectory(model)
+        trajectories = self._get_trajectories_as_list(model, times)
+        trajectories_extended = self._get_trajectories_as_list(model, times_extended)
+        for (i, trajectory) in enumerate(trajectories):
+            traces.append(self._make_interactive_trajectory_arrow(
+                i, model, 'Trajectory '+names_source[i], t_0[i], sizes))
+            traces.append(self._make_interactive_scatter_trajectory(
+                    trajectory, 'Trajectory '+names_source[i], colors_trajectory[i], sizes[1], dash,
+                    showlegend=showlegend))
+            traces.append(self._make_interactive_scatter_trajectory(
+                    trajectories_extended[i], 'Trajectory '+names_source[i], colors_trajectory[i], sizes[1],
+                    dash_extended, showlegend=False, opacity=0.5))
+            if sources and rho[i] is not None:
+                shapes.append(self._make_interactive_source_shapes(
+                    model, i, t_0[i], rho[i], sizes, colors_trajectory[i], name=names_source[i]))
+
+        return traces, shapes
+
+    def _make_interactive_scatter_trajectory(self, trajectory, name, color, size, dash, showlegend=False, opacity=1.):
+        """
+        Creates a Plotly Scatter trace for the trajectory
+        """
+        return go.Scatter(
+            x=trajectory.x, y=trajectory.y, name=name, showlegend=showlegend, legendgroup=name, mode='lines',
+            line=dict(color=color, width=size, dash=dash),
+            xaxis="x", yaxis="y")
+
+    def _get_rho_t_0_for_interactive_trajectory(self, model):
+        """
+        Extracts rho and t_0 parameters for the sources from the model.
+        """
+        rho_all = self._get_sources_parameters(model, 'rho')
+        t_0_all = self._get_sources_parameters(model, 't_0')
+        return (rho_all, t_0_all)
+
+    def _get_sources_parameters(self, model, key):
+        """
+        Extracting given paremeter for the sources
+        """
+        all = []
+        for i in range(model.n_sources):
+            if key+'_'+str(i+1) in model.parameters.parameters:
+                value = model.parameters.parameters[key+'_'+str(i+1)]
+            elif key in model.parameters.parameters:
+                value = model.parameters.parameters[key]
+            else:
+                value = None
+            all.append(value)
+        return all
+
+    def _make_interactive_trajectory_arrow(self, i, model, name, t_0, sizes):
+        """
+        Creates Plotly Scatter trace with arrow pointing the direction of relative proper montion of the source
+        """
+        # size like the font in legend
+        arrow_size = sizes[8]
+        trajectory = self._get_trajectories_as_list(model, [t_0, t_0+0.5])[i]
+        trace = go.Scatter(x=trajectory.x, y=trajectory.y, mode="lines+markers", opacity=0.9,
+                           marker=dict(symbol="arrow", size=arrow_size, color='black', angleref="previous",),
+                           showlegend=False,  legendgroup=name,)
+        return trace
+
+    def _make_interactive_caustics_traces(self, sizes, name=None, **kwargs):
+        """
+        Creates go.Scatter objects with caustics for the interactive trajectory plot
+        """
+        trace = self._make_interactive_scatter_caustic(
+                    model=self._model, name=name, sizes=sizes, showlegend=True)
+        return trace
+
+    def _make_interactive_scatter_caustic(self, model, sizes, showlegend, epoch=None, name=None):
+        """
+        Creates a Plotly Scatter trace for the caustics of the model single and binary lense.
+        """
+        if isinstance(name, type(None)):
+            name = ''
+        if isinstance(epoch, type(None)):
+            name += 'Caustic'
+        else:
+            name += 'Caustic epoch:' + epoch
+        mass_sheet = model.parameters.is_external_mass_sheet_with_shear
+        if model.n_lenses == 1 and not mass_sheet:
+            trace = self._make_interactive_scatter_caustic_singe_lens(name, sizes, showlegend)
+        else:
+            model.update_caustics(epoch=epoch)
+            trace = self._make_interactive_scatter_caustic_binary_lens(model, name, sizes, showlegend)
+        return trace
+
+    def _make_interactive_scatter_caustic_binary_lens(self, model, name, sizes, showlegend, color='red'):
+        """
+        Creates a Plotly Scatter trace for the caustics of the binary lens model.
+        """
+        x, y = model.caustics.get_caustics(n_points=50000)
+        trace_caustics = go.Scatter(x=x, y=y, opacity=1., name=name,  mode='markers', xaxis="x", yaxis="y",
+                                    showlegend=showlegend, marker=dict(color=color, size=sizes[1],
+                                                                       line=dict(color=color, width=1,)))
+        return trace_caustics
+
+    def _make_interactive_scatter_caustic_singe_lens(self, name, sizes, showlegend, color='red'):
+        """
+        Creates a Plotly Scatter trace for the caustics of the binary lens model.
+        """
+        trace_caustics = go.Scatter(x=[0.], y=[0.], opacity=1., mode='markers', name=name, showlegend=showlegend,
+                                    marker=dict(color=color, size=sizes[0], line=dict(color=color, width=1)),
+                                    xaxis="x", yaxis="y")
+        return trace_caustics
+
+    def _make_interactive_source_shapes(
+            self, model, i, t_0, rho, sizes, color, name=None, epoch=None, **kwargs):
+        """
+        Create dictionary with shape of the sources in the interactive trajectory plot.
+        """
+        shape = None
+        if name is not None:
+            name += 'Source'
+        if rho is not None:
+            if epoch is None:
+                trajectories = self._get_trajectories_as_list(model, t_0)
+            else:
+                trajectories = self._get_trajectories_as_list(model, epoch)
+            x_0 = trajectories[i].x[0]
+            y_0 = trajectories[i].y[0]
+            shape = dict(
+                type="circle", xref="x", yref="y", opacity=0.8, x0=x_0-rho, y0=y_0-rho, x1=x_0+rho, y1=y_0+rho,
+                name=name, showlegend=True,
+                line=dict(color=color, width=sizes[1]))
+
+        return shape
+
+    def _get_trajectories_as_list(self, model, times):
+        """
+        Returns the result of the mm.model.get_trajectory() method, but always as a list.
+        """
+        trajectories = model.get_trajectory(times)
+        if not isinstance(trajectories, (list, tuple)):
+            trajectories = [trajectories]
+        return trajectories
 
 
 if __name__ == '__main__':
