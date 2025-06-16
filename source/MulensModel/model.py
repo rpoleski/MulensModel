@@ -995,11 +995,11 @@ class Model(object):
 
         if len(methods):
             raise KeyError('Unknown methods provided: {:}'.format(methods))
-        self.check_magnification_methods_parameters(methods_parameters)
+        self._check_magnification_methods_parameters(methods_parameters)
 
         self._methods_parameters = parameters
 
-    def check_magnification_methods_parameters(self, methods_parameters):
+    def _check_magnification_methods_parameters(self, methods_parameters):
         """
         Check if the provided kwargs are valid for the given method.
         """
