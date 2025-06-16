@@ -233,9 +233,13 @@ class TestEvent(unittest.TestCase):
 
     def test_error_1_vs_2_lenses(self):
         """
-        Test if geting point lens calculation for a binary lens model
-        results in error
+        Test if getting binary lens calculation for a point lens model
+        results in error and vice-versa
         """
+        mag_curve = self.setup()
+        with self.assertRaises(ValueError):
+            mag_curve.get_binary_lens_magnification()
+
         mag_curve = self.setup(n_lenses=2)
         with self.assertRaises(ValueError):
             mag_curve.get_point_lens_magnification()
