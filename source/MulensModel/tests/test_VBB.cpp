@@ -1,3 +1,24 @@
+// VBBinaryLensing v3.6 (2023)
+//
+// This code has been developed by Valerio Bozza (University of Salerno) and collaborators.
+// Any use of this code for scientific publications should be acknowledged by a citation to:
+// V. Bozza, E. Bachelet, F. Bartolic, T.M. Heintz, A.R. Hoag, M. Hundertmark, MNRAS 479 (2018) 5157
+// If you use astrometry, user-defined limb darkening or Keplerian orbital motion, please cite
+// V. Bozza, E. Khalouei and E. Bachelet (arXiv:2011.04780)
+// The original methods present in v1.0 are described in
+// V. Bozza, MNRAS 408 (2010) 2188
+// Check the repository at http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm
+// for the newest version.
+//
+// The code relies on the root solving algorithm by Jan Skworon and Andy Gould
+// described in Skowron & Gould arXiv:1203.1034.
+// Please also cite this paper if specifically relevant in your scientific publication.
+// The original Fortran code available on http://www.astrouw.edu.pl/~jskowron/cmplx_roots_sg/
+// has been translated to C++ by Tyler M. Heintz and Ava R. Hoag (2017)
+//
+// GNU Lesser General Public License applies to all parts of this code.
+// Please read the separate LICENSE.txt file for more details.
+//
 #include <stdio.h>
 #include <math.h>
 #include "VBBinaryLensingLibrary.h"
