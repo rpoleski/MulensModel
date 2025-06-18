@@ -69,8 +69,6 @@ class Model(object):
     limb-darkening coefficients.
     """
 
-    _N_source_attr = ['_magnification_curve']
-
     def __init__(
             self, parameters=None, coords=None, ra=None, dec=None,
             ephemerides_file=None):
@@ -997,8 +995,24 @@ class Model(object):
 
         if len(methods):
             raise KeyError('Unknown methods provided: {:}'.format(methods))
+        self._check_magnification_methods_parameters(methods_parameters)
 
         self._methods_parameters = parameters
+
+    def _check_magnification_methods_parameters(self, methods_parameters):
+        """
+        Check if the provided kwargs are valid for the given method.
+        """
+        msg = "{:} method allows {:} parameters, but got '{:}'."
+        allowed = {'vbbl': ['accuracy'],
+                   'adaptive_contouring': ['accuracy', 'ld_accuracy']}
+
+        for method, kwargs in methods_parameters.items():
+            method = method.lower()
+            if method in allowed:
+                invalid = set(kwargs) - set(allowed[method])
+                if invalid:
+                    raise KeyError(msg.format(method, allowed[method], invalid))
 
     def get_magnification_methods_parameters(self, method):
         """

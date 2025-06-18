@@ -973,10 +973,14 @@ class TestFSPLGradient2(TestFSPLGradient):
                 sfit_gradient = np.sum(-2. * sfit_res * partials / sig2)
                 assert_allclose(gradient[j], sfit_gradient, rtol=0.01)
 
-    # def test_dAdu_FSPLError(self):
-    #     for i, fit in enumerate(self.fits):
-    #         with self.assertRaises(NotImplementedError):
-    #             fit.get_d_A_d_u_for_point_lens_model()
+    def test_dAdu_FSPLError(self):
+        for i, fit in enumerate(self.fits):
+            with self.assertRaises(NotImplementedError):
+                fit.get_d_A_d_u_for_PSPL_model()
+            with self.assertRaises(NotImplementedError):
+                fit.get_d_A_d_u_for_FSPL_model()
+            with self.assertRaises(NotImplementedError):
+                fit.get_d_A_d_u_for_point_lens_model()
 
     def test_dAdu_PSPL(self):
         params = ['t_0', 'u_0', 't_E']
@@ -1011,11 +1015,19 @@ def test_FSPLDerivs_get_satellite_coords():
         [times, mags, errs], phot_fmt='mag',
         ephemerides_file=SAMPLE_FILE_03_EPH)
     model = mm.Model({'t_0': 2457000., 'u_0': 0.01, 't_E': 100., 'rho': 0.02})
-    model.default_magnification_method = 'finite_source_uniform_Gould94'
 
+    # Partial test with _direct method
+    model.default_magnification_method = 'finite_source_uniform_Gould94_direct'
     fit = mm.FitData(dataset=dataset, model=model)
     fit._set_data_magnification_curves()
+    mag_curve = fit._data_magnification_curve
+    mag_curve._set_point_lens_magnification_objects()
+    assert len(mag_curve._magnification_objects) == 1
 
+    # Continue original test without the _direct method
+    model.default_magnification_method = 'finite_source_uniform_Gould94'
+    fit = mm.FitData(dataset=dataset, model=model)
+    fit._set_data_magnification_curves()
     mag_curve = fit._data_magnification_curve
     mag_curve._set_point_lens_magnification_objects()
     assert len(mag_curve._magnification_objects) == 1

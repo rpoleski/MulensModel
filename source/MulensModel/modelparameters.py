@@ -34,7 +34,7 @@ class ModelParameters(object):
     """
 
     # parameters that may be defined for a given source
-    _primary_source_params_head = ['t_0', 'u_0']
+    _primary_source_params_head = ['t_0', 'u_0', 't_eff']
     _finite_source_params_head = ['rho', 't_star']
     _all_source_params_head = np.hstack((_primary_source_params_head, _finite_source_params_head))
     _t_0_ref_types = ['par', 'kep', 'xi']

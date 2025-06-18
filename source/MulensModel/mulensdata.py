@@ -837,8 +837,7 @@ class MulensData(object):
             new_err_mag = np.sqrt(new_err_mag**2 + minimum**2)
 
         self._err_mag = new_err_mag
-        self._err_flux = Utils.get_flux_and_err_from_mag(
-                mag=self.mag, err_mag=self.err_mag)[1]
+        self._err_flux = self._err_mag * self._flux * np.log(10.) * 0.4
 
     @property
     def errorbars_scale_factors(self):
