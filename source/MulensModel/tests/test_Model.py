@@ -552,6 +552,18 @@ class TestBLPS02AC(unittest.TestCase):
             self.data.time, gamma=self.model_ac_2.get_limb_coeff_gamma('I'))
         almost(result[5], 1.6366862, decimal=3)
 
+    def test_wrong_parameter_name(self):
+        """
+        Test if KeyError is raised when wrong parameter name is used.
+        """
+        ac_name = 'Adaptive_Contouring'
+        wrong_par = {ac_name: {'acuracy': 0.04}}
+        with self.assertRaises(KeyError):
+            self.model_ac_2.set_magnification_methods_parameters(wrong_par)
+        wrong_par_2 = {ac_name: {'accuracy': 0.01, 'ld_acuracy': 1e-5}}
+        with self.assertRaises(KeyError):
+            self.model_ac_2.set_magnification_methods_parameters(wrong_par_2)
+
 
 class TestMethodsParameters(unittest.TestCase):
     """
@@ -635,6 +647,14 @@ class TestMethodsParameters(unittest.TestCase):
 
         model.default_magnification_method = 'VBBL'
         assert model.default_magnification_method == 'VBBL'
+
+    def test_wrong_parameter_name(self):
+        """
+        Test if KeyError is raised when wrong parameter name is used.
+        """
+        wrong_par = {'VBBL': {'acuracy': 1.e-5}}
+        with self.assertRaises(KeyError):
+            self.model_3.set_magnification_methods_parameters(wrong_par)
 
 
 def test_caustic_for_orbital_motion():
