@@ -80,7 +80,7 @@ class UlensModelFit(object):
             ``'bad'`` : *list* or *str*
             to set bad flags in MulensData
             When *str* then it should point to the file containing
-            indexes or/and full JD time-stamps of bad epochs,
+            indexes (*int*) or full JD time-stamps (*float*) of bad epochs,
             when *list* then as for  MulensData 'bad' parameter.
 
         fit_method: *str*
