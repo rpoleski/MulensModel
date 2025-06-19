@@ -147,7 +147,8 @@ plots:
         interactive : ob03235_2_model.html
         time range: 2452820 2452855
         magnitude range: 19.3 16.9
-        title: "ob03235_2_model"
+        title: OB03235 plot
+        model label: I-band model
         rcParams:
         # This allows setting many matplotlib parameters, e.g.:
             font.size: 14
@@ -156,6 +157,7 @@ plots:
             ncol: 2
             # makes legend in 2 columns
             loc: lower center
+            fontsize: small
         second Y scale:
         # This adds second Y axis to the right side. Only magnifications key is required.
             magnifications: optimal
@@ -167,6 +169,12 @@ plots:
             # The list of labels above can not be given if magnifications = "optimal"
             label: What is shown on this axis?
             color: magenta
+        model label: "I-band model"
+        legend:
+            fontsize: small
+        add models:
+            - {'limb darkening u': 'g', 'label': 'g-band model', 'color': 'slateblue'}
+            - {'limb darkening u': -1.00, 'label': 'strange model', 'zorder': -10, 'linestyle': 'dashed'}
     trajectory:
         file: ob03235_2_trajectory.png
         interactive : ob03235_2_trajectory.html
