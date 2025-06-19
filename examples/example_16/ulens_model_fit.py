@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.47.0'
+__version__ = '0.48.0'
 
 
 class UlensModelFit(object):
@@ -363,8 +363,9 @@ class UlensModelFit(object):
             ``trajectory``, and ``best model``.
             The values are also dicts and currently accepted keys are:
             1) for ``best model``:
-            ``'file'``, ``'interactive', ``'time range'``, ``'magnitude range'``,
-            ``'title'``,``'legend'``,`and ``'rcParams'``,
+            ``'file'``, ``'interactive'``, ``'time range'``, ``'magnitude range'``, ``'title'``,``'legend'``,
+            ``'rcParams'``, ``'add models'`` (allows setting ``Model.plot_lc()`` parameters and
+            ``'limb darkening u'`` to *str* or *float*), and ``'model label'``
             2) for ``triangle`` and ``trace``:
             ``'file'``, and ``'shift t_0'`` (*bool*, *True* is default)
             3) for ``trajectory``:
@@ -395,6 +396,9 @@ class UlensModelFit(object):
                           'loc': 'lower center'
                       'rcParams':
                           'font.size': 15
+                      'model label': 'I-band model'
+                      'add models':
+                          [{'limb darkening u': 'V', 'label': 'V-band model', 'color': 'slateblue', 'zorder': -10}]
               }
 
             Note that 'rcParams' allows setting many matplotlib parameters.
@@ -852,35 +856,21 @@ class UlensModelFit(object):
         """
         Check if parameters of best model make sense
         """
-        allowed = set(['file', 'time range', 'magnitude range', 'legend',
-                       'rcParams', 'second Y scale', 'interactive', 'title'])
+        allowed = set(['file', 'time range', 'magnitude range', 'legend', 'rcParams', 'second Y scale',
+                       'interactive', 'title', 'add models', 'model label'])
         unknown = set(self._plots['best model'].keys()) - allowed
         if len(unknown) > 0:
-            raise ValueError(
-                'Unknown settings for "best model": {:}'.format(unknown))
+            raise ValueError('Unknown settings for "best model": {:}'.format(unknown))
 
         self._set_time_range_for_plot('best model')
 
         if 'magnitude range' in self._plots['best model']:
-            text = self._plots['best model']['magnitude range'].split()
-            if len(text) != 2:
-                raise ValueError(
-                    "'magnitude range' for 'best model' should specify 2 " +
-                    "values (begin and end); got: " +
-                    str(self._plots['best model']['magnitude range']))
-            mag_0 = float(text[0])
-            mag_1 = float(text[1])
-            if mag_1 > mag_0:
-                raise ValueError(
-                    "Incorrect 'magnitude range' for 'best model':\n" +
-                    text[0] + " " + text[1])
-            self._plots['best model']['magnitude range'] = [mag_0, mag_1]
+            self._parse_plots_magnitude_range()
 
         for key in ['legend', 'rcParams', 'second Y scale']:
             if key in self._plots['best model']:
                 if not isinstance(self._plots['best model'][key], dict):
-                    msg = ('The value of {:} (in best model settings)'
-                           'must be a dictionary, but you provided {:}')
+                    msg = ('The value of {:} (in best model settings) must be a dictionary, but you provided {:}')
                     args = [key, type(self._plots['best model'][key])]
                     raise TypeError(msg.format(*args))
 
@@ -892,6 +882,9 @@ class UlensModelFit(object):
 
         if 'title' in self._plots['best model']:
             self._check_plots_parameters_best_model_title()
+
+        if 'add models' in self._plots['best model']:
+            self._check_plots_parameters_add_models()
 
     def _set_time_range_for_plot(self, plot_type):
         """
@@ -913,6 +906,20 @@ class UlensModelFit(object):
                              "plot:\n" + text[0] + " " + text[1])
         self._plots[plot_type]['time range'] = [t_0, t_1]
 
+    def _parse_plots_magnitude_range(self):
+        """Assuming magnitude range is for best model is provided, parse it and save."""
+        text = self._plots['best model']['magnitude range'].split()
+        if len(text) != 2:
+            raise ValueError("'magnitude range' for 'best model' should specify 2 values (begin and end); got: " +
+                             str(self._plots['best model']['magnitude range']))
+
+        mag_0 = float(text[0])
+        mag_1 = float(text[1])
+        if mag_1 > mag_0:
+            raise ValueError("Incorrect 'magnitude range' for 'best model':\n" + text[0] + " " + text[1])
+
+        self._plots['best model']['magnitude range'] = [mag_0, mag_1]
+
     def _check_plots_parameters_best_model_interactive(self):
         """
         Check if there is no problem with interactive best plot
@@ -924,6 +931,19 @@ class UlensModelFit(object):
         Check if there is no problem with best model title
         """
         pass
+
+    def _check_plots_parameters_add_models(self):
+        """
+        Check if "best model" -> "add models" are of proper type i.e., list of dicts
+        """
+        settings = self._plots['best model']['add models']
+        if not isinstance(settings, (list)):
+            raise TypeError('The type of "best model" -> "add models" must be a list, not ' + str(type(settings)))
+
+        for one_model in settings:
+            if not isinstance(one_model, (dict)):
+                raise TypeError(
+                    'All entries of "best model" -> "add models" must be dicts, not ' + str(type(one_model)))
 
     def _check_plots_parameters_best_model_Y_scale(self):
         """
@@ -2335,34 +2355,29 @@ class UlensModelFit(object):
             print("Initializer of MulensModel.Model failed.")
             print("Parameters passed: {:}".format(parameters))
             raise
+
         self._models_satellite = []
         for dataset in self._datasets:
             if dataset.ephemerides_file is None:
                 continue
-            model = mm.Model(
-                parameters, ephemerides_file=dataset.ephemerides_file,
-                **kwargs)
+            model = mm.Model(parameters, ephemerides_file=dataset.ephemerides_file, **kwargs)
             self._models_satellite.append(model)
+
         key = 'limb darkening u'
         for model in [self._model] + self._models_satellite:
             if key in self._model_parameters:
                 for (band, u_value) in self._model_parameters[key].items():
                     model.set_limb_coeff_u(band, u_value)
             if 'default method' in self._model_parameters:
-                model.default_magnification_method = \
-                    self._model_parameters['default method']
+                model.default_magnification_method = self._model_parameters['default method']
             if 'methods' in self._model_parameters:
-                model.set_magnification_methods(
-                    self._model_parameters['methods'])
+                model.set_magnification_methods(self._model_parameters['methods'])
             if 'methods parameters' in self._model_parameters:
-                model.set_magnification_methods_parameters(
-                    self._model_parameters['methods parameters'])
+                model.set_magnification_methods_parameters(self._model_parameters['methods parameters'])
             if 'methods source 1' in self._model_parameters:
-                self._model.set_magnification_methods(
-                    self._model_parameters['methods source 1'], 1)
+                self._model.set_magnification_methods(self._model_parameters['methods source 1'], 1)
             if 'methods source 2' in self._model_parameters:
-                self._model.set_magnification_methods(
-                    self._model_parameters['methods source 2'], 2)
+                self._model.set_magnification_methods(self._model_parameters['methods source 2'], 2)
 
         self._event = mm.Event(self._datasets, self._model)
         self._event.sum_function = 'numpy.sum'
@@ -3915,8 +3930,7 @@ class UlensModelFit(object):
         """
         dpi = 300
 
-        self._ln_like(self._best_model_theta)  # Sets all parameters to
-        # the best model.
+        self._ln_like(self._best_model_theta)  # Sets all parameters to the best model.
 
         self._reset_rcParams()
         for (key, value) in self._plots['best model'].get('rcParams', {}).items():
@@ -3963,16 +3977,12 @@ class UlensModelFit(object):
         hspace = 0
         tau = 1.5
         default_model = {'color': 'black', 'linewidth': 1.0, 'zorder': np.inf}
-
-        kwargs_grid = {
-            'nrows': 2, 'ncols': 1, 'height_ratios': [plot_size_ratio, 1],
-            'hspace': hspace}
+        kwargs_grid = {'nrows': 2, 'ncols': 1, 'height_ratios': [plot_size_ratio, 1], 'hspace': hspace}
 
         (t_1, t_2) = self._get_time_limits_for_plot(tau, 'best model')
         (kwargs, xlim) = self._get_subtract_kwargs_and_xlim_for_best_model(t_1, t_2)
 
-        kwargs_model = {
-            't_start': t_1, 't_stop': t_2, **default_model, **kwargs}
+        kwargs_model = {'t_start': t_1, 't_stop': t_2, **default_model, **kwargs}
         if self._model.n_sources != 1:
             kwargs_model['source_flux_ratio'] = self._datasets[0]
         if self._datasets[0].bandpass is not None:
@@ -3982,12 +3992,10 @@ class UlensModelFit(object):
                 kwargs_model['gamma'] = mm.Utils.u_to_gamma(u)
 
         kwargs_axes_1 = dict(
-            axis='both', direction='in', bottom=True, top=True, left=True,
-            right=True, labelbottom=False)
+            axis='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom=False)
         kwargs_axes_2 = {**kwargs_axes_1, 'labelbottom': True}
 
-        return (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2,
-                kwargs_axes_1, kwargs_axes_2)
+        return (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2, kwargs_axes_1, kwargs_axes_2)
 
     def _get_subtract_kwargs_and_xlim_for_best_model(self, t_1, t_2):
         """
@@ -4075,8 +4083,7 @@ class UlensModelFit(object):
         ylim = [y_2 + dy, y_1 - dy]
         ylim_r = [y_4 + dres, y_3 - dres]
 
-        # Block below is the same in MulensModel.Model.plot_residuals() in
-        # its version 1.15.6.
+        # Block below is the same in MulensModel.Model.plot_residuals() in its version 1.15.6.
         ylim_r_max = np.max(np.abs(ylim_r))
         if ylim_r_max > 1.:
             ylim_r_max = 0.5
@@ -4089,17 +4096,35 @@ class UlensModelFit(object):
 
     def _plot_models_for_best_model_plot(self, fluxes, kwargs_model):
         """
-        Plot best models: first ground-based (if needed, hence loop),
-        then satellite ones (if needed).
+        Plot best models: first ground-based (if needed, hence loop), then satellite ones (if needed).
         """
         for dataset in self._datasets:
             if dataset.ephemerides_file is None:
-                self._model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs_model)
+                kwargs_label = {'label': self._plots['best model'].get('model label', None)}
+                self._model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs_model, **kwargs_label)
                 break
 
         for model in self._models_satellite:
             model.parameters.parameters = {**self._model.parameters.parameters}
             model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs_model)
+
+        if 'add models' in self._plots['best model']:
+            for dict_model in self._plots['best model']['add models']:
+                self._plot_added_model(fluxes, kwargs_model, dict_model)
+
+    def _plot_added_model(self, fluxes, kwargs_model, settings):
+        """Plot one additional model"""
+        kwargs = {**kwargs_model}
+        if 'limb darkening u' in settings:
+            value = settings.pop('limb darkening u')
+            if isinstance(value, (str)):
+                value = self._model_parameters['limb darkening u'][value]
+
+            kwargs['gamma'] = mm.Utils.u_to_gamma(value)
+
+        kwargs.update(settings)
+
+        self._model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs)
 
     def _plot_legend_for_best_model_plot(self):
         """
@@ -4500,20 +4525,15 @@ class UlensModelFit(object):
 
         return times_ajusted
 
-    def _make_interactive_scatter_lc(
-            self, times, lc, name,
-            showlegend, color, size, dash):
+    def _make_interactive_scatter_lc(self, times, lc, name, showlegend, color, size, dash):
         """Creates a Plotly Scatter trace for the light curve."""
-
         return go.Scatter(x=times, y=lc, name=name, showlegend=showlegend, mode='lines',
-                          line=dict(color=color, width=size, dash=dash),
-                          xaxis="x", yaxis="y")
+                          line=dict(color=color, width=size, dash=dash), xaxis="x", yaxis="y")
 
     def _add_interactive_zero_trace(self, t_start, t_stop, colors, sizes,
                                     subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
-        Creates plotly.graph_objects.Scatter object for line y=0 in
-        residuals plot
+        Creates plotly.graph_objects.Scatter object for line y=0 in residuals plot
         """
         subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
         times = np.linspace(t_start, t_stop, num=2000)
