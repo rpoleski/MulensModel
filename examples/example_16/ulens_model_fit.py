@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.48.0'
+__version__ = '0.49.0'
 
 
 class UlensModelFit(object):
@@ -76,6 +76,12 @@ class UlensModelFit(object):
             pass
             ``'scale_errorbars': {'factor': kappa, 'minimum': epsilon}``
             to scale uncertainties.
+
+            ``'bad'`` : *list* or *str*
+            to set bad flags in MulensData
+            When *str* then it should point to the file containing
+            indexes (*int*) or full JD time-stamps (*float*) of bad epochs,
+            when *list* then as for  MulensData 'bad' parameter.
 
         fit_method: *str*
             Method of fitting. Currently accepted values are ``EMCEE``,
@@ -1260,6 +1266,8 @@ class UlensModelFit(object):
         Construct a single dataset and possibly rescale uncertainties in it.
         """
         scaling = file_.pop("scale_errorbars", None)
+        bad = file_.pop("bad", None)
+
         try:
             dataset = mm.MulensData(**{**kwargs, **file_})
         except FileNotFoundError:
@@ -1273,12 +1281,95 @@ class UlensModelFit(object):
 
         if scaling is not None:
             dataset.scale_errorbars(**scaling)
+        if bad is not None:
+            self._parse_bad(bad, dataset)
 
         if dataset.ephemerides_file is not None:
             self._satellites_names.append(dataset.plot_properties['label'])
             self._satellites_colors.append(dataset.plot_properties['color'])
 
         return dataset
+
+    def _parse_bad(self, bad, dataset):
+        """
+        Read the bad flags from photometry_files['bad'] in yaml file
+        """
+        if path.isfile(bad):
+            bad_array = np.genfromtxt(bad, ndmin=1, dtype=None)
+            if len(bad_array) > 0:
+                if bad_array.dtype == np.dtype('bool'):
+                    if len(bad) == dataset.n_epochs:
+                        bad_bool = bad_array
+                    else:
+                        raise ValueError(
+                            'File {:s} with boolean values should have'.format(str(bad))+'the same length as' +
+                            ' the corresponding dataset')
+                elif bad_array.dtype == np.dtype('float'):
+                    bad_bool = np.full(dataset.n_epochs, False, dtype=bool)
+                    self._check_float_bad_flags(bad, bad_array, dataset)
+                    for (i, time) in enumerate(dataset.time):
+                        if time in bad_array:
+                            bad_bool[i] = True
+                elif bad_array.dtype == np.dtype('int'):
+                    self._check_int_bad_flags(bad, bad_array, dataset)
+                    bad_bool = np.full(dataset.n_epochs, False, dtype=bool)
+                    bad_bool[bad_array] = True
+                else:
+                    raise ValueError(
+                        'Wrong declaration of bad data points in file {:s}'.format(str(bad)),
+                        'File should consists of boolean array of dataset\'s length or identifies of bad epochs' +
+                        'in form of indexes: *int* or JD stamps:*floats*')
+                self._set_bool_bad(dataset, bad, bad_bool)
+
+    def _check_float_bad_flags(self, bad, bad_array, dataset):
+        """
+        Check if the provided bad flags are in range of dataset time vector
+        """
+        max_time = np.max(dataset.time)
+        min_time = np.min(dataset.time)
+        for time in bad_array:
+            if time < min_time or time > max_time:
+                raise ValueError('Provided bad flag `{:f}` in file {:s}'.format(time, str(bad)),
+                                 'is not in range of dataset time vector: [{:f}, {:f}]'.format(min_time, max_time))
+        crossmatch = list(set(bad_array) & set(dataset.time))
+        if len(crossmatch) < len(bad_array):
+            raise ValueError(
+                'Provided bad flags in file {:s} do not match dataset time-stamps from {:s}'.format(
+                    str(bad), dataset.plot_properties['label']),
+                'Please check the bad flags are as in the dataset file (plus 2450000 or 2460000 if needed).')
+
+    def _check_int_bad_flags(self, bad, bad_array, dataset):
+        """
+        Check if the provided bad flags are in range of dataset time vector
+        """
+        max_index = len(dataset.time)-1
+        for index in bad_array:
+            if index > max_index:
+                raise ValueError('Provided index bad flag `{:d}` in file {:s}'.format(index, str(bad)),
+                                 'is higher than the maximum index of dataset vector: {:d}'.format(max_index))
+
+    def _print_out_bad_flags_file(self, dataset, bad):
+        """
+        When bad flags sets from the file, print the file name
+        """
+        out = '{:} bad flags set from file: {:s}'.format(
+            dataset.plot_properties['label'], str(bad))
+        print(out)
+        if self._yaml_results:
+            print(out, **self._yaml_kwargs)
+
+    def _set_bool_bad(self, dataset, bad, bad_bool):
+        """
+        Setting bad flags for dataset base on argument photometry_files['bad'] in yaml file
+        """
+        try:
+            dataset.bad = bad_bool
+            self._print_out_bad_flags_file(dataset, bad)
+
+        except TypeError:
+            raise ValueError(
+                'Something wrong with provided bad flags for dataset ' + dataset.plot_properties['label'] + '\n ' +
+                str(bad_bool[0]))
 
     def _check_ulens_model_parameters(self):
         """
