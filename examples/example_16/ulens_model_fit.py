@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.47.0'
+__version__ = '0.49.0'
 
 
 class UlensModelFit(object):
@@ -1293,9 +1293,7 @@ class UlensModelFit(object):
                 elif bad_array.dtype == np.dtype('int'):
                     self._check_int_bad_flags(bad, bad_array, dataset)
                     bad_bool = np.full(dataset.n_epochs, False, dtype=bool)
-                    for (i, time) in enumerate(dataset.time):
-                        if i in bad_array:
-                            bad_bool[i] = True
+                    bad_bool[bad_array] = True
                 else:
                     raise ValueError(
                         'Wrong declaration of bad data points in file {:s}'.format(str(bad)),
