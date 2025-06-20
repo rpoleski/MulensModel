@@ -29,14 +29,14 @@ def get_parameters():
     a = 2
 
 
-    parameters_extra = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha,'rho': rho, 'ds_dt': ds_dt, 'dalpha_dt': dalpha_dt, 'ds_z_dt': ds_z_dt})
+    parameters_extra = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha,'rho': rho, 'ds_dt': ds_dt, 'dalpha_dt': dalpha_dt, 'ds_z_dt': ds_z_dt, 'a' : a})
 
     return parameters_extra
 
 
 def test_separation_for_circular_orbit():
     """
-    compares separation to values form VBBinaryLensing
+    compares separation to values form VBBinaryLensing v3.6
     """
     parameters = get_parameters()
     times = get_times(parameters)
@@ -51,7 +51,7 @@ def test_separation_for_circular_orbit():
 
 def test_trajectory_for_circular_orbit():
     """
-    compares trajectory to values form VBBinaryLensing
+    compares trajectory to values form VBBinaryLensing v3.6
     """
     parameters = get_parameters()
     times = get_times(parameters)
@@ -66,7 +66,7 @@ def test_trajectory_for_circular_orbit():
 
 def test_separation_for_elliptical_orbit():
     """
-    compares separation to values form VBBinaryLensing
+    compares separation to values form VBBinaryLensing v3.6
     """
     parameters = get_parameters()
     times = get_times(parameters)
@@ -81,7 +81,7 @@ def test_separation_for_elliptical_orbit():
 
 def test_trajectory_for_elliptical_orbit():
     """
-    compares trajectory to values form VBBinaryLensing
+    compares trajectory to values form VBBinaryLensing v3.6
     """
     parameters = get_parameters()
     times = get_times(parameters)
