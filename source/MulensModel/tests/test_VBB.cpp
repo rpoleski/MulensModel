@@ -1,3 +1,24 @@
+// VBBinaryLensing v3.6 (2023)
+//
+// This code has been developed by Valerio Bozza (University of Salerno) and collaborators.
+// Any use of this code for scientific publications should be acknowledged by a citation to:
+// V. Bozza, E. Bachelet, F. Bartolic, T.M. Heintz, A.R. Hoag, M. Hundertmark, MNRAS 479 (2018) 5157
+// If you use astrometry, user-defined limb darkening or Keplerian orbital motion, please cite
+// V. Bozza, E. Khalouei and E. Bachelet (arXiv:2011.04780)
+// The original methods present in v1.0 are described in
+// V. Bozza, MNRAS 408 (2010) 2188
+// Check the repository at http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm
+// for the newest version.
+//
+// The code relies on the root solving algorithm by Jan Skworon and Andy Gould
+// described in Skowron & Gould arXiv:1203.1034.
+// Please also cite this paper if specifically relevant in your scientific publication.
+// The original Fortran code available on http://www.astrouw.edu.pl/~jskowron/cmplx_roots_sg/
+// has been translated to C++ by Tyler M. Heintz and Ava R. Hoag (2017)
+//
+// GNU Lesser General Public License applies to all parts of this code.
+// Please read the separate LICENSE.txt file for more details.
+//
 #include <stdio.h>
 #include <math.h>
 #include "VBBinaryLensingLibrary.h"
@@ -46,11 +67,17 @@ int main()
         ds_z_dt = 20; // rate of change of the distance along the line of sight per year
 
 	conv_factor = -ds_dt * s;
-        s_z = conv_factor/ds_z_dt; //distance along the line of sight 
+        s_z = conv_factor/ds_z_dt; //distance along the line of sight
+         	
+        ds_dt_VBB = ds_dt * 1/s * 1/365.2422; // the rate of change of the separation per day
+        da_dt_VBB = dalpha_dt * M_PI/180 * 1/365.2422; // rate of change of alpha radian per day
+        dsz_dt_VBB = ds_z_dt * 1/s * 1/365.2422; // rate of change of the distance along the line of sight per year
+        
 
         ds_dt_VBB = ds_dt * 1/s * 1/365.25; // the rate of change of the separation per day
         da_dt_VBB = dalpha_dt * M_PI/180 * 1/365.25; // rate of change of alpha radian per day
         dsz_dt_VBB = ds_z_dt * 1/s * 1/365.25; // rate of change of the distance along the line of sight per year
+
 
 
         pr[9] = ds_dt_VBB;
@@ -77,6 +104,12 @@ int main()
 
 	pr[12] = sr;
 	pr[13] = ar;
+
+	VBBL.BinaryLightCurveKepler(pr, t_array, mag_keplerian_array, y1_keplerian_array, y2_keplerian_array, sep_keplerian_array, np);
+
+	printf("[%.8f, %.8f, %.8f, %.8f, %.8f]\n", y1_keplerian_array[0], y1_keplerian_array[1], y1_keplerian_array[2], y1_keplerian_array[3], y1_keplerian_array[4]);
+        printf("[%.8f, %.8f, %.8f, %.8f, %.8f]\n", y2_keplerian_array[0], y2_keplerian_array[1], y2_keplerian_array[2], y2_keplerian_array[3], y2_keplerian_array[4]);
+        printf("[%.8f, %.8f, %.8f, %.8f, %.8f]\n", sep_keplerian_array[0], sep_keplerian_array[1], sep_keplerian_array[2], sep_keplerian_array[3], sep_keplerian_array[4]);
 
 
 
