@@ -329,7 +329,6 @@ class ModelParameters(object):
         """A nice way to represent a ModelParameters object as a string"""
         out = self._get_main_parameters_to_print()
 
-        # Raphael: resume looking all functions from here...
         if self.is_xallarap:
             fmt = "\nxallarap reference position: ({:.4f}, {:.4f})"
             if self.n_sources == 1:
@@ -1799,7 +1798,7 @@ class ModelParameters(object):
                 Value(s) of separation for given epochs.
 
         """
-        if 'ds_dt' not in self.parameters.keys():  # Raphael: missing here?
+        if 'ds_dt' not in self.parameters.keys():
             return self.s
 
         if isinstance(epoch, list):
