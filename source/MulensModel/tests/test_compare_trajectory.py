@@ -13,7 +13,7 @@ def get_times(parameters):
         times.append(t_0 - 3 * t_E + i * (6 * t_E / (N - 1)))
     return times
 
-def get_parameters():
+def get_parameters(orbit):
 
     s = 1.2
     q = 0.123
@@ -25,20 +25,29 @@ def get_parameters():
 
     ds_dt = 20.2
     dalpha_dt = -30.3
+    s_z = -1.212000 
     ds_z_dt = 20
     a = 2
 
+    d = {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha,'rho': rho, 'ds_dt': ds_dt, 'dalpha_dt': dalpha_dt, 'ds_z_dt': ds_z_dt}
 
-    parameters_extra = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha,'rho': rho, 'ds_dt': ds_dt, 'dalpha_dt': dalpha_dt, 'ds_z_dt': ds_z_dt, 'a' : a})
+    if orbit == 'circular':
+        d = d
+
+    elif orbit == 'elliptical':
+        d.update({'a': a, 's_z': s_z})
+    else:
+        raise KeyError('Requires either circular or elliptical')
+
+    parameters_extra = mm.ModelParameters(d)
 
     return parameters_extra
-
 
 def test_separation_for_circular_orbit():
     """
     compares separation to values form VBBinaryLensing v3.6
     """
-    parameters = get_parameters()
+    parameters = get_parameters('circular')
     times = get_times(parameters)
 
     model = mm.Model(parameters=parameters)
@@ -53,7 +62,7 @@ def test_trajectory_for_circular_orbit():
     """
     compares trajectory to values form VBBinaryLensing v3.6
     """
-    parameters = get_parameters()
+    parameters = get_parameters('circular')
     times = get_times(parameters)
 
     trajectory = mm.Trajectory(parameters=parameters, times=times)
@@ -68,7 +77,7 @@ def test_separation_for_elliptical_orbit():
     """
     compares separation to values form VBBinaryLensing v3.6
     """
-    parameters = get_parameters()
+    parameters = get_parameters('elliptical')
     times = get_times(parameters)
 
     model = mm.Model(parameters=parameters)
@@ -83,7 +92,7 @@ def test_trajectory_for_elliptical_orbit():
     """
     compares trajectory to values form VBBinaryLensing v3.6
     """
-    parameters = get_parameters()
+    parameters = get_parameters('elliptical')
     times = get_times(parameters)
 
     trajectory = mm.Trajectory(parameters=parameters, times=times)
