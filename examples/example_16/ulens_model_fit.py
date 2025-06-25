@@ -11,6 +11,7 @@ import math
 import numpy as np
 import shlex
 from scipy.interpolate import interp1d
+from scipy.stats import rv_histogram
 from matplotlib import pyplot as plt
 from matplotlib import gridspec, rcParams, rcParamsDefault, colors
 # from matplotlib.backends.backend_pdf import PdfPages
@@ -1818,6 +1819,9 @@ class UlensModelFit(object):
         if 'prior' in self._fit_constraints:
             self._parse_fit_constraints_prior()
 
+        if 'galaxy model' in self._fit_constraints:
+            self._parse_fit_constraints_galaxy()
+
     def _check_fit_constraints(self):
         """
         Run checks on self._fit_constraints
@@ -1858,7 +1862,7 @@ class UlensModelFit(object):
         allowed_keys_color = {'color', 'color source 1', 'color source 2'}
 
         allowed_keys = {*allowed_keys_blending_flux, *allowed_keys_color, *allowed_keys_source_flux,
-                        *allowed_keys_ratio, *allowed_keys_size, "prior", "posterior parsing"}
+                        *allowed_keys_ratio, *allowed_keys_size, "prior", "posterior parsing", 'galaxy model'}
 
         used_keys = set(self._fit_constraints.keys())
         if len(used_keys - allowed_keys) > 0:
@@ -1947,6 +1951,15 @@ class UlensModelFit(object):
                          "negative_source_2_flux_sigma_mag"]:
                 self._parse_fit_constraints_soft_no_negative(key, value)
 
+    def _parse_fit_constraints_galaxy(self):
+        """
+        Check if priors base on Galaxy model in fit constraint are correctly defined.
+        """
+        key = 'galaxy model'
+        value = self._fit_constraints[key]
+        self._parse_fit_constraints_ratios(key, value, 'galaxy')
+        self._read_prior_galaxy()
+
     def _parse_fit_constraints_soft_no_negative(self, key, value):
         """
         Check if soft fit constraint on fluxes are correctly defined.
@@ -1969,6 +1982,8 @@ class UlensModelFit(object):
             get_settings = self._get_settings_fit_constraints_color
         if instance == 'flux':
             get_settings = self._get_settings_fit_constraints_ratio
+        if instance == 'galaxy':
+            get_settings = self._get_settings_fit_constraints_galaxy
 
         self._check_unique_datasets_labels()
         settings_all = []
@@ -2015,6 +2030,82 @@ class UlensModelFit(object):
 
         self._fit_constraints[key] = [settings[0], power, sigma, sets]
         self._flat_priors = False
+
+    def _get_settings_fit_constraints_galaxy(self, key, value):
+        """
+        Get settings of prior based on galaxy model.
+        """
+        settings = shlex.split(value, posix=False)
+        if not path.exists(settings[0]):
+            raise ValueError('In ' + key + " provided file with galaxy model does not exist: " + settings[0])
+
+        allowed = set(self._all_MM_parameters + self._other_parameters + self._user_parameters)
+        used = set(settings[1:])
+        unknown = used - allowed
+        if len(unknown) > 0:
+            raise ValueError('In ' + key + " unknown parameters: " + str(unknown),
+                             "recognized parameters are: " + str(allowed))
+        fitted = set(self._fit_parameters_unsorted)
+        fixed = used - fitted
+        if len(fixed) > 0:
+            warnings.warn('In prior' + key + " there are parameters that are will not be fitted : " +
+                          str(fixed), "fitted parameters are: " + str(fitted),
+                          "Are you sure you want to calculate prior from parameters that are not being fitted?")
+
+        settings = self._load_galaxy_model(settings)
+
+        return settings
+
+    def _load_galaxy_model(self, file, parameters):
+        """
+        Load galaxy model from file and return settings.
+        """
+        file, parameters = settings[0], settings[1:]
+        try:
+            model = np.genfromtxt(file, names=True, dtype=np.float64)
+        except Exception as e:
+            raise ValueError("Error loading galaxy model from file: " + file, e)
+
+        for parameter in parameters:
+            if parameter not in model.dtype.names:
+                raise ValueError(
+                    "File : " + file + " with galaxy model missing column with  " + parameter)
+        return [model, parameters]
+
+    def _read_prior_galaxy(self):
+        """
+        Setting the probability distribution function of a selected parameter based on a Galaxy model
+        """
+        self._prior_galaxy = []
+        for (model, parameters) in self._fit_constraints['galaxy model']:
+            for parameter in parameters:
+                histogram = [model[parameter], model[parameter+'_counts']]
+                dbin = histogram[0][1] - histogram[0][0]
+                bin_eges = histogram[0]-(dbin/2.)
+                bin_eges = np.append(bin_eges, bin_eges[len(bin_eges)-1]+dbin)
+                spreaded = rv_histogram([histogram[1], bin_eges])
+                pdf = spreaded.pdf(histogram[0])
+
+                def pdf_func(x):
+                    return np.interp(x, histogram[0], pdf)
+
+                settings = {'parameter': parameter, 'pdf': pdf}
+                self._prior_galaxy.append(settings)
+                limits = spreaded.interval(0.99)
+                # ploting used prior
+                self._plot_prior(limits, **settings)
+                model = None
+
+    def _plot_prior(self, limits, parameter, pdf):
+        """
+        Plot the prior distribution for a given parameter.
+        """
+        true = np.linspace(limits[0], limits[1], 1000)
+        plt.plot(true, pdf(true), label='PDF')
+        conversion = {**self._latex_conversion, **self._latex_conversion_other}
+        plt.title('$  PDF(' + conversion[parameter] + ')$')
+        file = self._plots['best model'].get('file')[:-4]+'_'+parameter+'_.png'
+        self._save_figure(file)
 
     def _fill_no_of_datasets(self, values, key):
         """
