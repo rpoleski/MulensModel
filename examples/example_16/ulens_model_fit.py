@@ -2084,12 +2084,12 @@ class UlensModelFit(object):
                 bin_eges = histogram[0]-(dbin/2.)
                 bin_eges = np.append(bin_eges, bin_eges[len(bin_eges)-1]+dbin)
                 spreaded = rv_histogram([histogram[1], bin_eges])
-                pdf = spreaded.pdf(histogram[0])
+                logpdf = spreaded.logpdf(histogram[0])
 
                 def pdf_func(x):
-                    return np.interp(x, histogram[0], pdf)
+                    return np.interp(x, histogram[0], logpdf)
 
-                settings = {'parameter': parameter, 'pdf': pdf}
+                settings = {'parameter': parameter, 'logpdf': logpdf}
                 self._prior_galaxy.append(settings)
                 limits = spreaded.interval(0.99)
                 # ploting used prior
@@ -2801,7 +2801,29 @@ class UlensModelFit(object):
                 else:
                     raise ValueError('prior not handled: ' + parameter)
 
+        if self._prior_galaxy is not None:
+            self._set_model_parameters(theta)
+            ln_prior += self._ln_prior_galaxy()
+
         return ln_prior
+
+    def _ln_prior_galaxy(self):
+        """
+        Get log prior for any parameter form model of galaxy of current model. This function is executed
+        if there is galaxy prior.
+        """
+        out = 0.
+        for prior in self._prior_galaxy.keys():
+            key = prior['parameter']
+            logpdf = prior['logpdf']
+            x = self._model.parameters.parameters[key]
+            prob = logpdf(x)
+            if prob <= 0.:
+                return -np.inf
+            else:
+                out += prob
+
+        return out
 
     def _check_valid_Cassan08_trajectory(self):
         """
