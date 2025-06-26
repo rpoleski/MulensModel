@@ -20,13 +20,11 @@ class ModelParameters(object):
         parameters: *dictionary*
             A dictionary of parameters and their values. Do not use it to
             change parameter values, instead use e.g.:
-            ``model_parameters.u_0 = 0.1`` or
-            ``setattr(model_parameters, 'u_0', 0.1)``.
+            ``model_parameters.u_0 = 0.1`` or ``setattr(model_parameters, 'u_0', 0.1)``.
 
     Example:
         Define a point lens model:
-            ``params = ModelParameters({'t_0': 2450000., 'u_0': 0.3,
-            't_E': 35.})``
+            ``params = ModelParameters({'t_0': 2450000., 'u_0': 0.3, 't_E': 35.})``
 
         Then you can print the parameters:
             ``print(params)``
@@ -36,7 +34,7 @@ class ModelParameters(object):
     # parameters that may be defined for a given source
     _primary_source_params_head = ['t_0', 'u_0', 't_eff']
     _finite_source_params_head = ['rho', 't_star']
-    _all_source_params_head = np.hstack((_primary_source_params_head, _finite_source_params_head))
+    _all_source_params_head = _primary_source_params_head + _finite_source_params_head
     _t_0_ref_types = ['par', 'kep', 'xi']
 
     def __init__(self, parameters):
@@ -116,8 +114,7 @@ class ModelParameters(object):
         t_0_xi = parameters.get('t_0_xi', parameters['t_0'])
 
         zip_ = parameters.items()
-        orbit_parameters = {key[3:]: value
-                            for (key, value) in zip_ if key[:3] == "xi_"}
+        orbit_parameters = {key[3:]: value for (key, value) in zip_ if key[:3] == "xi_"}
         orbit_parameters['epoch_reference'] = t_0_xi
         orbit = Orbit(**orbit_parameters)
         return orbit.get_reference_plane_position([t_0_xi])
