@@ -32,8 +32,7 @@ def get_parameters(orbit):
     d = {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha,'rho': rho, 'ds_dt': ds_dt, 'dalpha_dt': dalpha_dt, 'ds_z_dt': ds_z_dt}
 
     if orbit == 'circular':
-        d = d
-
+        pass
     elif orbit == 'elliptical':
         d.update({'a': a, 's_z': s_z})
     else:
