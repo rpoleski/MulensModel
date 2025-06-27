@@ -11,7 +11,7 @@ import math
 import numpy as np
 import shlex
 from scipy.interpolate import interp1d
-from scipy.stats import rv_histogram
+from scipy.stats import rv_histogram, gaussian_kde
 from matplotlib import pyplot as plt
 from matplotlib import gridspec, rcParams, rcParamsDefault, colors
 # from matplotlib.backends.backend_pdf import PdfPages
@@ -1806,6 +1806,7 @@ class UlensModelFit(object):
         """
         self._prior_t_E = None
         self._priors = None
+        self._prior_galaxy = None
 
         if self._fit_constraints is None:
             self._set_default_fit_constraints()
@@ -2056,7 +2057,7 @@ class UlensModelFit(object):
 
         return settings
 
-    def _load_galaxy_model(self, file, parameters):
+    def _load_galaxy_model(self, settings):
         """
         Load galaxy model from file and return settings.
         """
@@ -2084,17 +2085,18 @@ class UlensModelFit(object):
                 bin_eges = histogram[0]-(dbin/2.)
                 bin_eges = np.append(bin_eges, bin_eges[len(bin_eges)-1]+dbin)
                 spreaded = rv_histogram([histogram[1], bin_eges])
-                logpdf = spreaded.logpdf(histogram[0])
+                n = len(histogram[0])
+                pdf = gaussian_kde(spreaded.rvs(size=n)).pdf(histogram[0])
 
                 def pdf_func(x):
-                    return np.interp(x, histogram[0], logpdf)
+                    return np.interp(x, histogram[0], pdf)
 
-                settings = {'parameter': parameter, 'logpdf': logpdf}
+                settings = {'parameter': parameter, 'pdf': pdf_func}
                 self._prior_galaxy.append(settings)
                 limits = spreaded.interval(0.99)
                 # ploting used prior
                 self._plot_prior(limits, **settings)
-                model = None
+            model = None
 
     def _plot_prior(self, limits, parameter, pdf):
         """
@@ -2813,15 +2815,16 @@ class UlensModelFit(object):
         if there is galaxy prior.
         """
         out = 0.
-        for prior in self._prior_galaxy.keys():
+        parameters = {**self._other_parameters_dict, **self._model.parameters.parameters}
+        for prior in self._prior_galaxy:
             key = prior['parameter']
-            logpdf = prior['logpdf']
-            x = self._model.parameters.parameters[key]
-            prob = logpdf(x)
+            pdf = prior['pdf']
+            value = parameters[key]
+            prob = pdf(value)
             if prob <= 0.:
                 return -np.inf
             else:
-                out += prob
+                out += np.log(prob)
 
         return out
 
