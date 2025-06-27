@@ -343,6 +343,19 @@ class UlensModelFit(object):
                 specify gaussian prior for parallax components. Parameters
                 *mean* and *sigma* are floats.
 
+            ``'galaxy model'`` - *list* of *str*. It specifies the priors for selected parameters based histograms in
+            specified file.
+            The file should have names of the columns in first line, fallowing the pattern:
+                *parameter_name* for column with bins centers (e.g., ``pi_E_E``) and
+                *parameter_name_counts* for column with counts(e.g., ``pi_E_E_counts``).
+
+            Parameters:
+                *file* - a *str* that gives a path to the file with histograms
+                of the parameter,
+                *parameters* -  parameters for which the prior should be implemented.
+                The parameters should be in the file and should be given as strings.
+            e.g., ``data/OB03235/OB03235_galaxy_model_histogram.txt pi_E_E pi_E_N``
+
             References:
               Mao & Paczynski 1996 -
               https://ui.adsabs.harvard.edu/abs/1996ApJ...473...57M/abstract
