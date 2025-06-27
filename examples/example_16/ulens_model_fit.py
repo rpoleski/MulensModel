@@ -2120,6 +2120,7 @@ class UlensModelFit(object):
         conversion = {**self._latex_conversion, **self._latex_conversion_other}
         plt.title('$  PDF(' + conversion[parameter] + ')$')
         file = self._plots['best model'].get('file')[:-4]+'_'+parameter+'_.png'
+        print("Saving plot of used prior on " + parameter + " to " + file)
         self._save_figure(file)
 
     def _fill_no_of_datasets(self, values, key):
