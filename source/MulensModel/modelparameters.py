@@ -1893,7 +1893,7 @@ class ModelParameters(object):
         """
         position = np.array([self.s, 0, self.s_z])
         gamma = np.array([self.gamma_parallel, self.gamma_perp, self.gamma_z])
-        new_input = [*list(position), *list(gamma)] # XXX add other parameters here if needed.
+        new_input = [*list(position), *list(gamma)]
         if new_input == self._lens_keplerian_last_input:
             return
 
