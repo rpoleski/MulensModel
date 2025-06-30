@@ -12,7 +12,7 @@ import numpy as np
 import shlex
 from scipy.interpolate import interp1d
 from matplotlib import pyplot as plt
-from matplotlib import gridspec, rcParams, rcParamsDefault
+from matplotlib import gridspec, rcParams, rcParamsDefault, colors
 # from matplotlib.backends.backend_pdf import PdfPages
 
 import_failed = set()
@@ -47,8 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.43.0'
-
+__version__ = '0.49.0'
 
 
 class UlensModelFit(object):
@@ -77,6 +76,12 @@ class UlensModelFit(object):
             pass
             ``'scale_errorbars': {'factor': kappa, 'minimum': epsilon}``
             to scale uncertainties.
+
+            ``'bad'`` : *list* or *str*
+            to set bad flags in MulensData
+            When *str* then it should point to the file containing
+            indexes (*int*) or full JD time-stamps (*float*) of bad epochs,
+            when *list* then as for  MulensData 'bad' parameter.
 
         fit_method: *str*
             Method of fitting. Currently accepted values are ``EMCEE``,
@@ -205,12 +210,11 @@ class UlensModelFit(object):
             It is possible to export posterior to a .npy file. Just provide
             the file name as ``posterior file`` parameter. You can read this
             file using ``numpy.load()``. You will get an array with a shape of
-            (``n_walkers``, ``n_steps-n_burn``, ``n_parameters``). You can
-            additionally add option ``posterior file fluxes`` for which
-            allowed values are ``all`` and *None* (``null`` in yaml file).
-            The value ``all`` means that additionally all source and blending
-            fluxes will be saved (``n_parameters`` increases by two times the
-            number of datasets).
+            (``n_walkers``, ``n_steps-n_burn``, ``n_parameters``).
+            You can additionally add option ``posterior file fluxes`` for which allowed values are ``all``,
+            *None* (``null`` in yaml file), or a list of dataset indexes. The value ``all`` means that all source and
+            blending fluxes will be saved. You may also provide a list of datasets label
+            (identical to the ones in ``MulensData.plot_properties['label']``).
 
             Second - pyMultiNest. There are no required parameters, but a few
             can be provided. Currently accepted ones are:
@@ -276,25 +280,50 @@ class UlensModelFit(object):
             for negative values; the value provided should be on the order of
             *20.*
 
-            ``'color'`` - specify gaussian prior for colors of the sources.
-            Parameters:
-                *mean* and *sigma* are floats in magnitudes, *dataset_label*
-                are str defined in MulensData.plot_properties['label']
+            ``'negative_source_flux_sigma_mag'`` - impose a prior that disfavor models
+            with negative source flux (or negative flux for both sources in a binary source model)
+            by applying a Gaussian prior to negative values.
 
-            ``'color source 1'`` - specify gaussian prior for color of
-            the primary source in binary source model.
-            Parameters:
-                *mean* and *sigma* are floats in magnitudes, *dataset_label*
-                are str defined in MulensData.plot_properties['label']
+            ``'negative_source_1_flux_sigma_mag'`` - same as ``'negative_source_flux_sigma_mag'`` but applied only to
+            the primary source flux.
 
-            ``'color source 2'`` - specify gaussian prior for color of
-            the secondary source in binary source model.
+            ``'negative_source_2_flux_sigma_mag'`` - same as ``'negative_source_flux_sigma_mag'`` but applied only to
+            the secondary source flux.
+
+            ``'color'`` either *str* or *list* of str- specify gaussian prior for colors of the sources.
+            If *list* it will be used multiple times for each color
             Parameters:
-                *mean* and *sigma* are floats in magnitudes, *dataset_label*
-                are str defined in MulensData.plot_properties['label']
+                *mean* and *sigma* are floats in magnitudes, *dataset_label* are str defined in
+                MulensData.plot_properties['label'], e.g.,``color : gauss 0.3 0.01 "OGLE I-band" "OB03235_MOA.txt"``
+
+            ``'color source 1'`` same as ``'color'`` but applied only to the primary source flux.
+
+            ``'color source 2'`` same as ``'color'`` but applied only to the secondary source flux.
+
+            ``'2 sources flux ratio'`` — either *str* or *list* of *str*. Specifies a Gaussian prior to maintain the
+            flux ratio consistency of sources in binary source models across all datasets taken in the same passband.
+            If a *list*, it will be applied multiple times for each passband.
+            Parameters :
+            either *dataset_label* or *float*: A string defined in `MulensData.plot_properties['label']`.
+            The first *dataset_label* refers to the reference dataset, from which the mean of the Gaussian prior
+            will be calculated.
+            If *float* the mean will be fixed to the provided value.
+            *sigma**: A float representing the flux ratio uncertainty.
+            *dataset_label*: Strings defined in `MulensData.plot_properties['label']`, corresponding to all
+                other datasets in the same passband.
+            e.g: ``2 sources flux ratio : gauss "OGLE I-band" 0.1 "LCO_I-band.txt"``
+
+            ``'2 source flux size relation'`` *str* - Specifies a Gaussian prior flux_1/flux_2 = (rho_1/rho_2)^k
+            in binary source models.
+            Parameters:
+                *k*: Exponent of the relation. In most cases, k=2.
+                *sigma*: A float representing the uncertainty of the relation.
+                *dataset_label*: A string defined in `MulensData.plot_properties['label']`, specifying for which
+                    datasets the prior should be used. If `None`, the relation will be applied to all datasets.
+            e.g.: ``2 source flux size relation : gauss 2. 0.1``
 
             ``'prior'`` - specifies the priors for quantities. It's also
-            a *dict*. Possible key-value pairs:
+                a *dict*. Possible key-value pairs:
 
                 ``'t_E': 'Mroz et al. 2017'`` - efficiency-corrected t_E
                 distribution from that paper with two modifications: 1) it is
@@ -322,7 +351,7 @@ class UlensModelFit(object):
               https://ui.adsabs.harvard.edu/abs/2020ApJS..249...16M/abstract
 
             ``'posterior parsing'`` - additional settings that allow
-            modyfing posterior after it's calculated. Possile values:
+            modyfying posterior after it's calculated. Possile values:
 
                 ``'abs': [...]`` - calculate absolute values for parameters
                 from given list. It's useful for e.g. ``'u_0'`` for
@@ -334,12 +363,13 @@ class UlensModelFit(object):
             ``trajectory``, and ``best model``.
             The values are also dicts and currently accepted keys are:
             1) for ``best model``:
-            ``'file'``,``'interactive' ``'time range'``, ``'magnitude range'``,
-            ``'title'``,``'legend'``,`and ``'rcParams'``,
+            ``'file'``, ``'interactive'``, ``'time range'``, ``'magnitude range'``, ``'title'``,``'legend'``,
+            ``'rcParams'``, ``'add models'`` (allows setting ``Model.plot_lc()`` parameters and
+            ``'limb darkening u'`` to *str* or *float*), and ``'model label'``
             2) for ``triangle`` and ``trace``:
-            ``'file'`` and ``'shift t_0'`` (*bool*, *True* is default)
+            ``'file'``, and ``'shift t_0'`` (*bool*, *True* is default)
             3) for ``trajectory``:
-            ``'file'`` and ``'time range'`` (if not provided, then values
+            ``'file'``, ``'interactive'``, and ``'time range'`` (if not provided, then values
             from ``best model`` will be used)
             e.g.:
 
@@ -354,6 +384,7 @@ class UlensModelFit(object):
                   'trajectory':
                       'file': 'my_trajectory.png'
                       'time range': 2456050. 2456300.
+                      'interactive': 'my_trajectory.html'
                   'best model':
                       'file': 'my_fit_best.png'
                       'interactive' : 'my_fit_best.html'
@@ -365,6 +396,9 @@ class UlensModelFit(object):
                           'loc': 'lower center'
                       'rcParams':
                           'font.size': 15
+                      'model label': 'I-band model'
+                      'add models':
+                          [{'limb darkening u': 'V', 'label': 'V-band model', 'color': 'slateblue', 'zorder': -10}]
               }
 
             Note that 'rcParams' allows setting many matplotlib parameters.
@@ -697,7 +731,7 @@ class UlensModelFit(object):
                 required_packages.add('corner')
 
         if self._plots is not None:
-            if self._plots['best model'] and 'interactive' in self._plots['best model']:
+            if 'interactive' in {**self._plots.get('best model', {}), **self._plots.get('trajectory', {})}:
                 required_packages.add('plotly')
 
         failed = import_failed.intersection(required_packages)
@@ -712,7 +746,7 @@ class UlensModelFit(object):
                     "https://raw.githubusercontent.com/dfm/corner.py/" +
                     "v2.0.0/corner/corner.py")
             if "plotly" in failed:
-                message += ("\nThe plotly package is required for creating interactive best model plots.")
+                message += ("\nThe plotly package is required for creating interactive plots.")
 
             raise ImportError(message)
 
@@ -735,13 +769,15 @@ class UlensModelFit(object):
         self._get_parameters_ordered()
         self._get_parameters_latex()
         self._set_prior_limits()
-        self._parse_fit_constraints()
+
         if self._fit_method == "EMCEE":
             self._parse_starting_parameters()
 
         self._check_fixed_parameters()
         self._make_model_and_event()
         self._parse_fitting_parameters()
+        self._parse_fit_constraints()
+
         if self._fit_method == "EMCEE":
             self._get_starting_parameters()
 
@@ -820,35 +856,21 @@ class UlensModelFit(object):
         """
         Check if parameters of best model make sense
         """
-        allowed = set(['file', 'time range', 'magnitude range', 'legend',
-                       'rcParams', 'second Y scale', 'interactive', 'title'])
+        allowed = set(['file', 'time range', 'magnitude range', 'legend', 'rcParams', 'second Y scale',
+                       'interactive', 'title', 'add models', 'model label'])
         unknown = set(self._plots['best model'].keys()) - allowed
         if len(unknown) > 0:
-            raise ValueError(
-                'Unknown settings for "best model": {:}'.format(unknown))
+            raise ValueError('Unknown settings for "best model": {:}'.format(unknown))
 
         self._set_time_range_for_plot('best model')
 
         if 'magnitude range' in self._plots['best model']:
-            text = self._plots['best model']['magnitude range'].split()
-            if len(text) != 2:
-                raise ValueError(
-                    "'magnitude range' for 'best model' should specify 2 " +
-                    "values (begin and end); got: " +
-                    str(self._plots['best model']['magnitude range']))
-            mag_0 = float(text[0])
-            mag_1 = float(text[1])
-            if mag_1 > mag_0:
-                raise ValueError(
-                    "Incorrect 'magnitude range' for 'best model':\n" +
-                    text[0] + " " + text[1])
-            self._plots['best model']['magnitude range'] = [mag_0, mag_1]
+            self._parse_plots_magnitude_range()
 
         for key in ['legend', 'rcParams', 'second Y scale']:
             if key in self._plots['best model']:
                 if not isinstance(self._plots['best model'][key], dict):
-                    msg = ('The value of {:} (in best model settings)'
-                           'must be a dictionary, but you provided {:}')
+                    msg = ('The value of {:} (in best model settings) must be a dictionary, but you provided {:}')
                     args = [key, type(self._plots['best model'][key])]
                     raise TypeError(msg.format(*args))
 
@@ -860,6 +882,9 @@ class UlensModelFit(object):
 
         if 'title' in self._plots['best model']:
             self._check_plots_parameters_best_model_title()
+
+        if 'add models' in self._plots['best model']:
+            self._check_plots_parameters_add_models()
 
     def _set_time_range_for_plot(self, plot_type):
         """
@@ -881,6 +906,20 @@ class UlensModelFit(object):
                              "plot:\n" + text[0] + " " + text[1])
         self._plots[plot_type]['time range'] = [t_0, t_1]
 
+    def _parse_plots_magnitude_range(self):
+        """Assuming magnitude range is for best model is provided, parse it and save."""
+        text = self._plots['best model']['magnitude range'].split()
+        if len(text) != 2:
+            raise ValueError("'magnitude range' for 'best model' should specify 2 values (begin and end); got: " +
+                             str(self._plots['best model']['magnitude range']))
+
+        mag_0 = float(text[0])
+        mag_1 = float(text[1])
+        if mag_1 > mag_0:
+            raise ValueError("Incorrect 'magnitude range' for 'best model':\n" + text[0] + " " + text[1])
+
+        self._plots['best model']['magnitude range'] = [mag_0, mag_1]
+
     def _check_plots_parameters_best_model_interactive(self):
         """
         Check if there is no problem with interactive best plot
@@ -892,6 +931,19 @@ class UlensModelFit(object):
         Check if there is no problem with best model title
         """
         pass
+
+    def _check_plots_parameters_add_models(self):
+        """
+        Check if "best model" -> "add models" are of proper type i.e., list of dicts
+        """
+        settings = self._plots['best model']['add models']
+        if not isinstance(settings, (list)):
+            raise TypeError('The type of "best model" -> "add models" must be a list, not ' + str(type(settings)))
+
+        for one_model in settings:
+            if not isinstance(one_model, (dict)):
+                raise TypeError(
+                    'All entries of "best model" -> "add models" must be dicts, not ' + str(type(one_model)))
 
     def _check_plots_parameters_best_model_Y_scale(self):
         """
@@ -940,13 +992,22 @@ class UlensModelFit(object):
         """
         Check if parameters of trajectory plot make sense
         """
-        allowed = set(['file', 'time range'])
+        allowed = set(['file', 'time range', 'interactive'])
         unknown = set(self._plots['trajectory'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
                 'Unknown settings for "trajectory" plot: {:}'.format(unknown))
 
         self._set_time_range_for_plot('trajectory')
+
+        if 'interactive' in self._plots['trajectory']:
+            self._check_plots_parameters_trajectory_interactive()
+
+    def _check_plots_parameters_trajectory_interactive(self):
+        """
+        Check if there is no problem with interactive trajectory plot
+        """
+        pass
 
     def _check_plots_parameters_triangle(self):
         """
@@ -1177,6 +1238,8 @@ class UlensModelFit(object):
         """
         construct a list of MulensModel.MulensData objects
         """
+        self._satellites_names = []
+        self._satellites_colors = []
         kwargs = {'add_2450000': True}
         if isinstance(self._photometry_files, str):
             self._photometry_files = [self._photometry_files]
@@ -1203,6 +1266,8 @@ class UlensModelFit(object):
         Construct a single dataset and possibly rescale uncertainties in it.
         """
         scaling = file_.pop("scale_errorbars", None)
+        bad = file_.pop("bad", None)
+
         try:
             dataset = mm.MulensData(**{**kwargs, **file_})
         except FileNotFoundError:
@@ -1216,8 +1281,95 @@ class UlensModelFit(object):
 
         if scaling is not None:
             dataset.scale_errorbars(**scaling)
+        if bad is not None:
+            self._parse_bad(bad, dataset)
+
+        if dataset.ephemerides_file is not None:
+            self._satellites_names.append(dataset.plot_properties['label'])
+            self._satellites_colors.append(dataset.plot_properties['color'])
 
         return dataset
+
+    def _parse_bad(self, bad, dataset):
+        """
+        Read the bad flags from photometry_files['bad'] in yaml file
+        """
+        if path.isfile(bad):
+            bad_array = np.genfromtxt(bad, ndmin=1, dtype=None)
+            if len(bad_array) > 0:
+                if bad_array.dtype == np.dtype('bool'):
+                    if len(bad) == dataset.n_epochs:
+                        bad_bool = bad_array
+                    else:
+                        raise ValueError(
+                            'File {:s} with boolean values should have'.format(str(bad))+'the same length as' +
+                            ' the corresponding dataset')
+                elif bad_array.dtype == np.dtype('float'):
+                    bad_bool = np.full(dataset.n_epochs, False, dtype=bool)
+                    self._check_float_bad_flags(bad, bad_array, dataset)
+                    for (i, time) in enumerate(dataset.time):
+                        if time in bad_array:
+                            bad_bool[i] = True
+                elif bad_array.dtype == np.dtype('int'):
+                    self._check_int_bad_flags(bad, bad_array, dataset)
+                    bad_bool = np.full(dataset.n_epochs, False, dtype=bool)
+                    bad_bool[bad_array] = True
+                else:
+                    raise ValueError(
+                        'Wrong declaration of bad data points in file {:s}'.format(str(bad)),
+                        'File should consists of boolean array of dataset\'s length or identifies of bad epochs' +
+                        'in form of indexes: *int* or JD stamps:*floats*')
+                self._set_bool_bad(dataset, bad, bad_bool)
+
+    def _check_float_bad_flags(self, bad, bad_array, dataset):
+        """
+        Check if the provided bad flags are in range of dataset time vector
+        """
+        max_time = np.max(dataset.time)
+        min_time = np.min(dataset.time)
+        for time in bad_array:
+            if time < min_time or time > max_time:
+                raise ValueError('Provided bad flag `{:f}` in file {:s}'.format(time, str(bad)),
+                                 'is not in range of dataset time vector: [{:f}, {:f}]'.format(min_time, max_time))
+        crossmatch = list(set(bad_array) & set(dataset.time))
+        if len(crossmatch) < len(bad_array):
+            raise ValueError(
+                'Provided bad flags in file {:s} do not match dataset time-stamps from {:s}'.format(
+                    str(bad), dataset.plot_properties['label']),
+                'Please check the bad flags are as in the dataset file (plus 2450000 or 2460000 if needed).')
+
+    def _check_int_bad_flags(self, bad, bad_array, dataset):
+        """
+        Check if the provided bad flags are in range of dataset time vector
+        """
+        max_index = len(dataset.time)-1
+        for index in bad_array:
+            if index > max_index:
+                raise ValueError('Provided index bad flag `{:d}` in file {:s}'.format(index, str(bad)),
+                                 'is higher than the maximum index of dataset vector: {:d}'.format(max_index))
+
+    def _print_out_bad_flags_file(self, dataset, bad):
+        """
+        When bad flags sets from the file, print the file name
+        """
+        out = '{:} bad flags set from file: {:s}'.format(
+            dataset.plot_properties['label'], str(bad))
+        print(out)
+        if self._yaml_results:
+            print(out, **self._yaml_kwargs)
+
+    def _set_bool_bad(self, dataset, bad, bad_bool):
+        """
+        Setting bad flags for dataset base on argument photometry_files['bad'] in yaml file
+        """
+        try:
+            dataset.bad = bad_bool
+            self._print_out_bad_flags_file(dataset, bad)
+
+        except TypeError:
+            raise ValueError(
+                'Something wrong with provided bad flags for dataset ' + dataset.plot_properties['label'] + '\n ' +
+                str(bad_bool[0]))
 
     def _check_ulens_model_parameters(self):
         """
@@ -1301,17 +1453,17 @@ class UlensModelFit(object):
         required = ints_required
 
         bools = ['progress']
-        ints = ['n_walkers', 'n_burn']
-        strings = ['posterior file', 'posterior file fluxes']
-        allowed = bools + ints + strings
+        ints = ['n_walkers', 'n_burn', 'posterior file thin']
+        strings = ['posterior file']
+        strings_or_lists = ['posterior file fluxes']
+        allowed = bools + ints + strings + strings_or_lists
 
         self._check_required_and_allowed_parameters(required, allowed)
-        self._check_parameters_types(settings, bools=bools,
-                                     ints=ints+ints_required, strings=strings)
+        self._check_parameters_types(
+            settings, bools=bools, ints=ints+ints_required, strings=strings, strings_or_lists=strings_or_lists)
 
         self._kwargs_EMCEE = {'initial_state': None,  # It will be set later.
-                              'nsteps': self._fitting_parameters['n_steps'],
-                              'progress': False}
+                              'nsteps': self._fitting_parameters['n_steps'], 'progress': False}
 
         if 'progress' in settings:
             self._kwargs_EMCEE['progress'] = settings['progress']
@@ -1322,32 +1474,7 @@ class UlensModelFit(object):
         else:
             settings['n_burn'] = int(0.25*self._fitting_parameters['n_steps'])
 
-        if 'posterior file' not in settings:
-            self._posterior_file_name = None
-            if 'posterior file fluxes' in settings:
-                raise ValueError('You cannot set "posterior file fluxes" ' +
-                                 'without setting "posterior file"')
-        else:
-            name = settings['posterior file']
-            if name[-4:] != '.npy':
-                raise ValueError('"posterior file" must end in ".npy", ' +
-                                 'got: ' + name)
-            if path.exists(name):
-                if path.isfile(name):
-                    msg = "Existing file " + name + " will be overwritten"
-                    warnings.warn(msg)
-                else:
-                    raise ValueError("The path provided for posterior (" +
-                                     name + ") exists and is a directory")
-            self._posterior_file_name = name[:-4]
-            self._posterior_file_fluxes = None
-
-        if 'posterior file fluxes' in settings:
-            fluxes_allowed = ['all', None]
-            if settings['posterior file fluxes'] not in fluxes_allowed:
-                raise ValueError('Unrecognized "posterior file fluxes": ' +
-                                 settings['posterior file fluxes'])
-            self._posterior_file_fluxes = settings['posterior file fluxes']
+        self._parse_posterior_file_settings()
 
     def _check_required_and_allowed_parameters(self, required, allowed):
         """
@@ -1369,7 +1496,7 @@ class UlensModelFit(object):
                              str(set(settings.keys()) - set(full)))
 
     def _check_parameters_types(self, settings, bools=None,
-                                ints=None, floats=None, strings=None):
+                                ints=None, floats=None, strings=None, strings_or_lists=None):
         """
         Check if the settings have right type.
         For floats we accept ints as well.
@@ -1382,33 +1509,68 @@ class UlensModelFit(object):
             floats = []
         if strings is None:
             strings = []
+        if strings_or_lists is None:
+            strings_or_lists = []
 
         fmt = "For key {:} the expected type is {:}, but got {:}"
         for (key, value) in settings.items():
             if key in bools:
                 if not isinstance(value, bool):
-                    raise TypeError(
-                        fmt.format(key, "bool", str(type(value))))
+                    raise TypeError(fmt.format(key, "bool", str(type(value))))
             elif key in ints:
                 if not isinstance(value, int):
-                    raise TypeError(
-                        fmt.format(key, "int", str(type(value))))
+                    raise TypeError(fmt.format(key, "int", str(type(value))))
             elif key in floats:
                 if not isinstance(value, (float, int)):
-                    raise TypeError(
-                        fmt.format(key, "float", str(type(value))))
+                    raise TypeError(fmt.format(key, "float", str(type(value))))
             elif key in strings:
                 if not isinstance(value, str):
-                    raise TypeError(
-                        fmt.format(key, "string", str(type(value))))
+                    raise TypeError(fmt.format(key, "string", str(type(value))))
+            elif key in strings_or_lists:
+                if not isinstance(value, (str, list)):
+                    raise TypeError(fmt.format(key, "string or list", str(type(value))))
             else:
-                raise ValueError(
-                    "internal bug - no type for key " + key + " specified")
+                raise ValueError("internal bug - no type for key " + key + " specified")
+
+    def _parse_posterior_file_settings(self):
+        """Parse information about posterior file for EMCEE fitting."""
+        settings = self._fitting_parameters
+
+        if 'posterior file' not in settings:
+            self._posterior_file_name = None
+            if 'posterior file fluxes' in settings:
+                raise ValueError('You cannot set "posterior file fluxes" without setting "posterior file"')
+        else:
+            name = settings['posterior file']
+            if name[-4:] != '.npy':
+                raise ValueError('"posterior file" must end in ".npy", got: ' + name)
+            if path.exists(name):
+                if path.isfile(name):
+                    msg = "Existing file " + name + " will be overwritten"
+                    warnings.warn(msg)
+                else:
+                    raise ValueError("The path provided for posterior (" +
+                                     name + ") exists and is a directory")
+            self._posterior_file_name = name[:-4]
+            self._posterior_file_fluxes = None
+
+        if 'posterior file fluxes' in settings:
+            not_changed = ['all', None]
+            if settings['posterior file fluxes'] in not_changed:
+                self._posterior_file_fluxes = settings['posterior file fluxes']
+            elif isinstance(settings['posterior file fluxes'], list):
+                indexes = []
+                for label in settings['posterior file fluxes']:
+                    label_index = self._get_no_of_dataset(label)
+                    indexes += list(np.arange(self._n_fluxes_per_dataset) + self._n_fluxes_per_dataset * label_index)
+
+                self._posterior_file_fluxes = indexes
+            else:
+                raise ValueError('Unrecognized "posterior file fluxes": ' + str(settings['posterior file fluxes']))
 
     def _get_n_walkers(self):
         """
-        Guess how many walkers (and hence starting values) there will be.
-        EMCEE fitting only.
+        Guess how many walkers (and hence starting values) there will be. EMCEE fitting only.
         """
         if self._fit_method != 'EMCEE':
             raise ValueError('internal bug')
@@ -1419,8 +1581,7 @@ class UlensModelFit(object):
             if self._starting_parameters_type == 'draw':
                 self._n_walkers = 4 * self._n_fit_parameters
             elif self._starting_parameters_type != 'file':
-                raise ValueError(
-                    'Unexpected: ' + self._starting_parameters_type)
+                raise ValueError('Unexpected: ' + self._starting_parameters_type)
 
     def _parse_fitting_parameters_MultiNest(self):
         """
@@ -1689,24 +1850,33 @@ class UlensModelFit(object):
         """
         Validate the keys in the provided fit_constraints.
         """
-        allowed_keys_flux = {
-            "no_negative_blending_flux", "negative_blending_flux_sigma_mag"}
+        allowed_keys_blending_flux = {"no_negative_blending_flux", "negative_blending_flux_sigma_mag"}
+        allowed_keys_source_flux = {"negative_source_flux_sigma_mag", "negative_source_1_flux_sigma_mag",
+                                    "negative_source_2_flux_sigma_mag"}
+        allowed_keys_ratio = {"2 sources flux ratio"}
+        allowed_keys_size = {'2 source flux size relation'}
         allowed_keys_color = {'color', 'color source 1', 'color source 2'}
-        allowed_keys = {*allowed_keys_flux, *allowed_keys_color,
-                        "prior", "posterior parsing"}
+
+        allowed_keys = {*allowed_keys_blending_flux, *allowed_keys_color, *allowed_keys_source_flux,
+                        *allowed_keys_ratio, *allowed_keys_size, "prior", "posterior parsing"}
 
         used_keys = set(self._fit_constraints.keys())
         if len(used_keys - allowed_keys) > 0:
             raise ValueError('unrecognized constraint: {:}'.format(
                 used_keys - allowed_keys))
-        if len(used_keys.intersection(allowed_keys_flux)) == 2:
+        if len(used_keys.intersection(allowed_keys_blending_flux)) == 2:
             raise ValueError(
                 'you cannot specify both no_negative_blending_flux and ' +
                 'negative_blending_flux_sigma_mag')
+
         if "no_negative_blending_flux" not in self._fit_constraints:
             self._fit_constraints["no_negative_blending_flux"] = False
 
-        self._check_color_constraints_conflict(allowed_keys_color)
+        self._check_flux_constraints_conflict(allowed_keys_color, 'color')
+        self._check_flux_constraints_conflict(allowed_keys_source_flux, 'flux')
+
+        self._check_ratio_constraints_conflict(allowed_keys_ratio)
+        self._check_size_constraints_conflict(allowed_keys_size)
 
     def _set_default_fit_constraints(self):
         """
@@ -1715,17 +1885,50 @@ class UlensModelFit(object):
         self._fit_constraints = {"no_negative_blending_flux": False}
         self._parse_posterior_abs = list()
 
-    def _check_color_constraints_conflict(self, allowed_keys_color):
+    def _check_ratio_constraints_conflict(self, allowed_keys_ratio):
         """
-        Check for conflicts among color constraints.
+        Check for conflicts among 2 source flux ratio constraints.
+        """
+        self._check_binary_source(allowed_keys_ratio)
+
+    def _check_size_constraints_conflict(self, allowed_keys_size):
+        """
+        Check for conflicts among 2 source flux size relation constraints.
+        """
+        for key in allowed_keys_size:
+            if key not in self._fit_constraints:
+                continue
+            self._check_binary_source({key})
+            needed = ['rho_1', 'rho_2']
+            for parameter in needed:
+                if parameter not in self._fit_parameters_unsorted:
+                    raise ValueError("2 source flux size relation constraints should be used only with finite " +
+                                     "source model, so " + parameter + " should be defined")
+
+    def _check_binary_source(self, allowed_keys):
+        """
+        Check if fitted model is a binary source model
+        """
+        for key in allowed_keys:
+            if key in self._fit_constraints:
+                if self._model.n_sources != 2:
+                    raise ValueError(key + ' fitting prior should be used only with binary source model')
+
+    def _check_flux_constraints_conflict(self, allowed_keys, instance):
+        """
+        Check for conflicts among flux or color constraints.
         """
         used_keys = set(self._fit_constraints.keys())
+        if instance == 'color':
+            key = 'color'
+        elif instance == 'flux':
+            key = 'negative_source_flux_sigma_mag'
 
-        if len(used_keys.intersection(allowed_keys_color)) >= 2:
-            if 'color' in used_keys:
+        if len(used_keys.intersection(allowed_keys)) >= 2:
+            if key in used_keys:
                 raise ValueError(
-                    'You cannot specify both color and ' +
-                    str(used_keys.intersection(allowed_keys_color)-{'color'}))
+                    'You cannot specify both ' + key + ' and ' +
+                    str(used_keys.intersection(allowed_keys)-{key}))
 
     def _parse_fit_constraints_fluxes(self):
         """
@@ -1733,39 +1936,103 @@ class UlensModelFit(object):
         """
         for key, value in self._fit_constraints.items():
             if key == "negative_blending_flux_sigma_mag":
-                self._parse_fit_constraints_soft_blending(key, value)
+                self._parse_fit_constraints_soft_no_negative(key, value)
             elif key in ['color', 'color source 1', 'color source 2']:
-                self._parse_fit_constraints_color(key, value)
+                self._parse_fit_constraints_ratios(key, value, 'color')
+            elif key in ['2 sources flux ratio']:
+                self._parse_fit_constraints_ratios(key, value, 'flux')
+            elif key in ['2 source flux size relation']:
+                self._parse_fit_constraints_size(key, value)
+            elif key in ["negative_source_flux_sigma_mag", "negative_source_1_flux_sigma_mag",
+                         "negative_source_2_flux_sigma_mag"]:
+                self._parse_fit_constraints_soft_no_negative(key, value)
 
-    def _parse_fit_constraints_soft_blending(self, key, value):
+    def _parse_fit_constraints_soft_no_negative(self, key, value):
         """
-        Check if soft fit constraint on blending flux are correctly defined.
+        Check if soft fit constraint on fluxes are correctly defined.
         """
         if isinstance(value,  float):
             sigma = float(value)
             sets = list(range(len(self._datasets)))
-
         else:
-
             sigma = float(value.split()[0])
-            sets = list(map(self._get_no_of_dataset,
-                            shlex.split(value, posix=False)[1:]))
-            if len(sets) > len(self._datasets):
-                raise ValueError(
-                    "dataset number specified in" +
-                    "negative_blending_flux_sigma_mag" +
-                    "do not match with provided datasets")
+            sets = self._fill_no_of_datasets(shlex.split(value, posix=False)[1:], key)
 
         self._fit_constraints[key] = [
             mm.Utils.get_flux_from_mag(sigma), sets]
 
-    def _parse_fit_constraints_color(self, key, value):
+    def _parse_fit_constraints_ratios(self, key, values, instance):
         """
-        Check if fit constraint on color are correctly defined.
+        Check if fit constraint on flux ratios are correctly defined.
+        """
+        if instance == 'color':
+            get_settings = self._get_settings_fit_constraints_color
+        if instance == 'flux':
+            get_settings = self._get_settings_fit_constraints_ratio
+
+        self._check_unique_datasets_labels()
+        settings_all = []
+        if isinstance(values, str):
+            settings_all = [get_settings(key, values)]
+        elif isinstance(values, list):
+            for value in values:
+                settings_all.append(get_settings(key, value))
+        else:
+            raise TypeError('Type error in parsing: ' + key)
+
+        self._fit_constraints[key] = settings_all
+        self._flat_priors = False
+
+    def _parse_fit_constraints_size(self, key, value):
+        """
+        Check if fit constraint on flux-size relation of 2 sources is correctly defined.
         """
         self._check_unique_datasets_labels()
-        words = shlex.split(value, posix=False)
+        settings = shlex.split(value, posix=False)
 
+        if settings[0] != 'gauss':
+            raise NotImplementedError('In ' + key + ", only Gaussian prior is implemented. Please specify `gauss`.")
+        try:
+            for i in range(1, 3):
+                settings[i] = float(settings[i])
+        except Exception:
+            raise ValueError('error in parsing: ' + key + " " + settings[i])
+
+        # power exponent
+        if settings[1] < 0.:
+            warnings.warn('In ' + key + ' flux most likely should increase with rho, hence the exponent `k` \
+                in the relation flux_1/flux_2 = (rho_1/rho_2)^k should be positive, instead of ' + settings[1])
+        power = settings[1]
+        # sigma
+        if settings[2] < 0.:
+            raise ValueError('sigma in' + key+' cannot be negative: ' + settings[2])
+        sigma = settings[2]
+
+        if len(settings) == 3:
+            sets = list(range(len(self._datasets)))
+        else:
+            sets = self._fill_no_of_datasets(settings[3:], key)
+
+        self._fit_constraints[key] = [settings[0], power, sigma, sets]
+        self._flat_priors = False
+
+    def _fill_no_of_datasets(self, values, key):
+        """
+        For a list with datasets labels return list with theirs indexes
+        """
+        sets = list(map(self._get_no_of_dataset, values))
+        if len(sets) > len(self._datasets):
+            raise ValueError(
+                "dataset specified in" +
+                key +
+                "should not repeat")
+        return sets
+
+    def _get_settings_fit_constraints_color(self, key, value):
+        """
+        Get settings of fit constraint on color.
+        """
+        words = shlex.split(value, posix=False)
         if len(words) != 5 or words[0] != 'gauss':
             msg = "Something went wrong in parsing prior for "
             msg += "{:}: {:}"
@@ -1790,11 +2057,44 @@ class UlensModelFit(object):
                 "in " + key + " color have to be from different datasets")
         n = len(self._datasets)-1
         if (0 >= settings[3] >= n) or (0 >= settings[4] >= n):
-            raise ValueError(
-                "label specified in color prior" +
-                "do not match with provided datasets")
+            raise ValueError("label specified in color prior do not match with provided datasets")
 
-        self._fit_constraints[key] = settings
+        return settings
+
+    def _get_settings_fit_constraints_ratio(self, key, value):
+        """
+        Get settings of fit constraint on flux ratio of 2 sources.
+        """
+        settings = shlex.split(value, posix=False)
+        if settings[0] != 'gauss':
+            raise NotImplementedError('In ' + key + ", only Gaussian prior is implemented. Please specify `gauss`.")
+        try:
+            settings[1] = self._get_no_of_dataset(settings[1])
+        except Exception:
+            try:
+                settings[1] = float(settings[1])
+                warnings.warn('In: ' + key + ", mean of gaussian prior fix to " + str(settings[1]))
+                if settings[1] < 0.:
+                    raise ValueError('Mean in' + key + ' cannot be negative: ' + str(settings[1]))
+            except Exception:
+                raise ValueError('error in parsing: ' + key + " " + str(settings[1]))
+        try:
+            settings[2] = float(settings[2])
+        except Exception:
+            raise ValueError('error in parsing: ' + key + " " + settings[2])
+        if settings[2] < 0.:
+            raise ValueError('sigma in' + key + ' cannot be negative: ' + settings[2])
+
+        n = len(self._datasets)-1
+        for i in range(3, len(settings)):
+            settings[i] = self._get_no_of_dataset(settings[i])
+            if (0 >= settings[i] >= n):
+                raise ValueError("label specified in 2 sources flux ratio prior do not match with provided datasets")
+
+        if len(settings[3:]) != len(set(settings[3:])) or settings[1] in settings[3:]:
+            raise ValueError('datesets' + key+' cannot repeat themselves : ' + str(settings[1:]))
+
+        return settings
 
     def _check_unique_datasets_labels(self):
         """
@@ -1879,19 +2179,22 @@ class UlensModelFit(object):
               or name of the data file if label is not specified,
               or a sequential index of the dataset.
 
+        RP NOTE: the above docstring seems wrong, i.e., int input is not parsed properly.
+
         Returns :
           index: *int*
           Sequential index of the dataset from [0,1,...,n_datasets-1]
 
         """
-
         if '"' in label:
             label = label.strip('"')
+
         for (i, dataset) in enumerate(self._datasets):
             if dataset.plot_properties['label'] == label:
                 return i
-        raise KeyError(
-            "Unrecognized dataset label in fit_constraints/prior: " + label)
+
+        raise KeyError("Unrecognized dataset label: " + label + "\nallowed labels: " +
+                       str([d.plot_properties['label'] for d in self._datasets]))
 
     def _read_prior_t_E_data(self):
         """
@@ -2052,34 +2355,29 @@ class UlensModelFit(object):
             print("Initializer of MulensModel.Model failed.")
             print("Parameters passed: {:}".format(parameters))
             raise
+
         self._models_satellite = []
         for dataset in self._datasets:
             if dataset.ephemerides_file is None:
                 continue
-            model = mm.Model(
-                parameters, ephemerides_file=dataset.ephemerides_file,
-                **kwargs)
+            model = mm.Model(parameters, ephemerides_file=dataset.ephemerides_file, **kwargs)
             self._models_satellite.append(model)
+
         key = 'limb darkening u'
         for model in [self._model] + self._models_satellite:
             if key in self._model_parameters:
                 for (band, u_value) in self._model_parameters[key].items():
                     model.set_limb_coeff_u(band, u_value)
             if 'default method' in self._model_parameters:
-                model.default_magnification_method = \
-                    self._model_parameters['default method']
+                model.default_magnification_method = self._model_parameters['default method']
             if 'methods' in self._model_parameters:
-                model.set_magnification_methods(
-                    self._model_parameters['methods'])
+                model.set_magnification_methods(self._model_parameters['methods'])
             if 'methods parameters' in self._model_parameters:
-                model.set_magnification_methods_parameters(
-                    self._model_parameters['methods parameters'])
+                model.set_magnification_methods_parameters(self._model_parameters['methods parameters'])
             if 'methods source 1' in self._model_parameters:
-                self._model.set_magnification_methods(
-                    self._model_parameters['methods source 1'], 1)
+                self._model.set_magnification_methods(self._model_parameters['methods source 1'], 1)
             if 'methods source 2' in self._model_parameters:
-                self._model.set_magnification_methods(
-                    self._model_parameters['methods source 2'], 2)
+                self._model.set_magnification_methods(self._model_parameters['methods source 2'], 2)
 
         self._event = mm.Event(self._datasets, self._model)
         self._event.sum_function = 'numpy.sum'
@@ -2300,12 +2598,9 @@ class UlensModelFit(object):
 
         NOTE: we're using np.log(), i.e., natural logarithms.
         """
-        if self._fit_method == "EMCEE":
-            ln_prior = self._ln_prior(theta)
-            if not np.isfinite(ln_prior):
-                return self._return_ln_prob(-np.inf)
-        elif self._fit_method == "UltraNest":
-            ln_prior = self._ln_prior_t_E() if self._prior_t_E else 0.
+        ln_prior = self._ln_prior(theta)
+        if not np.isfinite(ln_prior):
+            return self._return_ln_prob(-np.inf)
 
         ln_like = self._ln_like(theta)
         if not np.isfinite(ln_like):
@@ -2381,24 +2676,27 @@ class UlensModelFit(object):
         inside = 0.
         outside = -np.inf
 
-        for (index, limit) in self._min_values_indexed.items():
-            if theta[index] < limit:
-                return outside
+        if self._fit_method == "EMCEE":
+            for (index, limit) in self._min_values_indexed.items():
+                if theta[index] < limit:
+                    return outside
 
-        for (index, limit) in self._max_values_indexed.items():
-            if theta[index] > limit:
-                return outside
+            for (index, limit) in self._max_values_indexed.items():
+                if theta[index] > limit:
+                    return outside
 
-        if "x_caustic_in" in self._model.parameters.parameters:
-            self._set_model_parameters(theta)
-            if not self._check_valid_Cassan08_trajectory():
-                return outside
+            if "x_caustic_in" in self._model.parameters.parameters:
+                self._set_model_parameters(theta)
+                if not self._check_valid_Cassan08_trajectory():
+                    return outside
 
         ln_prior = inside
 
         if self._prior_t_E is not None:
             self._set_model_parameters(theta)
             ln_prior += self._ln_prior_t_E()
+        if self._fit_method == "UltraNest":
+            return ln_prior
 
         if self._priors is not None:
             self._set_model_parameters(theta)
@@ -2522,7 +2820,98 @@ class UlensModelFit(object):
 
         return fluxes
 
-    def _sumup_inside_prior(self, fluxes, key, inside, index_plus):
+    def _run_flux_checks_ln_prior(self, fluxes):
+        """
+        Run the checks on fluxes - are they in the prior?
+        """
+        inside = 0.
+        outside = -np.inf
+
+        if self._fit_constraints["no_negative_blending_flux"]:
+            blend_index = self._n_fluxes_per_dataset - 1
+            if fluxes[blend_index] < 0.:
+                return outside
+
+        inside += self._apply_negative_flux_sigma_mag_prior(fluxes)
+
+        if self._fit_method == "EMCEE":
+            inside += self._apply_color_prior(fluxes)
+            inside += self._apply_2source_prior(fluxes)
+
+        return inside
+
+    def _apply_negative_flux_sigma_mag_prior(self, fluxes):
+        """
+        Apply the negative flux sigma magnitude prior.
+        """
+        inside = 0.0
+
+        key = "negative_blending_flux_sigma_mag"
+        if key in self._fit_constraints:
+            inside += self._sumup_flux_prior(fluxes, key, self._n_fluxes_per_dataset-1)
+
+        key = "negative_source_flux_sigma_mag"
+        if key in self._fit_constraints:
+            for i in range(self._n_fluxes_per_dataset - 1):
+                inside += self._sumup_flux_prior(fluxes, key, i)
+
+        key = "negative_source_1_flux_sigma_mag"
+        if key in self._fit_constraints:
+            inside += self._sumup_flux_prior(fluxes, key, 0)
+
+        key = "negative_source_2_flux_sigma_mag"
+        if key in self._fit_constraints:
+            inside += self._sumup_flux_prior(fluxes, key, 1)
+
+        return inside
+
+    def _sumup_flux_prior(self, fluxes, key, index_plus):
+        """
+        Calculates the contribution to the ln_prior
+        from specified no negative flux constraints
+        Parameters :
+            fluxes: *array*
+                Array with fluxes of the current model.
+            key: *str*
+                constrain key.
+            inside: *float*
+                ln_prior contribution
+            index_plus: *int*
+                For a single source, index_plus=0;
+                for a binary source, index_plus=0 or 1.;
+                for blend flux index_plus=self._n_fluxes_per_dataset-1
+            inside: *float*
+                Evaluated ln_prior contribution
+        """
+        inside = 0.0
+        sigma, datasets = self._fit_constraints[key]
+        for i, dataset in enumerate(self._datasets):
+            if i in datasets:
+                index = self._get_index_of_flux(i, index_plus)
+                if fluxes[index] < 0.0:
+                    inside += -0.5 * (fluxes[index] / sigma) ** 2
+        return inside
+
+    def _apply_color_prior(self, fluxes):
+        """
+        Apply the color constraints.
+        """
+        inside = 0.0
+        key = 'color'
+        if key in self._fit_constraints:
+            for i in range(self._n_fluxes_per_dataset - 1):
+                inside += self._sumup_inside_color_prior(fluxes, key, i)
+
+        key = 'color source 1'
+        if key in self._fit_constraints:
+            inside += self._sumup_inside_color_prior(fluxes, key, 0)
+
+        key = 'color source 2'
+        if key in self._fit_constraints:
+            inside += self._sumup_inside_color_prior(fluxes, key, 1)
+        return inside
+
+    def _sumup_inside_color_prior(self, fluxes, key, index_plus):
         """
         Calculates the contribution to the ln_prior
         from specified color constraints
@@ -2540,68 +2929,94 @@ class UlensModelFit(object):
             inside: *float*
                 Evaluated ln_prior contribution
         """
-        settings = self._fit_constraints[key]
-        index1 = (settings[3])*self._n_fluxes_per_dataset + index_plus
-        index2 = (settings[4])*self._n_fluxes_per_dataset + index_plus
-        value = mm.Utils.get_mag_from_flux(
-            fluxes[index1])-mm.Utils.get_mag_from_flux(fluxes[index2])
-        inside += self._get_ln_prior_for_1_parameter(value, settings[:-2])
+        inside = 0.0
+        settings_all = self._fit_constraints[key]
+        for settings in settings_all:
+            index1 = self._get_index_of_flux(settings[3], index_plus)
+            index2 = self._get_index_of_flux(settings[4], index_plus)
+            value = mm.Utils.get_mag_from_flux(
+                fluxes[index1])-mm.Utils.get_mag_from_flux(fluxes[index2])
+            inside += self._get_ln_prior_for_1_parameter(value, settings[:-2])
 
         return inside
 
-    def _run_flux_checks_ln_prior(self, fluxes):
+    def _apply_2source_prior(self, fluxes):
         """
-        Run the checks on fluxes - are they in the prior?
-        """
-        inside = 0.
-        outside = -np.inf
-
-        if self._fit_constraints["no_negative_blending_flux"]:
-            blend_index = self._n_fluxes_per_dataset - 1
-            if fluxes[blend_index] < 0.:
-                return outside
-
-        inside += self._apply_negative_blending_flux_sigma_mag_prior(fluxes)
-        if self._fit_method == "EMCEE":
-            inside += self._apply_color_prior(fluxes)
-
-        return inside
-
-    def _apply_negative_blending_flux_sigma_mag_prior(self, fluxes):
-        """
-        Apply the negative blending flux sigma magnitude priotr.
+        Apply priors of binnary sources
         """
         inside = 0.0
-        key = "negative_blending_flux_sigma_mag"
+        inside += self._apply_2source_ratio_prior(fluxes)
+        inside += self._apply_2source_size_prior(fluxes)
+        return inside
 
+    def _apply_2source_ratio_prior(self, fluxes):
+        """
+        Apply prior on flux ratio of binnary sources
+        """
+        inside = 0.0
+        name = '2 sources flux ratio'
+        for i, key in enumerate(self._fit_constraints):
+            if key == name:
+                settings_all = self._fit_constraints[key]
+                for settings in settings_all:
+                    inside += self._sumup_2sources_prior(settings, fluxes)
+        return inside
+
+    def _apply_2source_size_prior(self, fluxes):
+        """
+        Apply prior on flux-size relation of binnary sources
+        """
+        inside = 0.0
+        key = '2 source flux size relation'
         if key in self._fit_constraints:
-            sigma, datasets = self._fit_constraints[key]
+            prior_type, power, sigma, datasets = self._fit_constraints[key]
+
+            rho_ratio = self._model.parameters.parameters['rho_1']/self._model.parameters.parameters['rho_2']**power
             for i, dataset in enumerate(self._datasets):
                 if i in datasets:
-                    blend_index = ((i + 1) * self._n_fluxes_per_dataset) - 1
-                    if fluxes[blend_index] < 0.0:
-                        inside += -0.5 * (fluxes[blend_index] / sigma) ** 2
+                    index1 = self._get_index_of_flux(i, 0)
+                    index2 = self._get_index_of_flux(i, 1)
+                    flux_ratio = fluxes[index1]/fluxes[index2]
+                    inside += self._get_ln_prior_for_1_parameter(rho_ratio, [prior_type, flux_ratio, sigma])
 
         return inside
 
-    def _apply_color_prior(self, fluxes):
+    def _sumup_2sources_prior(self, settings, fluxes):
         """
-        Apply the color constraints.
+        Sumup prior on flux ratio of binnay sources from dataset in the same passbad
         """
         inside = 0.0
-        key = 'color'
-        if key in self._fit_constraints:
-            for i in range(self._n_fluxes_per_dataset - 1):
-                inside += self._sumup_inside_prior(fluxes, key, inside, i)
+        if isinstance(settings[1], int):
+            index1 = self._get_index_of_flux(settings[1], 0)
+            index2 = self._get_index_of_flux(settings[1], 1)
+            ref_ratio = fluxes[index1]/fluxes[index2]
+        elif isinstance(settings[1], float):
+            ref_ratio = settings[1]
 
-        key = 'color source 1'
-        if key in self._fit_constraints:
-            inside += self._sumup_inside_prior(fluxes, key, inside, 0)
+        for i in range(3, len(settings)):
+            index1 = self._get_index_of_flux(settings[i], 0)
+            index2 = self._get_index_of_flux(settings[i], 1)
+            ratio = fluxes[index1]/fluxes[index2]
+            inside += self._get_ln_prior_for_1_parameter(ratio, [settings[0], ref_ratio, settings[2]])
 
-        key = 'color source 2'
-        if key in self._fit_constraints:
-            inside += self._sumup_inside_prior(fluxes, key, inside, 1)
         return inside
+
+    def _get_index_of_flux(self, index_dataset, index_plus):
+        """
+        returns index of flux
+        Parameters :
+            index_dataset: *int*
+                index of data set as define in input yaml
+
+            index_plus: *int*
+                For a single source, index_plus=0;
+                for a binary source, index_plus=0 or 1.
+                for blend flux index_plus=self._n_fluxes_per_dataset-1
+
+        Returns :
+            flux_index: *int*
+        """
+        return (index_dataset)*self._n_fluxes_per_dataset + index_plus
 
     def _update_best_model_EMCEE(self, ln_prob, theta, fluxes):
         """
@@ -3110,6 +3525,10 @@ class UlensModelFit(object):
         else:
             self._ln_like(self._best_model_theta)
             print("chi2: {:.4f}".format(self._event.get_chi2()))
+            fluxes = self._get_fluxes()
+            ln_prior_flux = self._run_flux_checks_ln_prior(fluxes)
+            ln_prior = self._ln_prior(self._best_model_theta)
+            print("ln_prior: {:.4f}".format(ln_prior_flux+ln_prior))
         print(*self._fit_parameters)
         print(*list(self._best_model_theta))
         if self._return_fluxes:
@@ -3137,7 +3556,12 @@ class UlensModelFit(object):
                         mode['parameters'][self._n_fit_parameters:])
             chi2 = mode['chi2']
 
+        fluxes = self._get_fluxes()
+        ln_prior_flux = self._run_flux_checks_ln_prior(fluxes)
+        ln_prior = ln_prior_flux + self._ln_prior(self._best_model_theta)
+
         yaml_txt += (begin + "  chi2: {:.4f}\n").format(chi2)
+        yaml_txt += (begin + "  ln_prior: {:.4f}\n").format(ln_prior)
         yaml_txt += begin + "  Parameters:\n"
         format_ = begin + "    {:}: {:}\n"
         for (parameter, results_) in zip_1:
@@ -3157,10 +3581,23 @@ class UlensModelFit(object):
         """
         n_burn = self._fitting_parameters.get('n_burn', 0)
         samples = self._sampler.chain[:, n_burn:, :]
-        if self._posterior_file_fluxes == 'all':
+        if self._posterior_file_fluxes is not None:
             blobs = np.array(self._sampler.blobs)
             blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, :]
+            if self._posterior_file_fluxes == 'all':
+                pass
+            elif isinstance(self._posterior_file_fluxes, list):
+                blobs = blobs[:, :, self._posterior_file_fluxes]
+            else:
+                ValueError(
+                    "internal error: " + str(type(self._posterior_file_fluxes)) + str(self._posterior_file_fluxes))
+
             samples = np.dstack((samples, blobs))
+
+        thin = self._fitting_parameters.get('posterior file thin', None)
+        if thin is not None:
+            samples = samples[:, ::thin, :]
+
         np.save(self._posterior_file_name, samples)
 
     def _parse_results_MultiNest(self):
@@ -3377,6 +3814,8 @@ class UlensModelFit(object):
                 self._make_interactive_plot()
         if 'trajectory' in self._plots:
             self._make_trajectory_plot()
+            if 'interactive' in self._plots['trajectory']:
+                self._make_interactive_plot_trajectory()
 
     def _triangle_plot(self):
         """
@@ -3491,13 +3930,11 @@ class UlensModelFit(object):
         """
         dpi = 300
 
-        self._ln_like(self._best_model_theta)  # Sets all parameters to
-        # the best model.
+        self._ln_like(self._best_model_theta)  # Sets all parameters to the best model.
 
         self._reset_rcParams()
-        if 'rcParams' in self._plots['best model']:
-            for (key, value) in self._plots['best model']['rcParams'].items():
-                rcParams[key] = value
+        for (key, value) in self._plots['best model'].get('rcParams', {}).items():
+            rcParams[key] = value
 
         kwargs_all = self._get_kwargs_for_best_model_plot()
         (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2) = kwargs_all[:6]
@@ -3540,16 +3977,12 @@ class UlensModelFit(object):
         hspace = 0
         tau = 1.5
         default_model = {'color': 'black', 'linewidth': 1.0, 'zorder': np.inf}
-
-        kwargs_grid = {
-            'nrows': 2, 'ncols': 1, 'height_ratios': [plot_size_ratio, 1],
-            'hspace': hspace}
+        kwargs_grid = {'nrows': 2, 'ncols': 1, 'height_ratios': [plot_size_ratio, 1], 'hspace': hspace}
 
         (t_1, t_2) = self._get_time_limits_for_plot(tau, 'best model')
         (kwargs, xlim) = self._get_subtract_kwargs_and_xlim_for_best_model(t_1, t_2)
 
-        kwargs_model = {
-            't_start': t_1, 't_stop': t_2, **default_model, **kwargs}
+        kwargs_model = {'t_start': t_1, 't_stop': t_2, **default_model, **kwargs}
         if self._model.n_sources != 1:
             kwargs_model['source_flux_ratio'] = self._datasets[0]
         if self._datasets[0].bandpass is not None:
@@ -3559,12 +3992,10 @@ class UlensModelFit(object):
                 kwargs_model['gamma'] = mm.Utils.u_to_gamma(u)
 
         kwargs_axes_1 = dict(
-            axis='both', direction='in', bottom=True, top=True, left=True,
-            right=True, labelbottom=False)
+            axis='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom=False)
         kwargs_axes_2 = {**kwargs_axes_1, 'labelbottom': True}
 
-        return (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2,
-                kwargs_axes_1, kwargs_axes_2)
+        return (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2, kwargs_axes_1, kwargs_axes_2)
 
     def _get_subtract_kwargs_and_xlim_for_best_model(self, t_1, t_2):
         """
@@ -3584,10 +4015,12 @@ class UlensModelFit(object):
         """
         find limits for the best model or trajectory plot
         """
-        if 'time range' in self._plots[plot_type]:
-            t_1 = self._plots[plot_type]['time range'][0]
-            t_2 = self._plots[plot_type]['time range'][1]
-            return (t_1, t_2)
+        plot = self._plots.get(plot_type, None)
+        if plot is not None:
+            if 'time range' in plot:
+                t_1 = plot['time range'][0]
+                t_2 = plot['time range'][1]
+                return (t_1, t_2)
 
         if self._model.n_sources == 1:
             t_1 = self._model.parameters.t_0
@@ -3650,8 +4083,7 @@ class UlensModelFit(object):
         ylim = [y_2 + dy, y_1 - dy]
         ylim_r = [y_4 + dres, y_3 - dres]
 
-        # Block below is the same in MulensModel.Model.plot_residuals() in
-        # its version 1.15.6.
+        # Block below is the same in MulensModel.Model.plot_residuals() in its version 1.15.6.
         ylim_r_max = np.max(np.abs(ylim_r))
         if ylim_r_max > 1.:
             ylim_r_max = 0.5
@@ -3664,17 +4096,35 @@ class UlensModelFit(object):
 
     def _plot_models_for_best_model_plot(self, fluxes, kwargs_model):
         """
-        Plot best models: first ground-based (if needed, hence loop),
-        then satellite ones (if needed).
+        Plot best models: first ground-based (if needed, hence loop), then satellite ones (if needed).
         """
         for dataset in self._datasets:
             if dataset.ephemerides_file is None:
-                self._model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs_model)
+                kwargs_label = {'label': self._plots['best model'].get('model label', None)}
+                self._model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs_model, **kwargs_label)
                 break
 
         for model in self._models_satellite:
             model.parameters.parameters = {**self._model.parameters.parameters}
             model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs_model)
+
+        if 'add models' in self._plots['best model']:
+            for dict_model in self._plots['best model']['add models']:
+                self._plot_added_model(fluxes, kwargs_model, dict_model)
+
+    def _plot_added_model(self, fluxes, kwargs_model, settings):
+        """Plot one additional model"""
+        kwargs = {**kwargs_model}
+        if 'limb darkening u' in settings:
+            value = settings.pop('limb darkening u')
+            if isinstance(value, (str)):
+                value = self._model_parameters['limb darkening u'][value]
+
+            kwargs['gamma'] = mm.Utils.u_to_gamma(value)
+
+        kwargs.update(settings)
+
+        self._model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs)
 
     def _plot_legend_for_best_model_plot(self):
         """
@@ -3851,10 +4301,7 @@ class UlensModelFit(object):
 
         self._reset_rcParams()
 
-        if 'time range' in self._plots['trajectory']:
-            t_range = self._get_time_limits_for_plot(tau, 'trajectory')
-        else:
-            t_range = self._get_time_limits_for_plot(tau, 'best model')
+        t_range = self._set_time_limits_for_trajectory_plot(tau)
         kwargs = {'caustics': True, 't_range': t_range}
 
         self._model.plot_trajectory(**kwargs)
@@ -3876,9 +4323,8 @@ class UlensModelFit(object):
         self._ln_like(self._best_model_theta)  # Sets all parameters to the best model.
 
         self._reset_rcParams()
-        if 'rcParams' in self._plots['best model']:
-            for (key, value) in self._plots['best model']['rcParams'].items():
-                rcParams[key] = value
+        for (key, value) in self._plots['best model'].get('rcParams', {}).items():
+            rcParams[key] = value
 
         kwargs_all = self._get_kwargs_for_best_model_plot()
         (ylim, ylim_residuals) = self._get_ylim_for_best_model_plot(*kwargs_all[4:6])
@@ -3897,7 +4343,7 @@ class UlensModelFit(object):
         self._add_interactive_data_traces(kwargs_interactive, **kwargs)
         self._add_interactive_residuals_traces(kwargs_interactive, **kwargs_model)
 
-        self._save_interactive_fig()
+        self._save_interactive_fig(self._interactive_fig, 'best model')
 
     def _prepare_interactive_layout(self, scale, kwargs_all, ylim, ylim_residuals):
         """Prepares the layout for the interactive plot."""
@@ -4026,50 +4472,68 @@ class UlensModelFit(object):
             showlegend = False
         else:
             showlegend = True
-
+        times_substracted = times - subtract
         for dataset in self._datasets:
             if dataset.ephemerides_file is None:
                 lc = self._model.get_lc(
                     times=times, source_flux=f_source_0, blend_flux=f_blend_0, gamma=gamma, bandpass=bandpass)
-                times = times - subtract
                 traces_lc.append(self._make_interactive_scatter_lc(
-                    times, lc, name, showlegend, colors[1], sizes[1], dash))
+                    times_substracted, lc, name, showlegend, colors[1], sizes[1], dash))
                 break
-
         traces_lc.extend(self._make_interactive_scatter_lc_satellite(
             traces_lc, times, f_source_0, f_blend_0, gamma, bandpass, colors, sizes, dash, subtract, showlegend))
+
         return traces_lc
 
     def _make_interactive_scatter_lc_satellite(
             self, traces, times, f_source_0, f_blend_0, gamma,
             bandpass, colors, sizes, dash, subtract, showlegend):
         """Generates Plotly Scatter traces for the light-curve satellite models."""
-
+        dash_types = ['dot', 'dash', 'longdash', 'dashdot', 'longdashdot']
+        traces = []
+        times_substracted = times - subtract
         for (i, model) in enumerate(self._models_satellite):
-            name = self._event.datasets[i].plot_properties['label']
+            times_ = self._set_times_satellite(times, model)
+            name = self._satellites_names[i]
+            showlegend_ = True
+            dash_ = dash_types[i % len(dash_types)]
             model.parameters.parameters = {**self._model.parameters.parameters}
-            lc = self._model.get_lc(times=times, source_flux=f_source_0, blend_flux=f_blend_0,
-                                    gamma=gamma, bandpass=bandpass)
-            times = times - subtract
+            lc = model.get_lc(times=times_, source_flux=f_source_0, blend_flux=f_blend_0, gamma=gamma,
+                              bandpass=bandpass)
             trace = self._make_interactive_scatter_lc(
-                times, lc, name, showlegend, colors[1], sizes[1], dash)
+                times_substracted, lc, name, showlegend_, colors[1], sizes[1], dash_)
             traces.append(trace)
         return traces
 
-    def _make_interactive_scatter_lc(
-            self, times, lc, name,
-            showlegend, color, size, dash):
-        """Creates a Plotly Scatter trace for the light curve."""
+    def _set_times_satellite(self, times, model):
+        """
+        Set times for the satellite model whihin the time range of ephemerides
+        """
+        satellite_skycoords = mm.SatelliteSkyCoord(
+            ephemerides_file=model.ephemerides_file)
 
+        horizons = satellite_skycoords.get_horizons()
+        min_time_ephemerides = np.min(horizons.time)
+        max_time_ephemerides = np.max(horizons.time)
+        min_times = np.min(times)
+        max_times = np.max(times)
+
+        min_ajusted = np.max([min_time_ephemerides, min_times])
+        max_ajusted = np.min([max_time_ephemerides, max_times])
+
+        times_ajusted = times[(times >= min_ajusted) & (times <= max_ajusted)]
+
+        return times_ajusted
+
+    def _make_interactive_scatter_lc(self, times, lc, name, showlegend, color, size, dash):
+        """Creates a Plotly Scatter trace for the light curve."""
         return go.Scatter(x=times, y=lc, name=name, showlegend=showlegend, mode='lines',
-                          line=dict(color=color, width=size, dash=dash),
-                          xaxis="x", yaxis="y")
+                          line=dict(color=color, width=size, dash=dash), xaxis="x", yaxis="y")
 
     def _add_interactive_zero_trace(self, t_start, t_stop, colors, sizes,
                                     subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
-        Creates plotly.graph_objects.Scatter object for line y=0 in
-        residuals plot
+        Creates plotly.graph_objects.Scatter object for line y=0 in residuals plot
         """
         subtract = mm.utils.PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
         times = np.linspace(t_start, t_stop, num=2000)
@@ -4178,7 +4642,7 @@ class UlensModelFit(object):
         )
 
     def _add_interactive_residuals_traces(self,  kwargs_interactive, phot_fmt='mag', data_ref=None, show_errorbars=True,
-                                          show_bad=None, subtract_2450000=False, subtract_2460000=False, **kwargs,):
+                                          show_bad=None, subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Creates plotly.graph_objects.Scatter object for residuals points
         per each data set.
@@ -4211,16 +4675,323 @@ class UlensModelFit(object):
         for trace in traces_residuals:
             self._interactive_fig.add_trace(trace)
 
-    def _save_interactive_fig(self):
+    def _save_interactive_fig(self, fig, type_):
         """
         Saving interactive figure
         """
-        file_ = self._plots['best model']['interactive']
+        file_ = self._plots[type_]['interactive']
         if path.exists(file_):
             if path.isfile(file_):
                 msg = "Existing file " + file_ + " will be overwritten"
                 warnings.warn(msg)
-        self._interactive_fig.write_html(file_, full_html=True)
+        fig.write_html(file_, full_html=True)
+
+    def _make_interactive_plot_trajectory(self):
+        """
+        make and save interactive best trajectory plot
+        """
+        (layout, kwargs_interactive, kwargs) = self._setup_interactive_plot_trajectory()
+        (traces, shapes) = self._make_interactive_trajectory_traces_all_models(
+            **kwargs, **kwargs_interactive)
+        layout['shapes'] = shapes
+        self._interactive_fig_trajectory = go.Figure(data=traces, layout=layout)
+        self._add_caustics_interactive_plot_trajectory(kwargs_interactive, **kwargs)
+        self._save_interactive_fig(self._interactive_fig_trajectory, 'trajectory')
+
+    def _setup_interactive_plot_trajectory(self):
+        """
+        Prepares the settings of interactive plot for the trajectory.
+        """
+        scale = 0.5  # original size=(1920:1440)
+        tau = 1.
+        caustics = True
+        sources = True
+        self._ln_like(self._best_model_theta)
+        self._reset_rcParams()
+        colors_trajectory = ['blue', 'orange']
+        t_range = self._set_time_limits_for_trajectory_plot(tau)
+        kwargs = {'t_start': t_range[0], 't_stop': t_range[1], 'tau': tau,
+                  'colors_trajectory': colors_trajectory, 'caustics': caustics, 'sources': sources}
+        (layout, kwargs_interactive) = self._prepare_interactive_layout_trajectory(scale, t_range)
+        return (layout, kwargs_interactive, kwargs)
+
+    def _add_caustics_interactive_plot_trajectory(self, kwargs_interactive, caustics, **kwargs):
+        """
+        Adds caustics to the interactive trajectory plot.
+        """
+        if caustics:
+            traces_caustics = self._make_interactive_caustics_traces(**kwargs, **kwargs_interactive)
+            self._interactive_fig_trajectory.add_traces(traces_caustics)
+
+    def _set_time_limits_for_trajectory_plot(self, tau):
+        """
+        Chosing time limits for the trajectory plot
+        """
+        if 'time range' in self._plots['trajectory']:
+            t_range = self._get_time_limits_for_plot(tau, 'trajectory')
+        else:
+            t_range = self._get_time_limits_for_plot(tau, 'best model')
+
+        return t_range
+
+    def _prepare_interactive_layout_trajectory(self, scale, t_range):
+        """
+        Prepares the layout for the interactive trajectory plot.
+        """
+        kwargs_interactive = self._get_kwargs_for_plotly_plot(scale)
+        xyrange = self._get_xlim_for_interactive_trajectory_plot(t_range)
+        layout = self._make_interactive_layout_trajectory(
+            xyrange, **kwargs_interactive)
+
+        return layout, kwargs_interactive
+
+    def _get_xlim_for_interactive_trajectory_plot(self, t_range):
+        """
+        Get axis limits for the interactive trajectory plot
+        """
+        trajectory = self._get_trajectories_as_list(self._model, t_range)
+        min = np.min([np.min(trajectory[0].x), np.min(trajectory[0].y)])
+        max = np.max([np.max(trajectory[0].x), np.max(trajectory[0].y)])
+        return [min, max]
+
+    def _make_interactive_layout_trajectory(self, xyrange, sizes, colors, opacity, width, height,
+                                            font, paper_bgcolor, **kwargs):
+        """
+        Creates imput dictionary for plotly.graph_objects.Layout for the interactive trajectory plot
+        """
+        xtitle = u'<i>\u03B8</i><sub>x</sub>/<i>\u03B8</i><sub>E</sub>'
+        ytitle = u'<i>\u03B8</i><sub>y</sub>/<i>\u03B8</i><sub>E</sub>'
+        font_base = dict(family=font, size=sizes[4], color=colors[1])
+        font_legend = dict(family=font, size=sizes[8])
+        kwargs_ = dict(range=xyrange, showgrid=False, ticks='inside', showline=True, ticklen=sizes[7], mirror='all',
+                       minor=dict(tickmode='auto', ticks='inside'), tickwidth=sizes[6], linewidth=sizes[6],
+                       linecolor=colors[0], tickfont=font_base)
+        kwargs_y = {**kwargs_}
+        kwargs_x = {**kwargs_}
+        layout = dict(
+            autosize=True, width=width, height=height, showlegend=True,
+            legend=dict(x=1.01, y=1.01, yanchor='top', xanchor='left', bgcolor=paper_bgcolor, bordercolor=colors[2],
+                        borderwidth=sizes[6], font=font_legend),
+            paper_bgcolor=paper_bgcolor, plot_bgcolor=paper_bgcolor, font=font_base,
+            yaxis=dict(title_text=ytitle, anchor="x", **kwargs_y),
+            xaxis=dict(title_text=xtitle, anchor="y", **kwargs_x),
+            )
+        return layout
+
+    def _make_interactive_trajectory_traces_all_models(self, t_start, t_stop, **kwargs):
+        """
+        Creates plotly.graph_objects.Scatter objects with model trajectory
+        """
+        traces_all, shapes_all = [], []
+        (times, times_extended) = self._get_times_for_interactive_trajectory_traces(t_start, t_stop)
+        names_source = ['']
+        if self._model.n_sources > 1:
+            names_source = [f"Source {i+1} " for i in range(self._model.n_sources)]
+        for dataset in self._datasets:
+            if dataset.ephemerides_file is None:
+                (traces, shapes) = self._make_interactive_trajectory_traces(
+                    self._model, times, times_extended, names_source, **kwargs)
+                traces_all.extend(traces)
+                shapes_all.extend(shapes)
+                break
+        (traces, shapes) = self._make_interactive_scatter_trajectory_satellite(
+            times, times_extended, names_source, **kwargs)
+        traces_all.extend(traces)
+        shapes_all.extend(shapes)
+        return (traces_all, shapes_all)
+
+    def _get_times_for_interactive_trajectory_traces(self, t_start, t_stop):
+        """
+        Prepere times grid for the interactive trajectory traces
+        """
+        tau_exteded = 1.5
+        t_delta = t_stop - t_start
+        t_extended_stop = t_stop + t_delta * tau_exteded
+        t_extended_start = t_start - t_delta * tau_exteded
+        time_grid = int(t_stop-t_start)*10
+        times = np.linspace(t_start, t_stop, num=time_grid)
+        time_grid = int(t_extended_stop - t_extended_start)*2
+        times_extended = np.linspace(t_extended_start, t_extended_stop, num=time_grid)
+
+        return (times, times_extended)
+
+    def _make_interactive_scatter_trajectory_satellite(
+            self, times, times_extended, names_source, colors_trajectory, **kwargs):
+        """
+        Creates Plotly Scatter traces for trajectories of satellite models.
+        """
+        dash_types = ['dash', 'longdash', 'dashdot', 'longdashdot']
+        traces_all, shapes_all = [], []
+        for (i, model) in enumerate(self._models_satellite):
+            times_ = self._set_times_satellite(times, model)
+            times_extended_ = self._set_times_satellite(times_extended, model)
+            names_source_sattelite = [self._satellites_names[i] + ' ' + item for item in names_source]
+            colors_trajectory = [self._satellites_colors[i], self._modify_color(self._satellites_colors[i])]
+            dash_ = dash_types[i % len(dash_types)]
+            model.parameters.parameters = {**self._model.parameters.parameters}
+            (traces, shapes) = self._make_interactive_trajectory_traces(
+                model, times_, times_extended_, names_source_sattelite, colors_trajectory, dash=dash_, **kwargs)
+            traces_all.extend(traces)
+            shapes_all.extend(shapes)
+
+        return (traces_all, shapes_all)
+
+    def _modify_color(self, color):
+        """
+        Slightly modifies the given color, specified as a matplotlib name or hex code.
+        """
+        rgb = colors.to_rgb(color)
+        modified_rgb = [(c - 0.15) % 1.0 for c in rgb]
+        return colors.to_hex(modified_rgb)
+
+    def _make_interactive_trajectory_traces(
+            self, model, times, times_extended, names_source, colors_trajectory, sizes,  sources, dash=None, **kwargs):
+        """
+        Prepare go.Scatter traces for all source trajectories, including arrows indicating the direction of
+        relative proper motion, and the shape of the source if a finite-source model is used.
+        """
+        if isinstance(dash, type(None)):
+            dash = 'solid'
+        dash_extended = 'dot'
+        showlegend = True
+        traces, shapes = [], []
+        (rho, t_0) = self._get_rho_t_0_for_interactive_trajectory(model)
+        trajectories = self._get_trajectories_as_list(model, times)
+        trajectories_extended = self._get_trajectories_as_list(model, times_extended)
+        for (i, trajectory) in enumerate(trajectories):
+            traces.append(self._make_interactive_trajectory_arrow(
+                i, model, 'Trajectory '+names_source[i], t_0[i], sizes))
+            traces.append(self._make_interactive_scatter_trajectory(
+                    trajectory, 'Trajectory '+names_source[i], colors_trajectory[i], sizes[1], dash,
+                    showlegend=showlegend))
+            traces.append(self._make_interactive_scatter_trajectory(
+                    trajectories_extended[i], 'Trajectory '+names_source[i], colors_trajectory[i], sizes[1],
+                    dash_extended, showlegend=False, opacity=0.5))
+            if sources and rho[i] is not None:
+                shapes.append(self._make_interactive_source_shapes(
+                    model, i, t_0[i], rho[i], sizes, colors_trajectory[i], name=names_source[i]))
+
+        return traces, shapes
+
+    def _make_interactive_scatter_trajectory(self, trajectory, name, color, size, dash, showlegend=False, opacity=1.):
+        """
+        Creates a Plotly Scatter trace for the trajectory
+        """
+        return go.Scatter(
+            x=trajectory.x, y=trajectory.y, name=name, showlegend=showlegend, legendgroup=name, mode='lines',
+            line=dict(color=color, width=size, dash=dash),
+            xaxis="x", yaxis="y")
+
+    def _get_rho_t_0_for_interactive_trajectory(self, model):
+        """
+        Extracts rho and t_0 parameters for the sources from the model.
+        """
+        rho_all = self._get_sources_parameters(model, 'rho')
+        t_0_all = self._get_sources_parameters(model, 't_0')
+        return (rho_all, t_0_all)
+
+    def _get_sources_parameters(self, model, key):
+        """
+        Extracting given paremeter for the sources
+        """
+        all = []
+        for i in range(model.n_sources):
+            if key+'_'+str(i+1) in model.parameters.parameters:
+                value = model.parameters.parameters[key+'_'+str(i+1)]
+            elif key in model.parameters.parameters:
+                value = model.parameters.parameters[key]
+            else:
+                value = None
+            all.append(value)
+        return all
+
+    def _make_interactive_trajectory_arrow(self, i, model, name, t_0, sizes):
+        """
+        Creates Plotly Scatter trace with arrow pointing the direction of relative proper montion of the source
+        """
+        # size like the font in legend
+        arrow_size = sizes[8]
+        trajectory = self._get_trajectories_as_list(model, [t_0, t_0+0.5])[i]
+        trace = go.Scatter(x=trajectory.x, y=trajectory.y, mode="lines+markers", opacity=0.9,
+                           marker=dict(symbol="arrow", size=arrow_size, color='black', angleref="previous",),
+                           showlegend=False,  legendgroup=name,)
+        return trace
+
+    def _make_interactive_caustics_traces(self, sizes, name=None, **kwargs):
+        """
+        Creates go.Scatter objects with caustics for the interactive trajectory plot
+        """
+        trace = self._make_interactive_scatter_caustic(
+                    model=self._model, name=name, sizes=sizes, showlegend=True)
+        return trace
+
+    def _make_interactive_scatter_caustic(self, model, sizes, showlegend, epoch=None, name=None):
+        """
+        Creates a Plotly Scatter trace for the caustics of the model single and binary lense.
+        """
+        if isinstance(name, type(None)):
+            name = ''
+        if isinstance(epoch, type(None)):
+            name += 'Caustic'
+        else:
+            name += 'Caustic epoch:' + epoch
+        mass_sheet = model.parameters.is_external_mass_sheet_with_shear
+        if model.n_lenses == 1 and not mass_sheet:
+            trace = self._make_interactive_scatter_caustic_singe_lens(name, sizes, showlegend)
+        else:
+            model.update_caustics(epoch=epoch)
+            trace = self._make_interactive_scatter_caustic_binary_lens(model, name, sizes, showlegend)
+        return trace
+
+    def _make_interactive_scatter_caustic_binary_lens(self, model, name, sizes, showlegend, color='red'):
+        """
+        Creates a Plotly Scatter trace for the caustics of the binary lens model.
+        """
+        x, y = model.caustics.get_caustics(n_points=50000)
+        trace_caustics = go.Scatter(x=x, y=y, opacity=1., name=name,  mode='markers', xaxis="x", yaxis="y",
+                                    showlegend=showlegend, marker=dict(color=color, size=sizes[1],
+                                                                       line=dict(color=color, width=1,)))
+        return trace_caustics
+
+    def _make_interactive_scatter_caustic_singe_lens(self, name, sizes, showlegend, color='red'):
+        """
+        Creates a Plotly Scatter trace for the caustics of the binary lens model.
+        """
+        trace_caustics = go.Scatter(x=[0.], y=[0.], opacity=1., mode='markers', name=name, showlegend=showlegend,
+                                    marker=dict(color=color, size=sizes[0], line=dict(color=color, width=1)),
+                                    xaxis="x", yaxis="y")
+        return trace_caustics
+
+    def _make_interactive_source_shapes(
+            self, model, i, t_0, rho, sizes, color, name=None, epoch=None, **kwargs):
+        """
+        Create dictionary with shape of the sources in the interactive trajectory plot.
+        """
+        shape = None
+        if name is not None:
+            name += 'Source'
+        if rho is not None:
+            if epoch is None:
+                trajectories = self._get_trajectories_as_list(model, t_0)
+            else:
+                trajectories = self._get_trajectories_as_list(model, epoch)
+            x_0 = trajectories[i].x[0]
+            y_0 = trajectories[i].y[0]
+            shape = dict(
+                type="circle", xref="x", yref="y", opacity=0.8, x0=x_0-rho, y0=y_0-rho, x1=x_0+rho, y1=y_0+rho,
+                name=name, showlegend=True,
+                line=dict(color=color, width=sizes[1]))
+
+        return shape
+
+    def _get_trajectories_as_list(self, model, times):
+        """
+        Returns the result of the mm.model.get_trajectory() method, but always as a list.
+        """
+        trajectories = model.get_trajectory(times)
+        if not isinstance(trajectories, (list, tuple)):
+            trajectories = [trajectories]
+        return trajectories
 
 
 if __name__ == '__main__':

@@ -49,38 +49,3 @@ def test_get_ps_with_shear_magnification_2():
     (point_lens, trajectory) = configure()
     test_pspl_shear = point_lens.get_magnification()
     np.testing.assert_almost_equal(test_pspl_shear[0], 11.7608836, decimal=5)
-
-
-# class test_errors(unittest.TestCase):
-#     # def test_function_input(self):
-#     #     """
-#     #     Make sure input of the main function is Trajectory type
-#     #     """
-#     #     (lens, trajectory) = configure()
-#     #     with self.assertRaises(TypeError):
-#     #         lens.get_point_source_magnification(123.)
-#
-#     def test_not_implemented_functions(self):
-#         """
-#         Make sure that finite source functions inherited from PointLens
-#         are not implemented.
-#         """
-#         (lens, trajectory) = configure()
-#
-#         with self.assertRaises(NotImplementedError):
-#             lens.get_point_lens_finite_source_magnification(trajectory)
-#
-#         with self.assertRaises(NotImplementedError):
-#             lens.get_point_lens_limb_darkening_magnification(trajectory)
-#
-#         with self.assertRaises(NotImplementedError):
-#             lens.get_point_lens_uniform_integrated_magnification(trajectory)
-#
-#         with self.assertRaises(NotImplementedError):
-#             lens.get_point_lens_LD_integrated_magnification(trajectory)
-#
-#         with self.assertRaises(NotImplementedError):
-#             lens.get_point_lens_large_finite_source_magnification(trajectory)
-#
-#         with self.assertRaises(NotImplementedError):
-#             lens.get_point_lens_large_LD_integrated_magnification(trajectory)

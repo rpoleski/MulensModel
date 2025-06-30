@@ -1,6 +1,6 @@
 photometry_files:
     - {file_name: data/OB03235/OB03235_OGLE.txt, bandpass: I, plot_properties: {zorder: 10., color: red, label: "OGLE I-band"}, scale_errorbars: {factor: 1.5, minimum: 0.001}}
-    - {file_name: data/OB03235/OB03235_MOA.txt, phot_fmt: flux}
+    - {file_name: data/OB03235/OB03235_MOA.txt, phot_fmt: flux, bad : data/OB03235/OB03235_MOA_bad.txt}
 # To add satellite ephemeris:
 #    - {file_name: some_K2_data.txt, phot_fmt: flux, bandpass: 'Kp', ephemerides_file: K2_ephemeris_01.dat}
 # For files with time starting with 245...:
@@ -59,14 +59,33 @@ fit_constraints:
     negative_blending_flux_sigma_mag: 20.  
     #one can specify for which dataset soft constrain on blending flux should be applied: sigma dataset_label(s)
     #negative_blending_flux_sigma_mag: 20.  "OGLE I-band"  "OB03235_MOA.txt"
+    #Alternative for binary source models: 
+    #negative_source_1_flux_sigma_mag: 20.
+    #and/or 
+    #negative_source_2_flux_sigma_mag: 20.  "OGLE I-band"  "OB03235_MOA.txt"
     # Alternative sharp constraint:
     # no_negative_blending_flux: True
     #color constrains, where color=source_mag_from_dataset_k-source_mag_from_dataset_m: gauss, mu ,sigma, k, m 
     color : gauss 0.3 0.01 "OGLE I-band" "OB03235_MOA.txt" 
+    #or
+    #color : 
+    #  - gauss 0.3 0.01 "OGLE I-band" "OB03235_MOA.txt" 
+    #  - (...)
     #Alternative for binary source models: 
     #color source 1 :  gauss  0.3 0.01 "OGLE I-band" "OB03235_MOA.txt" 
     #and/or 
     #color source 2 :  gauss 0.3 0.01  "OGLE I-band" "OB03235_MOA.txt"
+
+    #constrain on binary source flux ratio:  gauss reference_dataset_label/mean sigma (optional: selected_dataset_label(s))
+    #2 sources flux ratio : gauss "OGLE I-band" 0.1  "OB03235_MOA.txt"
+    #or 
+    #2 sources flux ratio :
+    #    - gauss "OGLE I-band" 0.1  "OB03235_MOA.txt"
+    #    - gauss  0.44  0.1 
+
+    #constrain for binary source models flux_1/flux_2 = (rho_1/rho_2)^k : gauss k sigma (optional: selected_dataset_label(s))
+    #2 source flux size relation : gauss 2. 0.1
+
     prior:
         t_E: Mroz et al. 2017
         # Other possibility:
@@ -102,6 +121,10 @@ fitting_parameters:
     progress: True
     posterior file: ob03235_2_models.npy
     posterior file fluxes: all
+    # Above can be also a list of dataset indexes, e.g.,
+    # posterior file fluxes: ["OGLE I-band"]
+    posterior file thin: 50
+    # Above is used to reduce the size of output posterior file.
     ## MultiNest only (basename, multimodal, evidence tolerance=0.5)
     # basename: out_ob08092_O4_MN-
     # multimodal: True
@@ -124,7 +147,8 @@ plots:
         interactive : ob03235_2_model.html
         time range: 2452820 2452855
         magnitude range: 19.3 16.9
-        title: "ob03235_2_model"
+        title: OB03235 plot
+        model label: I-band model
         rcParams:
         # This allows setting many matplotlib parameters, e.g.:
             font.size: 14
@@ -133,6 +157,7 @@ plots:
             ncol: 2
             # makes legend in 2 columns
             loc: lower center
+            fontsize: small
         second Y scale:
         # This adds second Y axis to the right side. Only magnifications key is required.
             magnifications: optimal
@@ -144,8 +169,15 @@ plots:
             # The list of labels above can not be given if magnifications = "optimal"
             label: What is shown on this axis?
             color: magenta
+        model label: "I-band model"
+        legend:
+            fontsize: small
+        add models:
+            - {'limb darkening u': 'g', 'label': 'g-band model', 'color': 'slateblue'}
+            - {'limb darkening u': -1.00, 'label': 'strange model', 'zorder': -10, 'linestyle': 'dashed'}
     trajectory:
         file: ob03235_2_trajectory.png
+        interactive : ob03235_2_trajectory.html
         time range: 2452700 2452855
     triangle:
         file: ob03235_2_triangle.png

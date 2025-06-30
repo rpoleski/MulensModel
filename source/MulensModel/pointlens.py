@@ -556,15 +556,16 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
         Gould A. 1994 ApJ 421L, 71 "Proper motions of MACHOs"
         https://ui.adsabs.harvard.edu/abs/1994ApJ...421L..71G/abstract
 
-        Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source
-        Effects from a Point-Mass Lens"
+        Yoo J. et al. 2004 ApJ 603, 139 "OGLE-2003-BLG-262: Finite-Source Effects from a Point-Mass Lens"
         https://ui.adsabs.harvard.edu/abs/2004ApJ...603..139Y/abstract
 
         """
         if mask is not None:
             z = self.z_[mask]
+            b0 = self.b0[mask]
         else:
             z = self.z_
+            b0 = self.b0
 
         def function(r, theta):
             r_2 = r * r
@@ -579,12 +580,10 @@ class FiniteSourceLDYoo04Magnification(FiniteSourceUniformGould94Magnification):
             function.arg_1 = zz
             function.arg_2 = zz * zz
             function.arg_3 = -2. * zz
-            rho_W_1[i] = integrate.dblquad(
-                function, 0., 2. * np.pi, lim_0, lim_1)[0]
+            rho_W_1[i] = integrate.dblquad(function, 0., 2. * np.pi, lim_0, lim_1)[0]
 
         rho_W_1 /= np.pi
-
-        return self.b0 - 1.5 * z * rho_W_1
+        return b0 - 1.5 * z * rho_W_1
 
     @property
     def b1(self):

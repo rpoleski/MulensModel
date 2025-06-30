@@ -109,6 +109,19 @@ class MagnificationCurve(object):
             self._methods_names = []
             return
 
+        epochs, names = self._raise_errors_set_magnification_methods(methods)
+        self._methods_epochs = np.array(epochs)
+        self._methods_names = names
+
+        self._methods_for_epochs = None
+        self._methods_indices = None
+        _ = self.methods_for_epochs
+        _ = self.methods_indices
+
+    def _raise_errors_set_magnification_methods(self, methods):
+        """
+        Check if the list of methods is valid and raise errors if not.
+        """
         if not isinstance(methods, list):
             msg = ('MagnificationCurve.set_magnification_methods() ' +
                    'requires a list as a parameter')
@@ -128,8 +141,7 @@ class MagnificationCurve(object):
                        ' be earlier)')
                 raise ValueError(msg.format(e_beg, e_end))
 
-        self._methods_epochs = np.array(epochs)
-        self._methods_names = names
+        return epochs, names
 
     def set_magnification_methods_parameters(self, methods_parameters):
         """
@@ -153,7 +165,6 @@ class MagnificationCurve(object):
                 Vector of magnifications.
 
         """
-        # Do we still need separate get_point_lens_magnification and bl methods?
         if self.parameters.n_lenses == 1:
             magnification = self.get_point_lens_magnification()
         elif self.parameters.n_lenses == 2:
@@ -364,24 +375,13 @@ class MagnificationCurve(object):
                 Vector of magnifications.
 
         """
-        if self.parameters.is_finite_source():
-            self._check_for_finite_source_method()
-
         if self.parameters.n_lenses != 1:
             raise ValueError(
                 "You're trying to calculate single lens magnification, but "
                 "the model provided has " + str(self.parameters.n_lenses) +
                 " lenses")
 
-        if self._magnification_objects is None:
-            self._set_magnification_objects()
-
-        magnification = np.zeros(len(self.times))
-        for method, selection in self.methods_indices.items():
-            magnification[selection] = \
-                self._magnification_objects[method].get_magnification()
-
-        return magnification
+        return self._get_magnification_universal()
 
     def _set_binary_lens_magnification_objects(self):
         """ For simple binary lens models, create a *dict* of magnification
@@ -500,31 +500,22 @@ class MagnificationCurve(object):
                 Vector of magnifications.
 
         """
-        if self.parameters.is_finite_source():
-            self._check_for_finite_source_method()
-
         if self.parameters.n_lenses != 2:
             raise ValueError(
                 "You're trying to calculate binary lens magnification, but "
                 "the model provided has " + str(self.parameters.n_lenses) +
                 " lenses")
 
-        if self._magnification_objects is None:
-            self._set_magnification_objects()
+        return self._get_magnification_universal()
 
-        magnification = np.zeros(len(self.times))
-        for method, selection in self.methods_indices.items():
-            magnification[selection] = \
-                self._magnification_objects[method].get_magnification()
-
-        return magnification
-
-    def _get_binary_lens_magnification(self, binary_lens_class,
-                                       optional_kwargs):
+    def _get_magnification_universal(self):
         """
-        Run binary lens calculation with proper class (binary_lens_class) and
-        some kwargs (optional_kwargs of type *dict*).
+        Calculate the magnification both for point and binary lens models,
+        avoiding code duplication.
         """
+        if self.parameters.is_finite_source():
+            self._check_for_finite_source_method()
+
         if self._magnification_objects is None:
             self._set_magnification_objects()
 
