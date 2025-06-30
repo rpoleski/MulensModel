@@ -1939,7 +1939,9 @@ class ModelParameters(object):
     @property
     def lens_period(self):
         """
-        XXX in years
+        *float*
+
+        Period of the binary lens orbit in years.
         """
         self._set_lens_keplerian_orbit()
         return self._lens_keplerian['period'] / 365.25
@@ -1947,7 +1949,9 @@ class ModelParameters(object):
     @property
     def lens_inclination(self):
         """
-        XXX
+        *float*
+
+        Inclination of the binary lens orbit in degrees.
         """
         self._set_lens_keplerian_orbit()
         return self._lens_keplerian['inclination']
@@ -1955,7 +1959,9 @@ class ModelParameters(object):
     @property
     def lens_Omega_node(self):
         """
-        XXX
+        *float*
+
+        Longitude of ascending node of the binary lens orbit in degrees.
         """
         self._set_lens_keplerian_orbit()
         return self._lens_keplerian['Omega_node']
@@ -1963,7 +1969,9 @@ class ModelParameters(object):
     @property
     def lens_argument_of_latitude_reference(self):
         """
-        XXX
+        *float*
+
+        Argument of latitude of the binary lens orbit in degrees.
         """
         self._set_lens_keplerian_orbit()
         return self._lens_keplerian['argument_of_latitude_reference']
