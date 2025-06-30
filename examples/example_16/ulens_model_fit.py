@@ -4117,9 +4117,10 @@ class UlensModelFit(object):
             kwargs_model['source_flux_ratio'] = self._datasets[0]
         if self._datasets[0].bandpass is not None:
             key = 'limb darkening u'
-            if self._datasets[0].bandpass in self._model_parameters[key]:
-                u = self._model_parameters[key][self._datasets[0].bandpass]
-                kwargs_model['gamma'] = mm.Utils.u_to_gamma(u)
+            if key in self._model_parameters:
+                if self._datasets[0].bandpass in self._model_parameters[key]:
+                    u = self._model_parameters[key][self._datasets[0].bandpass]
+                    kwargs_model['gamma'] = mm.Utils.u_to_gamma(u)
 
         kwargs_axes_1 = dict(
             axis='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom=False)
