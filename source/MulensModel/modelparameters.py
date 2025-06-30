@@ -1368,11 +1368,9 @@ class ModelParameters(object):
     @property
     def ds_z_dt(self):
         """
-        *astropy.Quantity*
+        *float*
 
-        Change rate of separation :py:attr:`~s_z` in 1/year. Can be set as
-        *AstroPy.Quantity* or as *float* (1/year is assumed default unit).
-        Regardless of input value, returns value in 1/year.
+        Change rate of separation :py:attr:`~s_z` in 1/year.
         """
         if 'ds_z_dt' in self.parameters:
             value = self.parameters['ds_z_dt']
@@ -1866,12 +1864,11 @@ class ModelParameters(object):
     @property
     def gamma_z(self):
         """
-        *astropy.Quantity*
+        *float*
 
         Perpendicular component of instantaneous velocity of the secondary
-        relative to the primary. It is perpendicular to the plane of the sky
-        at time t_0_kep.
-        Equals :py:attr:`~ds_z_dt`/:py:attr:`~s`. Cannot be set.
+        relative to the primary in 1/yr. It is perpendicular to the plane of the sky
+        at time :py:attr:`~t_0_kep`. Equals :py:attr:`~ds_z_dt`/:py:attr:`~s`. Cannot be set.
         """
         if not self.is_keplerian():
             return None
@@ -1883,8 +1880,7 @@ class ModelParameters(object):
         """
         *float*
 
-        Instantaneous velocity of the secondary relative to the primary in
-        1/year. Cannot be set.
+        Instantaneous velocity of the secondary relative to the primary in 1/year. Cannot be set.
         """
         if not self.is_keplerian():
             return (self.gamma_parallel**2 + self.gamma_perp**2)**0.5
