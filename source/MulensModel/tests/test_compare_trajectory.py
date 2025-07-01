@@ -49,9 +49,7 @@ def test_separation_for_circular_orbit():
     parameters = get_parameters('circular')
     times = get_times(parameters)
 
-    model = mm.Model(parameters=parameters)
-
-    separation = model.parameters.get_s(times)
+    separation = parameters.get_s(times)
 
     separation_VBB_circular = [0.57896196, 0.36839104, 1.20000000, 1.66168431, 1.61032808]
 
@@ -79,9 +77,7 @@ def test_separation_for_elliptical_orbit():
     parameters = get_parameters('elliptical')
     times = get_times(parameters)
 
-    model = mm.Model(parameters=parameters)
-
-    separation = model.parameters.get_s(times)
+    separation = parameters.get_s(times)
 
     separation_VBB_elliptical = [0.64550215, 1.42405587, 1.20000000, 1.34447172, 2.14780495]
 
@@ -98,7 +94,6 @@ def test_trajectory_for_elliptical_orbit():
 
     x_VBB_elliptical = [-3.03964927, 1.59911138, 0.16689172, 1.23132793, 2.67836603]
     y_VBB_elliptical = [-0.26183446, -0.02945825, -0.52931291, 1.02071373, 1.46095188]
-
 
     np.testing.assert_almost_equal(trajectory.x, x_VBB_elliptical)
     np.testing.assert_almost_equal(trajectory.y, y_VBB_elliptical)
