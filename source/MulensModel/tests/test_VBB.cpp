@@ -104,6 +104,7 @@ int main()
 
 	pr[12] = sr;
 	pr[13] = ar;
+    printf("AR %lf\n", ar);
 
 	VBBL.BinaryLightCurveKepler(pr, t_array, mag_keplerian_array, y1_keplerian_array, y2_keplerian_array, sep_keplerian_array, np);
 

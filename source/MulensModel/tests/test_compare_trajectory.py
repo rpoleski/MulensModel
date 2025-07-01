@@ -38,7 +38,7 @@ def _get_parameters(orbit):
     if orbit == 'circular':
         pass
     elif orbit == 'elliptical':
-        d.update({'a': a, 's_z': s_z})
+        d.update({'a_r': a / np.sqrt(s**2+s_z**2), 's_z': s_z})
     else:
         raise KeyError('Requires either circular or elliptical')
 
