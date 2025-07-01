@@ -1,20 +1,23 @@
 import MulensModel as mm
 import numpy as np
-import unittest
-import pytest
 
-def get_times(parameters):
+
+def _get_times(parameters):
+    """prepare a list of epochs based on parameters provided"""
     N = 5
     times = []
     t_0 = parameters.t_0
     t_E = parameters.t_E
 
-    for i in range(0,N,1):
+    for i in range(N):
         times.append(t_0 - 3 * t_E + i * (6 * t_E / (N - 1)))
     return times
 
-def get_parameters(orbit):
 
+def _get_parameters(orbit):
+    """
+    Prepare ModelParameters object for testing keplerian orbit calculations
+    """
     s = 1.2
     q = 0.123
     u_0 = 0.555
@@ -25,11 +28,12 @@ def get_parameters(orbit):
 
     ds_dt = 20.2
     dalpha_dt = -30.3
-    s_z = -1.212000 
+    s_z = -1.212000
     ds_z_dt = 20
     a = 2
 
-    d = {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha,'rho': rho, 'ds_dt': ds_dt, 'dalpha_dt': dalpha_dt, 'ds_z_dt': ds_z_dt}
+    d = {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha,
+         'rho': rho, 'ds_dt': ds_dt, 'dalpha_dt': dalpha_dt, 'ds_z_dt': ds_z_dt}
 
     if orbit == 'circular':
         pass
@@ -42,12 +46,13 @@ def get_parameters(orbit):
 
     return parameters_extra
 
+
 def test_separation_for_circular_orbit():
     """
     compares separation to values form VBBinaryLensing v3.6
     """
-    parameters = get_parameters('circular')
-    times = get_times(parameters)
+    parameters = _get_parameters('circular')
+    times = _get_times(parameters)
 
     separation = parameters.get_s(times)
 
@@ -55,12 +60,13 @@ def test_separation_for_circular_orbit():
 
     np.testing.assert_almost_equal(separation, separation_VBB_circular)
 
+
 def test_trajectory_for_circular_orbit():
     """
     compares trajectory to values form VBBinaryLensing v3.6
     """
-    parameters = get_parameters('circular')
-    times = get_times(parameters)
+    parameters = _get_parameters('circular')
+    times = _get_times(parameters)
 
     trajectory = mm.Trajectory(parameters=parameters, times=times)
 
@@ -70,12 +76,13 @@ def test_trajectory_for_circular_orbit():
     np.testing.assert_almost_equal(trajectory.x, x_VBB_circular)
     np.testing.assert_almost_equal(trajectory.y, y_VBB_circular)
 
+
 def test_separation_for_elliptical_orbit():
     """
     compares separation to values form VBBinaryLensing v3.6
     """
-    parameters = get_parameters('elliptical')
-    times = get_times(parameters)
+    parameters = _get_parameters('elliptical')
+    times = _get_times(parameters)
 
     separation = parameters.get_s(times)
 
@@ -83,12 +90,13 @@ def test_separation_for_elliptical_orbit():
 
     np.testing.assert_almost_equal(separation, separation_VBB_elliptical)
 
+
 def test_trajectory_for_elliptical_orbit():
     """
     compares trajectory to values form VBBinaryLensing v3.6
     """
-    parameters = get_parameters('elliptical')
-    times = get_times(parameters)
+    parameters = _get_parameters('elliptical')
+    times = _get_times(parameters)
 
     trajectory = mm.Trajectory(parameters=parameters, times=times)
 
@@ -97,4 +105,3 @@ def test_trajectory_for_elliptical_orbit():
 
     np.testing.assert_almost_equal(trajectory.x, x_VBB_elliptical)
     np.testing.assert_almost_equal(trajectory.y, y_VBB_elliptical)
-
