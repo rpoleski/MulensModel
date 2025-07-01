@@ -1941,7 +1941,7 @@ class ModelParameters(object):
         """
         *float*
 
-        Period of the binary lens orbit in years.
+        Orbital period of the binary lens orbit in years.
         """
         self._set_lens_keplerian_orbit()
         return self._lens_keplerian['period'] / 365.25
