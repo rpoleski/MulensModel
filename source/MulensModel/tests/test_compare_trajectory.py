@@ -49,7 +49,7 @@ def _get_parameters(orbit):
 
 def test_separation_for_circular_orbit():
     """
-    compares separation to values form VBBinaryLensing v3.6
+    compares separation to values from VBBinaryLensing v3.6
     """
     parameters = _get_parameters('circular')
     times = _get_times(parameters)
@@ -63,7 +63,7 @@ def test_separation_for_circular_orbit():
 
 def test_trajectory_for_circular_orbit():
     """
-    compares trajectory to values form VBBinaryLensing v3.6
+    compares trajectory to values from VBBinaryLensing v3.6
     """
     parameters = _get_parameters('circular')
     times = _get_times(parameters)
@@ -79,7 +79,7 @@ def test_trajectory_for_circular_orbit():
 
 def test_separation_for_elliptical_orbit():
     """
-    compares separation to values form VBBinaryLensing v3.6
+    compares separation to values from VBBinaryLensing v3.6
     """
     parameters = _get_parameters('elliptical')
     times = _get_times(parameters)
@@ -93,7 +93,7 @@ def test_separation_for_elliptical_orbit():
 
 def test_trajectory_for_elliptical_orbit():
     """
-    compares trajectory to values form VBBinaryLensing v3.6
+    compares trajectory to values from VBBinaryLensing v3.6
     """
     parameters = _get_parameters('elliptical')
     times = _get_times(parameters)
