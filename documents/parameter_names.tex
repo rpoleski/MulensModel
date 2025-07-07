@@ -51,8 +51,8 @@ $q$ & {\tt q} & & The mass ratio between the lens companion and the lens primary
 $\alpha$ & {\tt alpha} & deg. & The angle between the source trajectory and the binary axis. \\
 $ds/dt$ & {\tt ds\_dt} & yr$^{-1}$ & The rate of change of the separation. \\
 $d\alpha/dt$ & {\tt dalpha\_dt} & deg.~yr$^{-1}$ & The rate of change of $\alpha$. \\
-$s_{z}$ & {\tt s\_z} & & Position along the line of sight as a fraction of the Einstein ring radius. Positive axis points to the observer. \\
-$ds_{z}/dt$ & {\tt ds\_z\_dt} & yr$^{-1}$ & The rate of change of $s_{z}$. \\
+$s_{z}$ & {\tt s\_z} & & Position along the line of sight as a fraction of the Einstein ring radius. Positive axis points to the observer. $^d$\\
+$ds_{z}/dt$ & {\tt ds\_z\_dt} & yr$^{-1}$ & The rate of change of $s_{z}$. $^d$\\
 $t_{0,{\rm kep}}$ & {\tt t\_0\_kep} & & The reference time for lens orbital motion calculations.$^a$ \\
 $x_{\rm caustic, in}$ & {\tt x\_caustic\_in} & & Curvelinear coordinate of caustic entrance for a binary lens model.$^b$ \\
 $x_{\rm caustic, out}$ & {\tt x\_caustic\_out} & & Curvelinear coordinate of caustic exit for a binary lens model.$^b$ \\
@@ -72,6 +72,7 @@ $t_{0,\xi}$ & \texttt{t\_0\_xi} & &  The reference epoch for parameters in xalla
 $^a$ -- $t_{0,{\rm par}}$, $t_{0,{\rm kep}}$, and $t_{0,\chi}$ are reference parameters, hence, do not change these during fitting. \newline
 $^b$ -- The four parameters of binary lens in Cassan (2008) parameterization ($x_{\rm caustic, in}$, $x_{\rm caustic, out}$, $t_{\rm caustic, in}$, $t_{\rm caustic, out}$) are used instead of ($t_0$, $u_0$, $t_{\rm E}$, $\alpha$). \newline
 $^c$ -- The orbital angles are illustrated in Figure~1.
+$^d$ -- To include keplerian motion of the lenses on a circular orbit either $s_{z}$ or $ds_{z}/dt$ needs to be added to the parameter space.
 %\label{}
 }
 \end{longtable}
