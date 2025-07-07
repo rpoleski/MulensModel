@@ -24,11 +24,11 @@
 {\LARGE Microlensing parameters in \MM}\\
 \bigskip
 Radek Poleski\\
-last update: Apr 2024
+last update: Jul 2025
 \end{center}
 
 \bigskip
-Microlensing parameters in \MM\, class {\tt ModelParameters} are presented on the next page:
+Microlensing parameters of the {\tt ModelParameters} class in the \MM\, package are presented on the next page:
 
 \begin{landscape}
 \captionsetup{width=20cm}
@@ -51,28 +51,28 @@ $q$ & {\tt q} & & The mass ratio between the lens companion and the lens primary
 $\alpha$ & {\tt alpha} & deg. & The angle between the source trajectory and the binary axis. \\
 $ds/dt$ & {\tt ds\_dt} & yr$^{-1}$ & The rate of change of the separation. \\
 $d\alpha/dt$ & {\tt dalpha\_dt} & deg.~yr$^{-1}$ & The rate of change of $\alpha$. \\
-$s_{z}$ & {\tt s\_z} & & Position along the line of sight as a fraction of the Einstein ring radius. Positive axis points to the observer. $^d$\\
-$ds_{z}/dt$ & {\tt ds\_z\_dt} & yr$^{-1}$ & The rate of change of $s_{z}$. $^d$\\
+$s_{z}$ & {\tt s\_z} & & Position along the line of sight as a fraction of the Einstein ring radius. Positive axis points to the observer.$^b$\\
+$ds_{z}/dt$ & {\tt ds\_z\_dt} & yr$^{-1}$ & The rate of change of $s_{z}$.$^b$\\
 $t_{0,{\rm kep}}$ & {\tt t\_0\_kep} & & The reference time for lens orbital motion calculations.$^a$ \\
-$x_{\rm caustic, in}$ & {\tt x\_caustic\_in} & & Curvelinear coordinate of caustic entrance for a binary lens model.$^b$ \\
-$x_{\rm caustic, out}$ & {\tt x\_caustic\_out} & & Curvelinear coordinate of caustic exit for a binary lens model.$^b$ \\
-$t_{\rm caustic, in}$ & {\tt t\_caustic\_in} & & Epoch of caustic exit for a binary lens model.$^b$ \\
-$t_{\rm caustic, out}$ & {\tt t\_caustic\_out} & & Epoch of caustic exit for a binary lens model.$^b$ \\
+$x_{\rm caustic, in}$ & {\tt x\_caustic\_in} & & Curvelinear coordinate of caustic entrance for a binary lens model.$^c$ \\
+$x_{\rm caustic, out}$ & {\tt x\_caustic\_out} & & Curvelinear coordinate of caustic exit for a binary lens model.$^c$ \\
+$t_{\rm caustic, in}$ & {\tt t\_caustic\_in} & & Epoch of caustic exit for a binary lens model.$^c$ \\
+$t_{\rm caustic, out}$ & {\tt t\_caustic\_out} & & Epoch of caustic exit for a binary lens model.$^c$ \\
 $\xi_P$ & \texttt{xi\_period} & d & The orbital period of xallarap.\\
 $\xi_a$ & \texttt{xi\_semimajor\_axis} & & The semimajor axis of a xallarap orbit as a fraction of the Einstein ring.\\
-$\xi_i$ & \texttt{xi\_inclination} & deg & The inclination of a xallarap orbit.$^c$\\
-$\xi_\Omega$ & \texttt{xi\_Omega\_node} & deg & The longitude of the ascending node of a xallarap orbit.$^c$\\
-$\xi_u$ & \texttt{xi\_argument\_of\_latitude\_reference} & deg & The argument of latitude at the reference epoch ($t_{0,\chi}$). The argument of latitude is a sum of true anomaly ($\nu$, changes with time) and the argument of periapsis ($\omega$, orbit parameter, i.e., does not change with time): $u = \nu + \omega$.$^c$\\
+$\xi_i$ & \texttt{xi\_inclination} & deg & The inclination of a xallarap orbit.$^d$\\
+$\xi_\Omega$ & \texttt{xi\_Omega\_node} & deg & The longitude of the ascending node of a xallarap orbit.$^d$\\
+$\xi_u$ & \texttt{xi\_argument\_of\_latitude\_reference} & deg & The argument of latitude at the reference epoch ($t_{0,\chi}$). The argument of latitude is a sum of true anomaly ($\nu$, changes with time) and the argument of periapsis ($\omega$, orbit parameter, i.e., does not change with time): $u = \nu + \omega$.$^d$\\
 $\xi_e$ & \texttt{xi\_eccentricity} & & The eccentricity of a xallarap orbit.\\
-$\xi_\omega$ & \texttt{xi\_omega\_periapsis} & deg & The argument of periapsis of a xallarap orbit.$^c$\\
+$\xi_\omega$ & \texttt{xi\_omega\_periapsis} & deg & The argument of periapsis of a xallarap orbit.$^d$\\
 $q_\mathrm{source}$ & \texttt{q\_source} & & Mass ratio of source components: $m_{s,2}/m_{s,1}$. It is valid only for xallarap models.\\
 $t_{0,\xi}$ & \texttt{t\_0\_xi} & &  The reference epoch for parameters in xallarap models.$^a$\\
 \hline
 \caption{Notes: \newline
 $^a$ -- $t_{0,{\rm par}}$, $t_{0,{\rm kep}}$, and $t_{0,\chi}$ are reference parameters, hence, do not change these during fitting. \newline
-$^b$ -- The four parameters of binary lens in Cassan (2008) parameterization ($x_{\rm caustic, in}$, $x_{\rm caustic, out}$, $t_{\rm caustic, in}$, $t_{\rm caustic, out}$) are used instead of ($t_0$, $u_0$, $t_{\rm E}$, $\alpha$). \newline
-$^c$ -- The orbital angles are illustrated in Figure~1.
-$^d$ -- To include keplerian motion of the lenses on a circular orbit either $s_{z}$ or $ds_{z}/dt$ needs to be added to the parameter space.
+$^b$ -- To include keplerian motion of the lenses on a circular orbit either $s_{z}$ or $ds_{z}/dt$ has to be defined. \newline
+$^c$ -- The four parameters of binary lens in Cassan (2008) parameterization ($x_{\rm caustic, in}$, $x_{\rm caustic, out}$, $t_{\rm caustic, in}$, $t_{\rm caustic, out}$) are used instead of ($t_0$, $u_0$, $t_{\rm E}$, $\alpha$). \newline
+$^d$ -- The orbital angles are illustrated in Figure~1.
 %\label{}
 }
 \end{longtable}
