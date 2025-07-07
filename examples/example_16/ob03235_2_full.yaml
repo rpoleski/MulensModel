@@ -40,6 +40,10 @@ starting_parameters:
     q: log-uniform 0.001 0.01
     s: uniform 1.09 1.11
     alpha: gauss 44.0 1.0
+    ds_dt: gauss 2.02 0.1
+    dalpha_dt: gauss 50.10 1.0
+    s_z: gauss 1.5 0.1
+    ds_z_dt: gauss 10.15 0.1
     # It is also possible to provide a file with starting points e.g.:
     #   file: ob08092-o4_starting_file_input.txt
     #   parameters: t_0 u_0 t_E
@@ -85,7 +89,7 @@ min_values:
     pi_E_E: -0.5
     q: 0.
     s: 1.
-    alpha: 0.
+    alpha: 0. 
 max_values:
     t_0: 2452860.
     rho: 0.1
