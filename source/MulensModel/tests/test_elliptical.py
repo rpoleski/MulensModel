@@ -30,7 +30,7 @@ class test_Keplerian_elliptical(unittest.TestCase):
 
     def test_keplerian_only_z(self):
         """fails if s_z and ds_z_dt are given only"""
-        dict_4 = setup_keplerian_ellipticaol({'s_z': 0.1, 'ds_z_dt': 1.9})
+        dict_4 = setup_keplerian_elliptical({'s_z': 0.1, 'ds_z_dt': 1.9})
         with self.assertRaises(KeyError):
             mm.ModelParameters(dict_4)
 
