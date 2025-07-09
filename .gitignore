@@ -69,3 +69,16 @@ source/MulensModel/*.so
 # Coverage report:
 coverage.xml
 /source/MulensModel/htmlcov/
+
+# macOS files
+.DS_Store
+**/.DS_Store
+
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Build directories
+build/
+dist/
