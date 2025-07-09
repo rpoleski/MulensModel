@@ -44,12 +44,8 @@ __all__ = [
     'FiniteSourceLDYoo04Magnification', 'PointSourcePointLensWithShearMagnification', 'B0B1Utils', 'EllipUtils',
     'SatelliteSkyCoord', 'Trajectory', 'UniformCausticSampling', 'MAG_ZEROPOINT', 'Utils', '__version__']
 
-MODULE_PATH = path.abspath(__file__)
-for i in range(3):
-    MODULE_PATH = path.dirname(MODULE_PATH)
+# Set MODULE_PATH to the module directory
+MODULE_PATH = path.dirname(path.abspath(__file__))
 
-path_1 = path.join(MODULE_PATH, 'data')
-if path.isdir(path_1):
-    DATA_PATH = path_1
-else:
-    DATA_PATH = path.join(path.dirname(__file__), 'data')
+# Set DATA_PATH to the data directory within the package
+DATA_PATH = path.join(path.dirname(__file__), 'data')

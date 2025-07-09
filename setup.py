@@ -10,12 +10,13 @@ DATA_PATH = PROJECT_PATH / "data"
 file_required = PROJECT_PATH / "requirements.txt"
 with file_required.open() as file_:
     install_requires = file_.read().splitlines()
-data_files = [
-    (
-        str(file_required.relative_to(PROJECT_PATH)),
-        [str(file_required.relative_to(PROJECT_PATH))],
-    )
-]
+
+# Include data files in the package
+package_data = {}
+for data_file in DATA_PATH.rglob("*"):
+    if data_file.is_file():
+        relative_path = data_file.relative_to(DATA_PATH)
+        package_data["MulensModel"] = [f"data/{relative_path}"]
 
 version = "unknown"
 with Path(SOURCE_PATH / "MulensModel" / "version.py").open() as in_put:
@@ -54,7 +55,7 @@ setup(
     packages=find_packages(where="source"),
     package_dir={"": "source"},
     include_package_data=True,
-    data_files=data_files,
+    package_data=package_data,
     python_requires=">=3.6",
     install_requires=install_requires,
 )
