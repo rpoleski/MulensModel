@@ -48,7 +48,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.49.0'
+__version__ = '0.50.0'
 
 
 class UlensModelFit(object):
@@ -568,8 +568,8 @@ class UlensModelFit(object):
 
         parameters_str = (
             't_0 u_0 t_0_1 u_0_1 t_0_2 u_0_2 t_E t_eff rho rho_1 rho_2 ' +
-            't_star t_star_1 t_star_2 pi_E_N pi_E_E s q alpha ds_dt ' +
-            'dalpha_dt x_caustic_in x_caustic_out t_caustic_in ' +
+            't_star t_star_1 t_star_2 pi_E_N pi_E_E s q alpha ds_dt s_z ' +
+            'ds_z_dt dalpha_dt x_caustic_in x_caustic_out t_caustic_in ' +
             't_caustic_out xi_period xi_semimajor_axis xi_Omega_node ' +
             'xi_inclination xi_argument_of_latitude_reference ' +
             'xi_eccentricity xi_omega_periapsis q_source')
@@ -585,6 +585,7 @@ class UlensModelFit(object):
             t_star_2='t_{\\star,2}', pi_E_N='\\pi_{{\\rm E},N}',
             pi_E_E='\\pi_{{\\rm E},E}', s='s', q='q', alpha='\\alpha',
             ds_dt='ds/dt', dalpha_dt='d\\alpha/dt',
+            s_z='s_{z}', ds_z_dt='ds_{z}/dt',
             x_caustic_in='x_{\\rm caustic,in}',
             x_caustic_out='x_{\\rm caustic,out}',
             t_caustic_in='t_{\\rm caustic,in}',

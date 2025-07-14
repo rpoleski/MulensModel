@@ -107,7 +107,7 @@ min_values:
     pi_E_E: -0.5
     q: 0.
     s: 1.
-    alpha: 0.
+    alpha: 0. 
 max_values:
     t_0: 2452860.
     rho: 0.1
