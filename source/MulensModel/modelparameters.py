@@ -655,43 +655,35 @@ class ModelParameters(object):
         """
         # s, q, and alpha must all be defined if s or q are defined
         if ('s' in keys) or ('q' in keys):
-            if (('s' not in keys) or
-                    ('q' not in keys) or ('alpha' not in keys)):
-                raise KeyError(
-                    'A binary model requires all three of (s, q, alpha).')
+            if ('s' not in keys) or ('q' not in keys) or ('alpha' not in keys):
+                raise KeyError('A binary model requires all three of (s, q, alpha).')
 
         # If ds_dt is defined, dalpha_dt must be defined
         if ('ds_dt' in keys) or ('dalpha_dt' in keys):
             if ('ds_dt' not in keys) or ('dalpha_dt' not in keys):
-                raise KeyError(
-                    'Lens orbital motion requires both ds_dt and dalpha_dt.' +
-                    '\nNote that you can set either of them to 0.')
+                raise KeyError('Lens orbital motion requires both ds_dt and dalpha_dt.' +
+                               '\nNote that you can set either of them to 0.')
         # If orbital motion is defined, then reference epoch has to be set.
             if 't_0' not in keys and 't_0_kep' not in keys:
-                raise KeyError(
-                    'Orbital motion requires reference epoch, ' +
-                    'i.e., t_0 or t_0_kep')
+                raise KeyError('Orbital motion requires reference epoch, i.e., t_0 or t_0_kep')
 
-        # If s_z or ds_z_dt is defined, ds_dt and dalpha_dt must be defined
-        if ('s_z' in keys) and ('ds_z_dt' in keys):
-            raise KeyError('Full Keplerian motion requires either s_z or ' +
-                           'ds_z_dt, not both.')
+        if self._type['circular keplerian motion']:
+            if ('s_z' in keys) and ('ds_z_dt' in keys):
+                raise KeyError('Circular Keplerian motion requires either s_z or ds_z_dt, not both.')
+        if self._type['elliptical keplerian motion']:
+            if ('s_z' not in keys) or ('ds_z_dt' not in keys):
+                raise KeyError('Ellipctical Keplerian motion requires all of s_z, ds_z_dt, dalpha_dt, and ds_dt')
         if ('s_z' in keys) or ('ds_z_dt' in keys):
             if ('ds_dt' not in keys) or ('dalpha_dt' not in keys):
-                raise KeyError(
-                    'Full Keplerian motion (s_z or ds_z_dt) requires ' +
-                    'both ds_dt and dalpha_dt.' +
-                    '\nNote that you can set either of them to 0.')
+                raise KeyError('Full Keplerian motion (s_z or ds_z_dt) requires both ds_dt and dalpha_dt.' +
+                               '\nNote that you can set either of them to 0.')
             if 't_0' not in keys and 't_0_kep' not in keys:
-                raise KeyError(
-                    'Orbital motion requires reference epoch, ' +
-                    'i.e., t_0 or t_0_kep')
+                raise KeyError('Orbital motion requires reference epoch, i.e., t_0 or t_0_kep')
 
         # t_0_kep makes sense only when orbital motion is defined.
         if 't_0_kep' in keys:
             if 'ds_dt' not in keys or 'dalpha_dt' not in keys:
-                raise KeyError(
-                    't_0_kep makes sense only when orbital motion is defined.')
+                raise KeyError('t_0_kep makes sense only when orbital motion is defined.')
 
     def _check_valid_combination_1_source_xallarap(self, keys):
         """
