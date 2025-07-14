@@ -171,8 +171,7 @@ class ModelParameters(object):
         """
         sets self._type property, which indicates what type of a model we have
         """
-        types = ['finite source', 'parallax', 'Cassan08',
-                 'lens 2-parameter orbital motion', 'full keplerian motion',
+        types = ['finite source', 'parallax', 'Cassan08', 'lens orbital motion', 'full keplerian motion',
                  'mass sheet', 'xallarap']
         out = {type_: False for type_ in types}
 
@@ -180,7 +179,7 @@ class ModelParameters(object):
             'finite source': 'rho t_star rho_1 rho_2 t_star_1 t_star_2',
             'parallax': 'pi_E_N pi_E_E',
             'Cassan08': 'x_caustic_in x_caustic_out t_caustic_in t_caustic_out',
-            'lens 2-parameter orbital motion': 'dalpha_dt ds_dt',
+            'lens orbital motion': 'dalpha_dt ds_dt',
             'full keplerian motion': 's_z ds_z_dt',
             'mass sheet': 'convergence_K shear_G',
             'xallarap': ('xi_period xi_semimajor_axis xi_inclination '
@@ -205,21 +204,18 @@ class ModelParameters(object):
         n_lenses = self._n_lenses
 
         # Lens orbital motion requires binary lens:
-        if self._type['lens 2-parameter orbital motion'] and n_lenses == 1:
-            raise KeyError('Orbital motion of the lens requires two lens '
-                           'components but only one was provided.')
+        if self._type['lens orbital motion'] and n_lenses == 1:
+            raise KeyError('Orbital motion of the lens requires two lens components but only one was provided.')
         # Full Keplerian motion requires binary lens:
         if self._type['full keplerian motion'] and n_lenses == 1:
-            raise KeyError('Full Keplerian motion of the lens requires two '
-                           'lens components but only one was provided.')
+            raise KeyError('Full Keplerian motion of the lens requires two lens components but only one was provided.')
 
         self._check_types_for_Cassan08()
 
         if alpha_defined:
             if self._n_lenses == 1 and not self._type['mass sheet']:
                 raise KeyError(
-                    'You defined alpha for single lens model '
-                    'without external mass sheet. This is not allowed.')
+                    'You defined alpha for single lens model without external mass sheet. This is not allowed.')
 
         if self._type['full keplerian motion']:
             self._lens_keplerian_last_input = None
@@ -263,18 +259,14 @@ class ModelParameters(object):
         if not self._type['Cassan08']:
             return
 
-        types = ['parallax', 'xallarap', 'lens 2-parameter orbital motion',
-                 'full keplerian motion']
+        types = ['parallax', 'xallarap', 'lens orbital motion', 'full keplerian motion']
         for type_ in types:
             if self._type[type_]:
                 raise NotImplementedError(
-                    'Currently we do not allow Cassan (2008) '
-                    'parameterization of binary lens and ' + type_)
+                    'Currently we do not allow Cassan (2008) parameterization of binary lens and ' + type_)
 
         if self._n_sources > 1:
-            raise NotImplementedError(
-                "Cassan (2008) parameterization doesn't work for "
-                "multi sources models")
+            raise NotImplementedError("Cassan (2008) parameterization doesn't work for multi sources models")
 
     def _divide_parameters(self, parameters):
         """
@@ -1988,7 +1980,7 @@ class ModelParameters(object):
                 *True* if :py:attr:`~dalpha_dt` or :py:attr:`~ds_dt` are set.
 
         """
-        return not self._type['lens 2-parameter orbital motion']
+        return not self._type['lens orbital motion']
 
     def is_keplerian(self):
         """
