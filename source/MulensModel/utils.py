@@ -299,6 +299,17 @@ class Utils(object):
                 cartesian.z * vector[2])
     dot = staticmethod(dot)
 
+    # def get_angle_between_vectors(vector_1, vector_2):
+    #     """
+    #     XXX
+    #     returns float in deg
+    #     """
+    #     unit_1 = vector_1 / np.linalg.norm(vector_1)
+    #     unit_2 = vector_2 / np.linalg.norm(vector_2)
+    #     cos_angle = np.clip(np.dot(unit_1, unit_2), -1., 1.)
+    #     return np.arccos(cos_angle) * 180. / np.pi
+    # get_angle_between_vectors = staticmethod(get_angle_between_vectors)
+
     def date_change(text):
         """
         Change format of month in date, e.g.
