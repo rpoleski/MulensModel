@@ -171,8 +171,8 @@ class ModelParameters(object):
         """
         sets self._type property, which indicates what type of a model we have
         """
-        types = ['finite source', 'parallax', 'Cassan08', 'lens orbital motion', 'full keplerian motion',
-                 'mass sheet', 'xallarap']
+        types = ['finite source', 'parallax', 'Cassan08', 'lens orbital motion', 'keplerian motion',
+                 'circular keplerian motion', 'elliptical keplerian motion', 'mass sheet', 'xallarap']
         out = {type_: False for type_ in types}
 
         temp = {
@@ -180,10 +180,10 @@ class ModelParameters(object):
             'parallax': 'pi_E_N pi_E_E',
             'Cassan08': 'x_caustic_in x_caustic_out t_caustic_in t_caustic_out',
             'lens orbital motion': 'dalpha_dt ds_dt',
-            'full keplerian motion': 's_z ds_z_dt',
+            'keplerian motion': 's_z ds_z_dt',
+            'elliptical keplerian motion': 'a_r',
             'mass sheet': 'convergence_K shear_G',
-            'xallarap': ('xi_period xi_semimajor_axis xi_inclination '
-                         'xi_Omega_node xi_argument_of_latitude_reference '
+            'xallarap': ('xi_period xi_semimajor_axis xi_inclination xi_Omega_node xi_argument_of_latitude_reference '
                          'xi_eccentricity xi_omega_periapsis q_source')}
 
         parameter_to_type = dict()
@@ -194,6 +194,9 @@ class ModelParameters(object):
         for key in keys:
             if key in parameter_to_type:
                 out[parameter_to_type[key]] = True
+
+        if out['keplerian motion'] and not out['elliptical keplerian motion']:
+            out['circular keplerian motion'] = True
 
         self._type = out
 
@@ -206,8 +209,9 @@ class ModelParameters(object):
         # Lens orbital motion requires binary lens:
         if self._type['lens orbital motion'] and n_lenses == 1:
             raise KeyError('Orbital motion of the lens requires two lens components but only one was provided.')
+
         # Full Keplerian motion requires binary lens:
-        if self._type['full keplerian motion'] and n_lenses == 1:
+        if self._type['keplerian motion'] and n_lenses == 1:
             raise KeyError('Full Keplerian motion of the lens requires two lens components but only one was provided.')
 
         self._check_types_for_Cassan08()
@@ -217,7 +221,7 @@ class ModelParameters(object):
                 raise KeyError(
                     'You defined alpha for single lens model without external mass sheet. This is not allowed.')
 
-        if self._type['full keplerian motion']:
+        if self._type['keplerian motion']:
             self._lens_keplerian_last_input = None
             self._lens_keplerian = dict()
 
@@ -259,7 +263,7 @@ class ModelParameters(object):
         if not self._type['Cassan08']:
             return
 
-        types = ['parallax', 'xallarap', 'lens orbital motion', 'full keplerian motion']
+        types = ['parallax', 'xallarap', 'lens orbital motion', 'keplerian motion']
         for type_ in types:
             if self._type[type_]:
                 raise NotImplementedError(
@@ -1791,7 +1795,7 @@ class ModelParameters(object):
         if isinstance(epoch, list):
             epoch = np.array(epoch)
 
-        if self._type['full keplerian motion']:
+        if self._type['keplerian motion']:
             self._set_lens_keplerian_orbit()
             sky_positions = self._lens_orbit.get_reference_plane_position(epoch)
             s_of_t = np.sqrt(np.sum(sky_positions**2, axis=0))
@@ -1820,7 +1824,7 @@ class ModelParameters(object):
         if isinstance(epoch, list):
             epoch = np.array(epoch)
 
-        if self._type['full keplerian motion']:
+        if self._type['keplerian motion']:
             self._set_lens_keplerian_orbit()
             sky_positions = self._lens_orbit.get_reference_plane_position(epoch)
             alpha_of_t = self.alpha + np.arctan2(sky_positions[1, :], sky_positions[0, :]) * 180 / np.pi
@@ -1991,7 +1995,7 @@ class ModelParameters(object):
             is_keplerian: *boolean*
                 *True* if :py:attr:`~s_z` or :py:attr:`~ds_z_dt` are set.
         """
-        return self._type['full keplerian motion']
+        return self._type['keplerian motion']
 
     @property
     def n_lenses(self):
