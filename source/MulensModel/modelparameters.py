@@ -1373,6 +1373,20 @@ class ModelParameters(object):
         self._update_sources('ds_z_dt', new_ds_z_dt)
 
     @property
+    def a_r(self):
+        """
+        *float*
+
+        XXX
+        """
+        return self.parameters['a_r']
+
+    @a_r.setter
+    def a_r(self, new_value):
+        self.parameters['a_r'] = new_value
+        self._update_sources('a_r', new_value)
+
+    @property
     def t_0_kep(self):
         """
         *float*
@@ -1882,11 +1896,29 @@ class ModelParameters(object):
         position = np.array([self.s, 0, self.s_z])
         gamma = np.array([self.gamma_parallel, self.gamma_perp, self.gamma_z])
         new_input = [*list(position), *list(gamma)]
+        if self._type['elliptical keplerian motion']:
+            new_input.append(self.a_r)
+
         if new_input == self._lens_keplerian_last_input:
             return
 
         self._lens_keplerian_last_input = new_input
 
+        if self._type['circular keplerian motion']:
+            self._set_lens_keplerian_orbit_circular(position, gamma)
+        elif self._type['elliptical keplerian motion']:
+            self._set_lens_keplerian_orbit_elliptical(position, gamma)
+        else:
+            raise ValueError('strange internal')
+
+#        print("ORBIT:")
+#        print(self._lens_keplerian)
+        self._lens_orbit = Orbit(**self._lens_keplerian)
+
+    def _set_lens_keplerian_orbit_circular(self, position, gamma):
+        """
+        Set self._lens_keplerian for a circular orbit.
+        """
         velocity = self.s * gamma  # This is in units of R_E = D_L * theta_E.
         a = np.sqrt(np.sum(position**2))
         self._lens_keplerian['semimajor_axis'] = a
@@ -1902,9 +1934,20 @@ class ModelParameters(object):
         self._lens_keplerian['argument_of_latitude_reference'] = phi_0 * 180. / np.pi
 #        Utils.get_angle_between_vectors(n, position)
         self._lens_keplerian['epoch_reference'] = self.t_0_kep
-#        print("ORBIT:")
-#        print(self._lens_keplerian)
-        self._lens_orbit = Orbit(**self._lens_keplerian)
+
+    def _set_lens_keplerian_orbit_elliptical(self, position, gamma):
+        """
+        Set self._lens_keplerian for an elliptical orbit.
+        """
+        velocity = self.s * gamma  # This is in units of R_E = D_L * theta_E.
+        separation = np.sqrt(np.sum(position**2))
+        a = separation * self.a_r
+        self._lens_keplerian['semimajor_axis'] = a
+        print(a)
+#        g_m = 0.5 * np.sum(velocity**2) / (1. / separation - 0.5 / a)
+#        n = np.sqrt(g_m / a**3)
+        h = np.cross(position, velocity)
+        raise NotImplementedError("XXX")
 
     @property
     def lens_semimajor_axis(self):
