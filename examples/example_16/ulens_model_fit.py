@@ -2060,10 +2060,10 @@ class UlensModelFit(object):
         fitted = set(self._fit_parameters_unsorted)
         fixed = used - fitted
         if len(fixed) > 0:
-            warnings.warn('In prior' + key + " there is parameter that are will not be fitted : " +
-                          str(fixed), "fitted parameter are: " + str(fitted),
-                          "Are you sure you want to calculate prior from parameter that is not fitted?")
 
+            warnings.warn('In prior ' + key + " there is a parameter that will not be fitted: " +
+                          str(fixed) + ". Fitted parameters are: " + str(fitted) +
+                          ".\nAre you sure you want to calculate the prior from a parameter that is not fitted?")
         settings = self._load_prior_file(settings)
 
         return settings

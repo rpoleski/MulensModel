@@ -93,24 +93,27 @@ def plot_prior(name, limits,  pdf_orginal, pdf_spread_smooth, prefix_output):
     plt.close()
 
 
-simulated_file = 'data/OB03235/OB03235_genulens.out'
-prefix_output = 'data/OB03235/OB03235_prior_'
-data = get_data(simulated_file)
-weights = data['wtj']
+if __name__ == '__main__':
 
-# choose parameters
-parameters = ['t_E', 'pi_E_E', 'pi_E_N']
+    simulated_file = 'data/OB03235/OB03235_genulens.out'
+    prefix_output = 'data/OB03235/OB03235_prior_'
+    data = get_data(simulated_file)
+    weights = data['wtj']
 
-# convesion from MulensModel to genulens names
-conve = {'pi_E_E': 'pi_EE',
-         'pi_E_N': 'pi_EN',
-         }
+    # choose parameters
+    parameters = ['t_E', 'pi_E_E', 'pi_E_N']
 
-for parameter in parameters:
-    parameter_genulens = conve.get(parameter, parameter)
-    values = data[parameter_genulens]
-    pdf_orginal, pdf_spread_smooth, bins, limits = get_pdf(values, weights, parameter)
-    plot_prior(parameter, limits, pdf_orginal, pdf_spread_smooth, prefix_output)
-    file_out = prefix_output + parameter + '.txt'
-    combined = np.column_stack((bins, pdf_spread_smooth(bins)))
-    np.savetxt(file_out, combined, fmt='%.6f', delimiter=' ', header='# x pdf(x)')
+    # convesion from MulensModel to genulens names
+    conve = {
+        'pi_E_E': 'pi_EE',
+        'pi_E_N': 'pi_EN',
+        }
+
+    for parameter in parameters:
+        parameter_genulens = conve.get(parameter, parameter)
+        values = data[parameter_genulens]
+        pdf_orginal, pdf_spread_smooth, bins, limits = get_pdf(values, weights, parameter)
+        plot_prior(parameter, limits, pdf_orginal, pdf_spread_smooth, prefix_output)
+        file_out = prefix_output + parameter + '.txt'
+        combined = np.column_stack((bins, pdf_spread_smooth(bins)))
+        np.savetxt(file_out, combined, fmt='%.6f', delimiter=' ', header='# x pdf(x)')
