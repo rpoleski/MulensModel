@@ -296,6 +296,31 @@ class Event(object):
         self.model.plot_lc(
             source_flux=f_source_0, blend_flux=f_blend_0, **kwargs)
 
+    def get_scaled_fluxes(self, data_ref=None):
+        """
+        Get the data scaled to the model.
+
+        Keywords (all optional:
+            data_ref: *int* or *MulensData*
+                If data_ref is not specified, uses :py:obj:`~data_ref`.
+
+        Returns:
+            *list* of (flux, err_flux) *tuples* for each dataset.
+        """
+
+        if data_ref is None:
+            data_ref = self.data_ref
+
+        (f_source_0, f_blend_0) = self.get_flux_for_dataset(data_ref)
+        scaled_fluxes = []
+        for (i, data) in enumerate(self._datasets):
+            # Scale the data flux
+            (flux, err_flux) = self.fits[i].scale_fluxes(f_source_0,
+                                                         f_blend_0)
+            scaled_fluxes.append((flux, err_flux))
+
+        return scaled_fluxes
+
     def plot_data(
             self, phot_fmt='mag', data_ref=None, show_errorbars=None,
             show_bad=None,
@@ -351,13 +376,10 @@ class Event(object):
         subtract = PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
 
         # Get fluxes for the reference dataset
-        (f_source_0, f_blend_0) = self.get_flux_for_dataset(data_ref)
-        for (i, data) in enumerate(self._datasets):
-            # Scale the data flux
-            (flux, err_flux) = self.fits[i].scale_fluxes(f_source_0, f_blend_0)
+        scaled_data = self.get_scaled_fluxes(data_ref=data_ref)
+        for data, (flux, err_flux) in zip(self.datasets, scaled_data):
             (y_value, y_err) = PlotUtils.get_y_value_y_err(
                 phot_fmt, flux, err_flux)
-
             data._plot_datapoints(
                 (y_value, y_err), subtract_2450000=subtract_2450000,
                 subtract_2460000=subtract_2460000,
