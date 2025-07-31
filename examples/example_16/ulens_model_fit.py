@@ -77,6 +77,16 @@ class UlensModelFit(object):
             ``'scale_errorbars': {'factor': kappa, 'minimum': epsilon}``
             to scale uncertainties.
 
+            ``'fit_errorbars': *bool*``
+            If set to *True*, then the scale_errorbars parameters will be fitted as well. 
+            Meaning the ln_probability will be increased by the term self._ln_prob_errors().
+            Names of parameters will follow the pattern: 
+            {'factor': EER_k_{MulensData.plot_properties['label']}, 
+            'minimum': EER_e_{MulensData.plot_properties['label']}}
+            if not specified in yaml input file starting values will be drawn from:
+            `gauss 1. 0.05` with flat prior [0.0, 50.0] for 'factor'
+            `log-uniform 0.0001 0.1` with flat prior [0.0, 0.5] for 'minimum'
+            
             ``'bad'`` : *list* or *str*
             to set bad flags in MulensData
             When *str* then it should point to the file containing
