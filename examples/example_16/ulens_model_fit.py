@@ -2405,7 +2405,8 @@ class UlensModelFit(object):
         fixed = set(self._fixed_parameters.keys())
 
         allowed = set(self._all_MM_parameters + self._fixed_only_MM_parameters + self._other_parameters +
-                      self._errorbars_parameters)
+                      self._user_parameters + self._errorbars_parameters)
+
         unknown = fixed - allowed
         if len(unknown) > 0:
             raise ValueError('Unknown fixed parameters: {:}'.format(unknown))
