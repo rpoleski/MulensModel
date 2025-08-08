@@ -2789,8 +2789,8 @@ class UlensModelFit(object):
             for (parameter, value) in parameters.items():
                 if parameter not in self._fit_parameters_other:
                     setattr(self._model.parameters, parameter, value)
-                elif parameter in self._fit_parameters_errorbars.keys():
-                    self._fit_parameters_errorbars[parameter] = value
+                elif parameter in self._fit_parameters_errorbars:
+                    self._errorbars_parameters_dict[parameter] = value
                 else:
                     self._other_parameters_dict[parameter] = value
 
