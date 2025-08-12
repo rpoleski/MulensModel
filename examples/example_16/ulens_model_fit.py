@@ -2402,14 +2402,22 @@ class UlensModelFit(object):
         if self._fixed_parameters is None:
             return
 
+        allowed = set(self._all_MM_parameters + self._fixed_only_MM_parameters + self._other_parameters)
+
+        self._fixed_user_parameters = {}
+        for key in self._user_parameters:
+            if key in self._fixed_parameters:
+                self._fixed_user_parameters[key] = self._fixed_parameters.pop(key, None)
+
         fixed = set(self._fixed_parameters.keys())
-
-        allowed = set(self._all_MM_parameters + self._fixed_only_MM_parameters + self._other_parameters +
-                      self._user_parameters + self._errorbars_parameters)
-
         unknown = fixed - allowed
         if len(unknown) > 0:
-            raise ValueError('Unknown fixed parameters: {:}'.format(unknown))
+            unknown = unknown - set(self._errorbars_parameters)
+            if len(unknown) == 0:
+                raise ValueError(
+                    'You should fix errorbar scaling parameters: {:} \n using MM.dataset property'.format(unknown))
+            elif len(unknown) > 0:
+                raise ValueError('Unknown fixed parameters: {:}'.format(unknown))
 
         if self._task == 'plot':
             return
