@@ -218,3 +218,20 @@ def test_20_OrbitEccentric_based_on_argument_of_latitude():
         epoch_reference=2456789.01234+60)
     position = orbit.get_orbital_plane_position(2456789.01234-180.)
     assert_almost_equal(position, [-2.25, 0.])
+
+def test_21_OrbitEccentric():
+    """Make sure that changing omega affects the output"""
+    a = 1.234
+    e = 0.2468
+    p = 999.
+    t_p = 5000.
+    kwargs = dict(period=p, semimajor_axis=a, Omega_node=0., inclination=0., eccentricity=e, periapsis_epoch=t_p)
+
+    orbit_0 = OrbitEccentric(omega_periapsis=0., **kwargs)
+    orbit_90 = OrbitEccentric(omega_periapsis=90., **kwargs)
+
+    position_0 = orbit_0.get_reference_plane_position(t_p+p)
+    position_90 = orbit_90.get_reference_plane_position(t_p-p)
+
+    assert_almost_equal(position_0, [a*(1-e), 0.])
+    assert_almost_equal(position_90, [0., a*(1-e)])
