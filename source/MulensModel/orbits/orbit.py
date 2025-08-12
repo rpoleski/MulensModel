@@ -281,6 +281,8 @@ class OrbitEccentric(_OrbitAbstract):
             argument_of_latitude_reference=None, epoch_reference=None):
         self._period = period
         self._omega_periapsis = omega_periapsis * np.pi / 180.
+        self._rotation_matrix_orbital = np.array([[math.cos(self._omega_periapsis), -math.sin(self._omega_periapsis)],
+                                                  [math.sin(self._omega_periapsis), math.cos(self._omega_periapsis)]])
         self._eccentricity = eccentricity
         self._check_circular_orbit_parameters(semimajor_axis)
         periapsis_epoch = self._check_for_and_get_periapsis_epoch(
@@ -333,7 +335,8 @@ class OrbitEccentric(_OrbitAbstract):
         eccentric_anomaly = self._get_eccentric_anomaly(time)
         out_x = np.cos(eccentric_anomaly) - self._eccentricity
         out_y = np.sqrt(1 - self._eccentricity**2) * np.sin(eccentric_anomaly)
-        return self._semimajor_axis * np.array([out_x, out_y])
+        orbital_plane_versor = np.matmul(self._rotation_matrix_orbital, np.array([out_x, out_y]))
+        return self._semimajor_axis * orbital_plane_versor
 
     def get_true_anomaly_deg(self, time):
         """
