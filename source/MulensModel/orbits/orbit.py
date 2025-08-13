@@ -73,8 +73,8 @@ class _OrbitAbstract(object):
         """
         self._semimajor_axis = semimajor_axis
         Omega = math.pi * Omega_node / 180.
-        self._rotation_matrix = np.array([[math.cos(Omega), -math.sin(Omega)],
-                                          [math.sin(Omega), math.cos(Omega)]])
+        self._rotation_matrix_reference = np.array([[math.cos(Omega), -math.sin(Omega)],
+                                                    [math.sin(Omega), math.cos(Omega)]])
         self._cos_inclination = math.cos(math.pi * inclination / 180.)
         self._periapsis_epoch = periapsis_epoch
 
@@ -91,7 +91,7 @@ class _OrbitAbstract(object):
                 Positions of the body at given epochs.
         """
         projected_position = self._get_projected_position(time)
-        position = np.matmul(self._rotation_matrix, projected_position)
+        position = np.matmul(self._rotation_matrix_reference, projected_position)
         return position
 
     def _get_projected_position(self, time):
@@ -333,9 +333,10 @@ class OrbitEccentric(_OrbitAbstract):
                 Calculated positions.
         """
         eccentric_anomaly = self._get_eccentric_anomaly(time)
-        out_x = np.cos(eccentric_anomaly) - self._eccentricity
-        out_y = np.sqrt(1 - self._eccentricity**2) * np.sin(eccentric_anomaly)
-        orbital_plane_versor = np.matmul(self._rotation_matrix_orbital, np.array([out_x, out_y]))
+        # The ksi is towards pericenter and eta is perpendicular to it.
+        ksi = np.cos(eccentric_anomaly) - self._eccentricity
+        eta = np.sqrt(1 - self._eccentricity**2) * np.sin(eccentric_anomaly)
+        orbital_plane_versor = np.matmul(self._rotation_matrix_orbital, np.array([ksi, eta]))
         return self._semimajor_axis * orbital_plane_versor
 
     def get_true_anomaly_deg(self, time):
