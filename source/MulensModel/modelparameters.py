@@ -1924,8 +1924,7 @@ class ModelParameters(object):
         self._lens_keplerian['semimajor_axis'] = a
         self._lens_keplerian['period'] = 2 * np.pi * a / np.sqrt(np.sum(velocity**2)) * 365.25
         h = np.cross(position, velocity)
-        j = np.array([0, 1, 0])
-        n = np.cross(j, h)
+        #n = np.cross(np.array([0, 1, 0]), h)
         self._lens_keplerian['inclination'] = np.arctan2(np.sqrt(h[0]**2+h[1]**2), h[2]) * 180. / np.pi
         self._lens_keplerian['Omega_node'] = np.arctan2(h[0], -h[1]) * 180. / np.pi
         gamma_012 = np.sqrt(np.sum(gamma**2))
@@ -1939,15 +1938,29 @@ class ModelParameters(object):
         """
         Set self._lens_keplerian for an elliptical orbit.
         """
-        velocity = self.s * gamma  # This is in units of R_E = D_L * theta_E.
+        velocity = self.s * gamma  # This is in units of R_E/yr = (D_L * theta_E) / yr.
         separation = np.sqrt(np.sum(position**2))
-        a = separation * self.a_r
-        self._lens_keplerian['semimajor_axis'] = a
-        print(a)
-#        g_m = 0.5 * np.sum(velocity**2) / (1. / separation - 0.5 / a)
-#        n = np.sqrt(g_m / a**3)
+        self._lens_keplerian['semimajor_axis'] = separation * self.a_r
         h = np.cross(position, velocity)
-        raise NotImplementedError("XXX")
+        r_s = self.s_z / self.s
+        GM_over_rE3 = self.s**3 * self.a_r * np.sqrt(1. + r_s**2) * np.sum(gamma**2) / (2. * self.a_r - 1.)
+        n = np.sqrt(GM_over_rE3 / self._lens_keplerian['semimajor_axis']**3)
+        self._lens_keplerian['period'] = 2. * np.pi / n * 365.25
+        e = np.cross(velocity, h) / GM_over_rE3 - position / separation
+        eccentricity = np.sqrt(np.sum(e**2))
+        self._lens_keplerian['eccentricity'] = eccentricity
+        x = e / eccentricity
+        z = h / np.sqrt(np.sum(h**2))
+        y = np.cross(z, x)
+        self._lens_keplerian['inclination'] = np.arccos(z[2]) * 180. / np.pi # XXX sign
+        self._lens_keplerian['Omega_node'] = np.arctan2(h[0], -h[1]) * 180. / np.pi
+        self._lens_keplerian['omega_periapsis'] = np.arctan2(x[2], y[2]) * 180. / np.pi
+        cos_nu = np.dot(position, x) / separation
+        nu = np.arccos(cos_nu) * 180. / np.pi # XXX sign
+        self._lens_keplerian['argument_of_latitude_reference'] = nu + self._lens_keplerian['omega_periapsis']
+        cos_E = (cos_nu + eccentricity) / (1. + eccentricity * cos_nu)
+        E = np.arccos(cos_E)
+        self._lens_keplerian['epoch_reference'] = self.t_0_kep - (E - eccentricity * np.sin(E)) / n
 
     @property
     def lens_semimajor_axis(self):
