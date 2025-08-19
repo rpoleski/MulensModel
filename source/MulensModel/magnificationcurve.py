@@ -396,8 +396,8 @@ class MagnificationCurve(object):
             delta_t0 = delta_x * self.parameters.t_E * np.cos(
                 np.deg2rad(self.parameters.alpha))
             pspl = {key: value for key, value in self.parameters.parameters.items()}
-            pspl['t_0'] += delta_t0
-            pspl['u_0'] += delta_u0
+            pspl['t_0'] -= delta_t0
+            pspl['u_0'] -= delta_u0
             pspl_parameters = mm.ModelParameters(pspl)
 
         trajectory = self._setup_trajectory(selection, parameters=pspl_parameters)
