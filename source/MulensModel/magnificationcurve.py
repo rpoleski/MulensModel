@@ -398,7 +398,19 @@ class MagnificationCurve(object):
             pspl = {key: value for key, value in self.parameters.parameters.items()}
             pspl['t_0'] -= delta_t0
             pspl['u_0'] -= delta_u0
+
+            # Keep the same reference times
+            if 'pi_E_E' in self.parameters.parameters.keys():
+                pspl['t_0_par'] = self.parameters.t_0_par
+
+            if 'ds_dt' in self.parameters.parameters.keys():
+                pspl['t_0_kep'] = self.parameters.t_0_kep
+
+            if 'xi_period' in self.parameters.parameters.keys():
+                pspl['t_0_xi'] = self.parameters.t_0_xi
+
             pspl_parameters = mm.ModelParameters(pspl)
+            # change of origin is probably a problem for orbital motion.
 
         trajectory = self._setup_trajectory(selection, parameters=pspl_parameters)
         return mm.pointlens.PointSourcePointLensMagnification(trajectory=trajectory)
