@@ -183,12 +183,16 @@ def test_PSPL_for_binary():
     t_0 = 1000.
     t_E = 20.
     u_0 = 1.
-    t_vec = np.array([10., 100.]) * t_E + t_0
-    params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': 1.2, 'q': 0.1, 'alpha': 0.})
+    t_vec = np.array([5., 10., 100.]) * t_E + t_0
+    params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': 12., 'q': 0.1, 'alpha': 0.})
     mag_curve = mm.MagnificationCurve(times=t_vec, parameters=params)
     mag_curve.set_magnification_methods(None, 'point_source_point_lens')
+
+    print(
+        'JCY: this test fails because t_0 and u_0 need to be transformed to the CO Magnification before calculating `pspl`.')
     u2 = u_0**2 + ((t_vec - t_0) / t_E)**2
     pspl = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
+
     np.testing.assert_almost_equal(pspl, mag_curve.get_magnification())
 
 
