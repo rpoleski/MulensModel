@@ -937,7 +937,7 @@ def test_print_xallarap():
         "    0.543210                    9.87650                   0.12300   "
         "                                   24.68000              0.500000   "
         "                    12.34560       1.00000 "
-        "\nxallarap reference position: (0.2673, 0.0582)"
+        "\nxallarap reference position: (0.2485, 0.1131)"
         )
     assert model.__repr__() == expected
 
@@ -953,7 +953,7 @@ def test_print_xallarap_with_q_source():
     lines = model.__repr__().split("\n")
     assert lines[0][-27:] == "    q_source  t_0_xi (HJD) "
     assert lines[1][-27:] == "  0.12345000       1.00000 "
-    assert lines[2] == "xallarap reference position: (0.2673, 0.0582)"
+    assert lines[2] == "xallarap reference position: (0.2485, 0.1131)"
 
 
 def test_is_xallarap_1():

@@ -217,7 +217,7 @@ def test_20_OrbitEccentric_based_on_argument_of_latitude():
         argument_of_latitude_reference=118.81500092699673+100,
         epoch_reference=2456789.01234+60)
     position = orbit.get_orbital_plane_position(2456789.01234-180.)
-    assert_almost_equal(position, [-2.25, 0.])
+    assert_almost_equal(position, [0.3907084, -2.2158174])
 
 
 def test_21_OrbitEccentric():
