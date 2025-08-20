@@ -320,3 +320,47 @@ class FSMethodWarningsTest(unittest.TestCase):
 
         with self.assertWarns(UserWarning):
             mag_curve.get_magnification()
+
+
+class PSPLforBinaryTest(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.t_0 = 0.
+        self.u_0 = 0.02
+        self.t_E = 20.
+        self.s = 10.
+        self.q = 0.05
+        self.alpha = 160.
+        self.binary_params = {
+            't_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E,
+            's': self.s, 'q': self.q, 'alpha': self.alpha}
+
+    def _do_test(self, params, coords=None):
+        binary_model = mm.Model(params, coords=coords)
+        binary_model.default_magnification_method = 'point_source'
+
+        pspl_binary_model = mm.Model(params, coords=coords)
+        pspl_binary_model.default_magnification_method = 'point_source_point_lens'
+
+        np.testing.assert_allclose(
+            pspl_binary_model.get_magnification(self.t_0),
+            binary_model.get_magnification(self.t_0), rtol=2.)
+
+        np.testing.assert_allclose(
+            pspl_binary_model.get_magnification(self.t_0 + 2.5 * self.t_E),
+            binary_model.get_magnification(self.t_0 + 2.5 * self.t_E),
+            atol=0.002
+        )
+
+    def test_pspl(self):
+        self._do_test(self.binary_params)
+
+    def test_pspl_w_piE(self):
+        par_params = {key: value for key, value in self.binary_params.items()}
+        par_params['pi_E_E'] = 0.5
+        par_params['pi_E_N'] = 10.
+        coords = '18:00:00 -30:00:00'
+        self._do_test(par_params, coords=coords)
+
+    def test_pspl_w_orb(self):
+        raise NotImplementedError('Test for orbital motion not written')
