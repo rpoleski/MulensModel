@@ -219,6 +219,7 @@ def test_20_OrbitEccentric_based_on_argument_of_latitude():
     position = orbit.get_orbital_plane_position(2456789.01234-180.)
     assert_almost_equal(position, [-2.25, 0.])
 
+
 def test_21_OrbitEccentric():
     """Make sure that changing omega affects the output"""
     a = 1.234
@@ -235,3 +236,17 @@ def test_21_OrbitEccentric():
 
     assert_almost_equal(position_0, [a*(1-e), 0.])
     assert_almost_equal(position_90, [0., a*(1-e)])
+
+
+def test_22_random_values():
+    """test random values (large eccentricity) - expected are taken from PyAstronomy"""
+    (a, p, e, t_peri, w, i, O) = (12.60789, 237.2819, 0.67756, -1234.0, 109.923, 136.29138, 161.5158)
+    times = np.array([322.61079, 847.94912, 405.06588])
+
+    orbit = OrbitEccentric(period=p, semimajor_axis=a, Omega_node=O, inclination=i,
+                           eccentricity=e, periapsis_epoch=t_peri, omega_periapsis=w)
+    positions = orbit.get_reference_plane_position(times)
+
+    expected = [[-12.91117242, -14.36609864,  -9.30986407],
+                [-10.06961691,  -3.13886214,   2.39302591]]
+    assert_almost_equal(positions, expected)
