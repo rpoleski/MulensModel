@@ -375,3 +375,45 @@ class OrbitEccentric(_OrbitAbstract):
         sin_nu = (np.sqrt(1-self._eccentricity**2) * np.sin(eccentric_anomaly)
                   / denominator)
         return (sin_nu, cos_nu)
+
+
+class OrbitEccentricThieleInnes(OrbitEccentric):
+    def __init__(
+            self, period, semimajor_axis, eccentricity, A, B, F, G, periapsis_epoch=None,
+            argument_of_latitude_reference=None, epoch_reference=None):
+        self._period = period
+        self._eccentricity = eccentricity
+        if periapsis_epoch is None:
+            self._omega_periapsis = _get_omega_periapsis_from_TI(A, B, F, G)
+            
+        self._A, self._B, self._F, self._G = A, B, F, G
+
+        self._check_circular_orbit_parameters(semimajor_axis)
+        periapsis_epoch = self._check_for_and_get_periapsis_epoch(
+            periapsis_epoch, argument_of_latitude_reference, epoch_reference)
+        self._set_circular_orbit_parameters(
+            period, semimajor_axis, Omega_node, inclination, periapsis_epoch)
+
+    def get_reference_plane_position(self, time):
+        """
+        Calculate position in the reference plane at given time.
+        The result is in the same units as semimajor_axis.
+        """
+        eccentric_anomaly = self._get_eccentric_anomaly(time)
+        X, Y = self._eliptical_retangular_coordinates(eccentric_anomaly, self._eccentricity)
+
+        matrix = np.array(([self._A, self._F],
+                           [self._B, self._G]))
+
+        projected = np.matmul(matrix, np.array([X, Y]))
+
+        return projected
+
+    def eliptical_retangular_coordinates(self, eccentric_anomaly, eccentricity):
+        """
+        Calculate rectangular coordinates in the orbital plane
+        based on eccentric anomaly and eccentricity.
+        """
+        X = np.cos(eccentric_anomaly) - eccentricity
+        Y = np.sqrt(1 - eccentricity**2) * np.sin(eccentric_anomaly)
+        return [X, Y]
