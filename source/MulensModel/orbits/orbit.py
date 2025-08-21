@@ -384,16 +384,28 @@ class OrbitEccentricThieleInnes(OrbitEccentric):
         self._period = period
         self._eccentricity = eccentricity
         if periapsis_epoch is None:
-            self._omega_periapsis = _get_omega_periapsis_from_TI(A, B, F, G)
+            self._omega_periapsis = self._get_omega_periapsis_from_TI_elements(A, B, F, G)
             
         self._A, self._B, self._F, self._G = A, B, F, G
 
-        self._check_circular_orbit_parameters(semimajor_axis)
-        periapsis_epoch = self._check_for_and_get_periapsis_epoch(
+        # self._check_circular_orbit_parameters(semimajor_axis)
+        self._periapsis_epoch = self._check_for_and_get_periapsis_epoch(
             periapsis_epoch, argument_of_latitude_reference, epoch_reference)
-        self._set_circular_orbit_parameters(
-            period, semimajor_axis, Omega_node, inclination, periapsis_epoch)
+        # self._set_circular_orbit_parameters(
+            #  period, semimajor_axis, Omega_node, inclination, periapsis_epoch)
 
+    def _get_omega_periapsis_from_TI_elements(self, A, B, F, G):
+        """
+        Calculate omega_periapsis from Thiele-Innes elements.
+        """
+        return 0.5*(np.arctan2(B-F, A+G) + np.arctan2(-B-F, A-G)) % (2*np.pi)
+    def _get_Omega_node(self):
+        """
+        Calculate Omega_node from Thiele-Innes elements.
+        """
+        A, B, F, G = self._A, self._B, self._F, self._G
+        return 0.5*(np.arctan2(B-F, A+G) - np.arctan2(-B-F, A-G)) % (2*np.pi)
+    
     def get_reference_plane_position(self, time):
         """
         Calculate position in the reference plane at given time.
@@ -409,7 +421,7 @@ class OrbitEccentricThieleInnes(OrbitEccentric):
 
         return projected
 
-    def eliptical_retangular_coordinates(self, eccentric_anomaly, eccentricity):
+    def _eliptical_retangular_coordinates(self, eccentric_anomaly, eccentricity):
         """
         Calculate rectangular coordinates in the orbital plane
         based on eccentric anomaly and eccentricity.
