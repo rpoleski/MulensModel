@@ -378,17 +378,27 @@ class OrbitEccentric(_OrbitAbstract):
 
 
 class OrbitEccentricThieleInnes(OrbitEccentric):
+    """
+    Class for eccentric orbits defined by Thiele-Innes elements.
+    Based on `An Introduction to Close Binary Stars, R. W. Hilditch (2001)`
+    """
     def __init__(
-            self, period, semimajor_axis, eccentricity, A, B, F, G, periapsis_epoch=None,
+            self, period, eccentricity, A, B, F, G, periapsis_epoch=None,
             argument_of_latitude_reference=None, epoch_reference=None):
         self._period = period
         self._eccentricity = eccentricity
-        if periapsis_epoch is None:
-            self._omega_periapsis = self._get_omega_periapsis_from_TI_elements(A, B, F, G)
-
+        self._Omega_node = None
+        self._q = None
+        self._p = None
+        self._semimajor_axis = None
+        self._inclination = None
+        self._argument_of_latitude_reference = argument_of_latitude_reference
         self._A, self._B, self._F, self._G = A, B, F, G
 
-        # self._check_circular_orbit_parameters(semimajor_axis)
+        if periapsis_epoch is None:
+            #self._omega_periapsis = self._get_omega_periapsis_from_TI_elements(A, B, F, G)
+            self._omega_periapsis = self.get_omega_periapsis()*np.pi/180.
+        self._epoch_reference = epoch_reference
         self._periapsis_epoch = self._check_for_and_get_periapsis_epoch(
             periapsis_epoch, argument_of_latitude_reference, epoch_reference)
 
@@ -397,6 +407,79 @@ class OrbitEccentricThieleInnes(OrbitEccentric):
         Calculate omega_periapsis from Thiele-Innes elements.
         """
         return 0.5*(np.arctan2(B-F, A+G) + np.arctan2(-B-F, A-G)) % (2*np.pi)
+
+    def standard_orbit_elements_dict_degrees(self):
+        """
+        Return standard orbital elements in a dictionary with angles in degrees.
+        """
+        dict_out = dict()
+        dict_out['period'] = self._period
+        dict_out['semimajor_axis'] = self.get_semimajor_axis()
+        dict_out['eccentricity'] = self._eccentricity
+        dict_out['inclination'] = self.get_inclination()
+        dict_out['omega_periapsis'] = self.get_omega_periapsis()
+        dict_out['Omega_node'] = self.get_Omega_node()
+        dict_out['periapsis_epoch'] = self._periapsis_epoch
+        if self._argument_of_latitude_reference is not None:
+            dict_out['argument_of_latitude_reference'] = self._argument_of_latitude_reference
+            dict_out['epoch_reference'] = self._epoch_reference
+
+        return dict_out
+
+    def get_semimajor_axis(self):
+        """
+        Return semimajor_axis in the same units as provided in input.
+        """
+        if self._q is None:
+            self._set_q()
+        if self._p is None:
+            self._set_p()
+        self._semimajor_axis = np.sqrt(self._p + np.sqrt(self._p**2 - self._q**2))
+        return self._semimajor_axis
+
+    def _set_q(self):
+        """
+        Calculate q = A*G - B*F  = a^2*cos(i)
+        """
+        self._q = self._A * self._G - self._B * self._F
+
+    def _set_p(self):
+        """
+        Calculate p = 0.5 * (A^2 + B^2 + F^2 + G^2) = a^2 + a^2*cos(i)^2
+        """
+        self._p = (self._A**2 + self._B**2 + self._F**2 + self._G**2)/2.
+        
+    def get_inclination(self):
+        """
+        Return inclination in degrees. Keeping conventions inclination in range [0, 180] degrees
+        """
+        if self._inclination is None:
+            if self._semimajor_axis is None:
+                self.get_semimajor_axis()
+            self._inclination = np.arccos(self._q / self._semimajor_axis**2) % np.pi
+
+        return self._inclination * 180. / np.pi
+
+    def get_omega_periapsis(self):
+        """
+        Return omega_periapsis in degrees. Keeping conventions Omega_node < 360 degrees
+        """
+        if self._Omega_node is None:
+            self.get_Omega_node()
+        return self._omega_periapsis * 180. / np.pi
+
+    def get_Omega_node(self):
+        """
+        Return Omega_node in degrees. Keeping conventions Omega_node < 180 degrees
+        """
+        Omega_node = self._get_Omega_node()
+        Omega_node = Omega_node % (2*np.pi)
+        if Omega_node > np.pi:
+            Omega_node -= np.pi
+        self._Omega_node = Omega_node
+        self._omega_periapsis = np.arctan2(self._B - self._F, self._A + self._G) - Omega_node
+        self._omega_periapsis = self._omega_periapsis % (2*np.pi)
+        return self._Omega_node * 180. / np.pi
 
     def _get_Omega_node(self):
         """
