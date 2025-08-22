@@ -82,14 +82,6 @@ class Trajectory(object):
     def __init__(self,
                  times=None, parameters=None, x=None, y=None, parallax=None,
                  coords=None, satellite_skycoord=None, earth_coords=None):
-        if isinstance(parameters, ModelParameters):
-            self.parameters = parameters
-        else:
-            m = 'parameters is a required and must be a ModelParameters object'
-            raise TypeError(m)
-
-        self._set_parallax_and_coords(parallax, coords, satellite_skycoord, earth_coords)
-
         if times is None:
             if (x is None) and (y is None):
                 raise KeyError('Either times or (x AND y) must be defined.')
@@ -97,6 +89,14 @@ class Trajectory(object):
             self._x = x
             self._y = y
         else:
+            if isinstance(parameters, ModelParameters):
+                self.parameters = parameters
+            else:
+                m = 'parameters is a required and must be a ModelParameters object'
+                raise TypeError(m)
+
+            self._set_parallax_and_coords(parallax, coords, satellite_skycoord,
+                                          earth_coords)
             self._times = np.atleast_1d(times)
             self._get_xy()
 
