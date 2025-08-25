@@ -353,7 +353,7 @@ class PSPLforBinaryTest(unittest.TestCase):
         np.testing.assert_allclose(
             pspl_binary_model.get_magnification(self.t_0 + 2.5 * self.t_E),
             binary_model.get_magnification(self.t_0 + 2.5 * self.t_E),
-            atol=0.002
+            rtol=0.002
         )
 
     def test_pspl(self):
@@ -367,4 +367,7 @@ class PSPLforBinaryTest(unittest.TestCase):
         self._do_test(par_params, coords=coords)
 
     def test_pspl_w_orb(self):
-        raise NotImplementedError('Test for orbital motion not written')
+        orb_params = {key: value for key, value in self.binary_params.items()}
+        orb_params['ds_dt'] = 10.0
+        orb_params['dalpha_dt'] = 30.
+        self._do_test(orb_params)
