@@ -409,13 +409,10 @@ class OrbitEccentric(_OrbitAbstract):
         """
         Return standard orbital elements in a dictionary with angles in degrees.
         """
-        dict_out = {}
-        dict_out['period'] = self._period
-        dict_out['semimajor_axis'] = self._semimajor_axis
-        dict_out['eccentricity'] = self._eccentricity
-        dict_out['inclination'] = self._inclination * 180. / np.pi
-        dict_out['omega_periapsis'] = self._omega_periapsis * 180. / np.pi
-        dict_out['Omega_node'] = self._Omega_node * 180. / np.pi
+        dict_out = {'period': self._period, 'semimajor_axis': self._semimajor_axis, 'eccentricity': self._eccentricity,
+                    'inclination': self._inclination * 180. / np.pi,
+                    'omega_periapsis': self._omega_periapsis * 180. / np.pi,
+                    'Omega_node': self._Omega_node * 180. / np.pi}
         if self._argument_of_latitude_reference is not None:
             dict_out['argument_of_latitude_reference'] = self._argument_of_latitude_reference
             dict_out['epoch_reference'] = self._epoch_reference
@@ -426,7 +423,7 @@ class OrbitEccentric(_OrbitAbstract):
 
 class OrbitEccentricThieleInnes(OrbitEccentric):
     """
-    Class for eccentric orbits defined by Thiele-Innes elements.
+    Class for eccentric orbits defined by Thiele-Innes constants.
     Based on `An Introduction to Close Binary Stars, R. W. Hilditch (2001)`
 
     Keywords:
@@ -491,14 +488,11 @@ class OrbitEccentricThieleInnes(OrbitEccentric):
         """
         Return standard orbital elements in a dictionary with angles in degrees.
         """
-        dict_out = {}
-        dict_out['period'] = self._period
-        dict_out['semimajor_axis'] = self.get_semimajor_axis()
-        dict_out['eccentricity'] = self._eccentricity
-        dict_out['inclination'] = self.get_inclination()
-        dict_out['omega_periapsis'] = self.get_omega_periapsis()
-        dict_out['Omega_node'] = self.get_Omega_node()
-        dict_out['periapsis_epoch'] = self._periapsis_epoch
+        dict_out = {'period': self._period, 'semimajor_axis': self.get_semimajor_axis(),
+                    'eccentricity': self._eccentricity, 'inclination': self.get_inclination(),
+                    'omega_periapsis': self.get_omega_periapsis(), 'Omega_node': self.get_Omega_node(),
+                    'periapsis_epoch': self._periapsis_epoch
+                    }
         if self._argument_of_latitude_reference is not None:
             dict_out['argument_of_latitude_reference'] = self._argument_of_latitude_reference
             dict_out['epoch_reference'] = self._epoch_reference
