@@ -15,7 +15,7 @@ class Orbit(object):
     :py:class:`OrbitEccentric`.
     """
     def __new__(self, **kwargs):
-        for Class_ in [OrbitCircular, OrbitEccentric]:
+        for Class_ in [OrbitCircular, OrbitEccentric, OrbitEccentricThieleInnes]:
             try:
                 new = Class_(**kwargs)
             except Exception:
@@ -73,9 +73,11 @@ class _OrbitAbstract(object):
         """
         self._semimajor_axis = semimajor_axis
         Omega = math.pi * Omega_node / 180.
+        self._Omega_node = Omega
         self._rotation_matrix_reference = np.array([[math.cos(Omega), -math.sin(Omega)],
                                                     [math.sin(Omega), math.cos(Omega)]])
-        self._cos_inclination = math.cos(math.pi * inclination / 180.)
+        self._inclination = math.pi * inclination / 180.
+        self._cos_inclination = math.cos(self._inclination)
         self._periapsis_epoch = periapsis_epoch
 
     def get_reference_plane_position(self, time):
@@ -283,8 +285,11 @@ class OrbitEccentric(_OrbitAbstract):
         self._omega_periapsis = omega_periapsis * np.pi / 180.
         self._rotation_matrix_orbital = np.array([[math.cos(self._omega_periapsis), -math.sin(self._omega_periapsis)],
                                                   [math.sin(self._omega_periapsis), math.cos(self._omega_periapsis)]])
+        self._argument_of_latitude_reference = argument_of_latitude_reference
         self._eccentricity = eccentricity
         self._check_circular_orbit_parameters(semimajor_axis)
+        self._epoch_reference = epoch_reference
+        self._argument_of_latitude_reference = argument_of_latitude_reference
         periapsis_epoch = self._check_for_and_get_periapsis_epoch(
             periapsis_epoch, argument_of_latitude_reference, epoch_reference)
         self._set_circular_orbit_parameters(
@@ -376,11 +381,93 @@ class OrbitEccentric(_OrbitAbstract):
                   / denominator)
         return (sin_nu, cos_nu)
 
+    def thiele_innes_orbit_elements_dict_degrees(self):
+        """
+        Return standard orbital elements and Thiele-Innes constants in a dictionary with angles in degrees.
+        """
+        sin_Omega_node = math.sin(self._Omega_node)
+        cos_Omega_node = math.cos(self._Omega_node)
+        sin_omega_periapsis = math.sin(self._omega_periapsis)
+        cos_omega_periapsis = math.cos(self._omega_periapsis)
+        cos_inclination = self._cos_inclination
+        A = cos_Omega_node * cos_omega_periapsis - sin_Omega_node * sin_omega_periapsis * cos_inclination
+        B = sin_Omega_node * cos_omega_periapsis + cos_Omega_node * sin_omega_periapsis * cos_inclination
+        F = -cos_Omega_node * sin_omega_periapsis - sin_Omega_node * cos_omega_periapsis * cos_inclination
+        G = -sin_Omega_node * sin_omega_periapsis + cos_Omega_node * cos_omega_periapsis * cos_inclination
+        A *= self._semimajor_axis
+        B *= self._semimajor_axis
+        F *= self._semimajor_axis
+        G *= self._semimajor_axis
+        dict_out = self.orbit_elements_dict_degrees()
+        dict_out['A'] = A
+        dict_out['B'] = B
+        dict_out['F'] = F
+        dict_out['G'] = G
+        return dict_out
+
+    def orbit_elements_dict_degrees(self):
+        """
+        Return standard orbital elements in a dictionary with angles in degrees.
+        """
+        dict_out = {}
+        dict_out['period'] = self._period
+        dict_out['semimajor_axis'] = self._semimajor_axis
+        dict_out['eccentricity'] = self._eccentricity
+        dict_out['inclination'] = self._inclination * 180. / np.pi
+        dict_out['omega_periapsis'] = self._omega_periapsis * 180. / np.pi
+        dict_out['Omega_node'] = self._Omega_node * 180. / np.pi
+        if self._argument_of_latitude_reference is not None:
+            dict_out['argument_of_latitude_reference'] = self._argument_of_latitude_reference
+            dict_out['epoch_reference'] = self._epoch_reference
+        dict_out['periapsis_epoch'] = self._periapsis_epoch
+
+        return dict_out
+
 
 class OrbitEccentricThieleInnes(OrbitEccentric):
     """
     Class for eccentric orbits defined by Thiele-Innes elements.
     Based on `An Introduction to Close Binary Stars, R. W. Hilditch (2001)`
+
+    Keywords:
+        period: *float*
+            Orbital period of binary.
+
+        semimajor_axis: *float*
+            Semimajor axis of the orbit. The unit is not specified.
+            Note that the positions returned by
+            : py: func: `get_orbital_plane_position()` and
+            : py: func: `get_reference_plane_position()`
+            functions will be in the same units.
+
+        eccentricity: *float*
+            Eccentricity of the orbit, has to be in (0, 1) range.
+
+        A: *float*
+            Thiele-Innes constant A.
+
+        B: *float*
+            Thiele-Innes constant B.
+
+        F: *float*
+            Thiele-Innes constant F.
+
+        G: *float*
+            Thiele-Innes constant G.
+
+        periapsis_epoch: *float * or *None*
+            Epoch when body is in periapsis.
+            It's in days and usually you want to provide full BJD or HJD.
+
+        argument_of_latitude_reference: *float* or *None*
+            Argument of latitude (i.e., u = omega + nu(t_ref)) for
+            *epoch_reference*, which together define
+            *periapsis_epoch* (omega).
+
+        epoch_reference: *float* or *None*
+            Reference epoch that together with
+            *argument_of_latitude_reference* defines
+            *periapsis_epoch* (omega).
     """
     def __init__(
             self, period, eccentricity, A, B, F, G, periapsis_epoch=None,
@@ -394,25 +481,17 @@ class OrbitEccentricThieleInnes(OrbitEccentric):
         self._inclination = None
         self._argument_of_latitude_reference = argument_of_latitude_reference
         self._A, self._B, self._F, self._G = A, B, F, G
-
         if periapsis_epoch is None:
-            #self._omega_periapsis = self._get_omega_periapsis_from_TI_elements(A, B, F, G)
             self._omega_periapsis = self.get_omega_periapsis()*np.pi/180.
-        self._epoch_reference = epoch_reference
+            self._epoch_reference = epoch_reference
         self._periapsis_epoch = self._check_for_and_get_periapsis_epoch(
-            periapsis_epoch, argument_of_latitude_reference, epoch_reference)
+                periapsis_epoch, argument_of_latitude_reference, epoch_reference)
 
-    def _get_omega_periapsis_from_TI_elements(self, A, B, F, G):
-        """
-        Calculate omega_periapsis from Thiele-Innes elements.
-        """
-        return 0.5*(np.arctan2(B-F, A+G) + np.arctan2(-B-F, A-G)) % (2*np.pi)
-
-    def standard_orbit_elements_dict_degrees(self):
+    def orbit_elements_dict_degrees(self):
         """
         Return standard orbital elements in a dictionary with angles in degrees.
         """
-        dict_out = dict()
+        dict_out = {}
         dict_out['period'] = self._period
         dict_out['semimajor_axis'] = self.get_semimajor_axis()
         dict_out['eccentricity'] = self._eccentricity
@@ -424,6 +503,17 @@ class OrbitEccentricThieleInnes(OrbitEccentric):
             dict_out['argument_of_latitude_reference'] = self._argument_of_latitude_reference
             dict_out['epoch_reference'] = self._epoch_reference
 
+        return dict_out
+
+    def thiele_innes_orbit_elements_dict_degrees(self):
+        """
+        Return standard orbital elements and Thiele-Innes constants in a dictionary with angles in degrees.
+        """
+        dict_out = self.orbit_elements_dict_degrees()
+        dict_out['A'] = self._A
+        dict_out['B'] = self._B
+        dict_out['F'] = self._F
+        dict_out['G'] = self._G
         return dict_out
 
     def get_semimajor_axis(self):
@@ -448,7 +538,7 @@ class OrbitEccentricThieleInnes(OrbitEccentric):
         Calculate p = 0.5 * (A^2 + B^2 + F^2 + G^2) = a^2 + a^2*cos(i)^2
         """
         self._p = (self._A**2 + self._B**2 + self._F**2 + self._G**2)/2.
-        
+
     def get_inclination(self):
         """
         Return inclination in degrees. Keeping conventions inclination in range [0, 180] degrees
@@ -477,7 +567,7 @@ class OrbitEccentricThieleInnes(OrbitEccentric):
         if Omega_node > np.pi:
             Omega_node -= np.pi
         self._Omega_node = Omega_node
-        self._omega_periapsis = np.arctan2(self._B - self._F, self._A + self._G) - Omega_node
+        self._omega_periapsis = self._arctan2BminusFoverAplusG - Omega_node
         self._omega_periapsis = self._omega_periapsis % (2*np.pi)
         return self._Omega_node * 180. / np.pi
 
@@ -486,7 +576,8 @@ class OrbitEccentricThieleInnes(OrbitEccentric):
         Calculate Omega_node from Thiele-Innes elements.
         """
         A, B, F, G = self._A, self._B, self._F, self._G
-        return 0.5*(np.arctan2(B-F, A+G) - np.arctan2(-B-F, A-G)) % (2*np.pi)
+        self._arctan2BminusFoverAplusG = np.arctan2(B - F, A + G)
+        return 0.5*(self._arctan2BminusFoverAplusG - np.arctan2(-B-F, A-G)) % (2*np.pi)
 
     def get_reference_plane_position(self, time):
         """
