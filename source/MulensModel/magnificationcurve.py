@@ -452,21 +452,16 @@ class MagnificationCurve(object):
                     BinaryLensAdaptiveContouringMagnification(
                         trajectory=trajectory, gamma=self._gamma, **kwargs)
             elif method.lower() == 'point_source_point_lens':
-                #self._magnification_objects[
-                #    method] = self._get_point_lens_magnification_curve_for_2L1S(
-                #    selection)
                 if self.parameters.s < 1.:
                     co_mag_trajectory = trajectory
                 else:
-                    delta_x = ((self.parameters.q / (1. + self.parameters.q)) *
-                               ((1. / self.parameters.get_s(trajectory.times)) -
-                                self.parameters.get_s(trajectory.times)))
-                    co_mag_trajectory = mm.Trajectory(
-                        x=trajectory.x - delta_x, y=trajectory.y)
+                    q = self.parameters.q
+                    s = self.parameters.get_s(trajectory.times)
+                    delta_x = - (s - 1. / s) * q / (1. + q)
+                    co_mag_trajectory = mm.Trajectory(x=trajectory.x - delta_x, y=trajectory.y)
 
                 self._magnification_objects[method] = \
-                   mm.pointlens.PointSourcePointLensMagnification(
-                       trajectory=co_mag_trajectory)
+                    mm.pointlens.PointSourcePointLensMagnification(trajectory=co_mag_trajectory)
             else:
                 msg = 'Unknown method specified for binary lens: {:}'
                 raise ValueError(msg.format(method))
