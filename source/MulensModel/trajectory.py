@@ -92,11 +92,9 @@ class Trajectory(object):
             if isinstance(parameters, ModelParameters):
                 self.parameters = parameters
             else:
-                m = 'parameters is a required and must be a ModelParameters object'
-                raise TypeError(m)
+                raise TypeError('parameters is a required and must be a ModelParameters object')
 
-            self._set_parallax_and_coords(parallax, coords, satellite_skycoord,
-                                          earth_coords)
+            self._set_parallax_and_coords(parallax, coords, satellite_skycoord,earth_coords)
             self._times = np.atleast_1d(times)
             self._get_xy()
 
@@ -113,9 +111,11 @@ class Trajectory(object):
             self.coords = coords
         else:
             self.coords = Coordinates(coords)
+
         self.satellite_skycoord = satellite_skycoord
         if earth_coords is not None:
             raise NotImplementedError("The earth_coords needed for topocentric parallax is not implemented yet")
+
         self._earth_coords = None
 
     @property
