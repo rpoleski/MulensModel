@@ -1498,7 +1498,7 @@ class TestSetters2Sources(unittest.TestCase):
             {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
         params.t_0_2 = self.dummy_value
         assert params.t_0_2 == self.dummy_value
-        assert params._source_2_parameters.t_0 == self.dummy_value
+        assert params.source_2_parameters.t_0 == self.dummy_value
 
     def test_set_u_0_1_error(self):
         params = mm.ModelParameters(
@@ -1511,7 +1511,7 @@ class TestSetters2Sources(unittest.TestCase):
             {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
         params.u_0_2 = self.dummy_value
         assert params.u_0_2 == self.dummy_value
-        assert params._source_2_parameters.u_0 == self.dummy_value
+        assert params.source_2_parameters.u_0 == self.dummy_value
 
     def test_set_u_0_2_error(self):
         params = mm.ModelParameters(
@@ -1546,7 +1546,7 @@ class TestSetters2Sources(unittest.TestCase):
              't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 'rho_2': self.rho_2, 't_E': self.t_E})
         params.rho_2 = self.dummy_value
         assert params.rho_2 == self.dummy_value
-        assert params._source_2_parameters.rho == self.dummy_value
+        assert params.source_2_parameters.rho == self.dummy_value
 
     def test_set_rho_2_error_1(self):
         params = mm.ModelParameters(
@@ -1588,7 +1588,7 @@ class TestSetters2Sources(unittest.TestCase):
              't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_star_2': self.t_star_2, 't_E': self.t_E})
         params.t_star_2 = self.dummy_value
         assert params.t_star_2 == self.dummy_value
-        assert params._source_2_parameters.t_star == self.dummy_value
+        assert params.source_2_parameters.t_star == self.dummy_value
 
     def test_set_t_star_2_error_1(self):
         params = mm.ModelParameters(
