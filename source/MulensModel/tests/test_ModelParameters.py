@@ -1011,6 +1011,7 @@ def _test_2S1L_xallarap_individual_source_parameters(xi_u):
 
     parameters_2nd = {**parameters_1st}
     parameters_2nd['xi_semimajor_axis'] /= q_source
+    parameters_2nd['xi_omega_periapsis'] += 180.
     if xi_u < 180:
         parameters_2nd['xi_argument_of_latitude_reference'] += 180.
     else:
