@@ -318,9 +318,14 @@ class ModelParameters(object):
                 raise KeyError('xallarap model with 2 sources requires ' + key)
 
         parameters_2['xi_semimajor_axis'] /= q_source
-        parameters_2['xi_argument_of_latitude_reference'] += 180.
-        if parameters_2['xi_argument_of_latitude_reference'] > 360.:
-            parameters_2['xi_argument_of_latitude_reference'] -= 360.
+        self._add_180_and_correct_to_360(parameters_2, 'xi_argument_of_latitude_reference')
+        self._add_180_and_correct_to_360(parameters_2, 'xi_omega_periapsis')
+
+    def _add_180_and_correct_to_360(self, parameters, key):
+        """In given dict (parameters) add 180 to given key and subtract 360, it the result is larger than that"""
+        parameters[key] += 180.
+        if parameters[key] > 360.:
+            parameters[key] -= 360.
 
     def __repr__(self):
         """A nice way to represent a ModelParameters object as a string"""
