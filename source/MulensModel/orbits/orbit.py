@@ -63,6 +63,7 @@ class _OrbitAbstract(object):
                                "periapsis/ascending node")
 
         u_reference = argument_of_latitude_reference * np.pi / 180.
+
         return self._get_periapsis_epoch(u_reference, epoch_reference)
 
     def _set_circular_orbit_parameters(self, period, semimajor_axis,
@@ -518,7 +519,7 @@ class OrbitEccentricThieleInnes(OrbitEccentric):
             self._set_q()
         if self._p is None:
             self._set_p()
-        self._semimajor_axis = np.sqrt(self._p + np.sqrt(self._p**2 - self._q**2))
+        self._semimajor_axis = np.sqrt(self._p + np.sqrt(self._p**2. - self._q**2.))
         return self._semimajor_axis
 
     def _set_q(self):
@@ -531,7 +532,7 @@ class OrbitEccentricThieleInnes(OrbitEccentric):
         """
         Calculate p = 0.5 * (A^2 + B^2 + F^2 + G^2) = a^2 + a^2*cos(i)^2
         """
-        self._p = (self._A**2 + self._B**2 + self._F**2 + self._G**2)/2.
+        self._p = (self._A**2. + self._B**2. + self._F**2. + self._G**2.)/2.
 
     def get_inclination(self):
         """
@@ -540,7 +541,7 @@ class OrbitEccentricThieleInnes(OrbitEccentric):
         if self._inclination is None:
             if self._semimajor_axis is None:
                 self.get_semimajor_axis()
-            self._inclination = np.arccos(self._q / self._semimajor_axis**2) % np.pi
+            self._inclination = np.arccos(round(self._q / self._semimajor_axis**2.,10)) % np.pi
 
         return self._inclination * 180. / np.pi
 
@@ -557,12 +558,12 @@ class OrbitEccentricThieleInnes(OrbitEccentric):
         Return Omega_node in degrees. Keeping conventions Omega_node < 180 degrees
         """
         Omega_node = self._get_Omega_node()
-        Omega_node = Omega_node % (2*np.pi)
+        Omega_node = Omega_node % (2.*np.pi)
         if Omega_node > np.pi:
             Omega_node -= np.pi
         self._Omega_node = Omega_node
         self._omega_periapsis = self._arctan2BminusFoverAplusG - Omega_node
-        self._omega_periapsis = self._omega_periapsis % (2*np.pi)
+        self._omega_periapsis = self._omega_periapsis % (2.*np.pi)
         return self._Omega_node * 180. / np.pi
 
     def _get_Omega_node(self):
@@ -571,7 +572,7 @@ class OrbitEccentricThieleInnes(OrbitEccentric):
         """
         A, B, F, G = self._A, self._B, self._F, self._G
         self._arctan2BminusFoverAplusG = np.arctan2(B - F, A + G)
-        return 0.5*(self._arctan2BminusFoverAplusG - np.arctan2(-B-F, A-G)) % (2*np.pi)
+        return 0.5*(self._arctan2BminusFoverAplusG - np.arctan2(-B-F, A-G)) % (2.*np.pi)
 
     def get_reference_plane_position(self, time):
         """
@@ -594,5 +595,5 @@ class OrbitEccentricThieleInnes(OrbitEccentric):
         based on eccentric anomaly and eccentricity.
         """
         X = np.cos(eccentric_anomaly) - eccentricity
-        Y = np.sqrt(1 - eccentricity**2) * np.sin(eccentric_anomaly)
+        Y = np.sqrt(1 - eccentricity**2.) * np.sin(eccentric_anomaly)
         return [X, Y]

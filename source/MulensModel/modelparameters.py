@@ -185,7 +185,7 @@ class ModelParameters(object):
             'mass sheet': 'convergence_K shear_G',
             'xallarap': ('xi_period xi_semimajor_axis xi_inclination '
                          'xi_Omega_node xi_argument_of_latitude_reference '
-                         'xi_eccentricity xi_omega_periapsis q_source')}
+                         'xi_eccentricity xi_omega_periapsis xi_A xi_B xi_F xi_G q_source')}
 
         parameter_to_type = dict()
         for (key, values) in temp.items():
@@ -318,10 +318,17 @@ class ModelParameters(object):
                 raise KeyError('xallarap model with 2 sources requires ' + key)
 
         parameters_2['xi_semimajor_axis'] /= q_source
-        parameters_2['xi_argument_of_latitude_reference'] += 180.
-        if parameters_2['xi_argument_of_latitude_reference'] > 360.:
-            parameters_2['xi_argument_of_latitude_reference'] -= 360.
+        parameters_2['xi_argument_of_latitude_reference'] = \
+            self._add_180_and_wrap_to_360(parameters_2['xi_argument_of_latitude_reference'])
+        if 'xi_omega_periapsis' in parameters_2:
+            parameters_2['xi_omega_periapsis'] = self._add_180_and_wrap_to_360(parameters_2['xi_omega_periapsis'])
 
+    def _add_180_and_wrap_to_360(self, value):
+        """add 180 to given key and wrap angle to 360"""
+        value += 180.
+        value %= 360.
+        return value
+    
     def __repr__(self):
         """A nice way to represent a ModelParameters object as a string"""
         out = self._get_main_parameters_to_print()
@@ -824,9 +831,12 @@ class ModelParameters(object):
                 value /= self.parameters['q_source']
                 setattr(self._source_2_parameters, parameter, value)
             elif parameter == 'xi_argument_of_latitude_reference':
-                value += 180.
+                value = self._add_180_and_wrap_to_360(value)
                 setattr(self._source_2_parameters, parameter, value)
-
+            elif parameter == 'xi_omega_periapsis':
+                if 'xi_omega_periapsis' in self._source_2_parameters:
+                    value = self._add_180_and_wrap_to_360(value)
+                    setattr(self._source_2_parameters, parameter, value)
             self._update_sources_xallarap_reference()
 
     def _get_uniform_caustic_sampling(self):
