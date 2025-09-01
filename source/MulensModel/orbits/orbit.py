@@ -541,7 +541,7 @@ class OrbitEccentricThieleInnes(OrbitEccentric):
         if self._inclination is None:
             if self._semimajor_axis is None:
                 self.get_semimajor_axis()
-            self._inclination = np.arccos(round(self._q / self._semimajor_axis**2.,10)) % np.pi
+            self._inclination = np.arccos(round(self._q / self._semimajor_axis**2., 10)) % np.pi
 
         return self._inclination * 180. / np.pi
 

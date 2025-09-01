@@ -328,7 +328,7 @@ class ModelParameters(object):
         value += 180.
         value %= 360.
         return value
-    
+
     def __repr__(self):
         """A nice way to represent a ModelParameters object as a string"""
         out = self._get_main_parameters_to_print()
