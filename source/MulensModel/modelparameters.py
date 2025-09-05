@@ -828,9 +828,8 @@ class ModelParameters(object):
             elif parameter == 'xi_semimajor_axis':
                 value /= self.parameters['q_source']
                 setattr(self._source_2_parameters, parameter, value)
-            elif parameter == 'xi_argument_of_latitude_reference':
-                value += 180.
-                setattr(self._source_2_parameters, parameter, value)
+            elif parameter in ['xi_argument_of_latitude_reference', 'xi_omega_periapsis']:
+                self._add_180_and_correct_to_360(self._source_2_parameters.parameters, parameter)
 
             self._update_sources_xallarap_reference()
 
