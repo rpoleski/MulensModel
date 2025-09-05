@@ -1003,7 +1003,7 @@ def test_xallarap_n_sources():
 def _test_2S1L_xallarap_individual_source_parameters(xi_u):
     """
     Make sure that parameters of both sources are properly set.
-    Most importantly, xi_u is shifted by 180deg and xi_a is scaled by q_source.
+    Most importantly, xi_u and xi_omega_periapsis are shifted by 180deg and xi_a is scaled by q_source.
     """
     q_source = 1.23456
     parameters_1st = {**xallarap_parameters}
@@ -1073,7 +1073,7 @@ def test_changes_of_xallrap_parameters_for_both_sources(key):
     assert getattr(model.source_1_parameters, key) == new_value
 
     new_value_2 = new_value
-    if key == 'xi_argument_of_latitude_reference':
+    if key in ['xi_argument_of_latitude_reference', 'xi_omega_periapsis']:
         new_value_2 += 180.
     elif key == 'xi_semimajor_axis':
         new_value_2 /= q_source
