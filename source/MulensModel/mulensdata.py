@@ -178,7 +178,7 @@ class MulensData(object):
     def _get_name(self):
         """extract the name of dataset"""
         if 'label' in self.plot_properties:
-            name = self.plot_properties['label']
+            name = str(self.plot_properties['label'])
         elif self._file_name is not None:
             name = self._file_name
         else:
