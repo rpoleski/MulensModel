@@ -479,6 +479,7 @@ class PlotUtils(object):
         return np.sqrt(add_1 + add_2 + add_3)
     get_color_differences = staticmethod(get_color_differences)
 
+    @staticmethod
     def apply_defaults():
         """
         Apply default matplotlib settings, specially minor ticks.
