@@ -1,8 +1,11 @@
+from pathlib import Path
 import numpy as np
 from math import cos, sin
 import matplotlib.pyplot as plt
 
 from MulensModel.utils import Utils
+
+plt.style.use(Path(__file__).with_name("matplotlibrc.mplstyle"))
 
 
 class CausticsBinary(object):
