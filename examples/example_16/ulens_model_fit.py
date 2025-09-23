@@ -3933,9 +3933,10 @@ class UlensModelFit(object):
 
         self._ln_like(self._best_model_theta)  # Sets all parameters to the best model.
 
-        self._reset_rcParams()
-        for (key, value) in self._plots['best model'].get('rcParams', {}).items():
-            rcParams[key] = value
+        rc_params = self._plots['best model'].get('rcParams')
+        if rc_params:
+            self._reset_rcParams()
+            rcParams.update(rc_params)
 
         kwargs_all = self._get_kwargs_for_best_model_plot()
         (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2) = kwargs_all[:6]
