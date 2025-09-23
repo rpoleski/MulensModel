@@ -33,6 +33,8 @@ source_MMmo = source_MM / "mulensobjects"
 kwargs = dict()
 if platform.system().upper() != "WINDOWS":
     kwargs['libraries'] = ["m"]
+if platform.system() == "Darwin" and platform.machine() == "arm64":
+    kwargs['extra_compile_args'] = ["-arch", "arm64"]
 ext_AC = Extension(
     "MulensModel.AdaptiveContouring", **kwargs,
     sources=[str(f.relative_to(PROJECT_PATH)) for f in source_AC.glob("*.c")])
