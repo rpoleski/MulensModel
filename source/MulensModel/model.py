@@ -1,4 +1,3 @@
-from pathlib import Path
 import warnings
 import numpy as np
 import matplotlib.pyplot as plt
@@ -16,7 +15,7 @@ from MulensModel.satelliteskycoord import SatelliteSkyCoord
 from MulensModel.trajectory import Trajectory
 from MulensModel.utils import Utils, PlotUtils
 
-plt.style.use(Path(__file__).with_name("matplotlibrc.mplstyle"))
+PlotUtils.apply_defaults()
 
 
 class Model(object):

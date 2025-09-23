@@ -1,4 +1,3 @@
-from pathlib import Path
 import warnings
 import numpy as np
 from math import fsum
@@ -11,7 +10,7 @@ from MulensModel.model import Model
 from MulensModel.coordinates import Coordinates
 from MulensModel.utils import PlotUtils
 
-plt.style.use(Path(__file__).with_name("matplotlibrc.mplstyle"))
+PlotUtils.apply_defaults()
 
 
 class Event(object):

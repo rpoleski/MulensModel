@@ -7,6 +7,7 @@ import numpy as np
 from math import fsum, pow, sqrt
 import warnings
 from matplotlib.colors import ColorConverter
+import matplotlib as mpl
 
 from astropy import __version__ as astropy__version__
 from astropy.time import Time
@@ -477,3 +478,16 @@ class PlotUtils(object):
         add_3 = (3. + mean_red) * diffs[:, 2]
         return np.sqrt(add_1 + add_2 + add_3)
     get_color_differences = staticmethod(get_color_differences)
+
+    def apply_defaults():
+        """
+        Apply default matplotlib settings, specially minor ticks.
+        """
+        mpl.rcParams.update({
+            "xtick.direction": "in",
+            "ytick.direction": "in",
+            "xtick.top": True,
+            "ytick.right": True,
+            "xtick.minor.visible": True,
+            "ytick.minor.visible": True,
+        })
