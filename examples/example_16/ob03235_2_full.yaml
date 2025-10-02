@@ -169,7 +169,6 @@ plots:
             # The list of labels above can not be given if magnifications = "optimal"
             label: What is shown on this axis?
             color: magenta
-        model label: "I-band model"
         legend:
             fontsize: small
         add models:
