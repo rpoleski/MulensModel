@@ -149,6 +149,7 @@ plots:
         magnitude range: 19.3 16.9
         title: OB03235 plot
         model label: I-band model
+        model kwargs: {'color': 'r', 'lw': 5.}
         rcParams:
         # This allows setting many matplotlib parameters, e.g.:
             font.size: 14
