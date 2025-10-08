@@ -318,14 +318,16 @@ class ModelParameters(object):
                 raise KeyError('xallarap model with 2 sources requires ' + key)
 
         parameters_2['xi_semimajor_axis'] /= q_source
-        self._add_180_and_correct_to_360(parameters_2, 'xi_argument_of_latitude_reference')
-        self._add_180_and_correct_to_360(parameters_2, 'xi_omega_periapsis')
+        parameters_2['xi_argument_of_latitude_reference'] = self._add_180_and_wrap_to_360(
+            parameters_2['xi_argument_of_latitude_reference'])
+        if 'xi_omega_periapsis' in parameters_2:
+            parameters_2['xi_omega_periapsis'] = self._add_180_and_wrap_to_360(parameters_2['xi_omega_periapsis'])
 
-    def _add_180_and_correct_to_360(self, parameters, key):
-        """In given dict (parameters) add 180 to given key and subtract 360, it the result is larger than that"""
-        parameters[key] += 180.
-        if parameters[key] > 360.:
-            parameters[key] -= 360.
+    def _add_180_and_wrap_to_360(self, value):
+        """add 180 to the value and wrap angle to 360"""
+        value += 180.
+        value %= 360.
+        return value
 
     def __repr__(self):
         """A nice way to represent a ModelParameters object as a string"""
@@ -829,8 +831,8 @@ class ModelParameters(object):
                 value /= self.parameters['q_source']
                 setattr(self._source_2_parameters, parameter, value)
             elif parameter in ['xi_argument_of_latitude_reference', 'xi_omega_periapsis']:
-                self._add_180_and_correct_to_360(self._source_2_parameters.parameters, parameter)
-
+                value = self._add_180_and_wrap_to_360(value)
+                setattr(self._source_2_parameters, parameter, value)
             self._update_sources_xallarap_reference()
 
     def _get_uniform_caustic_sampling(self):
