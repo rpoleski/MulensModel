@@ -132,6 +132,7 @@ class ModelParameters(object):
         zip_ = parameters.items()
         orbit_parameters = {key[3:]: value for (key, value) in zip_ if key[:3] == "xi_"}
         orbit_parameters['epoch_reference'] = t_0_xi
+        print(orbit_parameters)
         return Orbit(**orbit_parameters)
 
     def __getattr__(self, item):
@@ -295,14 +296,20 @@ class ModelParameters(object):
         Divide an input dict into each source separately.
         Some of the parameters are copied to both dicts.
         """
-        skipped_parameters = ['q_source', 'xi_A', 'xi_B', 'xi_F', 'xi_G']
-
+        skipped_parameters = ['q_source']
+        only_primary = ['xi_A', 'xi_B', 'xi_F', 'xi_G']
         source_parameters = []
         for i in range(self.n_sources):
             params_i = dict()
             for (key, value) in parameters.items():
                 if key in skipped_parameters:
                     continue
+                if key in only_primary:
+                    if i == 0:
+                        params_i[key] = value
+                        continue
+                    else:
+                        continue
 
                 (head, end) = self._split_parameter_name(key)
                 if end is None:
@@ -323,7 +330,7 @@ class ModelParameters(object):
         must have to be set .
         """
         if 'xi_A' in parameters[0]:
-            self._set_changed_parameters_2nd_source_thiele_innes(parameters)
+            self._get_parameters_2nd_source_from_thiele_innes(parameters)
         self._set_changed_parameters_2nd_source_standard(q_source, parameters[1])
 
     def _get_parameters_2nd_source_from_thiele_innes(self, parameters):
@@ -332,6 +339,8 @@ class ModelParameters(object):
         """
         orbit = self._get_xallarap_orbit(parameters[0])
         standard = orbit.orbit_elements_dict_degrees()
+        standard.pop('periapsis_epoch')
+        standard.pop('epoch_reference')
         for (key, value) in standard.items():
             parameters[1]['xi_' + key] = value
 
