@@ -116,7 +116,7 @@ class ModelParameters(object):
 
         orbit = self._get_xallarap_orbit(parameters)
         return orbit.get_reference_plane_position([t_0_xi])
-    
+
     def _get_xallarap_orbit(self, parameters=None):
         """
         Get xallarap Orbit object.
@@ -265,8 +265,6 @@ class ModelParameters(object):
             raise KeyError(msg)
 
         if self._type['Cassan08']:
-            required = [prefix + req for req in required]
-
             self._check_valid_combination_1_source_Cassan08(keys)
         else:
             self._check_valid_combination_1_source_standard(keys)
@@ -318,11 +316,11 @@ class ModelParameters(object):
             self._set_changed_parameters_2nd_source(parameters['q_source'], source_parameters)
 
         return source_parameters
-    
+
     def _set_changed_parameters_2nd_source(self, q_source, parameters):
         """
         For xallarap model with 2 sources, the orbit of the second source
-        must have to be set . 
+        must have to be set .
         """
         if 'xi_A' in parameters[0]:
             self._set_changed_parameters_2nd_source_thiele_innes(parameters)
@@ -330,13 +328,13 @@ class ModelParameters(object):
 
     def _get_parameters_2nd_source_from_thiele_innes(self, parameters):
         """
-        Get standard parameters of the orbit of the second source 
+        Get standard parameters of the orbit of the second source
         """
         orbit = self._get_xallarap_orbit(parameters[0])
         standard = orbit.orbit_elements_dict_degrees()
         for (key, value) in standard.items():
-            parameters[1]['xi_' + key] = value        
-        
+            parameters[1]['xi_' + key] = value
+
     def _set_changed_parameters_2nd_source_standard(self, q_source, parameters_2):
         """
         For xallarap model with 2 sources, the orbit of the second source
@@ -508,7 +506,7 @@ class ModelParameters(object):
             'x_caustic_in', 'x_caustic_out', 't_caustic_in', 't_caustic_out',
             'xi_period', 'xi_semimajor_axis', 'xi_inclination',
             'xi_Omega_node', 'xi_argument_of_latitude_reference', 'xi_eccentricity', 'xi_omega_periapsis',
-            'xi_A', 'xi_B', 'xi_F', 'xi_G','q_source', 't_0_xi'
+            'xi_A', 'xi_B', 'xi_F', 'xi_G', 'q_source', 't_0_xi'
             ]
 
         ordered_keys = []
@@ -912,8 +910,8 @@ class ModelParameters(object):
         if self.n_sources == 1:
             if self.is_xallarap:
                 self._update_sources_xallarap_reference()
-            return        
-        
+            return
+
         if self.is_xallarap:
             orbit = self._get_xallarap_orbit()
             standard = orbit.orbit_elements_dict_degrees()
@@ -922,7 +920,7 @@ class ModelParameters(object):
             value = self._modifed_for_2nd_source(parameter, value)
             setattr(self._source_2_parameters, parameter, value)
         self._update_sources_xallarap_reference()
-            
+
     def _modifed_for_2nd_source(self, parameter, value):
         """
         Transform orbital parameters form 1st to 2nd source for xallara mdodel.
@@ -937,6 +935,7 @@ class ModelParameters(object):
             if 'xi_omega_periapsis' in self._source_2_parameters:
                 value = self._add_180_and_wrap_to_360(value)
         return value
+
     def _get_uniform_caustic_sampling(self):
         """
         Sets self._uniform_caustic if that is required.
@@ -1634,7 +1633,7 @@ class ModelParameters(object):
     def xi_omega_periapsis(self, new_value):
         self.parameters['xi_omega_periapsis'] = new_value
         self._update_sources('xi_omega_periapsis', new_value)
-        
+
     @property
     def xi_A(self):
         """
@@ -1670,17 +1669,17 @@ class ModelParameters(object):
         return self.parameters['xi_F']
 
     @xi_F.setter
-    def xi_F(self, new_value):       
+    def xi_F(self, new_value):
         self.parameters['xi_F'] = new_value
         self._update_sources_thiele_innes()
 
     @property
-    def xi_G(self):      
+    def xi_G(self):
         """
         *float*
         Thiele-Innes parameter `G` of the source orbit (xallarap) in the theta_E units.
         """
-        return self.parameters['xi_G'] 
+        return self.parameters['xi_G']
 
     @xi_G.setter
     def xi_G(self, new_value):
