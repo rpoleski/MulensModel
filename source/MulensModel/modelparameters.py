@@ -237,7 +237,7 @@ class ModelParameters(object):
             'x_caustic_in x_caustic_out t_caustic_in t_caustic_out '
             'xi_period xi_semimajor_axis xi_inclination xi_Omega_node '
             'xi_argument_of_latitude_reference xi_eccentricity '
-            'xi_omega_periapsis t_0_xi q_source').split())
+            'xi_omega_periapsis t_0_xi xi_A xi_B xi_F xi_G q_source').split())
         difference = set(keys) - allowed_keys
         if len(difference) > 0:
             derived_1 = ['gamma', 'gamma_perp', 'gamma_parallel', 'gamma_z']
@@ -719,19 +719,54 @@ class ModelParameters(object):
         check if orbit is properly defined; prefix is added to
         checked orbit parameters
         """
+        standard_check, standard_missing = self._check_orbit_parameters_standard(keys, prefix)
+        thiel_innes_check, thiel_innes_missing = self._check_orbit_parameters_thiel_innes(keys, prefix)
+        check = [standard_check, thiel_innes_check]
+        if sum(check) == 0:
+            raise KeyError('Orbit parameters are not properly defined. Provide either: ' +
+                           ', '.join(standard_missing) + '\n or \n' + ', '.join(thiel_innes_missing))
+        elif sum(check) == 2:
+            raise KeyError(
+                'Orbit parameters are defined in both standard and Thiel-Innes parameterization. Please choose one.')
+
+    def _check_orbit_parameters_standard(self, keys, prefix):
+        """
+        check if orbit is properly defined in standard parameters; prefix is added to
+        checked orbit parameters
+        """
+        check = True
+        missing = []
         required = ('period semimajor_axis inclination Omega_node argument_of_latitude_reference').split()
         required = [prefix + req for req in required]
         for parameter in required:
             if parameter not in keys:
-                raise KeyError(parameter)
+                check = False
+                missing.append(parameter)
+        if check:
+            allowed = set([prefix + 'eccentricity', prefix + 'omega_periapsis'])
+            n_used = len(set(keys).intersection(allowed))
+            if n_used not in [0, len(allowed)]:
+                raise KeyError(
+                    'Error in defining ' + prefix + 'eccentricity and ' +
+                    prefix + 'omega_periapsis. ' +
+                    'Both of them or neither should be defined.')
+        return check, missing
 
-        allowed = set([prefix + 'eccentricity', prefix + 'omega_periapsis'])
-        n_used = len(set(keys).intersection(allowed))
-        if n_used not in [0, len(allowed)]:
-            raise KeyError(
-                'Error in defining ' + prefix + 'eccentricity and ' +
-                prefix + 'omega_periapsis. ' +
-                'Both of them or neither should be defined.')
+    def _check_orbit_parameters_thiel_innes(self, keys, prefix):
+        """
+        check if orbit is properly defined in Thiel-Innes parameters; prefix is added to
+        checked orbit parameters
+        """
+        check = True
+        missing = []
+        required = ('period eccentricity A B F G, ').split()
+        required = [prefix + req for req in required]
+        for parameter in required:
+            if parameter not in keys:
+                check = False
+                missing.append(parameter)
+
+        return check, missing
 
     def _check_valid_combination_1_source_Cassan08(self, keys):
         """
