@@ -928,11 +928,10 @@ class ModelParameters(object):
         Transform orbital parameters form 1st to 2nd source for xallara mdodel.
         """
         if parameter == 'q_source':
-            parameter_to_set = 'xi_semimajor_axis'
-            if 'xi_semimajor_axis' in standard: 
+            if 'xi_semimajor_axis' in standard:
                 value_ = standard['xi_semimajor_axis'] / value
-            else: 
-                orbit = self._get_xallarap_orbit() 
+            else:
+                orbit = self._get_xallarap_orbit()
                 value_ = orbit.orbit_elements_dict_degrees()['semimajor_axis'] / value
             setattr(self._source_2_parameters, 'xi_semimajor_axis', value_)
             return
