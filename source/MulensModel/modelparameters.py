@@ -132,7 +132,6 @@ class ModelParameters(object):
         zip_ = parameters.items()
         orbit_parameters = {key[3:]: value for (key, value) in zip_ if key[:3] == "xi_"}
         orbit_parameters['epoch_reference'] = t_0_xi
-        print(orbit_parameters)
         return Orbit(**orbit_parameters)
 
     def __getattr__(self, item):
@@ -904,12 +903,7 @@ class ModelParameters(object):
                 continue
 
         if self.is_xallarap:
-            value = self._modifed_for_2nd_source(parameter, value)
-            if parameter == 'xi_omega_periapsis':
-                if 'xi_omega_periapsis' in self._source_2_parameters:
-                    setattr(self._source_2_parameters, parameter, value)
-            else:
-                setattr(self._source_2_parameters, parameter, value)
+            self._modifed_set_for_2nd_source(parameter, value, self.parameters)
             self._update_sources_xallarap_reference()
 
     def _update_sources_thiele_innes(self):
@@ -924,26 +918,37 @@ class ModelParameters(object):
         if self.is_xallarap:
             orbit = self._get_xallarap_orbit()
             standard = orbit.orbit_elements_dict_degrees()
-        for (parameter, value) in standard.items():
-            parameter = 'xi_' + parameter
-            value = self._modifed_for_2nd_source(parameter, value)
-            setattr(self._source_2_parameters, parameter, value)
-        self._update_sources_xallarap_reference()
+            standard = {'xi_' + k: v for k, v in standard.items()}
+            for (parameter, value) in standard.items():
+                self._modifed_set_for_2nd_source(parameter, value, standard)
+            self._update_sources_xallarap_reference()
 
-    def _modifed_for_2nd_source(self, parameter, value):
+    def _modifed_set_for_2nd_source(self, parameter, value, standard):
         """
         Transform orbital parameters form 1st to 2nd source for xallara mdodel.
         """
         if parameter == 'q_source':
-            value = self.parameters['xi_semimajor_axis'] / value
+            parameter_to_set = 'xi_semimajor_axis'
+            if 'xi_semimajor_axis' in standard: 
+                value_ = standard['xi_semimajor_axis'] / value
+            else: 
+                orbit = self._get_xallarap_orbit() 
+                value_ = orbit.orbit_elements_dict_degrees()['semimajor_axis'] / value
+            setattr(self._source_2_parameters, 'xi_semimajor_axis', value_)
+            return
         elif parameter == 'xi_semimajor_axis':
             value /= self.parameters['q_source']
+            setattr(self._source_2_parameters, parameter, value)
+            return
         elif parameter == 'xi_argument_of_latitude_reference':
             value = self._add_180_and_wrap_to_360(value)
+            setattr(self._source_2_parameters, parameter, value)
+            return
         elif parameter == 'xi_omega_periapsis':
-            if 'xi_omega_periapsis' in self._source_2_parameters:
+            if 'xi_omega_periapsis' in standard:
                 value = self._add_180_and_wrap_to_360(value)
-        return value
+                setattr(self._source_2_parameters, parameter, value)
+            return
 
     def _get_uniform_caustic_sampling(self):
         """
