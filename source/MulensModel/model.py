@@ -983,7 +983,8 @@ class Model(object):
                 'finite_source_uniform_Lee09 finite_source_LD_Lee09')
         elif self.n_lenses == 2:
             methods_all_str = ('point_source quadrupole hexadecapole vbbl '
-                               'adaptive_contouring point_source_point_lens')
+                               'adaptive_contouring point_source_point_lens '
+                               'twinkle ')
         else:
             msg = 'wrong value of Model.n_lenses: {:}'
             raise ValueError(msg.format(self.n_lenses))

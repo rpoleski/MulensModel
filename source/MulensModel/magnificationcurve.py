@@ -392,7 +392,7 @@ class MagnificationCurve(object):
             kwargs = self._setup_kwargs(method)
 
             if ((kwargs != {}) and
-                    (method.lower() not in ['vbbl', 'adaptive_contouring'])):
+                    (method.lower() not in ['vbbl', 'adaptive_contouring', 'twinkle'])):
                 msg = ('Methods parameters passed for method {:}' +
                        ' which does not accept any parameters')
                 raise ValueError(msg.format(method))
@@ -418,6 +418,11 @@ class MagnificationCurve(object):
                 self._magnification_objects[method] = \
                     mm.binarylens. \
                     BinaryLensAdaptiveContouringMagnification(
+                        trajectory=trajectory, gamma=self._gamma, **kwargs)
+            elif method.lower() == 'twinkle':
+                self._magnification_objects[method] = \
+                    mm.binarylens. \
+                    BinaryLensTwinkleMagnification(
                         trajectory=trajectory, gamma=self._gamma, **kwargs)
             elif method.lower() == 'point_source_point_lens':
                 self._magnification_objects[method] = \

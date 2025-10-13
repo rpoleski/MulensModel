@@ -11,6 +11,13 @@ from MulensModel.pointlens import _AbstractMagnification
 from MulensModel.utils import Utils
 from MulensModel.version import __version__ as mm_version
 
+try:
+    import twinkle
+except Exception:
+    _twinkle_wrapped = False
+else:
+    _twinkle_wrapped = True
+
 
 class BinaryLens(object):
     """
@@ -62,6 +69,10 @@ class _BinaryLensPointSourceMagnification(_AbstractMagnification):
             magnification: *np.ndarray*
                 The magnification for each point in :py:attr:`~trajectory`.
         """
+        if hasattr(self, '_use_arrays') and self._use_arrays:
+            self._magnification = np.array(self._get_magnification_array())
+            return self._magnification
+        
         zip_args = [self._source_x, self._source_y, self._separations]
 
         out = []
@@ -574,6 +585,50 @@ class BinaryLensVBBLMagnification(_BinaryLensPointSourceMagnification, _LimbDark
 
         return self._vbbl_function(*args)
 
+class BinaryLensTwinkleMagnification(_BinaryLensPointSourceMagnification, _LimbDarkeningForMagnification, _FiniteSource):
+    """
+    Binary lens finite source magnification calculated using
+    Twinkle library presented in 'Wang et al, 2025, ApJS, 276, 40 
+    <https://ui.adsabs.harvard.edu/abs/2025ApJS..276...40W/abstract>`_.
+    To install see also `Twinkle GitHub repository by Suwei Wang
+    <https://github.com/AsterLight0626/Twinkle>`_.
+    """
+    def __init__(self, gamma=None, u_limb_darkening=None, device_num=0, N_stream=1, RelTol=1e-4, **kwargs):
+        super().__init__(**kwargs)
+        self._set_LD_coeffs(u_limb_darkening=u_limb_darkening, gamma=gamma)
+        self._set_and_check_rho()
+        if RelTol <= 0.:
+            raise ValueError(
+                "Twinkle requires RelTol > 0, default 1e-4;" +
+                "\n{:} was  provided".format(RelTol))
+        self._RelTol = float(RelTol)
+
+        if not _twinkle_wrapped:
+            raise ValueError('Twinkle was not imported properly')
+
+        Nsrcs = len(self._source_x)
+        self.mag_object = twinkle.Twinkle(Nsrcs, device_num, N_stream, RelTol)
+
+        self._use_arrays = True
+
+    def _get_magnification_array(self):
+        """
+        Calculate magnification using Twinkle with array inputs
+        """
+        a_list = [float(a) for a in self._separations]
+        x_list = [float(x) for x in self._source_x]
+        y_list = [float(y) for y in self._source_y]
+        
+        args = [a_list, self._q, self._rho, x_list, y_list]
+        self.mag_object.set_params(*args)
+        if self._u_limb_darkening is not None:
+            self.mag_object.runLD(self._u_limb_darkening)
+        else:
+            self.mag_object.run()
+        Mag = []
+        self.mag_object.return_mag_to(Mag)
+
+        return Mag
 
 class BinaryLensAdaptiveContouringMagnification(_BinaryLensPointSourceMagnification, _LimbDarkeningForMagnification,
                                                 _FiniteSource):
