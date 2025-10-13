@@ -606,8 +606,8 @@ class BinaryLensTwinkleMagnification(_BinaryLensPointSourceMagnification, _LimbD
         if not _twinkle_wrapped:
             raise ValueError('Twinkle was not imported properly')
 
-        Nsrcs = len(self._source_x)
-        self.mag_object = twinkle.Twinkle(Nsrcs, device_num, N_stream, RelTol)
+        self._Nsrcs = len(self._source_x)
+        self.mag_object = twinkle.Twinkle(self._Nsrcs, device_num, N_stream, RelTol)
 
         self._use_arrays = True
 
@@ -625,7 +625,7 @@ class BinaryLensTwinkleMagnification(_BinaryLensPointSourceMagnification, _LimbD
             self.mag_object.runLD(self._u_limb_darkening)
         else:
             self.mag_object.run()
-        Mag = []
+        Mag = np.empty(self._Nsrcs)
         self.mag_object.return_mag_to(Mag)
 
         return Mag
