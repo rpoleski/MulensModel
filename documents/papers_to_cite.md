@@ -49,6 +49,9 @@ VBBL:
 Adaptive Contouring:
 [Dominik 2007 MNRAS, 377, 1679](https://ui.adsabs.harvard.edu/abs/2007MNRAS.377.1679D/abstract)
 
+Twinkle:
+[Wang et al, 2025, ApJS, 276, 40](https://doi.org/10.3847/1538-4365/ad9b8d) [arxiv:2501.03322 ](https://arxiv.org/abs/2501.03322)
+
 #### Non-standard Parameterizations:
 
 Cassan08:

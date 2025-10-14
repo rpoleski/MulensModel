@@ -13,7 +13,7 @@
 {\LARGE Methods to calculate magnification in \MM}\\
 \bigskip
 Radek Poleski\\
-last update: Nov 2022
+last update: Oct 2025
 \end{center}
 
 \bigskip\bigskip
@@ -59,6 +59,7 @@ Binary lens methods:
 \item {\tt quadrupole} -- uses Taylor expansion -- evaluates point-source magnification at 9 points.  Works only outside caustic.
 \item {\tt hexadecapole} -- uses Taylor expansion -- evaluates point-source magnification at 13 points.  Works only outside caustic.
 \item {\tt VBBL} -- Bozza (2010) method -- finite source with limb darkening.  Most widely used method nowadays.  Parameters that ca be set: {\tt accuracy}.
+\item {\tt twinkle} -- Wang et al. (2025) method -- finite source with limb darkening. Uses the GPU to calculate magnification. Parameters that can be set: {\tt device\_num}, {\tt N\_stream}, and {\tt RelTol}.
 \item {\tt Adaptive\_Contouring} -- Dominik (2007) method -- finite source with limb darkening.  Parameters that can be set: {\tt accuracy} and {\tt ld\_accuracy}.
 \item {\tt point\_source\_point\_lens} -- approximates binary lens as a single lens.  It is useful when binary lens effects are negligible and binary lens calculations may cause numerical errors, e.g., $q\approx10^{-6}$ and source far from caustics.  
 \end{itemize}

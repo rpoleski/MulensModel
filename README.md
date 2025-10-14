@@ -23,7 +23,7 @@ Need more? Open [an issue](https://github.com/rpoleski/MulensModel/issues), star
 
 ## Acknowledgements
 
-Are you using MulensModel for scientific research? Please give us credit by citing the [paper published in "Astronomy and Computing"](https://ui.adsabs.harvard.edu/abs/2019A%26C....26...35P/abstract) and [ASCL reference](http://ascl.net/1803.006). For arXiv version please see [link](https://arxiv.org/abs/1803.01003). You should also cite relevant papers for algorithms used. In a typical run that uses binary lenses these will be [Bozza (2010)](https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract) and [Skowron & Gould (2012)](https://ui.adsabs.harvard.edu/abs/2012arXiv1203.1034S/abstract). [HERE](documents/papers_to_cite.md) is a list of papers to cite for various algorithms used in MulensModel. We also thank other people who helped in MulensModel development - please see list in [AUTHORS.md file](AUTHORS.md).
+Are you using MulensModel for scientific research? Please give us credit by citing the [paper published in "Astronomy and Computing"](https://ui.adsabs.harvard.edu/abs/2019A%26C....26...35P/abstract) and [ASCL reference](http://ascl.net/1803.006). For arXiv version please see [link](https://arxiv.org/abs/1803.01003). You should also cite relevant papers for algorithms used. In a typical run that uses binary lenses these will be [Bozza (2010)](https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract) and [Skowron & Gould (2012)](https://ui.adsabs.harvard.edu/abs/2012arXiv1203.1034S/abstract) or [Wang et al. (2025)](https://doi.org/10.3847/1538-4365/ad9b8d). [HERE](documents/papers_to_cite.md) is a list of papers to cite for various algorithms used in MulensModel. We also thank other people who helped in MulensModel development - please see list in [AUTHORS.md file](AUTHORS.md).
 
 
 ## Examples and tutorials
@@ -61,4 +61,4 @@ If you want to contribute to MulensModel, then please see [this file](CONTRIBUTI
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/MulensModel)
 ![example workflow](https://github.com/rpoleski/MulensModel/actions/workflows/python-app.yml/badge.svg)
 
-file revised Sep 2025
+file revised Oct 2025
