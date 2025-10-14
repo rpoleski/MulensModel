@@ -592,6 +592,28 @@ class BinaryLensTwinkleMagnification(_BinaryLensPointSourceMagnification, _LimbD
     <https://ui.adsabs.harvard.edu/abs/2025ApJS..276...40W/abstract>`_.
     To install see also `Twinkle GitHub repository by Suwei Wang
     <https://github.com/AsterLight0626/Twinkle>`_.
+    Arguments :
+        trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
+            Including trajectory.parameters =
+            :py:class:`~MulensModel.modelparameters.ModelParameters`
+
+        gamma: *float*, optional
+            Linear limb-darkening coefficient in gamma convention.
+
+        u_limb_darkening: *float*, optional
+            Linear limb-darkening coefficient in u convention.
+            Note that either *gamma* or *u_limb_darkening* can be
+            set.  If neither of them is provided then limb
+            darkening is ignored.
+        device_num: *int*, optional
+            The GPU device number to use. Default is 0.
+        N_stream: *int*, optional
+            The number of CUDA streams to use. Default is 1.
+            It can take values between 1 and your GPU's SM count.
+            The value that maximizes performance is architecture and workflow specific.
+        RelTol: *float*, optional
+            The relative tolerance for the magnification calculation. Default is 1e-4.
+
     """
     def __init__(self, gamma=None, u_limb_darkening=None, device_num=0, N_stream=1, RelTol=1e-4, **kwargs):
         super().__init__(**kwargs)
@@ -604,7 +626,7 @@ class BinaryLensTwinkleMagnification(_BinaryLensPointSourceMagnification, _LimbD
         self._RelTol = float(RelTol)
 
         if not _twinkle_wrapped:
-            raise ValueError('Twinkle was not imported properly')
+            raise ValueError('Twinkle was not imported properly. For installation instructions see https://github.com/AsterLight0626/Twinkle')
 
         self._Nsrcs = len(self._source_x)
         self.mag_object = twinkle.Twinkle(self._Nsrcs, device_num, N_stream, RelTol)
