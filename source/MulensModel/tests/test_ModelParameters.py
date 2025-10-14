@@ -937,7 +937,7 @@ def test_print_xallarap():
         "    0.543210                    9.87650                   0.12300   "
         "                                   24.68000              0.500000   "
         "                    12.34560       1.00000 "
-        "\nxallarap reference position: (0.2673, 0.0582)"
+        "\nxallarap reference position: (0.2485, 0.1131)"
         )
     assert model.__repr__() == expected
 
@@ -953,7 +953,7 @@ def test_print_xallarap_with_q_source():
     lines = model.__repr__().split("\n")
     assert lines[0][-27:] == "    q_source  t_0_xi (HJD) "
     assert lines[1][-27:] == "  0.12345000       1.00000 "
-    assert lines[2] == "xallarap reference position: (0.2673, 0.0582)"
+    assert lines[2] == "xallarap reference position: (0.2485, 0.1131)"
 
 
 def test_is_xallarap_1():
@@ -1003,7 +1003,7 @@ def test_xallarap_n_sources():
 def _test_2S1L_xallarap_individual_source_parameters(xi_u):
     """
     Make sure that parameters of both sources are properly set.
-    Most importantly, xi_u is shifted by 180deg and xi_a is scaled by q_source.
+    Most importantly, xi_u and xi_omega_periapsis are shifted by 180deg and xi_a is scaled by q_source.
     """
     q_source = 1.23456
     parameters_1st = {**xallarap_parameters}
@@ -1011,6 +1011,7 @@ def _test_2S1L_xallarap_individual_source_parameters(xi_u):
 
     parameters_2nd = {**parameters_1st}
     parameters_2nd['xi_semimajor_axis'] /= q_source
+    parameters_2nd['xi_omega_periapsis'] += 180.
     if xi_u < 180:
         parameters_2nd['xi_argument_of_latitude_reference'] += 180.
     else:
@@ -1072,7 +1073,7 @@ def test_changes_of_xallrap_parameters_for_both_sources(key):
     assert getattr(model.source_1_parameters, key) == new_value
 
     new_value_2 = new_value
-    if key == 'xi_argument_of_latitude_reference':
+    if key in ['xi_argument_of_latitude_reference', 'xi_omega_periapsis']:
         new_value_2 += 180.
     elif key == 'xi_semimajor_axis':
         new_value_2 /= q_source
@@ -1498,7 +1499,7 @@ class TestSetters2Sources(unittest.TestCase):
             {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
         params.t_0_2 = self.dummy_value
         assert params.t_0_2 == self.dummy_value
-        assert params._source_2_parameters.t_0 == self.dummy_value
+        assert params.source_2_parameters.t_0 == self.dummy_value
 
     def test_set_u_0_1_error(self):
         params = mm.ModelParameters(
@@ -1511,7 +1512,7 @@ class TestSetters2Sources(unittest.TestCase):
             {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
         params.u_0_2 = self.dummy_value
         assert params.u_0_2 == self.dummy_value
-        assert params._source_2_parameters.u_0 == self.dummy_value
+        assert params.source_2_parameters.u_0 == self.dummy_value
 
     def test_set_u_0_2_error(self):
         params = mm.ModelParameters(
@@ -1546,7 +1547,7 @@ class TestSetters2Sources(unittest.TestCase):
              't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 'rho_2': self.rho_2, 't_E': self.t_E})
         params.rho_2 = self.dummy_value
         assert params.rho_2 == self.dummy_value
-        assert params._source_2_parameters.rho == self.dummy_value
+        assert params.source_2_parameters.rho == self.dummy_value
 
     def test_set_rho_2_error_1(self):
         params = mm.ModelParameters(
@@ -1588,7 +1589,7 @@ class TestSetters2Sources(unittest.TestCase):
              't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_star_2': self.t_star_2, 't_E': self.t_E})
         params.t_star_2 = self.dummy_value
         assert params.t_star_2 == self.dummy_value
-        assert params._source_2_parameters.t_star == self.dummy_value
+        assert params.source_2_parameters.t_star == self.dummy_value
 
     def test_set_t_star_2_error_1(self):
         params = mm.ModelParameters(

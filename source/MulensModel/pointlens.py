@@ -744,7 +744,7 @@ class FiniteSourceUniformWittMao94Magnification(_PointLensMagnification):
             if isinstance(self._ellip_data._interpolate_3, RGI):
                 return float(self._ellip_data._interpolate_3((n, k)).T)
             else:
-                return self._ellip_data._interpolate_3(n, k)[0]
+                return float(self._ellip_data._interpolate_3(n, k))
 
         return ellip3(n, k)
 
