@@ -31,6 +31,8 @@ jobs:
         exclude:
         - os: ubuntu-latest
           cibw_archs: "arm64"
+        - os: macos-latest
+          cibw_archs: "arm64"
 
     steps:
       - uses: actions/checkout@v4
@@ -107,3 +109,5 @@ jobs:
       with:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
+        skip-existing: true
+        verbose: true
