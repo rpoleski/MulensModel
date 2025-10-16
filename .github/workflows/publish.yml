@@ -31,7 +31,7 @@ jobs:
         exclude:
         - os: ubuntu-latest
           cibw_archs: "arm64"
-        - os: macos-latest
+        - os: macos-latest # added in Oct 2025 in v3.5.5
           cibw_archs: "arm64"
 
     steps:
@@ -109,5 +109,5 @@ jobs:
       with:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
-        skip-existing: true
+        skip-existing: true # added in Oct 2025 in v3.5.X
         verbose: true
