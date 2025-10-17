@@ -77,6 +77,17 @@ class UlensModelFit(object):
             ``'scale_errorbars': {'factor': kappa, 'minimum': epsilon}``
             to scale uncertainties.
 
+            ``'fit_errorbars': *bool*``
+            If set to *True*, then the scale_errorbars parameters will be fitted as well.
+            Meaning the ln_probability will be increased by XXX.
+            Names of parameters will follow the pattern:
+            XXX - below
+            {'factor': EER_k_{MulensData.plot_properties['label']},
+            'minimum': EER_e_{MulensData.plot_properties['label']}}
+            if not specified in yaml input file starting values will be drawn from:
+            `gauss 1. 0.05` with flat prior [0.0, 50.0] for 'factor'
+            `log-uniform 0.0001 0.1` with flat prior [0.0, 0.5] for 'minimum
+
             ``'bad'`` : *list* or *str*
             to set bad flags in MulensData
             When *str* then it should point to the file containing
@@ -446,6 +457,7 @@ class UlensModelFit(object):
 
         self._which_task()
         self._set_default_parameters()
+        self._set_errorbars_scales_fitting()
         if self._task == 'fit':
             if self._fit_method is None:
                 self._guess_fitting_method()
@@ -589,6 +601,7 @@ class UlensModelFit(object):
 
         self._user_parameters = []
         self._other_parameters = []
+        self._errorbars_parameters = []
         self._latex_conversion_user = dict()
         self._latex_conversion_other = dict()
 
@@ -603,6 +616,71 @@ class UlensModelFit(object):
         self._latex_conversion_other.
         """
         pass
+
+    def _set_errorbars_scales_fitting(self):
+        """Checking if errorbars scales should be fitted"""
+        files = [f if isinstance(f, dict) else {'file_name': f} for f in self._photometry_files]
+        self._fit_errorbars = [f.get("fit_errorbars", False) for f in files]
+        if True in self._fit_errorbars:
+            self._get_datasets()
+            self._set_fit_errorbars_scales_params()
+
+    def _set_fit_errorbars_scales_params(self):
+        """
+        Setting parameters for errorbars scales fitting
+        """
+        for (i, dataset) in enumerate(self._datasets):
+            if self._fit_errorbars[i]:
+                label = dataset.plot_properties['label']
+                label_safe = label.replace(' ', '_')
+                label_tex = label_safe.replace('_', '\\_')
+                self._errorbars_parameters.append('ERR_k_'+label_safe)
+                self._latex_conversion_other['ERR_k_' + label_safe] = 'ERR_{\\rm{k,'+label_tex+'}}'
+                self._errorbars_parameters.append('ERR_e_'+label_safe)
+                self._latex_conversion_other['ERR_e_' + label_safe] = 'ERR_{\\rm{e,'+label_tex+'}}'
+        # XXX - above
+
+        self._set_errorbars_scales_starting_params()
+        self._set_errorbars_scales_ranges()
+
+    def _set_errorbars_scales_starting_params(self):
+        """
+        Define starting values for errorbars scales
+        fitting if there are not already defined in yaml file
+        """
+        # XXX - START REVIEWING HERE
+        starting_parameters_input = self._starting_parameters_input or {}
+        fixed_parameters = self._fixed_parameters or {}
+        merged_parameters = {**starting_parameters_input, **fixed_parameters}
+        declared = list(merged_parameters.keys())
+
+        for key in self._errorbars_parameters:
+            if key[:3] == 'ERR':
+                if key not in declared:
+                    if key[4] == 'k':
+                        self._starting_parameters_input[key] = 'gauss 1. 0.05'
+                    if key[4] == 'e':
+                        self._starting_parameters_input[key] = 'log-uniform 0.0001 0.1'
+                    print("setting starting values for {:s} : {:s}".format(key, self._starting_parameters_input[key]))
+
+    def _set_errorbars_scales_ranges(self):
+        """
+        Define max and min values for errorbars scales
+        fitting if there not already defined in yaml file
+        """
+        fixed_parameters = self._fixed_parameters or {}
+        for key in self._errorbars_parameters:
+            if key[:3] == 'ERR':
+                if key not in fixed_parameters.keys():
+                    if key not in self._min_values.keys():
+                        self._min_values[key] = 0.
+                    if key not in self._max_values.keys():
+                        if key[4] == 'k':
+                            self._max_values[key] = 50.
+                        if key[4] == 'e':
+                            self._max_values[key] = 0.5
+                    print("setting limits on {:s}: [{:.2f}, {:.2f}]".format(
+                        key, self._min_values[key], self._max_values[key]))
 
     def _guess_fitting_method(self):
         """
@@ -1268,6 +1346,7 @@ class UlensModelFit(object):
         Construct a single dataset and possibly rescale uncertainties in it.
         """
         scaling = file_.pop("scale_errorbars", None)
+        _ = file_.pop("fit_errorbars", None)
         bad = file_.pop("bad", None)
 
         try:
@@ -1384,7 +1463,7 @@ class UlensModelFit(object):
             to_be_checked = set(self._model_parameters['parameters'])
         else:
             raise ValueError('unexpected error: ' + str(self._task))
-        allowed = self._all_MM_parameters + self._other_parameters + self._user_parameters
+        allowed = self._all_MM_parameters + self._other_parameters + self._user_parameters + self._errorbars_parameters
         unknown = to_be_checked - set(allowed)
         if len(unknown) > 0:
             raise ValueError('Unknown parameters: {:}'.format(unknown))
@@ -1395,15 +1474,17 @@ class UlensModelFit(object):
         This is useful to make sure the order of printed parameters
         is always the same.
         """
-        order = self._all_MM_parameters + self._user_parameters + self._other_parameters
+        order = self._all_MM_parameters + self._user_parameters + self._other_parameters + self._errorbars_parameters
         indexes = sorted(
             [order.index(p) for p in self._fit_parameters_unsorted])
 
         self._fit_parameters = [order[i] for i in indexes]
         self._fit_parameters_other = [
             order[i] for i in indexes if order[i] in self._other_parameters]
+        self._fit_parameters_errorbars = [
+            order[i] for i in indexes if order[i] in self._errorbars_parameters]
         self._other_parameters_dict = dict()
-
+        self._errorbars_parameters_dict = dict()
         if len(self._fit_parameters_other) > 0:
             self._flat_priors = False
 
@@ -2318,14 +2399,22 @@ class UlensModelFit(object):
         if self._fixed_parameters is None:
             return
 
-        fixed = set(self._fixed_parameters.keys())
+        allowed = set(self._all_MM_parameters + self._fixed_only_MM_parameters + self._other_parameters)
 
-        allowed = set(self._all_MM_parameters +
-                      self._fixed_only_MM_parameters +
-                      self._other_parameters)
+        self._fixed_user_parameters = {}
+        for key in self._user_parameters:
+            if key in self._fixed_parameters:
+                self._fixed_user_parameters[key] = self._fixed_parameters.pop(key, None)
+
+        fixed = set(self._fixed_parameters.keys())
         unknown = fixed - allowed
         if len(unknown) > 0:
-            raise ValueError('Unknown fixed parameters: {:}'.format(unknown))
+            unknown = unknown - set(self._errorbars_parameters)
+            if len(unknown) == 0:
+                raise ValueError(
+                    'You should fix errorbar scaling parameters: {:} \n using MM.dataset property'.format(unknown))
+            elif len(unknown) > 0:
+                raise ValueError('Unknown fixed parameters: {:}'.format(unknown))
 
         if self._task == 'plot':
             return
@@ -2341,7 +2430,7 @@ class UlensModelFit(object):
         Set internal MulensModel instances: Model and Event
         """
         parameters = self._get_example_parameters()
-        for key in self._other_parameters:
+        for key in self._other_parameters + self._errorbars_parameters:
             try:
                 parameters.pop(key)
             except Exception:
@@ -2655,13 +2744,15 @@ class UlensModelFit(object):
         parameters = dict(zip(self._fit_parameters, theta))
         parameters = self._transform_parameters(parameters)
 
-        if len(self._fit_parameters_other) == 0:
+        if len(self._fit_parameters_other) + len(self._fit_parameters_errorbars) == 0:
             for (parameter, value) in parameters.items():
                 setattr(self._model.parameters, parameter, value)
         else:
             for (parameter, value) in parameters.items():
                 if parameter not in self._fit_parameters_other:
                     setattr(self._model.parameters, parameter, value)
+                elif parameter in self._fit_parameters_errorbars:
+                    self._errorbars_parameters_dict[parameter] = value
                 else:
                     self._other_parameters_dict[parameter] = value
 
@@ -2778,6 +2869,22 @@ class UlensModelFit(object):
         if self._task == 'fit' and len(self._other_parameters_dict) > 0:
             out += self._get_ln_probability_for_other_parameters()
 
+        if self._task == 'fit' and len(self._errorbars_parameters_dict) > 0:
+            out += self._ln_prob_errors()
+        return out
+
+    def _ln_prob_errors(self):
+        """
+        Returns ln(probability())
+        """
+        out = 0
+        for (i, _data) in enumerate(self._event.datasets):
+            if _data.chi2_fmt == "flux":
+                err = _data.err_flux
+            elif _data.chi2_fmt == "mag":
+                err = _data.err_mag
+            out += np.sum(np.log(2*np.pi*np.power(err, 2.)))
+        out *= -0.5
         return out
 
     def _print_current_model(self, theta, chi2):
