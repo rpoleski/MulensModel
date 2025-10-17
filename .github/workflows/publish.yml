@@ -5,6 +5,8 @@ name: Upload Python Package to PyPI
 on:
   release:
     types: [published]
+  push:
+    branches: [ "master" ]
   workflow_dispatch:
     inputs:
       disable-publish:
@@ -17,32 +19,26 @@ on:
 jobs:
 
   build_wheels:
-    name: ${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}
-    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false # If false, continue with other matrix even if one fails
       matrix:
-        # A matrix of OSs, Python verisons, and architectures
-        # Skips PyPy
-        os: [ubuntu-latest, macos-latest]
-        cibw_archs: [auto64, arm64]
-        cibw_build: [cp38-*, cp39-*, cp310-*, cp311-*]
-        cibw_skip: [pp*]
-        exclude:
-        - os: ubuntu-latest
-          cibw_archs: "arm64"
-        - os: macos-latest # added in Oct 2025 in v3.5.5
-          cibw_archs: "arm64"
+        include:
+          - os: linux-x86
+            runs-on: ubuntu-latest
+          - os: linux-arm
+            runs-on: ubuntu-24.04-arm
+          - os: macos-x86
+            runs-on: macos-15-intel
+          - os: macos-arm
+            runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.17
-        env:
-          CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          CIBW_BUILD: ${{ matrix.cibw_build }}
-          CIBW_SKIP: ${{ matrix.cibw_skip }}
+        uses: pypa/cibuildwheel@v3.2
 
       - uses: actions/upload-artifact@v4
         with:
@@ -74,11 +70,33 @@ jobs:
         name: cibw-sdist
         path: dist/*.tar.gz
 
-  publish:
-    name: Publish to PyPI
-    if:  ${{ !(inputs.disable-publish || false) }} # Only skips if inputs.disable-publish is true
+  check-build:
+    name: Check built distributions
     runs-on: ubuntu-latest
     needs: [build_source, build_wheels]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download sdist and wheelhouse artifacts to dist/
+      uses: actions/download-artifact@v4
+      with:
+        pattern: cibw-*
+        path: dist
+        merge-multiple: true
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+
+    - name: Run check-wheel-contents
+      run: uv tool run check-wheel-contents dist/*.whl
+
+  publish:
+    name: Publish to PyPI
+    # Skips if inputs.disable-publish is true or event is a push
+    if: ${{ !(inputs.disable-publish || false) && github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    needs: [build_source, build_wheels, check-build]
 
     steps:
     - uses: actions/checkout@v4
@@ -90,18 +108,6 @@ jobs:
         pattern: cibw-*
         path: dist
         merge-multiple: true
-
-#    - name: Download sdist artifacts to dist/
-#      uses: actions/download-artifact@v4
-#      with:
-#        name: sdist
-#        path: dist/
-
-#    - name: Download wheelhouse artifacts to dist/
-#      uses: actions/download-artifact@v4
-#      with:
-#        name: wheelhouse
-#        path: dist/
 
     - name: Publish package to PyPI
       # All files in dist/ are published
