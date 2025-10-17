@@ -70,12 +70,33 @@ jobs:
         name: cibw-sdist
         path: dist/*.tar.gz
 
+  check-build:
+    name: Check built distributions
+    runs-on: ubuntu-latest
+    needs: [build_source, build_wheels]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download sdist and wheelhouse artifacts to dist/
+      uses: actions/download-artifact@v4
+      with:
+        pattern: cibw-*
+        path: dist
+        merge-multiple: true
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+
+    - name: Run check-wheel-contents
+      run: uv tool run check-wheel-contents dist/*.whl
+
   publish:
     name: Publish to PyPI
     # Skips if inputs.disable-publish is true or event is a push
-    if: ${{ !(inputs.disable-publish) && github.event_name == 'push' }}
+    if: ${{ !(inputs.disable-publish || false) && github.event_name == 'push' }}
     runs-on: ubuntu-latest
-    needs: [build_source, build_wheels]
+    needs: [build_source, build_wheels, check-build]
 
     steps:
     - uses: actions/checkout@v4
