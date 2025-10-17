@@ -10,6 +10,8 @@ from MulensModel.model import Model
 from MulensModel.coordinates import Coordinates
 from MulensModel.utils import PlotUtils
 
+PlotUtils.apply_defaults()
+
 
 class Event(object):
     """
