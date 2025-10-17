@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.50.0'
+__version__ = '0.52.0'
 
 
 class UlensModelFit(object):
@@ -647,9 +647,8 @@ class UlensModelFit(object):
         Define starting values for errorbars scales
         fitting if there are not already defined in yaml file
         """
-        # XXX - START REVIEWING HERE
-        starting_parameters_input = self._starting_parameters_input or {}
-        fixed_parameters = self._fixed_parameters or {}
+        starting_parameters_input = self._starting_parameters_input or dict()
+        fixed_parameters = self._fixed_parameters or dict()
         merged_parameters = {**starting_parameters_input, **fixed_parameters}
         declared = list(merged_parameters.keys())
 
@@ -667,7 +666,7 @@ class UlensModelFit(object):
         Define max and min values for errorbars scales
         fitting if there not already defined in yaml file
         """
-        fixed_parameters = self._fixed_parameters or {}
+        fixed_parameters = self._fixed_parameters or dict()
         for key in self._errorbars_parameters:
             if key[:3] == 'ERR':
                 if key not in fixed_parameters.keys():
@@ -2398,6 +2397,7 @@ class UlensModelFit(object):
         if self._fixed_parameters is None:
             return
 
+        # XXX - CONTINUE REVIEWING HERE
         allowed = set(self._all_MM_parameters + self._fixed_only_MM_parameters + self._other_parameters)
 
         self._fixed_user_parameters = {}
