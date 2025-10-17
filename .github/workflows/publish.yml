@@ -24,15 +24,8 @@ jobs:
       matrix:
         # A matrix of OSs, Python verisons, and architectures
         # Skips PyPy
-        os: [ubuntu-latest, macos-latest]
-        cibw_archs: [auto64, arm64]
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-15-intel, macos-latest]
         cibw_build: [cp38-*, cp39-*, cp310-*, cp311-*]
-        cibw_skip: [pp*]
-        exclude:
-        - os: ubuntu-latest
-          cibw_archs: "arm64"
-        - os: macos-latest # added in Oct 2025 in v3.5.5
-          cibw_archs: "arm64"
 
     steps:
       - uses: actions/checkout@v4
@@ -40,9 +33,7 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2
         env:
-          CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_BUILD: ${{ matrix.cibw_build }}
-          CIBW_SKIP: ${{ matrix.cibw_skip }}
 
       - uses: actions/upload-artifact@v4
         with:
