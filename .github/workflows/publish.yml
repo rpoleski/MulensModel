@@ -17,15 +17,21 @@ on:
 jobs:
 
   build_wheels:
-    name: ${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}
-    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false # If false, continue with other matrix even if one fails
       matrix:
-        # A matrix of OSs, Python verisons, and architectures
-        # Skips PyPy
-        os: [ubuntu-latest, ubuntu-24.04-arm, macos-15-intel, macos-latest]
         cibw_skip: [cp36-*, cp37-*]
+        include:
+          - os: linux-x86
+            runs-on: ubuntu-latest
+          - os: linux-arm
+            runs-on: ubuntu-24.04-arm
+          - os: macos-x86
+            runs-on: macos-15-intel
+          - os: macos-arm
+            runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -33,7 +39,7 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2
         env:
-          CIBW_BUILD: ${{ matrix.cibw_build }}
+          CIBW_SKIP: ${{ matrix.cibw_skip }}
 
       - uses: actions/upload-artifact@v4
         with:
