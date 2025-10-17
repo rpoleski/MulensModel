@@ -2397,7 +2397,6 @@ class UlensModelFit(object):
         if self._fixed_parameters is None:
             return
 
-        # XXX - CONTINUE REVIEWING HERE
         allowed = set(self._all_MM_parameters + self._fixed_only_MM_parameters + self._other_parameters)
 
         self._fixed_user_parameters = {}
@@ -2874,7 +2873,7 @@ class UlensModelFit(object):
 
     def _ln_prob_errors(self):
         """
-        Returns ln(probability())
+        Returns ln(probability()) for scaled errorbars.
         """
         out = 0
         for (i, _data) in enumerate(self._event.datasets):
@@ -2882,7 +2881,7 @@ class UlensModelFit(object):
                 err = _data.err_flux
             elif _data.chi2_fmt == "mag":
                 err = _data.err_mag
-            out += np.sum(np.log(2*np.pi*np.power(err, 2.)))
+            out += np.sum(np.log(2*np.pi*np.power(err, 2)))
         out *= -0.5
         return out
 
