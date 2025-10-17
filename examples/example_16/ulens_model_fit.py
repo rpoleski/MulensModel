@@ -79,8 +79,9 @@ class UlensModelFit(object):
 
             ``'fit_errorbars': *bool*``
             If set to *True*, then the scale_errorbars parameters will be fitted as well.
-            Meaning the ln_probability will be increased by the term self._ln_prob_errors().
+            Meaning the ln_probability will be increased by XXX.
             Names of parameters will follow the pattern:
+            XXX - below
             {'factor': EER_k_{MulensData.plot_properties['label']},
             'minimum': EER_e_{MulensData.plot_properties['label']}}
             if not specified in yaml input file starting values will be drawn from:
@@ -621,16 +622,9 @@ class UlensModelFit(object):
         pass
 
     def _set_errorbars_scales_fitting(self):
-        """Checking if errorbars scales should be fitted
-        """
-        files = [f if isinstance(f, dict) else {'file_name': f}
-                 for f in self._photometry_files]
-        self._fit_errorbars = []
-        for file_ in files:
-            fit_errorbars = file_.get("fit_errorbars")
-            if fit_errorbars is None:
-                file_["fit_errorbars"] = False
-            self._fit_errorbars.append(file_["fit_errorbars"])
+        """Checking if errorbars scales should be fitted"""
+        files = [f if isinstance(f, dict) else {'file_name': f} for f in self._photometry_files]
+        self._fit_errorbars = [f.get("fit_errorbars", False) for f in files]
         if True in self._fit_errorbars:
             self._get_datasets()
             self._set_fit_errorbars_scales_params()
@@ -645,9 +639,10 @@ class UlensModelFit(object):
                 label_safe = label.replace(' ', '_')
                 label_tex = label_safe.replace('_', '\\_')
                 self._errorbars_parameters.append('ERR_k_'+label_safe)
-                self._latex_conversion_other['ERR_k_' + label_safe] = 'EER_{\\rm{k,'+label_tex+'}}'
+                self._latex_conversion_other['ERR_k_' + label_safe] = 'ERR_{\\rm{k,'+label_tex+'}}'
                 self._errorbars_parameters.append('ERR_e_'+label_safe)
-                self._latex_conversion_other['ERR_e_' + label_safe] = 'EER_{\\rm{e,'+label_tex+'}}'
+                self._latex_conversion_other['ERR_e_' + label_safe] = 'ERR_{\\rm{e,'+label_tex+'}}'
+        # XXX - above
 
         self._set_errorbars_scales_starting_params()
         self._set_errorbars_scales_ranges()
@@ -657,6 +652,7 @@ class UlensModelFit(object):
         Define starting values for errorbars scales
         fitting if there are not already defined in yaml file
         """
+        # XXX - START REVIEWING HERE
         starting_parameters_input = self._starting_parameters_input or {}
         fixed_parameters = self._fixed_parameters or {}
         merged_parameters = {**starting_parameters_input, **fixed_parameters}
