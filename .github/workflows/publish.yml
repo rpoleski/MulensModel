@@ -22,7 +22,6 @@ jobs:
     strategy:
       fail-fast: false # If false, continue with other matrix even if one fails
       matrix:
-        cibw_skip: [cp36-*, cp37-*]
         include:
           - os: linux-x86
             runs-on: ubuntu-latest
@@ -38,8 +37,6 @@ jobs:
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2
-        env:
-          CIBW_SKIP: ${{ matrix.cibw_skip }}
 
       - uses: actions/upload-artifact@v4
         with:
