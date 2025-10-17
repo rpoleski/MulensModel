@@ -25,7 +25,7 @@ jobs:
         # A matrix of OSs, Python verisons, and architectures
         # Skips PyPy
         os: [ubuntu-latest, ubuntu-24.04-arm, macos-15-intel, macos-latest]
-        cibw_build: [cp38-*, cp39-*, cp310-*, cp311-*]
+        cibw_skip: [cp36-*, cp37-*]
 
     steps:
       - uses: actions/checkout@v4
