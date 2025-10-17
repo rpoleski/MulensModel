@@ -5,6 +5,8 @@ name: Upload Python Package to PyPI
 on:
   release:
     types: [published]
+  push:
+    branches: [ "master" ]
   workflow_dispatch:
     inputs:
       disable-publish:
@@ -70,7 +72,8 @@ jobs:
 
   publish:
     name: Publish to PyPI
-    if:  ${{ !(inputs.disable-publish || false) }} # Only skips if inputs.disable-publish is true
+    # Skips if inputs.disable-publish is true or event is a push
+    if: ${{ !(inputs.disable-publish) && github.event_name == 'push' }}
     runs-on: ubuntu-latest
     needs: [build_source, build_wheels]
 
@@ -84,18 +87,6 @@ jobs:
         pattern: cibw-*
         path: dist
         merge-multiple: true
-
-#    - name: Download sdist artifacts to dist/
-#      uses: actions/download-artifact@v4
-#      with:
-#        name: sdist
-#        path: dist/
-
-#    - name: Download wheelhouse artifacts to dist/
-#      uses: actions/download-artifact@v4
-#      with:
-#        name: wheelhouse
-#        path: dist/
 
     - name: Publish package to PyPI
       # All files in dist/ are published
