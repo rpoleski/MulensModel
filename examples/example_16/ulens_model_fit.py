@@ -619,11 +619,24 @@ class UlensModelFit(object):
 
     def _set_errorbars_scales_fitting(self):
         """Checking if errorbars scales should be fitted"""
-        files = [f if isinstance(f, dict) else {'file_name': f} for f in self._photometry_files]
-        self._fit_errorbars = [f.get("fit_errorbars", False) for f in files]
+        self._fit_errorbars = self._parse_errorbars_settings()
         if True in self._fit_errorbars:
             self._get_datasets()
             self._set_fit_errorbars_scales_params()
+
+    def _parse_errorbars_settings(self):
+        """
+        Reads and check of errorbars settings
+        """
+        files = [f if isinstance(f, dict) else {'file_name': f} for f in self._photometry_files]
+        fit_errorbars = [f.get("fit_errorbars", False) for f in files]
+        fix_errorbars = [f.get("scale_errorbars", False) for f in files]
+        for i, f in enumerate(files):
+            if fit_errorbars[i] and fix_errorbars[i]:
+                raise ValueError(
+                    "You cannot both fix and fit errorbars scaling parameters for the same dataset: {:s}".format(
+                        f.get("file_name", "unknown file")))
+        return fit_errorbars
 
     def _set_fit_errorbars_scales_params(self):
         """
