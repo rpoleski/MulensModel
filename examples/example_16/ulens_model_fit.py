@@ -688,7 +688,8 @@ class UlensModelFit(object):
             if keys != keys_expected:
                 if 'parameters' not in keys:
                     raise KeyError('When using "file" you also must provide "parameters".')
-                allowed = keys_expected | set(self._all_MM_parameters) | set(self._user_parameters) | set(self._other_parameters)
+                allowed = keys_expected | set(self._all_MM_parameters) | set(self._user_parameters) \
+                    | set(self._other_parameters)
                 unknown = keys - allowed
                 if unknown:
                     raise KeyError('Unknown keys in starting_parameters: ' + str(unknown))
@@ -710,8 +711,8 @@ class UlensModelFit(object):
                 self._draw_parameters = []
                 self._file_parameters = self._get_unsorted_starting_parameters()
             elif self._starting_parameters_type == 'mix':
-                self._draw_parameters = [k for k in self._starting_parameters_input.keys()
-                             if k not in ('file', 'parameters')]
+                self._draw_parameters = [
+                    k for k in self._starting_parameters_input.keys() if k not in ('file', 'parameters')]
                 self._file_parameters = self._get_unsorted_starting_parameters()
                 overlap = set(self._file_parameters).intersection(self._draw_parameters)
                 if overlap:
@@ -1600,7 +1601,7 @@ class UlensModelFit(object):
             raise ValueError('internal bug')
 
         if 'n_walkers' in self._fitting_parameters:
-                self._n_walkers = self._fitting_parameters['n_walkers']
+            self._n_walkers = self._fitting_parameters['n_walkers']
         else:
             if self._starting_parameters_type == 'draw':
                 self._n_walkers = 4 * self._n_fit_parameters
@@ -2671,7 +2672,7 @@ class UlensModelFit(object):
         points inside the prior.
         """
         out = []
-        for i , point in enumerate(starting):
+        for point in starting:
             ln_prob = self._ln_prob(point)
             if self._return_fluxes:
                 ln_prob = ln_prob[0]
