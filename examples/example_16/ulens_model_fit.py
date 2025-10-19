@@ -680,10 +680,10 @@ class UlensModelFit(object):
                 if 'parameters' not in keys:
                     raise KeyError('When using "file" you also must provide "parameters".')
                 allowed = keys_expected | set(self._all_MM_parameters) | set(self._user_parameters) | set(self._other_parameters)
-                unknown = keys - allowed_all
-            if unknown:
-                raise KeyError('Unknown keys in starting_parameters: ' + str(unknown))
-            in_type = 'mix'
+                unknown = keys - allowed
+                if unknown:
+                    raise KeyError('Unknown keys in starting_parameters: ' + str(unknown))
+                in_type = 'mix'
         else:
             in_type = 'draw'
 
@@ -699,7 +699,7 @@ class UlensModelFit(object):
                 self._file_parameters = []
             elif self._starting_parameters_type == 'file':
                 self._draw_parameters = []
-                self._file_parameters = self._starting_parameters_input.keys()
+                self._file_parameters = self._get_unsorted_starting_parameters()
             elif self._starting_parameters_type == 'mix':
                 self._draw_parameters = [k for k in self._starting_parameters_input.keys()
                              if k not in ('file', 'parameters')]
@@ -1410,8 +1410,7 @@ class UlensModelFit(object):
         is always the same.
         """
         order = self._all_MM_parameters + self._user_parameters + self._other_parameters
-        indexes = sorted(
-            [order.index(p) for p in self._fit_parameters_unsorted])
+        indexes = sorted([order.index(p) for p in self._fit_parameters_unsorted])
 
         self._fit_parameters = [order[i] for i in indexes]
         self._fit_parameters_other = [
@@ -2310,6 +2309,7 @@ class UlensModelFit(object):
         for (key, value) in self._starting_parameters_input.items():
             if key in ('file', 'parameters'):
                 continue
+            words = value.split()
             if words[0] not in accepted_types:
                 raise ValueError(
                     'starting parameter: ' + words[0] + ' is not recognized.' +
@@ -2549,32 +2549,31 @@ class UlensModelFit(object):
         else:
             raise ValueError(
                 'unexpected: ' + str(self._starting_parameters_type))
-
         self._check_and_store_generated_random_parameters(starting)
 
     def _generate_mixed_sorted_starting_parameters(self, starting_file):
         """
-        Generate  and veryfied starting states for EMCEE when some parameters are provided in a file
+        Generate and verified starting states for EMCEE when some parameters are provided in a file
         and remaining parameters are drawn from specified distributions.
         """
         starting = []
-        max_iteration = 20 * self._n_walkers
-
+        max_iterations = 20 * self._n_walkers
         if self._fit_constraints.get("no_negative_blending_flux", False):
-            max_iteration *= 5
-
-        for point in starting:
+            max_iterations *= 5
+        for point in starting_file:
+            i = 0
             while i <= max_iterations:
+                test = point.copy()
                 for parameter in self._draw_parameters:
                     settings = self._starting_parameters[parameter]
-                    values = self._get_samples_from_distribution(1, settings)
-                point += values
-                point_sorted = self._sort_starting_parameters(point)
-                ln_prob = self._ln_prob(point_sorted)
+                    value = self._get_samples_from_distribution(1, settings)[0]
+                    test.append(value)
+                test_sorted = self._sort_starting_parameters([test])[0]
+                ln_prob = self._ln_prob(test_sorted)
                 if self._return_fluxes:
                     ln_prob = ln_prob[0]
                 if ln_prob > -np.inf:
-                    starting.append(point_sorted)
+                    starting.append(test_sorted)
                     break
                 i += 1
                 if i > max_iterations:
@@ -2584,15 +2583,15 @@ class UlensModelFit(object):
                         "Most probably you have to correct at least one of: " +
                         "starting_parameters, min_values, max_values, or " +
                         "fit_constraints.")
-
+        starting = np.array(starting).tolist()
         return starting
 
     def _sort_starting_parameters(self, starting):
         """
         Sort starting parameters ('initial_state') according to self._fit_parameters
         """
-        order_dict = {p: i for i, p in enumerate(self._fit_parameters)}
-        indexes = [order_dict[p] for p in self._fit_parameters_unsorted]
+        order_dict = {p: i for i, p in enumerate(self._fit_parameters_unsorted)}
+        indexes = [order_dict[p] for p in self._fit_parameters]
         sorted_starting = []
         for point in starting:
             sorted_point = [point[i] for i in indexes]

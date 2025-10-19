@@ -31,9 +31,9 @@ model:
 fixed_parameters:
     t_0_par: 2452848.
 starting_parameters:
+    t_E: gauss 61.5 0.5
     t_0: gauss 2452848.0 0.1
     u_0: gauss 0.13 0.01
-    t_E: gauss 61.5 0.5
     rho: gauss 0.0010 0.0002
     pi_E_N: gauss 0.00 0.01
     pi_E_E: gauss 0.00 0.01
