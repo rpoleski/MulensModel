@@ -6,7 +6,7 @@ Main contributors:
 
 People who have written parts of the code:
 * [Lawrence Peirson](https://github.com/alpv95) - point and binary lens models with shear and convergence
-* [Keto Zhang](https://github.com/ketozhang) - PyPI installation, Extensions etc.
+* [Keto D. Zhang](https://github.com/ketozhang) - PyPI installation, Extensions etc.
 * [Mateusz Mroz](https://github.com/mjmroz) - YAML output in example 16
 * [Raphael A. P. Oliveira](https://github.com/rapoliveira) - small updates in various places
 * [Hariharan Srinivasulu](https://github.com/meethari) - for helping with development of FitData class
