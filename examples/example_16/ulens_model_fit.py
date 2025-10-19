@@ -705,7 +705,7 @@ class UlensModelFit(object):
         """
         if self._fit_method == "EMCEE":
             unsorted_keys = self._set_fit_parameters_unsorted_EMCEE()
-           
+
         elif self._fit_method in ["MultiNest", "UltraNest"]:
             unsorted_keys = self._prior_limits.keys()
         else:
@@ -731,7 +731,7 @@ class UlensModelFit(object):
             overlap = set(self._file_parameters).intersection(self._draw_parameters)
             if overlap:
                 raise ValueError("Starting parameters cannot be defined both in file and as distributions: " +
-                                    str(overlap))
+                                 str(overlap))
         else:
             raise ValueError('unexpected: ' + str(self._starting_parameters_type))
         return list(self._file_parameters) + list(self._draw_parameters)
@@ -2593,7 +2593,7 @@ class UlensModelFit(object):
                         "fit_constraints.")
         starting = np.array(starting).tolist()
         return starting
-    
+
     def _get_max_iterations_for_drawing_initial_values(self):
         """
         Calculate maximum number of iterations for generating valid starting points.
@@ -2602,7 +2602,7 @@ class UlensModelFit(object):
         if self._fit_constraints.get("no_negative_blending_flux", False):
             max_iterations *= 5
         return max_iterations
-    
+
     def _combine_file_and_drawn_parameters(self, file_point):
         """
         Combine parameters from file with drawn parameters.
