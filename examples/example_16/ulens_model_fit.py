@@ -677,9 +677,13 @@ class UlensModelFit(object):
             keys_expected = {'file', 'parameters'}
             keys = set(self._starting_parameters_input.keys())
             if keys != keys_expected:
-                error = ('Wrong starting parameters keys. Expected: ' +
-                         str(keys_expected) + '; Provided: ' + str(keys))
-                raise KeyError(error)
+                if 'parameters' not in keys:
+                    raise KeyError('When using "file" you also must provide "parameters".')
+                allowed = keys_expected | set(self._all_MM_parameters) | set(self._user_parameters) | set(self._other_parameters)
+                unknown = keys - allowed_all
+            if unknown:
+                raise KeyError('Unknown keys in starting_parameters: ' + str(unknown))
+            in_type = 'mix'
         else:
             in_type = 'draw'
 
@@ -691,12 +695,22 @@ class UlensModelFit(object):
         """
         if self._fit_method == "EMCEE":
             if self._starting_parameters_type == 'draw':
-                unsorted_keys = self._starting_parameters_input.keys()
+                self._draw_parameters = self._starting_parameters_input.keys()
+                self._file_parameters = []
             elif self._starting_parameters_type == 'file':
-                unsorted_keys = self._get_unsorted_starting_parameters()
+                self._draw_parameters = []
+                self._file_parameters = self._starting_parameters_input.keys()
+            elif self._starting_parameters_type == 'mix':
+                self._draw_parameters = [k for k in self._starting_parameters_input.keys()
+                             if k not in ('file', 'parameters')]
+                self._file_parameters = self._get_unsorted_starting_parameters()
+                overlap = set(self._file_parameters).intersection(self._draw_parameters)
+                if overlap:
+                    raise ValueError("Starting parameters cannot be defined both in file and as distributions: " +
+                                     str(overlap))
             else:
-                raise ValueError(
-                    'unexpected: ' + str(self._starting_parameters_type))
+                raise ValueError('unexpected: ' + str(self._starting_parameters_type))
+            unsorted_keys = list(self._file_parameters) + list(self._draw_parameters)
         elif self._fit_method in ["MultiNest", "UltraNest"]:
             unsorted_keys = self._prior_limits.keys()
         else:
@@ -1578,11 +1592,18 @@ class UlensModelFit(object):
             raise ValueError('internal bug')
 
         if 'n_walkers' in self._fitting_parameters:
-            self._n_walkers = self._fitting_parameters['n_walkers']
+                self._n_walkers = self._fitting_parameters['n_walkers']
         else:
             if self._starting_parameters_type == 'draw':
                 self._n_walkers = 4 * self._n_fit_parameters
-            elif self._starting_parameters_type != 'file':
+            elif self._starting_parameters_type in ['file', 'mix']:
+                self._n_walkers = len(self._starting_parameters_list)
+                if 'n_walkers' in self._fitting_parameters:
+                    warnings.warn(
+                        'n_walkers will be ignored and set to the length of file:\n' +
+                        self._starting_parameters_input['file'] +
+                        '\nwith provided values of starting parameters')
+            else:
                 raise ValueError('Unexpected: ' + self._starting_parameters_type)
 
     def _parse_fitting_parameters_MultiNest(self):
@@ -2253,6 +2274,9 @@ class UlensModelFit(object):
             self._read_starting_parameters_from_file()
         elif self._starting_parameters_type == 'draw':
             self._parse_starting_parameters_to_be_drawn()
+        elif self._starting_parameters_type == 'mix':
+            self._parse_starting_parameters_to_be_drawn()
+            self._read_starting_parameters_from_file()
         else:
             raise ValueError(
                 'unexpected: ' + str(self._starting_parameters_type))
@@ -2267,7 +2291,7 @@ class UlensModelFit(object):
         except Exception:
             raise RuntimeError('Error while reading file: ' + file_name)
 
-        if len(data.shape) != 2 or data.shape[0] != self._n_fit_parameters:
+        if len(data.shape) != 2 or data.shape[0] != len(self._file_parameters):
             raise ValueError(
                 'Something wrong in shape of data read from ' + file_name)
 
@@ -2284,7 +2308,8 @@ class UlensModelFit(object):
 
         out = dict()
         for (key, value) in self._starting_parameters_input.items():
-            words = value.split()
+            if key in ('file', 'parameters'):
+                continue
             if words[0] not in accepted_types:
                 raise ValueError(
                     'starting parameter: ' + words[0] + ' is not recognized.' +
@@ -2465,6 +2490,8 @@ class UlensModelFit(object):
             return self._extract_example_parameters_EMCEE()
         elif self._starting_parameters_type == 'draw':
             return self._draw_example_parameters_EMCEE()
+        elif self._starting_parameters_type == 'mix':
+            return {**self._extract_example_parameters_EMCEE(), **self._draw_example_parameters_EMCEE()}
         else:
             raise ValueError(
                 'unexpected: ' + str(self._starting_parameters_type))
@@ -2475,7 +2502,7 @@ class UlensModelFit(object):
         MM.Model and MM.Event. Sets of parameters are already read,
         so we just take 0-th set.
         """
-        keys = self._fit_parameters_unsorted
+        keys = self._file_parameters
         values = self._starting_parameters_list[0]
         return dict(zip(keys, values))
 
@@ -2485,23 +2512,24 @@ class UlensModelFit(object):
         """
         parameters = dict()
         for (key, value) in self._starting_parameters.items():
-            # We treat Cassan08 case differently so that
-            # x_caustic_in is different than x_caustic_out.
-            if key == "x_caustic_in":
-                if value[0] == 'gauss':
-                    parameters[key] = (
-                        value[1] + value[2] * np.random.randn(1)[0])
-                elif value[0] in ['uniform', 'log-uniform']:
-                    parameters[key] = 0.25 * value[1] + 0.75 * value[2]
+            if key not in ['file', 'parameters']:
+                # We treat Cassan08 case differently so that
+                # x_caustic_in is different than x_caustic_out.
+                if key == "x_caustic_in":
+                    if value[0] == 'gauss':
+                        parameters[key] = (
+                            value[1] + value[2] * np.random.randn(1)[0])
+                    elif value[0] in ['uniform', 'log-uniform']:
+                        parameters[key] = 0.25 * value[1] + 0.75 * value[2]
+                    else:
+                        raise ValueError('internal error: ' + value[0])
                 else:
-                    raise ValueError('internal error: ' + value[0])
-            else:
-                if value[0] == 'gauss':
-                    parameters[key] = value[1]
-                elif value[0] in ['uniform', 'log-uniform']:
-                    parameters[key] = (value[1] + value[2]) / 2.
-                else:
-                    raise ValueError('internal error: ' + value[0])
+                    if value[0] == 'gauss':
+                        parameters[key] = value[1]
+                    elif value[0] in ['uniform', 'log-uniform']:
+                        parameters[key] = (value[1] + value[2]) / 2.
+                    else:
+                        raise ValueError('internal error: ' + value[0])
         return parameters
 
     def _get_starting_parameters(self):
@@ -2510,14 +2538,67 @@ class UlensModelFit(object):
         Check if there are enough of them and store.
         """
         if self._starting_parameters_type == 'file':
-            starting = self._starting_parameters_list
+            starting_unsorted = self._starting_parameters_list
+            starting = self._sort_starting_parameters(starting_unsorted)
         elif self._starting_parameters_type == 'draw':
-            starting = self._generate_random_parameters()
+            starting_unsorted = self._generate_random_parameters()
+            starting = self._sort_starting_parameters(starting_unsorted)
+        elif self._starting_parameters_type == 'mix':
+            starting_file = self._starting_parameters_list
+            starting = self._generate_mixed_sorted_starting_parameters(starting_file)
         else:
             raise ValueError(
                 'unexpected: ' + str(self._starting_parameters_type))
 
         self._check_and_store_generated_random_parameters(starting)
+
+    def _generate_mixed_sorted_starting_parameters(self, starting_file):
+        """
+        Generate  and veryfied starting states for EMCEE when some parameters are provided in a file
+        and remaining parameters are drawn from specified distributions.
+        """
+        starting = []
+        max_iteration = 20 * self._n_walkers
+
+        if self._fit_constraints.get("no_negative_blending_flux", False):
+            max_iteration *= 5
+
+        for point in starting:
+            while i <= max_iterations:
+                for parameter in self._draw_parameters:
+                    settings = self._starting_parameters[parameter]
+                    values = self._get_samples_from_distribution(1, settings)
+                point += values
+                point_sorted = self._sort_starting_parameters(point)
+                ln_prob = self._ln_prob(point_sorted)
+                if self._return_fluxes:
+                    ln_prob = ln_prob[0]
+                if ln_prob > -np.inf:
+                    starting.append(point_sorted)
+                    break
+                i += 1
+                if i > max_iterations:
+                    raise ValueError(
+                        "Couldn't generate valid drawn starting points to match file starting points in file:\n" +
+                        str(self._starting_parameters_input['file']) + ".\n" +
+                        "Most probably you have to correct at least one of: " +
+                        "starting_parameters, min_values, max_values, or " +
+                        "fit_constraints.")
+
+        return starting
+
+    def _sort_starting_parameters(self, starting):
+        """
+        Sort starting parameters ('initial_state') according to self._fit_parameters
+        """
+        order_dict = {p: i for i, p in enumerate(self._fit_parameters)}
+        indexes = [order_dict[p] for p in self._fit_parameters_unsorted]
+        sorted_starting = []
+        for point in starting:
+            sorted_point = [point[i] for i in indexes]
+            sorted_starting.append(sorted_point)
+
+        return sorted_starting
 
     def _generate_random_parameters(self):
         """
@@ -2529,7 +2610,7 @@ class UlensModelFit(object):
             max_iteration *= 5
 
         starting = []
-        for parameter in self._fit_parameters:
+        for parameter in self._draw_parameters:
             settings = self._starting_parameters[parameter]
             values = self._get_samples_from_distribution(
                 max_iteration, settings)
@@ -2582,7 +2663,7 @@ class UlensModelFit(object):
         points inside the prior.
         """
         out = []
-        for point in starting:
+        for i , point in enumerate(starting):
             ln_prob = self._ln_prob(point)
             if self._return_fluxes:
                 ln_prob = ln_prob[0]
