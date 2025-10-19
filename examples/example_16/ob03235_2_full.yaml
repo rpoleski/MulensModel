@@ -43,7 +43,7 @@ starting_parameters:
     # It is also possible to provide a file with starting points e.g.:
     #   file: ob08092-o4_starting_file_input.txt
     #   parameters: t_0 u_0 t_E
-    # See also ob08092-o4_starting_file.yaml
+    # See also ob08092-o4_starting_file.yaml or ob08092-o4_starting_file_mix.yaml
 # prior_limits:
 #     t_0: [2452847.5, 2452848.5]
 #     u_0: [0.08, 0.18]
