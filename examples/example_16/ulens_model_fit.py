@@ -11,7 +11,7 @@ import math
 import numpy as np
 import shlex
 from scipy.interpolate import interp1d
-from copy import copy, deepcopy
+from copy import deepcopy
 from matplotlib import pyplot as plt
 from matplotlib import gridspec, rcParams, rcParamsDefault, colors
 # from matplotlib.backends.backend_pdf import PdfPages
@@ -1328,9 +1328,9 @@ class UlensModelFit(object):
                 'provided ' + str(type(self._photometry_files)))
         files = [f if isinstance(f, dict) else {'file_name': f}
                  for f in self._photometry_files]
-        self._datasets = []        
+        self._datasets = []
         self._datasets_initial = []
-        
+
         for file_ in files:
             dataset = self._get_1_dataset(file_, kwargs)
             self._datasets.append(dataset)
@@ -2756,12 +2756,12 @@ class UlensModelFit(object):
                     self._errorbars_parameters_dict[parameter] = value
                 else:
                     self._other_parameters_dict[parameter] = value
-        self._update_errorbars_scaling()
+        self._update_datasets()
 
-    def _update_errorbars_scaling(self):
+    def _update_datasets(self):
         """
-        Update datasets errorbars according to current values of errorbars
-        scaling parameters.
+        Update datasets:
+        - errorbars according to current values of errorbars scaling parameters.
         """
         if True in self._fit_errorbars:
             scales = {k: v for k, v in self._errorbars_parameters_dict.items()
@@ -2771,14 +2771,14 @@ class UlensModelFit(object):
                 if key.startswith('ERR'):
                     scales_sorted.append(scales[key])
 
-            self._update_datasets(scales_sorted)
+            self._update_errorbars_scaling(scales_sorted)
 
-    def _update_datasets(self, scales):
+    def _update_errorbars_scaling(self, scales):
         """
         Updates scales of errorbars
         """
         index = 0
-        self._event.datasets=deepcopy(self._datasets_initial)
+        self._event.datasets = deepcopy(self._datasets_initial)
         for (i, dataset) in enumerate(self._event.datasets):
             if self._fit_errorbars[i]:
                 scaling = {"factor": scales[index], "minimum":  scales[index+1]}
