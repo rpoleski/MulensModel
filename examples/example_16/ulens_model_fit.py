@@ -704,23 +704,8 @@ class UlensModelFit(object):
         Find what are the fitted parameters. It will be sorted later.
         """
         if self._fit_method == "EMCEE":
-            if self._starting_parameters_type == 'draw':
-                self._draw_parameters = self._starting_parameters_input.keys()
-                self._file_parameters = []
-            elif self._starting_parameters_type == 'file':
-                self._draw_parameters = []
-                self._file_parameters = self._get_unsorted_starting_parameters()
-            elif self._starting_parameters_type == 'mix':
-                self._draw_parameters = [
-                    k for k in self._starting_parameters_input.keys() if k not in ('file', 'parameters')]
-                self._file_parameters = self._get_unsorted_starting_parameters()
-                overlap = set(self._file_parameters).intersection(self._draw_parameters)
-                if overlap:
-                    raise ValueError("Starting parameters cannot be defined both in file and as distributions: " +
-                                     str(overlap))
-            else:
-                raise ValueError('unexpected: ' + str(self._starting_parameters_type))
-            unsorted_keys = list(self._file_parameters) + list(self._draw_parameters)
+            unsorted_keys = self._set_fit_parameters_unsorted_EMCEE()
+           
         elif self._fit_method in ["MultiNest", "UltraNest"]:
             unsorted_keys = self._prior_limits.keys()
         else:
@@ -728,6 +713,28 @@ class UlensModelFit(object):
 
         self._fit_parameters_unsorted = list(unsorted_keys)
         self._n_fit_parameters = len(self._fit_parameters_unsorted)
+
+    def _set_fit_parameters_unsorted_EMCEE(self):
+        """
+        Find what are the fitted parameters for EMCEE fitting.
+        """
+        if self._starting_parameters_type == 'draw':
+            self._draw_parameters = self._starting_parameters_input.keys()
+            self._file_parameters = []
+        elif self._starting_parameters_type == 'file':
+            self._draw_parameters = []
+            self._file_parameters = self._get_unsorted_starting_parameters()
+        elif self._starting_parameters_type == 'mix':
+            self._draw_parameters = [
+                k for k in self._starting_parameters_input.keys() if k not in ('file', 'parameters')]
+            self._file_parameters = self._get_unsorted_starting_parameters()
+            overlap = set(self._file_parameters).intersection(self._draw_parameters)
+            if overlap:
+                raise ValueError("Starting parameters cannot be defined both in file and as distributions: " +
+                                    str(overlap))
+        else:
+            raise ValueError('unexpected: ' + str(self._starting_parameters_type))
+        return list(self._file_parameters) + list(self._draw_parameters)
 
     def _get_unsorted_starting_parameters(self):
         """
@@ -2567,22 +2574,13 @@ class UlensModelFit(object):
         and remaining parameters are drawn from specified distributions.
         """
         starting = []
-        max_iterations = 20 * self._n_walkers
-        if self._fit_constraints.get("no_negative_blending_flux", False):
-            max_iterations *= 5
+        max_iterations = self._get_max_iterations_for_drawing_initial_values()
         for point in starting_file:
             i = 0
             while i <= max_iterations:
-                test = point.copy()
-                for parameter in self._draw_parameters:
-                    settings = self._starting_parameters[parameter]
-                    value = self._get_samples_from_distribution(1, settings)[0]
-                    test.append(value)
+                test = self._combine_file_and_drawn_parameters(point)
                 test_sorted = self._sort_starting_parameters([test])[0]
-                ln_prob = self._ln_prob(test_sorted)
-                if self._return_fluxes:
-                    ln_prob = ln_prob[0]
-                if ln_prob > -np.inf:
+                if self._check_inside_prior(test_sorted):
                     starting.append(test_sorted)
                     break
                 i += 1
@@ -2595,6 +2593,34 @@ class UlensModelFit(object):
                         "fit_constraints.")
         starting = np.array(starting).tolist()
         return starting
+    
+    def _get_max_iterations_for_drawing_initial_values(self):
+        """
+        Calculate maximum number of iterations for generating valid starting points.
+        """
+        max_iterations = 20 * self._n_walkers
+        if self._fit_constraints.get("no_negative_blending_flux", False):
+            max_iterations *= 5
+        return max_iterations
+    
+    def _combine_file_and_drawn_parameters(self, file_point):
+        """
+        Combine parameters from file with drawn parameters.
+        """
+        for parameter in self._draw_parameters:
+            settings = self._starting_parameters[parameter]
+            value = self._get_samples_from_distribution(1, settings)[0]
+            file_point.append(value)
+        return file_point
+
+    def _check_inside_prior(self, point):
+        """
+        Check if a given point is inside the prior.
+        """
+        ln_prob = self._ln_prob(point)
+        if self._return_fluxes:
+            ln_prob = ln_prob[0]
+        return ln_prob > -np.inf
 
     def _sort_starting_parameters(self, starting):
         """
@@ -2614,10 +2640,7 @@ class UlensModelFit(object):
         Generate a number of starting parameters values.
         It is checked if parameters are within the prior.
         """
-        max_iteration = 20 * self._n_walkers
-        if self._fit_constraints["no_negative_blending_flux"]:
-            max_iteration *= 5
-
+        max_iteration = self._get_max_iterations_for_drawing_initial_values()
         starting = []
         for parameter in self._draw_parameters:
             settings = self._starting_parameters[parameter]
@@ -2673,10 +2696,7 @@ class UlensModelFit(object):
         """
         out = []
         for point in starting:
-            ln_prob = self._ln_prob(point)
-            if self._return_fluxes:
-                ln_prob = ln_prob[0]
-            if ln_prob > -np.inf:
+            if self._check_inside_prior(point):
                 out.append(point)
                 if len(out) == self._n_walkers:
                     break
