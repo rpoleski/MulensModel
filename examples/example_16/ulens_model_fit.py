@@ -132,6 +132,15 @@ class UlensModelFit(object):
                   'u_0': 'uniform 0.001 1.',
                   't_E': 'gauss 20. 5.'
               }
+            Third, you can provide mixture of both. For example:
+
+            .. code-block:: python
+
+              {
+                  'file': 'STARTING_POINTS.txt',
+                  'parameters': 't_0 u_0'
+                  't_E': 'gauss 20. 5.'
+              }
 
         prior_limits: *dict*
             Upper and lower limits of parameters.
