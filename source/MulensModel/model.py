@@ -15,6 +15,8 @@ from MulensModel.satelliteskycoord import SatelliteSkyCoord
 from MulensModel.trajectory import Trajectory
 from MulensModel.utils import Utils, PlotUtils
 
+PlotUtils.apply_defaults()
+
 
 class Model(object):
     """
