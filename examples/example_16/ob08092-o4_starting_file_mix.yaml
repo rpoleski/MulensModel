@@ -8,6 +8,7 @@ min_values:
     t_E: 0.
 fitting_parameters:
     n_steps: 5000
+    n_walkers: 9 
 plots:
     trajectory:
         file: ob08092-o4_trajectory2.png
