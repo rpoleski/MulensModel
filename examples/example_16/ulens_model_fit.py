@@ -1606,11 +1606,11 @@ class UlensModelFit(object):
         """
         if self._fit_method != 'EMCEE':
             raise ValueError('internal bug')
-        file_len = len(self._starting_parameters_list)
         if self._starting_parameters_type == 'draw':
             self._n_walkers = self._fitting_parameters.get('n_walkers', 4 * self._n_fit_parameters)
         elif self._starting_parameters_type in ['file', 'mix']:
             if 'n_walkers' in self._fitting_parameters:
+                file_len = len(self._starting_parameters_list)
                 if self._fitting_parameters['n_walkers'] < file_len:
                     warnings.warn(('Only specified `n_walkers: {:d}` good points will be drawn from file:\n' +
                                    '{}\nwith the provided values of starting parameters').format(
