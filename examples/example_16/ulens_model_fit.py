@@ -2341,6 +2341,7 @@ class UlensModelFit(object):
         """
         Extract fixed user-defined parameters into self._fixed_user_parameters
         """
+        self._fixed_user_parameters = {}
         for key in self._user_parameters:
             if key in self._fixed_parameters:
                 self._fixed_user_parameters[key] = self._fixed_parameters.pop(key)
