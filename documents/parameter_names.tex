@@ -57,7 +57,7 @@ $t_{0,{\rm kep}}$ & {\tt t\_0\_kep} & & The reference time for lens orbital moti
 $x_{\rm caustic, in}$ & {\tt x\_caustic\_in} & & Curvelinear coordinate of caustic entrance for a binary lens model.$^c$ \\
 $x_{\rm caustic, out}$ & {\tt x\_caustic\_out} & & Curvelinear coordinate of caustic exit for a binary lens model.$^c$ \\
 $t_{\rm caustic, in}$ & {\tt t\_caustic\_in} & & Epoch of caustic exit for a binary lens model.$^c$ \\
-$t_{\rm caustic, out}$ & {\tt t\_caustic\_out} & & Epoch of caustic exit for a binary lens model.$^c$ \\
+$t_{\rm caustic, out}$ & {\tta* ( t\_caustic\_out} & & Epoch of caustic exit for a binary lens model.$^c$ \\
 $\xi_P$ & \texttt{xi\_period} & d & The orbital period of xallarap.\\
 $\xi_a$ & \texttt{xi\_semimajor\_axis} & & The semimajor axis of a xallarap orbit as a fraction of the Einstein ring.\\
 $\xi_i$ & \texttt{xi\_inclination} & deg & The inclination of a xallarap orbit.$^d$\\
@@ -65,6 +65,10 @@ $\xi_\Omega$ & \texttt{xi\_Omega\_node} & deg & The longitude of the ascending n
 $\xi_u$ & \texttt{xi\_argument\_of\_latitude\_reference} & deg & The argument of latitude at the reference epoch ($t_{0,\chi}$). The argument of latitude is a sum of true anomaly ($\nu$, changes with time) and the argument of periapsis ($\omega$, orbit parameter, i.e., does not change with time): $u = \nu + \omega$.$^d$\\
 $\xi_e$ & \texttt{xi\_eccentricity} & & The eccentricity of a xallarap orbit.\\
 $\xi_\omega$ & \texttt{xi\_omega\_periapsis} & deg & The argument of periapsis of a xallarap orbit.$^d$\\
+$\xi_{\mathrm{A}}$ & \texttt{xi\_A} & & Thiele-Innes parameter $\mathrm{A} = a* (\cos \Omega  \cos \omega - \sin \Omega \sin \omega \cos i$)$^e$ \\
+$\xi_{\mathrm{B}}$ & \texttt{xi\_B} & & Thiele-Innes parameter $\mathrm{B} = a* (\sin \Omega  \cos \omega + \cos \Omega \sin \omega \cos i$)$^e$ \\
+$\xi_{\mathrm{F}}$ & \texttt{xi\_F} & & Thiele-Innes parameter $\mathrm{F} = -a* (\cos \Omega  \sin \omega + \cos \Omega \cos \omega \cos i$)$^e$ \\
+$\xi_{\mathrm{G}}$ & \texttt{xi\_G} & & Thiele-Innes parameter $\mathrm{G} = -a* (\sin \Omega  \sin \omega + \cos \Omega \cos \omega \cos i$)$^e$ \\
 $q_\mathrm{source}$ & \texttt{q\_source} & & Mass ratio of source components: $m_{s,2}/m_{s,1}$. It is valid only for xallarap models.\\
 $t_{0,\xi}$ & \texttt{t\_0\_xi} & &  The reference epoch for parameters in xallarap models.$^a$\\
 \hline
@@ -72,9 +76,11 @@ $t_{0,\xi}$ & \texttt{t\_0\_xi} & &  The reference epoch for parameters in xalla
 $^a$ -- $t_{0,{\rm par}}$, $t_{0,{\rm kep}}$, and $t_{0,\chi}$ are reference parameters, hence, do not change these during fitting. \newline
 $^b$ -- To include keplerian motion of the lenses on a circular orbit either $s_{z}$ or $ds_{z}/dt$ has to be defined. \newline
 $^c$ -- The four parameters of binary lens in Cassan (2008) parameterization ($x_{\rm caustic, in}$, $x_{\rm caustic, out}$, $t_{\rm caustic, in}$, $t_{\rm caustic, out}$) are used instead of ($t_0$, $u_0$, $t_{\rm E}$, $\alpha$). \newline
-$^d$ -- The orbital angles are illustrated in Figure~1.
-%\label{}
+$^d$ -- The orbital angles are illustrated in Figure~1.\newline
+$^e$ -- Thiele-Innes parameters are an alternative way of defining the orbit. They should not be used together with standard orbital parameters ($\xi_a$, $\xi_i$, $\xi_\Omega$, $\xi_\omega$). For   details see \href{https://ui.adsabs.harvard.edu/abs/2001icbs.book.....H}{\textit{An Introduction to Close Binary Stars, R. W. Hilditch} (2001)}.
 }
+%\label{}
+
 \end{longtable}
 \end{landscape}
 
