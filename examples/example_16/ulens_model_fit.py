@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.51.0'
+__version__ = '0.51.1'
 
 
 class UlensModelFit(object):
@@ -803,6 +803,7 @@ class UlensModelFit(object):
 
         self._check_plots_parameters()
         self._check_model_parameters()
+        self._parse_other_output_parameters()
         self._get_datasets()
         self._check_ulens_model_parameters()
         self._check_fixed_parameters()
