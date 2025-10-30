@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.52.0'
+__version__ = '0.52.1'
 
 
 class UlensModelFit(object):
@@ -403,6 +403,7 @@ class UlensModelFit(object):
               }
 
             Note that 'rcParams' allows setting many matplotlib parameters.
+            Also note that MM defaults are applied only if 'rcParams' is not provided.
 
         other_output: *dict*
             Parameters for other output. Allowed value are:
