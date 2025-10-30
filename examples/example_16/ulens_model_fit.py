@@ -3940,6 +3940,8 @@ class UlensModelFit(object):
         if rc_params:
             self._reset_rcParams()
             rcParams.update(rc_params)
+        else:
+            mm.utils.PlotUtils.apply_defaults()
 
         kwargs_all = self._get_kwargs_for_best_model_plot()
         (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2) = kwargs_all[:6]
