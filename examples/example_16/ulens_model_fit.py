@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.51.1'
+__version__ = '0.52.0'
 
 
 class UlensModelFit(object):
@@ -860,7 +860,7 @@ class UlensModelFit(object):
         Check if parameters of best model make sense
         """
         allowed = set(['file', 'time range', 'magnitude range', 'legend', 'rcParams', 'second Y scale',
-                       'interactive', 'title', 'add models', 'model label', 'model kwargs'])
+                       'interactive', 'title', 'add models', 'model label', 'model kwargs', 'xlabel'])
         unknown = set(self._plots['best model'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError('Unknown settings for "best model": {:}'.format(unknown))
@@ -3966,6 +3966,9 @@ class UlensModelFit(object):
         axes = plt.subplot(grid[1])
 
         self._event.plot_residuals(**kwargs)
+        if "xlabel" in self._plots['best model']:
+            plt.xlabel(self._plots['best model']['xlabel'])
+
         plt.xlim(*xlim)
         plt.ylim(*ylim_residuals)
         axes.tick_params(**kwargs_axes_2)
