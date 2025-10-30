@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.52.0'
+__version__ = '0.52.1'
 
 
 class UlensModelFit(object):
@@ -403,6 +403,7 @@ class UlensModelFit(object):
               }
 
             Note that 'rcParams' allows setting many matplotlib parameters.
+            Also note that MM defaults are applied only if 'rcParams' is not provided.
 
         other_output: *dict*
             Parameters for other output. Allowed value are:
@@ -3935,9 +3936,12 @@ class UlensModelFit(object):
 
         self._ln_like(self._best_model_theta)  # Sets all parameters to the best model.
 
-        self._reset_rcParams()
-        for (key, value) in self._plots['best model'].get('rcParams', {}).items():
-            rcParams[key] = value
+        rc_params = self._plots['best model'].get('rcParams')
+        if rc_params:
+            self._reset_rcParams()
+            rcParams.update(rc_params)
+        else:
+            mm.utils.PlotUtils.apply_defaults()
 
         kwargs_all = self._get_kwargs_for_best_model_plot()
         (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2) = kwargs_all[:6]
