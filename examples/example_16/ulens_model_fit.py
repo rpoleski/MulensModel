@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.50.0'
+__version__ = '0.52.0'
 
 
 class UlensModelFit(object):
@@ -365,7 +365,7 @@ class UlensModelFit(object):
             1) for ``best model``:
             ``'file'``, ``'interactive'``, ``'time range'``, ``'magnitude range'``, ``'title'``,``'legend'``,
             ``'rcParams'``, ``'add models'`` (allows setting ``Model.plot_lc()`` parameters and
-            ``'limb darkening u'`` to *str* or *float*), and ``'model label'``
+            ``'limb darkening u'`` to *str* or *float*), ``'model label'``, and ``'model kwargs'``
             2) for ``triangle`` and ``trace``:
             ``'file'``, and ``'shift t_0'`` (*bool*, *True* is default)
             3) for ``trajectory``:
@@ -397,6 +397,7 @@ class UlensModelFit(object):
                       'rcParams':
                           'font.size': 15
                       'model label': 'I-band model'
+                      'model kwargs': {'c': 'r', 'lw': 3.}
                       'add models':
                           [{'limb darkening u': 'V', 'label': 'V-band model', 'color': 'slateblue', 'zorder': -10}]
               }
@@ -802,6 +803,7 @@ class UlensModelFit(object):
 
         self._check_plots_parameters()
         self._check_model_parameters()
+        self._parse_other_output_parameters()
         self._get_datasets()
         self._check_ulens_model_parameters()
         self._check_fixed_parameters()
@@ -858,7 +860,7 @@ class UlensModelFit(object):
         Check if parameters of best model make sense
         """
         allowed = set(['file', 'time range', 'magnitude range', 'legend', 'rcParams', 'second Y scale',
-                       'interactive', 'title', 'add models', 'model label'])
+                       'interactive', 'title', 'add models', 'model label', 'model kwargs', 'xlabel'])
         unknown = set(self._plots['best model'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError('Unknown settings for "best model": {:}'.format(unknown))
@@ -3965,6 +3967,9 @@ class UlensModelFit(object):
         axes = plt.subplot(grid[1])
 
         self._event.plot_residuals(**kwargs)
+        if "xlabel" in self._plots['best model']:
+            plt.xlabel(self._plots['best model']['xlabel'])
+
         plt.xlim(*xlim)
         plt.ylim(*ylim_residuals)
         axes.tick_params(**kwargs_axes_2)
@@ -3978,8 +3983,8 @@ class UlensModelFit(object):
         plot_size_ratio = 5
         hspace = 0
         tau = 1.5
-        default_model = {'color': 'black', 'linewidth': 1.0, 'zorder': np.inf}
         kwargs_grid = {'nrows': 2, 'ncols': 1, 'height_ratios': [plot_size_ratio, 1], 'hspace': hspace}
+        default_model = self._get_model_kwargs()
 
         (t_1, t_2) = self._get_time_limits_for_plot(tau, 'best model')
         (kwargs, xlim) = self._get_subtract_kwargs_and_xlim_for_best_model(t_1, t_2)
@@ -3998,6 +4003,19 @@ class UlensModelFit(object):
         kwargs_axes_2 = {**kwargs_axes_1, 'labelbottom': True}
 
         return (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2, kwargs_axes_1, kwargs_axes_2)
+
+    def _get_model_kwargs(self):
+        """Get kwargs for plotting models in best model plot"""
+        properties = {'zorder': np.inf}
+
+        properties.update(self._plots['best model'].get('model kwargs', dict()))
+        if 'c' not in properties and 'color' not in properties:
+            properties['color'] = 'black'
+
+        if 'lw' not in properties and 'linewidth' not in properties:
+            properties['linewidth'] = 1.0
+
+        return properties
 
     def _get_subtract_kwargs_and_xlim_for_best_model(self, t_1, t_2):
         """
