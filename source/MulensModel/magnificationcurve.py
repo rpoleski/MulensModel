@@ -208,16 +208,19 @@ class MagnificationCurve(object):
             else:
                 self._set_binary_lens_w_shear_magnification_objects()
 
-    def _setup_trajectory(self, selection):
+    def _setup_trajectory(self, selection, parameters=None):
         """ Create a trajectory object for a given subset of the data
         specified by *selection*. """
+        if parameters is None:
+            parameters = self.parameters
+
         if self.satellite_skycoord is not None:
             satellite_skycoord = self.satellite_skycoord[selection]
         else:
             satellite_skycoord = None
 
         trajectory = mm.Trajectory(
-            self.times[selection], parameters=self.parameters,
+            self.times[selection], parameters=parameters,
             parallax=self.parallax, coords=self.coords,
             satellite_skycoord=satellite_skycoord)
         return trajectory
@@ -383,6 +386,35 @@ class MagnificationCurve(object):
 
         return self._get_magnification_universal()
 
+    #def _get_point_lens_magnification_curve_for_2L1S(self, selection):
+    #    if self.parameters.s < 1.:
+    #        pspl_parameters = self.parameters
+    #    else:
+    #        delta_x = ((self.parameters.q / (1. + self.parameters.q)) *
+    #                   ((1. / self.parameters.s ) - self.parameters.s ))
+    #        delta_u0 = delta_x * np.sin(np.deg2rad(self.parameters.alpha))
+    #        delta_t0 = delta_x * self.parameters.t_E * np.cos(
+    #            np.deg2rad(self.parameters.alpha))
+    #        pspl = {key: value for key, value in self.parameters.parameters.items()}
+    #        pspl['t_0'] -= delta_t0
+    #        pspl['u_0'] -= delta_u0
+    #
+    #        # Keep the same reference times
+    #        if 'pi_E_E' in self.parameters.parameters.keys():
+    #            pspl['t_0_par'] = self.parameters.t_0_par
+    #
+    #        if 'ds_dt' in self.parameters.parameters.keys():
+    #            pspl['t_0_kep'] = self.parameters.t_0_kep
+    #
+    #        if 'xi_period' in self.parameters.parameters.keys():
+    #            pspl['t_0_xi'] = self.parameters.t_0_xi
+    #
+    #        pspl_parameters = mm.ModelParameters(pspl)
+    #        # change of origin is probably a problem for orbital motion.
+    #
+    #    trajectory = self._setup_trajectory(selection, parameters=pspl_parameters)
+    #    return mm.pointlens.PointSourcePointLensMagnification(trajectory=trajectory)
+
     def _set_binary_lens_magnification_objects(self):
         """ For simple binary lens models, create a *dict* of magnification
         objects corresponding to the user-specified magnification methods."""
@@ -420,9 +452,16 @@ class MagnificationCurve(object):
                     BinaryLensAdaptiveContouringMagnification(
                         trajectory=trajectory, gamma=self._gamma, **kwargs)
             elif method.lower() == 'point_source_point_lens':
+                if self.parameters.s < 1.:
+                    co_mag_trajectory = trajectory
+                else:
+                    q = self.parameters.q
+                    s = self.parameters.get_s(trajectory.times)
+                    delta_x = - (s - 1. / s) * q / (1. + q)
+                    co_mag_trajectory = mm.Trajectory(x=trajectory.x - delta_x, y=trajectory.y)
+
                 self._magnification_objects[method] = \
-                    mm.pointlens.PointSourcePointLensMagnification(
-                        trajectory=trajectory)
+                    mm.pointlens.PointSourcePointLensMagnification(trajectory=co_mag_trajectory)
             else:
                 msg = 'Unknown method specified for binary lens: {:}'
                 raise ValueError(msg.format(method))
