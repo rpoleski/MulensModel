@@ -1963,12 +1963,15 @@ class ModelParameters(object):
         # if cos_nu > 0.9:
         #     sin_nu = np.dot(position, y)
         #     nu = np.arcsin(sin_nu) * 180. / np.pi
+        # else:
         nu = np.arccos(cos_nu) * 180. / np.pi # XXX sign
-        self._lens_keplerian['argument_of_latitude_reference'] = nu + self._lens_keplerian['omega_periapsis']
+        # Alternative:
+        # self._lens_keplerian['argument_of_latitude_reference'] = nu + self._lens_keplerian['omega_periapsis']
+        # self._lens_keplerian['epoch_reference'] = self.t_0_kep
         cos_E = (cos_nu + eccentricity) / (1. + eccentricity * cos_nu)
         #XXX - above correct for cos_nu > 1.
         E = np.arccos(cos_E)
-        self._lens_keplerian['epoch_reference'] = self.t_0_kep - (E - eccentricity * np.sin(E)) / n
+        self._lens_keplerian['periapsis_epoch'] = self.t_0_kep - (E - eccentricity * np.sin(E)) / n
 
     @property
     def lens_semimajor_axis(self):
