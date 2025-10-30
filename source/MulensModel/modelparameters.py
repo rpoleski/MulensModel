@@ -1960,11 +1960,12 @@ class ModelParameters(object):
         self._lens_keplerian['Omega_node'] = np.arctan2(h[0], -h[1]) * 180. / np.pi
         self._lens_keplerian['omega_periapsis'] = np.arctan2(x[2], y[2]) * 180. / np.pi
         cos_nu = np.dot(position, x) / separation
+        sin_nu = np.dot(position, y) / separation
+        nu = np.arctan2(sin_nu, cos_nu) * 180. / np.pi
         # if cos_nu > 0.9:
         #     sin_nu = np.dot(position, y)
         #     nu = np.arcsin(sin_nu) * 180. / np.pi
         # else:
-        nu = np.arccos(cos_nu) * 180. / np.pi # XXX sign
         # Alternative:
         # self._lens_keplerian['argument_of_latitude_reference'] = nu + self._lens_keplerian['omega_periapsis']
         # self._lens_keplerian['epoch_reference'] = self.t_0_kep

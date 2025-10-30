@@ -1726,3 +1726,19 @@ def test_trajectory_for_elliptical_orbit():
 
     np.testing.assert_almost_equal(trajectory.x, x_VBB_elliptical)
     np.testing.assert_almost_equal(trajectory.y, y_VBB_elliptical)
+
+def test_cos_gt_1():
+    """
+    At some point, this test was producing a warning, because:
+    cos_nu = ... # evaluated as 1. + 2.2e-16
+    nu = np.arccos(cos_nu) * 180.
+    """
+    params = {'t_0': np.float64(0.0026949444), 'u_0': np.float64(-0.1), 't_E': np.float64(100.0),
+              's': np.float64(0.3616811648196615), 'q': np.float64(0.05364168948339145),
+              'alpha': np.float64(174.48399298813374), 'dalpha_dt': np.float64(-83.43080645981682),
+              'ds_dt': np.float64(-0.2117211460798969), 's_z': np.float64(61.23138649813132),
+              'a_r': np.float64(6.251638842152711), 'ds_z_dt': np.float64(0.0012505959259416796), 't_0_kep': 0.0}
+
+    model = mm.Model(params)
+    model.get_trajectory(0.)
+
