@@ -146,6 +146,7 @@ plots:
         # In case you want an interactive plot made using plotly:
         interactive : ob03235_2_model.html
         time range: 2452820 2452855
+        xlabel: BJD - 2450000
         magnitude range: 19.3 16.9
         title: OB03235 plot
         model label: I-band model

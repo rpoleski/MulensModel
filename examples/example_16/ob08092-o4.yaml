@@ -23,3 +23,4 @@ plots:
         file: ob08092-o4_trace.png
     best model:
         file: ob08092-o4_model.png
+        xlabel: DUPA
