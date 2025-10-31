@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.53.1'
+__version__ = '0.53.2'
 
 
 class UlensModelFit(object):
@@ -2365,21 +2365,7 @@ class UlensModelFit(object):
             model = mm.Model(parameters, ephemerides_file=dataset.ephemerides_file, **kwargs)
             self._models_satellite.append(model)
 
-        for model in [self._model] + self._models_satellite:
-            key = 'limb darkening u'
-            if key in self._model_parameters:
-                for (band, u_value) in self._model_parameters[key].items():
-                    model.set_limb_coeff_u(band, u_value)
-            if 'default method' in self._model_parameters:
-                model.default_magnification_method = self._model_parameters['default method']
-            if 'methods' in self._model_parameters:
-                model.set_magnification_methods(self._model_parameters['methods'])
-            if 'methods parameters' in self._model_parameters:
-                model.set_magnification_methods_parameters(self._model_parameters['methods parameters'])
-            if 'methods source 1' in self._model_parameters:
-                model.set_magnification_methods(self._model_parameters['methods source 1'], 1)
-            if 'methods source 2' in self._model_parameters:
-                model.set_magnification_methods(self._model_parameters['methods source 2'], 2)
+        self._set_settings_of_models()
 
         event_kwargs = self._get_event_kwargs()
 
@@ -2387,6 +2373,29 @@ class UlensModelFit(object):
         self._event.sum_function = 'numpy.sum'
 
         self._set_n_fluxes()
+
+    def _set_settings_of_models(self):
+        """Set settings of each internal MM.Model instance - methods and LD coeffs"""
+        for model in [self._model] + self._models_satellite:
+            key = 'limb darkening u'
+            if key in self._model_parameters:
+                for (band, u_value) in self._model_parameters[key].items():
+                    model.set_limb_coeff_u(band, u_value)
+
+            if 'default method' in self._model_parameters:
+                model.default_magnification_method = self._model_parameters['default method']
+
+            if 'methods' in self._model_parameters:
+                model.set_magnification_methods(self._model_parameters['methods'])
+
+            if 'methods parameters' in self._model_parameters:
+                model.set_magnification_methods_parameters(self._model_parameters['methods parameters'])
+
+            if 'methods source 1' in self._model_parameters:
+                model.set_magnification_methods(self._model_parameters['methods source 1'], 1)
+
+            if 'methods source 2' in self._model_parameters:
+                model.set_magnification_methods(self._model_parameters['methods source 2'], 2)
 
     def _get_event_kwargs(self):
         """Prepare kwargs for MM.Event, i.e., fixed fluxes info"""
