@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.53.0'
+__version__ = '0.53.1'
 
 
 class UlensModelFit(object):
@@ -2365,8 +2365,8 @@ class UlensModelFit(object):
             model = mm.Model(parameters, ephemerides_file=dataset.ephemerides_file, **kwargs)
             self._models_satellite.append(model)
 
-        key = 'limb darkening u'
         for model in [self._model] + self._models_satellite:
+            key = 'limb darkening u'
             if key in self._model_parameters:
                 for (band, u_value) in self._model_parameters[key].items():
                     model.set_limb_coeff_u(band, u_value)
@@ -2377,9 +2377,9 @@ class UlensModelFit(object):
             if 'methods parameters' in self._model_parameters:
                 model.set_magnification_methods_parameters(self._model_parameters['methods parameters'])
             if 'methods source 1' in self._model_parameters:
-                self._model.set_magnification_methods(self._model_parameters['methods source 1'], 1)
+                model.set_magnification_methods(self._model_parameters['methods source 1'], 1)
             if 'methods source 2' in self._model_parameters:
-                self._model.set_magnification_methods(self._model_parameters['methods source 2'], 2)
+                model.set_magnification_methods(self._model_parameters['methods source 2'], 2)
 
         event_kwargs = self._get_event_kwargs()
 
