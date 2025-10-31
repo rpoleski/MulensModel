@@ -241,7 +241,7 @@ class FitData(object):
             self.n_fluxes = self._model.n_sources
         else:
             x = None
-            if self._model.n_sources == 1:
+            if self._model.n_sources == 1 and self.fix_source_flux[0] != 0.:
                 y -= self.fix_source_flux[0] * self._data_magnification[self._dataset.good]
             else:
                 for i in range(self._model.n_sources):
@@ -252,7 +252,7 @@ class FitData(object):
                         else:
                             x = np.vstack((x, self._data_magnification[i][self._dataset.good]))
 
-                    else:
+                    elif self.fix_source_flux[i] != 0.:
                         y -= self.fix_source_flux[i] * self._data_magnification[i][self._dataset.good]
 
         return (x, y)
