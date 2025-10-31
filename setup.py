@@ -37,10 +37,10 @@ if platform.system() == "Darwin" and platform.machine() == "arm64":
     kwargs['extra_compile_args'] = ["-arch", "arm64"]
     kwargs['extra_link_args'] = ["-arch", "arm64"]
 ext_AC = Extension(
-    "mulensmodel.AdaptiveContouring", **kwargs,
+    "MulensModel.AdaptiveContouring", **kwargs,
     sources=[str(f.relative_to(PROJECT_PATH)) for f in source_AC.glob("*.c")])
 ext_VBBL = Extension(
-    "mulensmodel.VBBL", **kwargs,
+    "MulensModel.VBBL", **kwargs,
     sources=[str(f.relative_to(PROJECT_PATH)) for f in source_VBBL.glob("*.cpp")])
 
 setup(
