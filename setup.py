@@ -16,7 +16,7 @@ data_files = [
     for data_file in DATA_PATH.rglob("*")
     if data_file.is_file()
 ]
-package_data = {"MulensModel": sorted(data_files)}
+package_data = {"mulensmodel": sorted(data_files)}
 
 version = "unknown"
 with Path(SOURCE_PATH / "MulensModel" / "version.py").open() as in_put:
@@ -37,14 +37,14 @@ if platform.system() == "Darwin" and platform.machine() == "arm64":
     kwargs['extra_compile_args'] = ["-arch", "arm64"]
     kwargs['extra_link_args'] = ["-arch", "arm64"]
 ext_AC = Extension(
-    "MulensModel.AdaptiveContouring", **kwargs,
+    "mulensmodel.AdaptiveContouring", **kwargs,
     sources=[str(f.relative_to(PROJECT_PATH)) for f in source_AC.glob("*.c")])
 ext_VBBL = Extension(
-    "MulensModel.VBBL", **kwargs,
+    "mulensmodel.VBBL", **kwargs,
     sources=[str(f.relative_to(PROJECT_PATH)) for f in source_VBBL.glob("*.cpp")])
 
 setup(
-    name='MulensModel',
+    name='mulensmodel',
     version=version,
     url='https://github.com/rpoleski/MulensModel',
     project_urls={'documentation': 'https://github.com/rpoleski/MulensModel'},
