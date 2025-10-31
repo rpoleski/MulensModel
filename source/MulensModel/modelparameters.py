@@ -181,7 +181,7 @@ class ModelParameters(object):
             'Cassan08': 'x_caustic_in x_caustic_out t_caustic_in t_caustic_out',
             'lens orbital motion': 'dalpha_dt ds_dt',
             'keplerian motion': 's_z ds_z_dt',
-            'elliptical keplerian motion': 'a_r',
+            'elliptical keplerian motion': 'a_s',
             'mass sheet': 'convergence_K shear_G',
             'xallarap': ('xi_period xi_semimajor_axis xi_inclination xi_Omega_node xi_argument_of_latitude_reference '
                          'xi_eccentricity xi_omega_periapsis q_source')}
@@ -232,7 +232,7 @@ class ModelParameters(object):
         # Make sure that there are no unwanted keys
         allowed_keys = set((
             't_0 u_0 t_E t_eff rho t_star pi_E_N pi_E_E t_0_par '
-            's q alpha dalpha_dt ds_dt s_z ds_z_dt a_r t_0_kep convergence_K shear_G '
+            's q alpha dalpha_dt ds_dt s_z ds_z_dt a_s t_0_kep convergence_K shear_G '
             't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2 '
             'x_caustic_in x_caustic_out t_caustic_in t_caustic_out '
             'xi_period xi_semimajor_axis xi_inclination xi_Omega_node '
@@ -1377,18 +1377,18 @@ class ModelParameters(object):
         self._update_sources('ds_z_dt', new_ds_z_dt)
 
     @property
-    def a_r(self):
+    def a_s(self):
         """
         *float*
 
         XXX
         """
-        return self.parameters['a_r']
+        return self.parameters['a_s']
 
-    @a_r.setter
-    def a_r(self, new_value):
-        self.parameters['a_r'] = new_value
-        self._update_sources('a_r', new_value)
+    @a_s.setter
+    def a_s(self, new_value):
+        self.parameters['a_s'] = new_value
+        self._update_sources('a_s', new_value)
 
     @property
     def t_0_kep(self):
@@ -1901,7 +1901,7 @@ class ModelParameters(object):
         gamma = np.array([self.gamma_parallel, self.gamma_perp, self.gamma_z])
         new_input = [*list(position), *list(gamma)]
         if self._type['elliptical keplerian motion']:
-            new_input.append(self.a_r)
+            new_input.append(self.a_s)
 
         if new_input == self._lens_keplerian_last_input:
             return
@@ -1944,10 +1944,10 @@ class ModelParameters(object):
         """
         velocity = self.s * gamma  # This is in units of R_E/yr = (D_L * theta_E) / yr.
         separation = np.sqrt(np.sum(position**2))
-        self._lens_keplerian['semimajor_axis'] = separation * self.a_r
+        self._lens_keplerian['semimajor_axis'] = separation * self.a_s
         h = np.cross(position, velocity)
         r_s = self.s_z / self.s
-        GM_over_rE3 = self.s**3 * self.a_r * np.sqrt(1. + r_s**2) * np.sum(gamma**2) / (2. * self.a_r - 1.)
+        GM_over_rE3 = self.s**3 * self.a_s * np.sqrt(1. + r_s**2) * np.sum(gamma**2) / (2. * self.a_s - 1.)
         n = np.sqrt(GM_over_rE3 / self._lens_keplerian['semimajor_axis']**3)
         self._lens_keplerian['period'] = 2. * np.pi / n * 365.25
         e = np.cross(velocity, h) / GM_over_rE3 - position / separation
@@ -1962,10 +1962,6 @@ class ModelParameters(object):
         cos_nu = np.dot(position, x) / separation
         sin_nu = np.dot(position, y) / separation
         nu = np.arctan2(sin_nu, cos_nu) * 180. / np.pi
-        # if cos_nu > 0.9:
-        #     sin_nu = np.dot(position, y)
-        #     nu = np.arcsin(sin_nu) * 180. / np.pi
-        # else:
         # Alternative:
         # self._lens_keplerian['argument_of_latitude_reference'] = nu + self._lens_keplerian['omega_periapsis']
         # self._lens_keplerian['epoch_reference'] = self.t_0_kep
