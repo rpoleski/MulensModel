@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.52.1'
+__version__ = '0.53.0'
 
 
 class UlensModelFit(object):
@@ -174,7 +174,11 @@ class UlensModelFit(object):
             {'I': 0.4, 'V': 0.5}; note that for plotting the best model we use
             the LD coefficient same as for the first dataset,
 
-            ``'parameters'`` and ``'values'`` - used to plot specific model.
+            ``'parameters'`` and ``'values'`` - used to plot specific model,
+
+            ``'fixed_fluxes'`` - for fixing fluxes in chi2 evaluation. The value of that is a dict with key
+            ``'blend'`` or ``'source'`` and corresponding values are also dicts with dataset label as a key and
+            flux value to be set as value.
 
         fixed_parameters: *dict*
             Provide parameters that will be kept fixed during the fitting
@@ -1058,35 +1062,29 @@ class UlensModelFit(object):
 
     def _check_model_parameters(self):
         """
-        Check parameters of the MulensModel.Model provided by the user
-        directly.
+        Check parameters of the MulensModel.Model and .Event provided by the user directly.
         """
         if self._model_parameters is None:
             self._model_parameters = dict()
 
         allowed = {
-            'coords', 'default method', 'methods', 'methods parameters',
-            'methods source 1', 'methods source 2',
-            'parameters', 'values', 'limb darkening u'}
+            'coords', 'default method', 'methods', 'methods parameters', 'methods source 1', 'methods source 2',
+            'parameters', 'values', 'limb darkening u', 'fixed_fluxes'}
         keys = set(self._model_parameters.keys())
         not_allowed = keys - allowed
         if len(not_allowed) > 0:
-            raise ValueError(
-                'model keyword is a dict with keys not allowed: ' +
-                str(not_allowed))
+            raise ValueError('model keyword is a dict with keys not allowed: ' + str(not_allowed))
+
         for key in {'methods', 'methods source 1', 'methods source 2'}:
             if key in self._model_parameters:
-                self._model_parameters[key] = self._parse_methods(
-                    self._model_parameters[key])
+                self._model_parameters[key] = self._parse_methods(self._model_parameters[key])
+
         check = keys.intersection({'parameters', 'values'})
         if len(check) == 1:
-            raise ValueError("If you specify 'parameters' and 'values' for " +
-                             "'model', then both have to be defined")
-        if len(check) == 2:
-            self._model_parameters['parameters'] = (
-                self._model_parameters['parameters'].split())
-            self._model_parameters['values'] = [
-                float(x) for x in self._model_parameters['values'].split()]
+            raise ValueError("If you specify 'parameters' and 'values' for 'model', then both have to be defined")
+        elif len(check) == 2:
+            self._model_parameters['parameters'] = self._model_parameters['parameters'].split()
+            self._model_parameters['values'] = [float(x) for x in self._model_parameters['values'].split()]
 
         all_parameters = []
         if self._fixed_parameters is not None:
@@ -2383,10 +2381,43 @@ class UlensModelFit(object):
             if 'methods source 2' in self._model_parameters:
                 self._model.set_magnification_methods(self._model_parameters['methods source 2'], 2)
 
-        self._event = mm.Event(self._datasets, self._model)
+        event_kwargs = self._get_event_kwargs()
+
+        self._event = mm.Event(self._datasets, self._model, **event_kwargs)
         self._event.sum_function = 'numpy.sum'
 
         self._set_n_fluxes()
+
+    def _get_event_kwargs(self):
+        """Prepare kwargs for MM.Event, i.e., fixed fluxes info"""
+        kwargs = dict()
+        try:
+            settings = self._model_parameters['fixed_fluxes']
+        except KeyError:
+            return dict()
+
+        allowed = {'blend', 'source'}
+        unknown = set(settings.keys()) - allowed
+        if len(unknown) > 0:
+            raise ValueError(
+                'The only allowed keys in model -> fixed fluxes are "blend" and "source", not ' + str(unknown))
+
+        if 'blend' in settings:
+            kwargs['fix_blend_flux'] = self._parse_fixed_fluxes(settings['blend'])
+
+        if 'source' in settings:
+            kwargs['fix_source_flux'] = self._parse_fixed_fluxes(settings['source'])
+
+        return kwargs
+
+    def _parse_fixed_fluxes(self, settings):
+        """Parse settings for fixed fluxes"""
+        out = dict()
+
+        for (key, value) in settings.items():
+            out[self._datasets[self._get_no_of_dataset(key)]] = value
+
+        return out
 
     def _set_n_fluxes(self):
         """
