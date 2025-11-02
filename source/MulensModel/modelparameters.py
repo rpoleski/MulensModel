@@ -2,7 +2,6 @@ import numpy as np
 
 from MulensModel.uniformcausticsampling import UniformCausticSampling
 from MulensModel.orbits.orbit import Orbit
-from MulensModel.utils import Utils
 
 
 class ModelParameters(object):
@@ -1928,14 +1927,12 @@ class ModelParameters(object):
         self._lens_keplerian['semimajor_axis'] = a
         self._lens_keplerian['period'] = 2 * np.pi * a / np.sqrt(np.sum(velocity**2)) * 365.25
         h = np.cross(position, velocity)
-        #n = np.cross(np.array([0, 1, 0]), h)
         self._lens_keplerian['inclination'] = np.arctan2(np.sqrt(h[0]**2+h[1]**2), h[2]) * 180. / np.pi
         self._lens_keplerian['Omega_node'] = np.arctan2(h[0], -h[1]) * 180. / np.pi
         gamma_012 = np.sqrt(np.sum(gamma**2))
         gamma_02 = np.sqrt(gamma[0]**2+gamma[2]**2)
         phi_0 = np.arctan2(-gamma[0]*gamma_012, gamma[2]*gamma_02)
         self._lens_keplerian['argument_of_latitude_reference'] = phi_0 * 180. / np.pi
-#        Utils.get_angle_between_vectors(n, position)
         self._lens_keplerian['epoch_reference'] = self.t_0_kep
 
     def _set_lens_keplerian_orbit_elliptical(self, position, gamma):
@@ -1956,17 +1953,17 @@ class ModelParameters(object):
         x = e / eccentricity
         z = h / np.sqrt(np.sum(h**2))
         y = np.cross(z, x)
-        self._lens_keplerian['inclination'] = np.arccos(z[2]) * 180. / np.pi # XXX sign
+        self._lens_keplerian['inclination'] = np.arccos(z[2]) * 180. / np.pi  # XXX sign
         self._lens_keplerian['Omega_node'] = np.arctan2(h[0], -h[1]) * 180. / np.pi
         self._lens_keplerian['omega_periapsis'] = np.arctan2(x[2], y[2]) * 180. / np.pi
         cos_nu = np.dot(position, x) / separation
-        sin_nu = np.dot(position, y) / separation
-        nu = np.arctan2(sin_nu, cos_nu) * 180. / np.pi
         # Alternative:
+        # sin_nu = np.dot(position, y) / separation
+        # nu = np.arctan2(sin_nu, cos_nu) * 180. / np.pi
         # self._lens_keplerian['argument_of_latitude_reference'] = nu + self._lens_keplerian['omega_periapsis']
         # self._lens_keplerian['epoch_reference'] = self.t_0_kep
         cos_E = (cos_nu + eccentricity) / (1. + eccentricity * cos_nu)
-        #XXX - above correct for cos_nu > 1.
+        # XXX - above correct for cos_nu > 1.
         E = np.arccos(cos_E)
         self._lens_keplerian['periapsis_epoch'] = self.t_0_kep - (E - eccentricity * np.sin(E)) / n
 
