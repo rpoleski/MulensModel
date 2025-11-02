@@ -1381,7 +1381,7 @@ class ModelParameters(object):
         """
         *float*
 
-        XXX
+        XXX ratio of the semimajor axis with the current separation at the reference time
         """
         return self.parameters['a_s']
 
