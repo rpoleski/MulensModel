@@ -15,7 +15,7 @@ If you want to learn more about microlensing, please visit [Microlensing Source 
 Currently, MulensModel supports:
 * Lens Systems: point lens or binary lens. Shear and convergence allowed for both point and binary lenses.
 * Source Stars: single source, binary source, or even larger number of sources.
-* Effects: finite source (1-parameter), parallax (satellite & annual), binary lens orbital motion (2-parameter or **keplerian circular - new**), xallarap effect (with one or two luminous sources), different parametrizations of microlensing models.
+* Effects: finite source (1-parameter), parallax (satellite & annual), binary lens orbital motion (2-parameter or **keplerian [both circular and elliptical]] - new**), xallarap effect (with one or two luminous sources), different parametrizations of microlensing models.
 
 Need more? Open [an issue](https://github.com/rpoleski/MulensModel/issues), start [a discussion](https://github.com/rpoleski/MulensModel/discussions), or send us an e-mail. 
 
