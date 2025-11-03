@@ -24,7 +24,7 @@
 {\LARGE Microlensing parameters in \MM}\\
 \bigskip
 Radek Poleski\\
-last update: Jul 2025
+last update: Nov 2025
 \end{center}
 
 \bigskip
@@ -53,7 +53,7 @@ $ds/dt$ & {\tt ds\_dt} & yr$^{-1}$ & The rate of change of the separation. \\
 $d\alpha/dt$ & {\tt dalpha\_dt} & deg.~yr$^{-1}$ & The rate of change of $\alpha$. \\
 $s_{z}$ & {\tt s\_z} & & Position along the line of sight as a fraction of the Einstein ring radius. Positive axis points to the observer.$^b$\\
 $ds_{z}/dt$ & {\tt ds\_z\_dt} & yr$^{-1}$ & The rate of change of $s_{z}$.$^b$\\
-$a_s$ & {\tt a\_s} & & The ratio of the lens semimajor axis to the lens 3D separation at the reference time $t_{0,{\rm kep}}$. \\
+$a_s$ & {\tt a\_s} & & The ratio of the lens semimajor axis to the lens 3D separation at the reference time $t_{0,{\rm kep}}$.$^b$ \\
 $t_{0,{\rm kep}}$ & {\tt t\_0\_kep} & & The reference time for lens orbital motion calculations.$^a$ \\
 $x_{\rm caustic, in}$ & {\tt x\_caustic\_in} & & Curvelinear coordinate of caustic entrance for a binary lens model.$^c$ \\
 $x_{\rm caustic, out}$ & {\tt x\_caustic\_out} & & Curvelinear coordinate of caustic exit for a binary lens model.$^c$ \\
@@ -71,7 +71,7 @@ $t_{0,\xi}$ & \texttt{t\_0\_xi} & &  The reference epoch for parameters in xalla
 \hline
 \caption{Notes: \newline
 $^a$ -- $t_{0,{\rm par}}$, $t_{0,{\rm kep}}$, and $t_{0,\chi}$ are reference parameters, hence, do not change these during fitting. \newline
-$^b$ -- To include keplerian motion of the lenses on a circular orbit either $s_{z}$ or $ds_{z}/dt$ has to be defined. \newline
+$^b$ -- To include keplerian motion of the lenses on a circular orbit either $s_{z}$ or $ds_{z}/dt$ has to be defined. In the case of elliptical orbit, one has to define $s_{z}$, $ds_{z}/dt$, and $a_s$.\newline
 $^c$ -- The four parameters of binary lens in Cassan (2008) parameterization ($x_{\rm caustic, in}$, $x_{\rm caustic, out}$, $t_{\rm caustic, in}$, $t_{\rm caustic, out}$) are used instead of ($t_0$, $u_0$, $t_{\rm E}$, $\alpha$). \newline
 $^d$ -- The orbital angles are illustrated in Figure~1.
 %\label{}
