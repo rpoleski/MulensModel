@@ -1380,7 +1380,8 @@ class ModelParameters(object):
         """
         *float*
 
-        XXX ratio of the semimajor axis with the current separation at the reference time
+        The ratio of the semimajor axis to the 3D separation at the reference time :py:attr:`~t_0_kep`.
+        It equals 1 for circular orbit and should be close to 1 for all physically reasonable orbits.
         """
         return self.parameters['a_s']
 
@@ -1957,7 +1958,7 @@ class ModelParameters(object):
         self._lens_keplerian['Omega_node'] = np.arctan2(h[0], -h[1]) * 180. / np.pi
         self._lens_keplerian['omega_periapsis'] = np.arctan2(x[2], y[2]) * 180. / np.pi
         cos_nu = np.dot(position, x) / separation
-        # Alternative:
+        # Alternative to the code presented below:
         # sin_nu = np.dot(position, y) / separation
         # nu = np.arctan2(sin_nu, cos_nu) * 180. / np.pi
         # self._lens_keplerian['argument_of_latitude_reference'] = nu + self._lens_keplerian['omega_periapsis']
