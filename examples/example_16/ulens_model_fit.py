@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.53.2'
+__version__ = '0.53.3'
 
 
 class UlensModelFit(object):
@@ -2540,6 +2540,8 @@ class UlensModelFit(object):
             else:
                 if value[0] == 'gauss':
                     parameters[key] = value[1]
+                    if key in ['ds_dt', 'dalpha_dt', 'ds_z_dt']:
+                        parameters[key] += 0.1 * value[2]  # So that we don't get velocity = 0.
                 elif value[0] in ['uniform', 'log-uniform']:
                     parameters[key] = (value[1] + value[2]) / 2.
                 else:
