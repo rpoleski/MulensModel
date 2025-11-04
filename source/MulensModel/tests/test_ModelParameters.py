@@ -413,15 +413,13 @@ def setup_keplerian(dict_to_add):
 class test_Keplerian(unittest.TestCase):
     def test_keplerian_both_inputs(self):
         """s_z and ds_z_dt are given with ds_dt and dalpha_dt"""
-        dict_2 = setup_keplerian({'ds_dt': 0.1, 'dalpha_dt': 10.,
-                                  's_z': 0.1, 'ds_z_dt': 1.9})
+        dict_2 = setup_keplerian({'ds_dt': 0.1, 'dalpha_dt': 10., 's_z': 0.1, 'ds_z_dt': 1.9})
         with self.assertRaises(KeyError):
             mm.ModelParameters(dict_2)
 
     def test_keplerian_no_ds_dt(self):
         """fails if s_z and ds_z_dt are given with dalpha_dt"""
-        dict_3 = setup_keplerian({'dalpha_dt': 10., 's_z': 0.1,
-                                  'ds_z_dt': 1.9})
+        dict_3 = setup_keplerian({'dalpha_dt': 10., 's_z': 0.1, 'ds_z_dt': 1.9})
         with self.assertRaises(KeyError):
             mm.ModelParameters(dict_3)
 
@@ -430,6 +428,13 @@ class test_Keplerian(unittest.TestCase):
         dict_4 = setup_keplerian({'s_z': 0.1, 'ds_z_dt': 1.9})
         with self.assertRaises(KeyError):
             mm.ModelParameters(dict_4)
+
+    def test_velocity_of_0(self):
+        """fails for velocity = 0"""
+        dict_5 = setup_keplerian({'ds_dt': 0., 'dalpha_dt': 0., 'ds_z_dt': 0.})
+        with self.assertRaises(ValueError):
+            model = mm.ModelParameters(dict_5)
+            model.lens_semimajor_axis
 
 
 def test_is_not_keplerian():

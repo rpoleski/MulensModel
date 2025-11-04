@@ -1897,8 +1897,11 @@ class ModelParameters(object):
         """
         Set parameters of the lens keplerian orbit i.e. self._lens_keplerian.
         """
-        position = np.array([self.s, 0, self.s_z])
         gamma = np.array([self.gamma_parallel, self.gamma_perp, self.gamma_z])
+        if np.all(gamma == 0.):
+            raise ValueError('Keplerian orbital motion cannot have velocity = 0')
+
+        position = np.array([self.s, 0, self.s_z])
         new_input = [*list(position), *list(gamma)]
         if self._type['elliptical keplerian motion']:
             new_input.append(self.a_s)
