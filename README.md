@@ -6,7 +6,7 @@
 
 [**Detailed documentation: https://rpoleski.github.io/MulensModel/**](https://rpoleski.github.io/MulensModel/)
 
-[Latest release: 3.5.7](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
+[Latest release: 3.6.3](https://github.com/rpoleski/MulensModel/releases/latest) and we're working on further developing the code.
 
 MulensModel can generate a microlensing light curve for a given set of microlensing parameters, fit that light curve to some data, and return a chi2 value. That chi2 (and its gradient in some cases) can then be input into an arbitrary likelihood function to find the best-fit parameters.
 
@@ -40,7 +40,7 @@ The full documentation of API is at [https://rpoleski.github.io/MulensModel/](ht
 
 The easiest way is to run:
 ```
-pip install MulensModel
+pip install mulensmodel
 ```
 which will download all files and also install all dependencies (using the [PyPI website](https://pypi.org/project/MulensModel/)).
 
@@ -52,7 +52,7 @@ If you want to contribute to MulensModel, then please see [this file](CONTRIBUTI
 
 ---
 [![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/) 
-[![PyPI version shields.io](https://img.shields.io/pypi/v/MulensModel.svg)](https://pypi.python.org/pypi/MulensModel/) 
+[![PyPI version shields.io](https://img.shields.io/pypi/v/mulensmodel.svg)](https://pypi.python.org/pypi/mulensmodel/) 
 [![GitHub stars](https://badgen.net/github/stars/rpoleski/MulensModel)](https://GitHub.com/rpoleski/MulensModel/stargazers/) 
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) 
 [![Poleski & Yee 2019](https://img.shields.io/badge/ADS-Poleski%20%26%20Yee%202019-brightgreen.svg)](https://ui.adsabs.harvard.edu/abs/2019A%26C....26...35P/abstract)
@@ -61,4 +61,4 @@ If you want to contribute to MulensModel, then please see [this file](CONTRIBUTI
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/MulensModel)
 ![example workflow](https://github.com/rpoleski/MulensModel/actions/workflows/python-app.yml/badge.svg)
 
-file revised Oct 2025
+file revised Nov 2025

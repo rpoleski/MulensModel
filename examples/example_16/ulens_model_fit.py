@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.51.0'
+__version__ = '0.53.2'
 
 
 class UlensModelFit(object):
@@ -174,7 +174,11 @@ class UlensModelFit(object):
             {'I': 0.4, 'V': 0.5}; note that for plotting the best model we use
             the LD coefficient same as for the first dataset,
 
-            ``'parameters'`` and ``'values'`` - used to plot specific model.
+            ``'parameters'`` and ``'values'`` - used to plot specific model,
+
+            ``'fixed_fluxes'`` - for fixing fluxes in chi2 evaluation. The value of that is a dict with key
+            ``'blend'`` or ``'source'`` and corresponding values are also dicts with dataset label as a key and
+            flux value to be set as value.
 
         fixed_parameters: *dict*
             Provide parameters that will be kept fixed during the fitting
@@ -403,6 +407,7 @@ class UlensModelFit(object):
               }
 
             Note that 'rcParams' allows setting many matplotlib parameters.
+            Also note that MM defaults are applied only if 'rcParams' is not provided.
 
         other_output: *dict*
             Parameters for other output. Allowed value are:
@@ -801,6 +806,7 @@ class UlensModelFit(object):
 
         self._check_plots_parameters()
         self._check_model_parameters()
+        self._parse_other_output_parameters()
         self._get_datasets()
         self._check_ulens_model_parameters()
         self._check_fixed_parameters()
@@ -857,7 +863,7 @@ class UlensModelFit(object):
         Check if parameters of best model make sense
         """
         allowed = set(['file', 'time range', 'magnitude range', 'legend', 'rcParams', 'second Y scale',
-                       'interactive', 'title', 'add models', 'model label', 'model kwargs'])
+                       'interactive', 'title', 'add models', 'model label', 'model kwargs', 'xlabel'])
         unknown = set(self._plots['best model'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError('Unknown settings for "best model": {:}'.format(unknown))
@@ -1054,35 +1060,29 @@ class UlensModelFit(object):
 
     def _check_model_parameters(self):
         """
-        Check parameters of the MulensModel.Model provided by the user
-        directly.
+        Check parameters of the MulensModel.Model and .Event provided by the user directly.
         """
         if self._model_parameters is None:
             self._model_parameters = dict()
 
         allowed = {
-            'coords', 'default method', 'methods', 'methods parameters',
-            'methods source 1', 'methods source 2',
-            'parameters', 'values', 'limb darkening u'}
+            'coords', 'default method', 'methods', 'methods parameters', 'methods source 1', 'methods source 2',
+            'parameters', 'values', 'limb darkening u', 'fixed_fluxes'}
         keys = set(self._model_parameters.keys())
         not_allowed = keys - allowed
         if len(not_allowed) > 0:
-            raise ValueError(
-                'model keyword is a dict with keys not allowed: ' +
-                str(not_allowed))
+            raise ValueError('model keyword is a dict with keys not allowed: ' + str(not_allowed))
+
         for key in {'methods', 'methods source 1', 'methods source 2'}:
             if key in self._model_parameters:
-                self._model_parameters[key] = self._parse_methods(
-                    self._model_parameters[key])
+                self._model_parameters[key] = self._parse_methods(self._model_parameters[key])
+
         check = keys.intersection({'parameters', 'values'})
         if len(check) == 1:
-            raise ValueError("If you specify 'parameters' and 'values' for " +
-                             "'model', then both have to be defined")
-        if len(check) == 2:
-            self._model_parameters['parameters'] = (
-                self._model_parameters['parameters'].split())
-            self._model_parameters['values'] = [
-                float(x) for x in self._model_parameters['values'].split()]
+            raise ValueError("If you specify 'parameters' and 'values' for 'model', then both have to be defined")
+        elif len(check) == 2:
+            self._model_parameters['parameters'] = self._model_parameters['parameters'].split()
+            self._model_parameters['values'] = [float(x) for x in self._model_parameters['values'].split()]
 
         all_parameters = []
         if self._fixed_parameters is not None:
@@ -2363,26 +2363,68 @@ class UlensModelFit(object):
             model = mm.Model(parameters, ephemerides_file=dataset.ephemerides_file, **kwargs)
             self._models_satellite.append(model)
 
-        key = 'limb darkening u'
-        for model in [self._model] + self._models_satellite:
-            if key in self._model_parameters:
-                for (band, u_value) in self._model_parameters[key].items():
-                    model.set_limb_coeff_u(band, u_value)
-            if 'default method' in self._model_parameters:
-                model.default_magnification_method = self._model_parameters['default method']
-            if 'methods' in self._model_parameters:
-                model.set_magnification_methods(self._model_parameters['methods'])
-            if 'methods parameters' in self._model_parameters:
-                model.set_magnification_methods_parameters(self._model_parameters['methods parameters'])
-            if 'methods source 1' in self._model_parameters:
-                self._model.set_magnification_methods(self._model_parameters['methods source 1'], 1)
-            if 'methods source 2' in self._model_parameters:
-                self._model.set_magnification_methods(self._model_parameters['methods source 2'], 2)
+        self._set_settings_of_models()
 
-        self._event = mm.Event(self._datasets, self._model)
+        event_kwargs = self._get_event_kwargs()
+
+        self._event = mm.Event(self._datasets, self._model, **event_kwargs)
         self._event.sum_function = 'numpy.sum'
 
         self._set_n_fluxes()
+
+    def _set_settings_of_models(self):
+        """Set settings of each internal MM.Model instance - methods and LD coeffs"""
+        for model in [self._model] + self._models_satellite:
+            key = 'limb darkening u'
+            if key in self._model_parameters:
+                for (band, u_value) in self._model_parameters[key].items():
+                    model.set_limb_coeff_u(band, u_value)
+
+            if 'default method' in self._model_parameters:
+                model.default_magnification_method = self._model_parameters['default method']
+
+            if 'methods' in self._model_parameters:
+                model.set_magnification_methods(self._model_parameters['methods'])
+
+            if 'methods parameters' in self._model_parameters:
+                model.set_magnification_methods_parameters(self._model_parameters['methods parameters'])
+
+            if 'methods source 1' in self._model_parameters:
+                model.set_magnification_methods(self._model_parameters['methods source 1'], 1)
+
+            if 'methods source 2' in self._model_parameters:
+                model.set_magnification_methods(self._model_parameters['methods source 2'], 2)
+
+    def _get_event_kwargs(self):
+        """Prepare kwargs for MM.Event, i.e., fixed fluxes info"""
+        kwargs = dict()
+        try:
+            settings = self._model_parameters['fixed_fluxes']
+        except KeyError:
+            return dict()
+
+        allowed = {'blend', 'source'}
+        unknown = set(settings.keys()) - allowed
+        if len(unknown) > 0:
+            raise ValueError(
+                'The only allowed keys in model -> fixed fluxes are "blend" and "source", not ' + str(unknown))
+
+        if 'blend' in settings:
+            kwargs['fix_blend_flux'] = self._parse_fixed_fluxes(settings['blend'])
+
+        if 'source' in settings:
+            kwargs['fix_source_flux'] = self._parse_fixed_fluxes(settings['source'])
+
+        return kwargs
+
+    def _parse_fixed_fluxes(self, settings):
+        """Parse settings for fixed fluxes"""
+        out = dict()
+
+        for (key, value) in settings.items():
+            out[self._datasets[self._get_no_of_dataset(key)]] = value
+
+        return out
 
     def _set_n_fluxes(self):
         """
@@ -3932,9 +3974,12 @@ class UlensModelFit(object):
 
         self._ln_like(self._best_model_theta)  # Sets all parameters to the best model.
 
-        self._reset_rcParams()
-        for (key, value) in self._plots['best model'].get('rcParams', {}).items():
-            rcParams[key] = value
+        rc_params = self._plots['best model'].get('rcParams')
+        if rc_params:
+            self._reset_rcParams()
+            rcParams.update(rc_params)
+        else:
+            mm.utils.PlotUtils.apply_defaults()
 
         kwargs_all = self._get_kwargs_for_best_model_plot()
         (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2) = kwargs_all[:6]
@@ -3963,6 +4008,9 @@ class UlensModelFit(object):
         axes = plt.subplot(grid[1])
 
         self._event.plot_residuals(**kwargs)
+        if "xlabel" in self._plots['best model']:
+            plt.xlabel(self._plots['best model']['xlabel'])
+
         plt.xlim(*xlim)
         plt.ylim(*ylim_residuals)
         axes.tick_params(**kwargs_axes_2)
