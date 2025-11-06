@@ -673,7 +673,9 @@ class ModelParameters(object):
 
         if self._type['circular keplerian motion']:
             if ('s_z' in keys) and ('ds_z_dt' in keys):
-                raise KeyError('Circular Keplerian motion requires either s_z or ds_z_dt, not both.')
+                raise KeyError("Keplerian lens motion has two posibilities: 1) circular - provide either s_z or " +
+                               "ds_z_dt, OR 2) eliptical - provide s_z, ds_z_dt, and a_s. Setting only s_z and " +
+                               "ds_z_dt but not a_s doesn't make sense.")
         if self._type['elliptical keplerian motion']:
             if ('s_z' not in keys) or ('ds_z_dt' not in keys):
                 raise KeyError('Ellipctical Keplerian motion requires all of s_z, ds_z_dt, dalpha_dt, and ds_dt')
