@@ -78,3 +78,7 @@ Note that algorithms and implementation for underlying fortran code were present
 For microlensing parallax calculations MulensModel calls [Astropy](https://www.astropy.org/index.html) package: 
 [The Astropy Collaboration et al. 2013 A&A 558, 33](https://ui.adsabs.harvard.edu/abs/2013A%26A...558A..33A/abstract) and 
 [The Astropy Collaboration et al. 2018 AJ 156, 123](https://ui.adsabs.harvard.edu/abs/2018AJ....156..123A/abstract)
+
+### Xallarap Parametrization:
+
+[Zhai, Poleski, Zang et al. 2024 AJ 167, 162](https://ui.adsabs.harvard.edu/abs/2024AJ....167..162Z/abstract)
