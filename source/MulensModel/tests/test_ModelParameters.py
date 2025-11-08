@@ -1749,6 +1749,23 @@ def test_cos_gt_1():
     model.get_trajectory(0.)
 
 
+def test_cos_lt_1():
+    """
+    At some point, this test was producing a warning, because:
+    cos_nu = ... # evaluated as -1. - 2e-16
+    cos_E = (cos_nu + eccentricity) / (1. + eccentricity * cos_nu) # evaluated as -1. -1.8e-12
+    E = np.arccos(cos_E)
+    """
+    params = {'t_0': np.float64(-0.00667479), 'u_0': np.float64(-0.1), 't_E': np.float64(1078.4984291385097),
+              's': np.float64(0.36209466329235107), 'q': np.float64(0.0535850135209493),
+              'alpha': np.float64(174.4282297030638), 'dalpha_dt': np.float64(-83.47851752324286),
+              'ds_dt': np.float64(-0.21045433040240585), 's_z': np.float64(60.508521068971454),
+              'a_s': np.float64(0.5000619540039425), 'ds_z_dt': np.float64(0.0012628666306725848), 't_0_kep': 0}
+
+    model = mm.Model(params)
+    model.get_trajectory(0.)
+
+
 def setup_keplerian_elliptical(dict_to_add):
     """
     Setup dictionary for tests of elliptical keplerian motion
