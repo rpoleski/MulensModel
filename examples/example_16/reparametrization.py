@@ -20,7 +20,7 @@ def get_my_parameters(parameters):
     parameters['alpha'] = np.arcsin(u/ss) * 180 / np.pi
     for p in ['t_0_pl', 'u_0_pl', 't_E_pl']:
         parameters.pop(p)
-    
+
     return parameters
 
 
@@ -48,4 +48,3 @@ if __name__ == '__main__':
     ulens_model_fit = MyUlensModelFit(**settings)
 
     ulens_model_fit.run_fit()
-

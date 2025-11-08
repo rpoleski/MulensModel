@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.53.4'
+__version__ = '0.54.0'
 
 
 class UlensModelFit(object):
@@ -559,14 +559,12 @@ class UlensModelFit(object):
         self._residuals_output = False
 
         parameters_str = (
-            't_0 u_0 t_0_1 u_0_1 t_0_2 u_0_2 t_E t_eff rho rho_1 rho_2 ' +
-            't_star t_star_1 t_star_2 pi_E_N pi_E_E s q alpha ds_dt s_z ' +
-            'ds_z_dt dalpha_dt x_caustic_in x_caustic_out t_caustic_in ' +
-            't_caustic_out xi_period xi_semimajor_axis xi_Omega_node ' +
-            'xi_inclination xi_argument_of_latitude_reference ' +
+            't_0 u_0 t_0_1 u_0_1 t_0_2 u_0_2 t_E t_eff rho rho_1 rho_2 t_star t_star_1 t_star_2 pi_E_N pi_E_E ' +
+            's q alpha ds_dt dalpha_dt s_z ds_z_dt a_s x_caustic_in x_caustic_out t_caustic_in t_caustic_out ' +
+            'xi_period xi_semimajor_axis xi_Omega_node xi_inclination xi_argument_of_latitude_reference ' +
             'xi_eccentricity xi_omega_periapsis q_source')
         self._all_MM_parameters = parameters_str.split()
-        self._fixed_only_MM_parameters = ['t_0_par', 't_0_xi']
+        self._fixed_only_MM_parameters = ['t_0_par', 't_0_kep', 't_0_xi']
 
         self._latex_conversion = dict(
             t_0='t_0', u_0='u_0',
@@ -577,7 +575,7 @@ class UlensModelFit(object):
             t_star_2='t_{\\star,2}', pi_E_N='\\pi_{{\\rm E},N}',
             pi_E_E='\\pi_{{\\rm E},E}', s='s', q='q', alpha='\\alpha',
             ds_dt='ds/dt', dalpha_dt='d\\alpha/dt',
-            s_z='s_{z}', ds_z_dt='ds_{z}/dt',
+            s_z='s_{z}', ds_z_dt='ds_{z}/dt', a_s='a_{s}',
             x_caustic_in='x_{\\rm caustic,in}',
             x_caustic_out='x_{\\rm caustic,out}',
             t_caustic_in='t_{\\rm caustic,in}',

@@ -25,8 +25,8 @@ params_static = {
     't_0_3': 7197., 'u_0_3': -0.28, 'rho_3': 2.e-3}
 
 params = {**params_static,
-    'pi_E_E': 100.0, 'pi_E_N': 1.0,
-    'ds_dt': 3.0, 'dalpha_dt': 360., 't_0_kep': 7200.2}
+          'pi_E_E': 100.0, 'pi_E_N': 1.0,
+          'ds_dt': 3.0, 'dalpha_dt': 360., 't_0_kep': 7200.2}
 
 q_F_2 = 0.181
 source_flux_1 = 0.061
