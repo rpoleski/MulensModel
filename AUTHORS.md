@@ -7,8 +7,8 @@ Main contributors:
 People who have written parts of the code:
 * [Lawrence Peirson](https://github.com/alpv95) - point and binary lens models with shear and convergence
 * [Keto D. Zhang](https://github.com/ketozhang) - PyPI installation, Extensions etc.
-* [Mateusz Mroz](https://github.com/mjmroz) - many additions to example 16 including interactive plots
-* [Raphael A. P. Oliveira](https://github.com/rapoliveira) - small updates in various places
+* [Mateusz Mroz](https://github.com/mjmroz) - code review and many additions to example 16 including interactive plots
+* [Raphael A. P. Oliveira](https://github.com/rapoliveira) - many updates in various places
 * [Hariharan Srinivasulu](https://github.com/meethari) - for helping with development of FitData class
 * [Justyna Wojtczak](https://github.com/justi) - github actions
 * [Amber Malpas](https://github.com/AmberLee2427) - publshing on PyPI
@@ -24,9 +24,11 @@ The code would not be in the state it is without modules that are imported by Mu
 * [Johannes Buchner](https://github.com/JohannesBuchner) - for [PyMultiNest](https://github.com/JohannesBuchner/PyMultiNest)
 
 We also thank those who have not directly contributed to the code, but their suggestions and comments helped in code development. We thus thank (random order):
+* [Franciszek Hansdorfer](https://github.com/Hansus00) - useful unit tests
 * [Kasia Kruszynska](https://github.com/KKruszynska)
 * David Specht
 * [Demitri Muna](https://github.com/demitri) - for giving excellent suggestions just before the code was born
+* Scott Gaudi - for encouragment and supporting the project from day one
 * Zoey Samples
 * [Jan Skowron](https://github.com/jskowron) - for spotting bugs and letting us know about them
 * [Jason Eastman](https://github.com/jdeast)
