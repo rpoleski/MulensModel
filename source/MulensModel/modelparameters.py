@@ -1954,7 +1954,7 @@ class ModelParameters(object):
         n = np.sqrt(GM_over_rE3 / self._lens_keplerian['semimajor_axis']**3)
         self._lens_keplerian['period'] = 2. * np.pi / n * 365.25
         e = np.cross(velocity, h) / GM_over_rE3 - position / separation
-        eccentricity = np.sqrt(np.sum(e**2))
+        eccentricity = np.clip(np.sqrt(np.sum(e**2)), -1., 1.)
         self._lens_keplerian['eccentricity'] = eccentricity
         x = e / eccentricity
         z = h / np.sqrt(np.sum(h**2))
@@ -1963,14 +1963,14 @@ class ModelParameters(object):
         self._lens_keplerian['Omega_node'] = np.arctan2(h[0], -h[1]) * 180. / np.pi
         self._lens_keplerian['omega_periapsis'] = np.arctan2(x[2], y[2]) * 180. / np.pi
         cos_nu = np.dot(position, x) / separation
+        cos_nu = np.clip(cos_nu, -1., 1.)
         # Alternative to the code presented below:
         # sin_nu = np.dot(position, y) / separation
         # nu = np.arctan2(sin_nu, cos_nu) * 180. / np.pi
         # self._lens_keplerian['argument_of_latitude_reference'] = nu + self._lens_keplerian['omega_periapsis']
         # self._lens_keplerian['epoch_reference'] = self.t_0_kep
-        if cos_nu > 1.:
-            cos_nu = 1.
         cos_E = (cos_nu + eccentricity) / (1. + eccentricity * cos_nu)
+        cos_E = np.clip(cos_E, -1., 1.)
         E = np.arccos(cos_E)
         self._lens_keplerian['periapsis_epoch'] = self.t_0_kep - (E - eccentricity * np.sin(E)) / n
 
