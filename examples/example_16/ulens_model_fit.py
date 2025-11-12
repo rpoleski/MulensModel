@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.54.0'
+__version__ = '0.54.1'
 
 
 class UlensModelFit(object):
@@ -368,8 +368,9 @@ class UlensModelFit(object):
             The values are also dicts and currently accepted keys are:
             1) for ``best model``:
             ``'file'``, ``'interactive'``, ``'time range'``, ``'magnitude range'``, ``'title'``,``'legend'``,
-            ``'rcParams'``, ``'add models'`` (allows setting ``Model.plot_lc()`` parameters and
-            ``'limb darkening u'`` to *str* or *float*), ``'model label'``, and ``'model kwargs'``
+            ``'rcParams'``, ``'xlabel'``, ``'model label'``, ``'model kwargs'`` and
+            ``'add models'`` (allows setting ``Model.plot_lc()`` parameters and ``'limb darkening u'``
+            to *str* or *float*),
             2) for ``triangle`` and ``trace``:
             ``'file'``, and ``'shift t_0'`` (*bool*, *True* is default)
             3) for ``trajectory``:
