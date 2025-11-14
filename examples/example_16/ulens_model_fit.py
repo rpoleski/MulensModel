@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.54.1'
+__version__ = '0.54.2'
 
 
 class UlensModelFit(object):
@@ -2827,7 +2827,7 @@ class UlensModelFit(object):
         """
         print the chi2 and parameters for model provided
         """
-        out = "{:.4f}  {:}".format(chi2, " ".join([repr(x) for x in theta]))
+        out = "{:.4f}  {:}".format(chi2, " ".join([repr(float(x)) for x in theta]))
 
         flush = False
         cond_1 = self._print_model_i <= 1000 and self._print_model_i % 10 == 0
