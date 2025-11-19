@@ -2,6 +2,8 @@ import warnings
 import numpy as np
 from math import fsum, sqrt
 
+import VBMicrolensing
+
 from MulensModel.binarylensimports import (
     _vbbl_wrapped, _adaptive_contouring_wrapped,
     _vbbl_binary_mag_dark, _vbbl_binary_mag_finite, _vbbl_binary_mag_point,
@@ -551,26 +553,26 @@ class BinaryLensVBBLMagnification(_BinaryLensPointSourceMagnification, _LimbDark
         self._set_and_check_rho()
 
         if accuracy <= 0.:
-            raise ValueError(
-                "VBBL requires accuracy > 0 e.g. 0.01 or 0.001;" +
-                "\n{:} was  provided".format(accuracy))
+            raise ValueError("VBBL/VBM requires accuracy > 0 e.g. 0.01 or 0.001;\n{:} was  provided".format(accuracy))
+
         self._accuracy = float(accuracy)
 
-        if not _vbbl_wrapped:
-            raise ValueError('VBBL was not imported properly')
-
+        self._vbm = VBMicrolensing.VBMicrolensing()
         if self._u_limb_darkening is None:
-            self._vbbl_function = _vbbl_binary_mag_finite
+            self._vbbl_function = self._vbm.BinaryMag
         else:
-            self._vbbl_function = _vbbl_binary_mag_dark
+            self._vbbl_function = self._vbm.BinaryMag2
 
     def _get_1_magnification(self, x, y, separation):
         """
         Calculate 1 magnification using VBBL.
         """
-        args = [float(separation), self._q, float(x), float(y), self._rho, self._accuracy]
-        if self._u_limb_darkening is not None:
-            args += [self._u_limb_darkening]
+        args = [float(separation), self._q, float(x), float(y), self._rho]
+        if self._u_limb_darkening is None:
+            args.append(self._accuracy)
+        else:
+            self._vbm.a1 = self._u_limb_darkening
+            self._vbm.Tol = self._accuracy
 
         return self._vbbl_function(*args)
 
