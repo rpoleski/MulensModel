@@ -233,18 +233,17 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
         if self._solver == 'numpy':
             self._polynomial_roots = np_polyroots(polynomial)
         elif self._solver == 'Skowron_and_Gould_12':
-            args = polynomial.real.tolist() + polynomial.imag.tolist()
+            coefficients = [(polynomial.real[i], polynomial.imag[i]) for i in range(6)]
             try:
-                out = _vbbl_SG12_5(*args)
+                self._vbm = VBMicrolensing.VBMicrolensing()
+                roots = self._vbm.cmplx_roots_gen(coefficients)
             except ValueError as err:
                 err2 = "\n\nSwitching from Skowron & Gould 2012 to numpy"
                 warnings.warn(str(err) + err2, UserWarning)
                 self._solver = 'numpy'
                 self._polynomial_roots = np_polyroots(polynomial)
             else:
-                self._polynomial_roots = np.array([
-                    out[0]+out[5]*1.j, out[1]+out[6]*1.j, out[2]+out[7]*1.j,
-                    out[3]+out[8]*1.j, out[4]+out[9]*1.j])
+                self._polynomial_roots = np.array([roots[i][0]+roots[i][1]*1.j for i in range(5)])
         else:
             raise ValueError('Unknown solver: {:}'.format(self._solver))
         self._last_polynomial_input = polynomial_input
