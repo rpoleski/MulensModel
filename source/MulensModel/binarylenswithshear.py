@@ -1,6 +1,7 @@
 import warnings
 import numpy as np
 from math import sqrt
+import VBMicrolensing
 
 from MulensModel.binarylens import BinaryLensPointSourceWM95Magnification
 from MulensModel.binarylensimports import (
@@ -362,22 +363,20 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
         if self._solver == 'numpy':
             self._polynomial_roots = np_polyroots(polynomial)
         elif self._solver == 'Skowron_and_Gould_12':
-            args = polynomial.real.tolist() + polynomial.imag.tolist()
+            coefficients = [(polynomial.real[i], polynomial.imag[i]) for i in range(10)]
             try:
-                out = _vbbl_SG12_9(*args)
+                self._vbm = VBMicrolensing.VBMicrolensing()
+                roots = self._vbm.cmplx_roots_gen(coefficients)
             except ValueError as err:
                 err2 = "\n\nSwitching from Skowron & Gould 2012 to numpy"
                 warnings.warn(str(err) + err2, UserWarning)
                 self._solver = 'numpy'
                 self._polynomial_roots = np_polyroots(polynomial)
             else:
-                roots = [
-                    out[i] + out[i+9] * 1.j
-                    for i in range(9) if (
-                        (abs(out[i]) > 1e-10 or abs(out[i+9]) > 1e-10)
-                        and (abs(out[i] - self._position_z1) > 1e-10
-                             or abs(out[i+9]) > 1e-10))]
-                self._polynomial_roots = np.array(roots)
+                self._polynomial_roots = np.array([
+                    roots[i][0] + roots[i][1] * 1.j for i in range(9)
+                    if ((abs(roots[i][0]) > 1e-10 or abs(roots[i][1]) > 1e-10)
+                        and (abs(roots[i][0] - self._position_z1) > 1e-10 or abs(roots[i][1]) > 1e-10))])
         else:
             raise ValueError('Unknown solver: {:}'.format(self._solver))
         self._last_polynomial_input = polynomial_input
