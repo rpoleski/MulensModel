@@ -4,3 +4,4 @@ astropy>=1.2.0
 matplotlib
 sympy
 py-cpuinfo
+VBMicrolensing>=5.3.4
