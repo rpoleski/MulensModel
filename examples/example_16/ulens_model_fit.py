@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.54.2'
+__version__ = '0.54.3'
 
 
 class UlensModelFit(object):
@@ -2316,7 +2316,8 @@ class UlensModelFit(object):
         """
         if self._fixed_parameters is None:
             return
-
+        if len(self._user_parameters) > 0:
+            self._extract_fixed_user_parameters()
         fixed = set(self._fixed_parameters.keys())
 
         allowed = set(self._all_MM_parameters +
@@ -2334,6 +2335,15 @@ class UlensModelFit(object):
             raise ValueError(
                 'Some parameters are both fitted and fixed: ' +
                 '{:}'.format(repeated))
+
+    def _extract_fixed_user_parameters(self):
+        """
+        Extract fixed user-defined parameters into self._fixed_user_parameters
+        """
+        self._fixed_user_parameters = {}
+        for key in self._user_parameters:
+            if key in self._fixed_parameters:
+                self._fixed_user_parameters[key] = self._fixed_parameters.pop(key)
 
     def _make_model_and_event(self):
         """
