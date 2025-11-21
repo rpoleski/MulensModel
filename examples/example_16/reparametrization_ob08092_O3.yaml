@@ -4,7 +4,7 @@ model:
     methods: 2454535. VBBL 2454550. 
     default method: point_source_point_lens
 fixed_parameters:
-    t_0_pl: 2454541.15  # t_0_pl can be fitted too, see comment in reparametrization.py
+    t_0_pl: 2454541.15  # t_0_pl can be fitted too
 starting_parameters:
     t_0: gauss 2454727.4 0.001
     u_0: gauss 1.5 0.001
@@ -25,6 +25,7 @@ fitting_parameters:
     n_walkers:  20
     n_steps: 10000
     n_burn:   2000
+    progress: True
 fit_constraints:
     # This constraint is different than in Poleski et al. 2014, so the results will also be different.
     negative_blending_flux_sigma_mag: 20. 
