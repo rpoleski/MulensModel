@@ -45,7 +45,8 @@ class _BinaryLensPointSourceMagnification(_AbstractMagnification):
     def __init__(self, **kwargs):
         super().__init__(trajectory=kwargs['trajectory'])
         self._q = float(self.trajectory.parameters.q)  # This speeds-up code for np.float input.
-        self._solver = _solver
+        self._solver = 'Skowron_and_Gould_12'  # Can be manually changed to 'numpy'.
+        self._vbm = VBMicrolensing.VBMicrolensing()
 
         self._source_x = self.trajectory.x
         self._source_y = self.trajectory.y
@@ -235,7 +236,6 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
         elif self._solver == 'Skowron_and_Gould_12':
             coefficients = [(polynomial.real[i], polynomial.imag[i]) for i in range(6)]
             try:
-                self._vbm = VBMicrolensing.VBMicrolensing()
                 roots = self._vbm.cmplx_roots_gen(coefficients)
             except ValueError as err:
                 err2 = "\n\nSwitching from Skowron & Gould 2012 to numpy"
@@ -246,6 +246,7 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
                 self._polynomial_roots = np.array([roots[i][0]+roots[i][1]*1.j for i in range(5)])
         else:
             raise ValueError('Unknown solver: {:}'.format(self._solver))
+
         self._last_polynomial_input = polynomial_input
 
         return self._polynomial_roots
