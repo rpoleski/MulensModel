@@ -621,6 +621,7 @@ class UlensModelFit(object):
         """Checking if errorbars scales should be fitted"""
         self._fit_errorbars = self._parse_errorbars_settings()
         if True in self._fit_errorbars:
+            self._flat_priors = False 
             self._get_datasets()
             self._set_fit_errorbars_scales_params()
 
