@@ -2835,9 +2835,7 @@ class UlensModelFit(object):
             if self._fit_errorbars[i]:
                 scaling = {"factor": scales[index], "minimum":  scales[index+1]}
                 dataset.scale_errorbars(**scaling)
-                index += 2  
-                
-                print(dataset)
+                index += 2
 
     def _ln_prior(self, theta):
         """
