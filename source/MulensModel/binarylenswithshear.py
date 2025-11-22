@@ -365,7 +365,6 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
         elif self._solver == 'Skowron_and_Gould_12':
             coefficients = [(polynomial.real[i], polynomial.imag[i]) for i in range(10)]
             try:
-                self._vbm = VBMicrolensing.VBMicrolensing()
                 roots = self._vbm.cmplx_roots_gen(coefficients)
             except ValueError as err:
                 err2 = "\n\nSwitching from Skowron & Gould 2012 to numpy"
@@ -576,7 +575,6 @@ class BinaryLensPointSourceWithShearVBBLMagnification(BinaryLensPointSourceWithS
         super().__init__(**kwargs)
 
     def _get_1_magnification(self, x, y, separation):
-
         magnification = _vbbl_binary_mag_point_shear(
             float(separation), self._q, float(x), float(y), self.convergence_K,
             self.shear_G.real, self.shear_G.imag)
