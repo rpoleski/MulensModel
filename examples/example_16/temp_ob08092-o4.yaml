@@ -17,7 +17,7 @@ max_values:
     u_0: 1.5
     t_E: 200.
     ERR_k_phot_ob08092_O4.dat: 100
-    ERR_k_phot_ob08092_O4.dat: 1.0
+    ERR_e_phot_ob08092_O4.dat: 1.0
 fitting_parameters:
     n_walkers: 20
     n_steps: 3000

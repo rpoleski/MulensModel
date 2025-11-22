@@ -2835,7 +2835,9 @@ class UlensModelFit(object):
             if self._fit_errorbars[i]:
                 scaling = {"factor": scales[index], "minimum":  scales[index+1]}
                 dataset.scale_errorbars(**scaling)
-                index += 2
+                index += 2  
+                
+                print(dataset)
 
     def _ln_prior(self, theta):
         """
@@ -2942,6 +2944,7 @@ class UlensModelFit(object):
         self._set_model_parameters(theta)
 
         chi2 = self._event.get_chi2()
+        print('after chi2' , self._event.datasets)
         out = -0.5 * chi2
 
         if self._print_model:
@@ -2960,11 +2963,13 @@ class UlensModelFit(object):
         """
         out = 0
         for (i, _data) in enumerate(self._event.datasets):
-            if _data.chi2_fmt == "flux":
-                err = _data.err_flux
-            elif _data.chi2_fmt == "mag":
-                err = _data.err_mag
-            out += np.sum(np.log(2*np.pi*np.power(err, 2)))
+            if self._fit_errorbars[i]:
+                if _data.chi2_fmt == "flux":
+                    err = _data.err_flux
+                elif _data.chi2_fmt == "mag":
+                    err = _data.err_mag
+                print('chi2 err' , np.sum(np.log(2*np.pi*np.power(err, 2))))
+                out += np.sum(np.log(2*np.pi*np.power(err, 2)))
         out *= -0.5
         return out
 
