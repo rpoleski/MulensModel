@@ -1505,15 +1505,15 @@ class UlensModelFit(object):
         """
         translate = {'k': 'factor', 'e': 'minimum'}
         self._errorbars_fitting = dict()
-        self._errorbars_fitting_X = dict()
+        self._errorbars_fitting_index = dict()
         for parameter in self._fit_parameters_errorbars:
-            label = parameter[6:]
+            index = self._data_labels.index(parameter[6:])
             t = translate[parameter[4]]
-            if label in self._errorbars_fitting:
-                self._errorbars_fitting[label][t] = None
+            if index in self._errorbars_fitting:
+                self._errorbars_fitting[index][t] = None
             else:
-                self._errorbars_fitting[label] = {t: None}
-            self._errorbars_fitting_X[parameter] = [label, t]
+                self._errorbars_fitting[index] = {t: None}
+            self._errorbars_fitting_index[parameter] = [index, t]
 
         for parameter in self._fit_parameters_errorbars:
             label = parameter[6:]
@@ -2840,13 +2840,12 @@ class UlensModelFit(object):
             return
 
         for parameter in self._fit_parameters_errorbars:
-            (label, kwarg) = self._errorbars_fitting_X[parameter]
-            self._errorbars_fitting[label][kwarg] = self._errorbars_parameters_dict[parameter]
+            (index_1, index_2) = self._errorbars_fitting_index[parameter]
+            self._errorbars_fitting[index_1][index_2] = self._errorbars_parameters_dict[parameter]
 
         self._event.datasets = [data.copy() for data in self._datasets_initial]
-        for (label, kwargs) in self._errorbars_fitting.items():
-            dataset = self._event.datasets[self._data_labels.index(label)]
-            dataset.scale_errorbars(**kwargs)
+        for (index, kwargs) in self._errorbars_fitting.items():
+            self._event.datasets[index].scale_errorbars(**kwargs)
 
     def OLD_update_datasets(self):
         """
@@ -2998,8 +2997,8 @@ class UlensModelFit(object):
         Returns ln(probability()) for scaled errorbars.
         """
         out = 0.
-        for label in self._errorbars_fitting.keys():
-            dataset = self._event.datasets[self._data_labels.index(label)]
+        for index in self._errorbars_fitting.keys():
+            dataset = self._event.datasets[index]
             if dataset.chi2_fmt == 'flux':
                 err = dataset.err_flux
             else:
