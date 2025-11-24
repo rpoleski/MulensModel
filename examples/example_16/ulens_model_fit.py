@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.54.3'
+__version__ = '0.54.4'
 
 
 class UlensModelFit(object):
@@ -1245,22 +1245,17 @@ class UlensModelFit(object):
         if isinstance(self._photometry_files, str):
             self._photometry_files = [self._photometry_files]
         elif not isinstance(self._photometry_files, list):
-            raise TypeError(
-                'photometry_files should be a list or a str, but you '
-                'provided ' + str(type(self._photometry_files)))
-        files = [f if isinstance(f, dict) else {'file_name': f}
-                 for f in self._photometry_files]
-        self._datasets = []
-        for file_ in files:
-            dataset = self._get_1_dataset(file_, kwargs)
-            self._datasets.append(dataset)
+            raise TypeError('photometry_files should be a list or a str, but you provided ' +
+                            str(type(self._photometry_files)))
+
+        files = [f if isinstance(f, dict) else {'file_name': f} for f in self._photometry_files]
+        self._datasets = [self._get_1_dataset(file_, kwargs) for file_ in files]
+        self._data_labels = [dataset.plot_properties['label'] for dataset in self._datasets]
 
         if self._residuals_output:
             if len(self._residuals_files) != len(self._datasets):
-                out = '{:} vs {:}'.format(
-                    len(self._datasets), len(self._residuals_files))
-                raise ValueError('The number of datasets and files for '
-                                 'residuals output do not match: ' + out)
+                out = '{:} vs {:}'.format(len(self._datasets), len(self._residuals_files))
+                raise ValueError('The number of datasets and files for residuals output do not match: ' + out)
 
     def _get_1_dataset(self, file_, kwargs):
         """
@@ -2023,10 +2018,8 @@ class UlensModelFit(object):
         """
         sets = list(map(self._get_no_of_dataset, values))
         if len(sets) > len(self._datasets):
-            raise ValueError(
-                "dataset specified in" +
-                key +
-                "should not repeat")
+            raise ValueError("dataset specified in {:} should not repeat".format(key))
+
         return sets
 
     def _get_settings_fit_constraints_color(self, key, value):
@@ -2101,11 +2094,7 @@ class UlensModelFit(object):
         """
         Check if the labels of datasets are unique.
         """
-        labels = [
-            dataset.plot_properties['label']
-            for dataset in self._datasets
-        ]
-        if len(labels) != len(set(labels)):
+        if len(self._data_labels) != len(set(self._data_labels)):
             raise ValueError("Declared labels of datasets must be unique.")
 
     def _parse_fit_constraints_prior(self):
@@ -2190,12 +2179,13 @@ class UlensModelFit(object):
         if '"' in label:
             label = label.strip('"')
 
-        for (i, dataset) in enumerate(self._datasets):
-            if dataset.plot_properties['label'] == label:
-                return i
+        try:
+            index = self._data_labels.index(label)
+        except ValueError:
+            raise KeyError("Unrecognized dataset label: " + label + "\nallowed labels: " +
+                           str([d.plot_properties['label'] for d in self._datasets]))
 
-        raise KeyError("Unrecognized dataset label: " + label + "\nallowed labels: " +
-                       str([d.plot_properties['label'] for d in self._datasets]))
+        return index
 
     def _read_prior_t_E_data(self):
         """
