@@ -464,7 +464,7 @@ class UlensModelFit(object):
 
         self._which_task()
         self._set_default_parameters()
-        self._set_errorbars_scales_fitting()
+        #self._set_errorbars_scales_fitting()
         if self._task == 'fit':
             if self._fit_method is None:
                 self._guess_fitting_method()
@@ -865,6 +865,7 @@ class UlensModelFit(object):
         self._get_datasets()
         self._check_ulens_model_parameters()
         self._get_parameters_ordered()
+        self._parse_errorbars_fit_params()
         self._get_parameters_latex()
         self._set_prior_limits()
 
@@ -1345,7 +1346,7 @@ class UlensModelFit(object):
         self._data_labels = [dataset.plot_properties['label'] for dataset in self._datasets]
         self._datasets_initial = [dataset.copy() for dataset in self._datasets]
         self._errorbars_parameters = ['ERR_' + t + label for label in self._data_labels for t in ['k_', 'e_']]
-        
+
         if self._residuals_output:
             if len(self._residuals_files) != len(self._datasets):
                 out = '{:} vs {:}'.format(len(self._datasets), len(self._residuals_files))
@@ -1485,18 +1486,41 @@ class UlensModelFit(object):
         is always the same.
         """
         order = self._all_MM_parameters + self._user_parameters + self._other_parameters + self._errorbars_parameters
-        indexes = sorted(
-            [order.index(p) for p in self._fit_parameters_unsorted])
+        indexes = sorted([order.index(p) for p in self._fit_parameters_unsorted])
 
         self._fit_parameters = [order[i] for i in indexes]
-        self._fit_parameters_other = [
-            order[i] for i in indexes if order[i] in self._other_parameters]
-        self._fit_parameters_errorbars = [
-            order[i] for i in indexes if order[i] in self._errorbars_parameters]
+        self._fit_parameters_other = [order[i] for i in indexes if order[i] in self._other_parameters]
+        self._fit_parameters_errorbars = [order[i] for i in indexes if order[i] in self._errorbars_parameters]
         self._other_parameters_dict = dict()
         self._errorbars_parameters_dict = dict()
         if len(self._fit_parameters_other) > 0:
             self._flat_priors = False
+
+    def _parse_errorbars_fit_params(self):
+        """
+        XXX
+        We assume self._fit_parameters_errorbars have strings in a format
+        ERR_k_DATASET-LABEL
+        ERR_e_DATASET-LABEL
+        and these correspond to 'factor' and 'minimum' kwargs of mm.MulensData.scale_errorbars()
+        """
+        translate = {'k': 'factor', 'e': 'minimum'}
+        self._errorbars_fitting = dict()
+        self._errorbars_fitting_X = dict()
+        for parameter in self._fit_parameters_errorbars:
+            label = parameter[6:]
+            t = translate[parameter[4]]
+            if label in self._errorbars_fitting:
+                self._errorbars_fitting[label][t] = None
+            else:
+                self._errorbars_fitting[label] = {t: None}
+            self._errorbars_fitting_X[parameter] = [label, t]
+
+        for parameter in self._fit_parameters_errorbars:
+            label = parameter[6:]
+            label_safe = label.replace(' ', '_')
+            label_tex = label_safe.replace('_', '\\_')
+            self._latex_conversion_other[parameter] = 'ERR_{\\rm{' + parameter[4] + ',' + label_tex + '}}'
 
     def _get_parameters_latex(self):
         """
@@ -2811,6 +2835,20 @@ class UlensModelFit(object):
         self._update_datasets()
 
     def _update_datasets(self):
+        """XXX"""
+        if len(self._fit_parameters_errorbars) == 0:
+            return
+
+        for parameter in self._fit_parameters_errorbars:
+            (a, b) = self._errorbars_fitting_X[parameter]
+            self._errorbars_fitting[a][b] = self._errorbars_parameters_dict[parameter]
+
+        self._event.datasets = deepcopy(self._datasets_initial) # XXX Why not MulensData.copy() here?
+        for (label, kwargs) in self._errorbars_fitting.items():
+            dataset = self._event.datasets[self._data_labels.index(label)]
+            dataset.scale_errorbars(**kwargs)
+
+    def OLD_update_datasets(self):
         """
         Update datasets:
         - errorbars according to current values of errorbars scaling parameters.
@@ -2959,15 +2997,16 @@ class UlensModelFit(object):
         """
         Returns ln(probability()) for scaled errorbars.
         """
-        out = 0
-        for (i, _data) in enumerate(self._event.datasets):
-            if self._fit_errorbars[i]:
-                if _data.chi2_fmt == "flux":
-                    err = _data.err_flux
-                elif _data.chi2_fmt == "mag":
-                    err = _data.err_mag
-                print('chi2 err' , np.sum(np.log(2*np.pi*np.power(err, 2))))
-                out += np.sum(np.log(2*np.pi*np.power(err, 2)))
+        out = 0.
+        for label in self._errorbars_fitting.keys():
+            dataset = self._event.datasets[self._data_labels.index(label)]
+            if dataset.chi2_fmt == 'flux':
+                err = dataset.err_flux
+            else:
+                err = dataset.err_mag
+
+            out += np.sum(np.log(2 * np.pi * np.power(err, 2)))
+
         out *= -0.5
         return out
 
