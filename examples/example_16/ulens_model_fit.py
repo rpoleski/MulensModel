@@ -11,7 +11,6 @@ import math
 import numpy as np
 import shlex
 from scipy.interpolate import interp1d
-from copy import deepcopy
 from matplotlib import pyplot as plt
 from matplotlib import gridspec, rcParams, rcParamsDefault, colors
 # from matplotlib.backends.backend_pdf import PdfPages
@@ -2832,18 +2831,19 @@ class UlensModelFit(object):
                     self._errorbars_parameters_dict[parameter] = value
                 else:
                     self._other_parameters_dict[parameter] = value
+
         self._update_datasets()
 
     def _update_datasets(self):
-        """XXX"""
+        """Update errorbars scaling"""
         if len(self._fit_parameters_errorbars) == 0:
             return
 
         for parameter in self._fit_parameters_errorbars:
-            (a, b) = self._errorbars_fitting_X[parameter]
-            self._errorbars_fitting[a][b] = self._errorbars_parameters_dict[parameter]
+            (label, kwarg) = self._errorbars_fitting_X[parameter]
+            self._errorbars_fitting[label][kwarg] = self._errorbars_parameters_dict[parameter]
 
-        self._event.datasets = deepcopy(self._datasets_initial) # XXX Why not MulensData.copy() here?
+        self._event.datasets = [data.copy() for data in self._datasets_initial]
         for (label, kwargs) in self._errorbars_fitting.items():
             dataset = self._event.datasets[self._data_labels.index(label)]
             dataset.scale_errorbars(**kwargs)
