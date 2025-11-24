@@ -25,8 +25,10 @@ model:
         I: 0.42
         g: 0.65
         i: 0.44
-    coords: 18:05:16.35 -28:53:42.0
-    # coordinates are needed only for parallax calculations
+    coords: 18:05:16.35 -28:53:42.0  # coordinates are needed only for parallax calculations
+    fixed_fluxes:
+        blend:
+            OGLE I-band: 0.  # This is the way to fix 0 blending flux
 # Below you can have any combination of parameters allowed by MulensModel
 fixed_parameters:
     t_0_par: 2452848.
@@ -146,9 +148,11 @@ plots:
         # In case you want an interactive plot made using plotly:
         interactive : ob03235_2_model.html
         time range: 2452820 2452855
+        xlabel: BJD - 2450000
         magnitude range: 19.3 16.9
         title: OB03235 plot
         model label: I-band model
+        model kwargs: {'color': 'r', 'lw': 5.}
         rcParams:
         # This allows setting many matplotlib parameters, e.g.:
             font.size: 14
@@ -169,7 +173,6 @@ plots:
             # The list of labels above can not be given if magnifications = "optimal"
             label: What is shown on this axis?
             color: magenta
-        model label: "I-band model"
         legend:
             fontsize: small
         add models:

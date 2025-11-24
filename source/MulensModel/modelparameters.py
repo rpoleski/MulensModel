@@ -2,7 +2,6 @@ import numpy as np
 
 from MulensModel.uniformcausticsampling import UniformCausticSampling
 from MulensModel.orbits.orbit import Orbit
-from MulensModel.utils import Utils
 
 
 class ModelParameters(object):
@@ -171,20 +170,19 @@ class ModelParameters(object):
         """
         sets self._type property, which indicates what type of a model we have
         """
-        types = ['finite source', 'parallax', 'Cassan08',
-                 'lens 2-parameter orbital motion', 'full keplerian motion',
-                 'mass sheet', 'xallarap']
+        types = ['finite source', 'parallax', 'Cassan08', 'lens orbital motion', 'keplerian motion',
+                 'circular keplerian motion', 'elliptical keplerian motion', 'mass sheet', 'xallarap']
         out = {type_: False for type_ in types}
 
         temp = {
             'finite source': 'rho t_star rho_1 rho_2 t_star_1 t_star_2',
             'parallax': 'pi_E_N pi_E_E',
             'Cassan08': 'x_caustic_in x_caustic_out t_caustic_in t_caustic_out',
-            'lens 2-parameter orbital motion': 'dalpha_dt ds_dt',
-            'full keplerian motion': 's_z ds_z_dt',
+            'lens orbital motion': 'dalpha_dt ds_dt',
+            'keplerian motion': 's_z ds_z_dt',
+            'elliptical keplerian motion': 'a_s',
             'mass sheet': 'convergence_K shear_G',
-            'xallarap': ('xi_period xi_semimajor_axis xi_inclination '
-                         'xi_Omega_node xi_argument_of_latitude_reference '
+            'xallarap': ('xi_period xi_semimajor_axis xi_inclination xi_Omega_node xi_argument_of_latitude_reference '
                          'xi_eccentricity xi_omega_periapsis q_source')}
 
         parameter_to_type = dict()
@@ -196,6 +194,9 @@ class ModelParameters(object):
             if key in parameter_to_type:
                 out[parameter_to_type[key]] = True
 
+        if out['keplerian motion'] and not out['elliptical keplerian motion']:
+            out['circular keplerian motion'] = True
+
         self._type = out
 
     def _check_types(self, alpha_defined):
@@ -205,23 +206,21 @@ class ModelParameters(object):
         n_lenses = self._n_lenses
 
         # Lens orbital motion requires binary lens:
-        if self._type['lens 2-parameter orbital motion'] and n_lenses == 1:
-            raise KeyError('Orbital motion of the lens requires two lens '
-                           'components but only one was provided.')
+        if self._type['lens orbital motion'] and n_lenses == 1:
+            raise KeyError('Orbital motion of the lens requires two lens components but only one was provided.')
+
         # Full Keplerian motion requires binary lens:
-        if self._type['full keplerian motion'] and n_lenses == 1:
-            raise KeyError('Full Keplerian motion of the lens requires two '
-                           'lens components but only one was provided.')
+        if self._type['keplerian motion'] and n_lenses == 1:
+            raise KeyError('Full Keplerian motion of the lens requires two lens components but only one was provided.')
 
         self._check_types_for_Cassan08()
 
         if alpha_defined:
             if self._n_lenses == 1 and not self._type['mass sheet']:
                 raise KeyError(
-                    'You defined alpha for single lens model '
-                    'without external mass sheet. This is not allowed.')
+                    'You defined alpha for single lens model without external mass sheet. This is not allowed.')
 
-        if self._type['full keplerian motion']:
+        if self._type['keplerian motion']:
             self._lens_keplerian_last_input = None
             self._lens_keplerian = dict()
 
@@ -232,7 +231,7 @@ class ModelParameters(object):
         # Make sure that there are no unwanted keys
         allowed_keys = set((
             't_0 u_0 t_E t_eff rho t_star pi_E_N pi_E_E t_0_par '
-            's q alpha dalpha_dt ds_dt s_z ds_z_dt t_0_kep convergence_K shear_G '
+            's q alpha dalpha_dt ds_dt s_z ds_z_dt a_s t_0_kep convergence_K shear_G '
             't_0_1 t_0_2 u_0_1 u_0_2 rho_1 rho_2 t_star_1 t_star_2 '
             'x_caustic_in x_caustic_out t_caustic_in t_caustic_out '
             'xi_period xi_semimajor_axis xi_inclination xi_Omega_node '
@@ -263,18 +262,14 @@ class ModelParameters(object):
         if not self._type['Cassan08']:
             return
 
-        types = ['parallax', 'xallarap', 'lens 2-parameter orbital motion',
-                 'full keplerian motion']
+        types = ['parallax', 'xallarap', 'lens orbital motion', 'keplerian motion']
         for type_ in types:
             if self._type[type_]:
                 raise NotImplementedError(
-                    'Currently we do not allow Cassan (2008) '
-                    'parameterization of binary lens and ' + type_)
+                    'Currently we do not allow Cassan (2008) parameterization of binary lens and ' + type_)
 
         if self._n_sources > 1:
-            raise NotImplementedError(
-                "Cassan (2008) parameterization doesn't work for "
-                "multi sources models")
+            raise NotImplementedError("Cassan (2008) parameterization doesn't work for multi sources models")
 
     def _divide_parameters(self, parameters):
         """
@@ -318,9 +313,16 @@ class ModelParameters(object):
                 raise KeyError('xallarap model with 2 sources requires ' + key)
 
         parameters_2['xi_semimajor_axis'] /= q_source
-        parameters_2['xi_argument_of_latitude_reference'] += 180.
-        if parameters_2['xi_argument_of_latitude_reference'] > 360.:
-            parameters_2['xi_argument_of_latitude_reference'] -= 360.
+        parameters_2['xi_argument_of_latitude_reference'] = self._add_180_and_wrap_to_360(
+            parameters_2['xi_argument_of_latitude_reference'])
+        if 'xi_omega_periapsis' in parameters_2:
+            parameters_2['xi_omega_periapsis'] = self._add_180_and_wrap_to_360(parameters_2['xi_omega_periapsis'])
+
+    def _add_180_and_wrap_to_360(self, value):
+        """add 180 to the value and wrap angle to 360"""
+        value += 180.
+        value %= 360.
+        return value
 
     def __repr__(self):
         """A nice way to represent a ModelParameters object as a string"""
@@ -659,43 +661,37 @@ class ModelParameters(object):
         """
         # s, q, and alpha must all be defined if s or q are defined
         if ('s' in keys) or ('q' in keys):
-            if (('s' not in keys) or
-                    ('q' not in keys) or ('alpha' not in keys)):
-                raise KeyError(
-                    'A binary model requires all three of (s, q, alpha).')
+            if ('s' not in keys) or ('q' not in keys) or ('alpha' not in keys):
+                raise KeyError('A binary model requires all three of (s, q, alpha).')
 
         # If ds_dt is defined, dalpha_dt must be defined
         if ('ds_dt' in keys) or ('dalpha_dt' in keys):
             if ('ds_dt' not in keys) or ('dalpha_dt' not in keys):
-                raise KeyError(
-                    'Lens orbital motion requires both ds_dt and dalpha_dt.' +
-                    '\nNote that you can set either of them to 0.')
+                raise KeyError('Lens orbital motion requires both ds_dt and dalpha_dt.' +
+                               '\nNote that you can set either of them to 0.')
         # If orbital motion is defined, then reference epoch has to be set.
             if 't_0' not in keys and 't_0_kep' not in keys:
-                raise KeyError(
-                    'Orbital motion requires reference epoch, ' +
-                    'i.e., t_0 or t_0_kep')
+                raise KeyError('Orbital motion requires reference epoch, i.e., t_0 or t_0_kep')
 
-        # If s_z or ds_z_dt is defined, ds_dt and dalpha_dt must be defined
-        if ('s_z' in keys) and ('ds_z_dt' in keys):
-            raise KeyError('Full Keplerian motion requires either s_z or ' +
-                           'ds_z_dt, not both.')
+        if self._type['circular keplerian motion']:
+            if ('s_z' in keys) and ('ds_z_dt' in keys):
+                raise KeyError("Keplerian lens motion has two posibilities: 1) circular - provide either s_z or " +
+                               "ds_z_dt, OR 2) eliptical - provide s_z, ds_z_dt, and a_s. Setting only s_z and " +
+                               "ds_z_dt but not a_s doesn't make sense.")
+        if self._type['elliptical keplerian motion']:
+            if ('s_z' not in keys) or ('ds_z_dt' not in keys):
+                raise KeyError('Ellipctical Keplerian motion requires all of s_z, ds_z_dt, dalpha_dt, and ds_dt')
         if ('s_z' in keys) or ('ds_z_dt' in keys):
             if ('ds_dt' not in keys) or ('dalpha_dt' not in keys):
-                raise KeyError(
-                    'Full Keplerian motion (s_z or ds_z_dt) requires ' +
-                    'both ds_dt and dalpha_dt.' +
-                    '\nNote that you can set either of them to 0.')
+                raise KeyError('Full Keplerian motion (s_z or ds_z_dt) requires both ds_dt and dalpha_dt.' +
+                               '\nNote that you can set either of them to 0.')
             if 't_0' not in keys and 't_0_kep' not in keys:
-                raise KeyError(
-                    'Orbital motion requires reference epoch, ' +
-                    'i.e., t_0 or t_0_kep')
+                raise KeyError('Orbital motion requires reference epoch, i.e., t_0 or t_0_kep')
 
         # t_0_kep makes sense only when orbital motion is defined.
         if 't_0_kep' in keys:
             if 'ds_dt' not in keys or 'dalpha_dt' not in keys:
-                raise KeyError(
-                    't_0_kep makes sense only when orbital motion is defined.')
+                raise KeyError('t_0_kep makes sense only when orbital motion is defined.')
 
     def _check_valid_combination_1_source_xallarap(self, keys):
         """
@@ -823,10 +819,9 @@ class ModelParameters(object):
             elif parameter == 'xi_semimajor_axis':
                 value /= self.parameters['q_source']
                 setattr(self._source_2_parameters, parameter, value)
-            elif parameter == 'xi_argument_of_latitude_reference':
-                value += 180.
+            elif parameter in ['xi_argument_of_latitude_reference', 'xi_omega_periapsis']:
+                value = self._add_180_and_wrap_to_360(value)
                 setattr(self._source_2_parameters, parameter, value)
-
             self._update_sources_xallarap_reference()
 
     def _get_uniform_caustic_sampling(self):
@@ -1385,6 +1380,21 @@ class ModelParameters(object):
         self._update_sources('ds_z_dt', new_ds_z_dt)
 
     @property
+    def a_s(self):
+        """
+        *float*
+
+        The ratio of the semimajor axis to the 3D separation at the reference time :py:attr:`~t_0_kep`.
+        It equals 1 for circular orbit and should be close to 1 for all physically reasonable orbits.
+        """
+        return self.parameters['a_s']
+
+    @a_s.setter
+    def a_s(self, new_value):
+        self.parameters['a_s'] = new_value
+        self._update_sources('a_s', new_value)
+
+    @property
     def t_0_kep(self):
         """
         *float*
@@ -1799,7 +1809,7 @@ class ModelParameters(object):
         if isinstance(epoch, list):
             epoch = np.array(epoch)
 
-        if self._type['full keplerian motion']:
+        if self._type['keplerian motion']:
             self._set_lens_keplerian_orbit()
             sky_positions = self._lens_orbit.get_reference_plane_position(epoch)
             s_of_t = np.sqrt(np.sum(sky_positions**2, axis=0))
@@ -1828,7 +1838,7 @@ class ModelParameters(object):
         if isinstance(epoch, list):
             epoch = np.array(epoch)
 
-        if self._type['full keplerian motion']:
+        if self._type['keplerian motion']:
             self._set_lens_keplerian_orbit()
             sky_positions = self._lens_orbit.get_reference_plane_position(epoch)
             alpha_of_t = self.alpha + np.arctan2(sky_positions[1, :], sky_positions[0, :]) * 180 / np.pi
@@ -1891,32 +1901,80 @@ class ModelParameters(object):
         """
         Set parameters of the lens keplerian orbit i.e. self._lens_keplerian.
         """
-        position = np.array([self.s, 0, self.s_z])
         gamma = np.array([self.gamma_parallel, self.gamma_perp, self.gamma_z])
+        if np.all(gamma == 0.):
+            raise ValueError('Keplerian orbital motion cannot have velocity = 0')
+
+        position = np.array([self.s, 0, self.s_z])
         new_input = [*list(position), *list(gamma)]
+        if self._type['elliptical keplerian motion']:
+            new_input.append(self.a_s)
+
         if new_input == self._lens_keplerian_last_input:
             return
 
         self._lens_keplerian_last_input = new_input
 
+        if self._type['circular keplerian motion']:
+            self._set_lens_keplerian_orbit_circular(position, gamma)
+        elif self._type['elliptical keplerian motion']:
+            self._set_lens_keplerian_orbit_elliptical(position, gamma)
+        else:
+            raise ValueError('strange internal')
+
+#        print("ORBIT:")
+#        print(self._lens_keplerian)
+        self._lens_orbit = Orbit(**self._lens_keplerian)
+
+    def _set_lens_keplerian_orbit_circular(self, position, gamma):
+        """
+        Set self._lens_keplerian for a circular orbit.
+        """
         velocity = self.s * gamma  # This is in units of R_E = D_L * theta_E.
         a = np.sqrt(np.sum(position**2))
         self._lens_keplerian['semimajor_axis'] = a
         self._lens_keplerian['period'] = 2 * np.pi * a / np.sqrt(np.sum(velocity**2)) * 365.25
         h = np.cross(position, velocity)
-        j = np.array([0, 1, 0])
-        n = np.cross(j, h)
         self._lens_keplerian['inclination'] = np.arctan2(np.sqrt(h[0]**2+h[1]**2), h[2]) * 180. / np.pi
         self._lens_keplerian['Omega_node'] = np.arctan2(h[0], -h[1]) * 180. / np.pi
         gamma_012 = np.sqrt(np.sum(gamma**2))
         gamma_02 = np.sqrt(gamma[0]**2+gamma[2]**2)
         phi_0 = np.arctan2(-gamma[0]*gamma_012, gamma[2]*gamma_02)
         self._lens_keplerian['argument_of_latitude_reference'] = phi_0 * 180. / np.pi
-#        Utils.get_angle_between_vectors(n, position)
         self._lens_keplerian['epoch_reference'] = self.t_0_kep
-#        print("ORBIT:")
-#        print(self._lens_keplerian)
-        self._lens_orbit = Orbit(**self._lens_keplerian)
+
+    def _set_lens_keplerian_orbit_elliptical(self, position, gamma):
+        """
+        Set self._lens_keplerian for an elliptical orbit.
+        """
+        velocity = self.s * gamma  # This is in units of R_E/yr = (D_L * theta_E) / yr.
+        separation = np.sqrt(np.sum(position**2))
+        self._lens_keplerian['semimajor_axis'] = separation * self.a_s
+        h = np.cross(position, velocity)
+        r_s = self.s_z / self.s
+        GM_over_rE3 = self.s**3 * self.a_s * np.sqrt(1. + r_s**2) * np.sum(gamma**2) / (2. * self.a_s - 1.)
+        n = np.sqrt(GM_over_rE3 / self._lens_keplerian['semimajor_axis']**3)
+        self._lens_keplerian['period'] = 2. * np.pi / n * 365.25
+        e = np.cross(velocity, h) / GM_over_rE3 - position / separation
+        eccentricity = np.clip(np.sqrt(np.sum(e**2)), -1., 1.)
+        self._lens_keplerian['eccentricity'] = eccentricity
+        x = e / eccentricity
+        z = h / np.sqrt(np.sum(h**2))
+        y = np.cross(z, x)
+        self._lens_keplerian['inclination'] = np.arccos(z[2]) * 180. / np.pi
+        self._lens_keplerian['Omega_node'] = np.arctan2(h[0], -h[1]) * 180. / np.pi
+        self._lens_keplerian['omega_periapsis'] = np.arctan2(x[2], y[2]) * 180. / np.pi
+        cos_nu = np.dot(position, x) / separation
+        cos_nu = np.clip(cos_nu, -1., 1.)
+        # Alternative to the code presented below:
+        # sin_nu = np.dot(position, y) / separation
+        # nu = np.arctan2(sin_nu, cos_nu) * 180. / np.pi
+        # self._lens_keplerian['argument_of_latitude_reference'] = nu + self._lens_keplerian['omega_periapsis']
+        # self._lens_keplerian['epoch_reference'] = self.t_0_kep
+        cos_E = (cos_nu + eccentricity) / (1. + eccentricity * cos_nu)
+        cos_E = np.clip(cos_E, -1., 1.)
+        E = np.arccos(cos_E)
+        self._lens_keplerian['periapsis_epoch'] = self.t_0_kep - (E - eccentricity * np.sin(E)) / n
 
     @property
     def lens_semimajor_axis(self):
@@ -1988,7 +2046,7 @@ class ModelParameters(object):
                 *True* if :py:attr:`~dalpha_dt` or :py:attr:`~ds_dt` are set.
 
         """
-        return not self._type['lens 2-parameter orbital motion']
+        return not self._type['lens orbital motion']
 
     def is_keplerian(self):
         """
@@ -1999,7 +2057,7 @@ class ModelParameters(object):
             is_keplerian: *boolean*
                 *True* if :py:attr:`~s_z` or :py:attr:`~ds_z_dt` are set.
         """
-        return self._type['full keplerian motion']
+        return self._type['keplerian motion']
 
     @property
     def n_lenses(self):

@@ -10,6 +10,8 @@ from MulensModel.model import Model
 from MulensModel.coordinates import Coordinates
 from MulensModel.utils import PlotUtils
 
+PlotUtils.apply_defaults()
+
 
 class Event(object):
     """
@@ -300,23 +302,21 @@ class Event(object):
         """
         Get the data scaled to the model.
 
-        Keywords (all optional:
+        Parameters :
             data_ref: *int* or *MulensData*
-                If data_ref is not specified, uses :py:obj:`~data_ref`.
+                Reference dataset. If not specified, uses :py:obj:`~data_ref`.
 
-        Returns:
-            *list* of (flux, err_flux) *tuples* for each dataset.
+        Returns :
+            fluxes: *list* of *tuples* (flux, err_flux) of *np.ndarray*
+                List with a lenght as number of datasets.
         """
-
         if data_ref is None:
             data_ref = self.data_ref
 
         (f_source_0, f_blend_0) = self.get_flux_for_dataset(data_ref)
         scaled_fluxes = []
-        for (i, data) in enumerate(self._datasets):
-            # Scale the data flux
-            (flux, err_flux) = self.fits[i].scale_fluxes(f_source_0,
-                                                         f_blend_0)
+        for fit in self.fits:
+            (flux, err_flux) = fit.scale_fluxes(f_source_0, f_blend_0)
             scaled_fluxes.append((flux, err_flux))
 
         return scaled_fluxes

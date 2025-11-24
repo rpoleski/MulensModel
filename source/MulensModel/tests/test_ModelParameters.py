@@ -413,15 +413,13 @@ def setup_keplerian(dict_to_add):
 class test_Keplerian(unittest.TestCase):
     def test_keplerian_both_inputs(self):
         """s_z and ds_z_dt are given with ds_dt and dalpha_dt"""
-        dict_2 = setup_keplerian({'ds_dt': 0.1, 'dalpha_dt': 10.,
-                                  's_z': 0.1, 'ds_z_dt': 1.9})
+        dict_2 = setup_keplerian({'ds_dt': 0.1, 'dalpha_dt': 10., 's_z': 0.1, 'ds_z_dt': 1.9})
         with self.assertRaises(KeyError):
             mm.ModelParameters(dict_2)
 
     def test_keplerian_no_ds_dt(self):
         """fails if s_z and ds_z_dt are given with dalpha_dt"""
-        dict_3 = setup_keplerian({'dalpha_dt': 10., 's_z': 0.1,
-                                  'ds_z_dt': 1.9})
+        dict_3 = setup_keplerian({'dalpha_dt': 10., 's_z': 0.1, 'ds_z_dt': 1.9})
         with self.assertRaises(KeyError):
             mm.ModelParameters(dict_3)
 
@@ -430,6 +428,13 @@ class test_Keplerian(unittest.TestCase):
         dict_4 = setup_keplerian({'s_z': 0.1, 'ds_z_dt': 1.9})
         with self.assertRaises(KeyError):
             mm.ModelParameters(dict_4)
+
+    def test_velocity_of_0(self):
+        """fails for velocity = 0"""
+        dict_5 = setup_keplerian({'ds_dt': 0., 'dalpha_dt': 0., 'ds_z_dt': 0.})
+        with self.assertRaises(ValueError):
+            model = mm.ModelParameters(dict_5)
+            model.lens_semimajor_axis
 
 
 def test_is_not_keplerian():
@@ -937,7 +942,7 @@ def test_print_xallarap():
         "    0.543210                    9.87650                   0.12300   "
         "                                   24.68000              0.500000   "
         "                    12.34560       1.00000 "
-        "\nxallarap reference position: (0.2673, 0.0582)"
+        "\nxallarap reference position: (0.2485, 0.1131)"
         )
     assert model.__repr__() == expected
 
@@ -953,7 +958,7 @@ def test_print_xallarap_with_q_source():
     lines = model.__repr__().split("\n")
     assert lines[0][-27:] == "    q_source  t_0_xi (HJD) "
     assert lines[1][-27:] == "  0.12345000       1.00000 "
-    assert lines[2] == "xallarap reference position: (0.2673, 0.0582)"
+    assert lines[2] == "xallarap reference position: (0.2485, 0.1131)"
 
 
 def test_is_xallarap_1():
@@ -1003,7 +1008,7 @@ def test_xallarap_n_sources():
 def _test_2S1L_xallarap_individual_source_parameters(xi_u):
     """
     Make sure that parameters of both sources are properly set.
-    Most importantly, xi_u is shifted by 180deg and xi_a is scaled by q_source.
+    Most importantly, xi_u and xi_omega_periapsis are shifted by 180deg and xi_a is scaled by q_source.
     """
     q_source = 1.23456
     parameters_1st = {**xallarap_parameters}
@@ -1011,6 +1016,7 @@ def _test_2S1L_xallarap_individual_source_parameters(xi_u):
 
     parameters_2nd = {**parameters_1st}
     parameters_2nd['xi_semimajor_axis'] /= q_source
+    parameters_2nd['xi_omega_periapsis'] += 180.
     if xi_u < 180:
         parameters_2nd['xi_argument_of_latitude_reference'] += 180.
     else:
@@ -1072,7 +1078,7 @@ def test_changes_of_xallrap_parameters_for_both_sources(key):
     assert getattr(model.source_1_parameters, key) == new_value
 
     new_value_2 = new_value
-    if key == 'xi_argument_of_latitude_reference':
+    if key in ['xi_argument_of_latitude_reference', 'xi_omega_periapsis']:
         new_value_2 += 180.
     elif key == 'xi_semimajor_axis':
         new_value_2 /= q_source
@@ -1498,7 +1504,7 @@ class TestSetters2Sources(unittest.TestCase):
             {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
         params.t_0_2 = self.dummy_value
         assert params.t_0_2 == self.dummy_value
-        assert params._source_2_parameters.t_0 == self.dummy_value
+        assert params.source_2_parameters.t_0 == self.dummy_value
 
     def test_set_u_0_1_error(self):
         params = mm.ModelParameters(
@@ -1511,7 +1517,7 @@ class TestSetters2Sources(unittest.TestCase):
             {'t_0_1': self.t_0_1, 'u_0_1': self.u_0_1, 't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_E': self.t_E})
         params.u_0_2 = self.dummy_value
         assert params.u_0_2 == self.dummy_value
-        assert params._source_2_parameters.u_0 == self.dummy_value
+        assert params.source_2_parameters.u_0 == self.dummy_value
 
     def test_set_u_0_2_error(self):
         params = mm.ModelParameters(
@@ -1546,7 +1552,7 @@ class TestSetters2Sources(unittest.TestCase):
              't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 'rho_2': self.rho_2, 't_E': self.t_E})
         params.rho_2 = self.dummy_value
         assert params.rho_2 == self.dummy_value
-        assert params._source_2_parameters.rho == self.dummy_value
+        assert params.source_2_parameters.rho == self.dummy_value
 
     def test_set_rho_2_error_1(self):
         params = mm.ModelParameters(
@@ -1588,7 +1594,7 @@ class TestSetters2Sources(unittest.TestCase):
              't_0_2': self.t_0_2, 'u_0_2': self.u_0_2, 't_star_2': self.t_star_2, 't_E': self.t_E})
         params.t_star_2 = self.dummy_value
         assert params.t_star_2 == self.dummy_value
-        assert params._source_2_parameters.t_star == self.dummy_value
+        assert params.source_2_parameters.t_star == self.dummy_value
 
     def test_set_t_star_2_error_1(self):
         params = mm.ModelParameters(
@@ -1658,7 +1664,7 @@ def _get_parameters(orbit):
     if orbit == 'circular':
         pass
     elif orbit == 'elliptical':
-        d.update({'a_r': a / np.sqrt(s**2+s_z**2), 's_z': s_z})
+        d.update({'a_s': a / np.sqrt(s**2+s_z**2), 's_z': s_z})
     else:
         raise KeyError('Requires either circular or elliptical')
 
@@ -1697,31 +1703,94 @@ def test_trajectory_for_circular_orbit():
     np.testing.assert_almost_equal(trajectory.y, y_VBB_circular)
 
 
-# def test_separation_for_elliptical_orbit():
-#     """
-#     compares separation to values from VBBinaryLensing v3.6
-#     """
-#     parameters = _get_parameters('elliptical')
-#     times = _get_times(parameters)
+def test_separation_for_elliptical_orbit():
+    """
+    compares separation to values from VBBinaryLensing v3.6
+    """
+    parameters = _get_parameters('elliptical')
+    times = _get_times(parameters)
 
-#     separation = parameters.get_s(times)
+    separation = parameters.get_s(times)
 
-#     separation_VBB_elliptical = [0.64550215, 1.42405587, 1.20000000, 1.34447172, 2.14780495]
+    separation_VBB_elliptical = [0.645502153, 1.424055874, 1.20000000, 1.344471724, 2.147804951]
 
-#     np.testing.assert_almost_equal(separation, separation_VBB_elliptical)
+    np.testing.assert_almost_equal(separation, separation_VBB_elliptical, decimal=6)
 
 
-# def test_trajectory_for_elliptical_orbit():
-#     """
-#     compares trajectory to values from VBBinaryLensing v3.6
-#     """
-#     parameters = _get_parameters('elliptical')
-#     times = _get_times(parameters)
+def test_trajectory_for_elliptical_orbit():
+    """
+    compares trajectory to values from VBBinaryLensing v3.6
+    """
+    parameters = _get_parameters('elliptical')
+    times = _get_times(parameters)
 
-#     trajectory = mm.Trajectory(parameters=parameters, times=times)
+    trajectory = mm.Trajectory(parameters=parameters, times=times)
 
-#     x_VBB_elliptical = [-3.03964927, 1.59911138, 0.16689172, 1.23132793, 2.67836603]
-#     y_VBB_elliptical = [-0.26183446, -0.02945825, -0.52931291, 1.02071373, 1.46095188]
+    x_VBB_elliptical = [-3.039649275, 1.599111382, 0.166891719, 1.231327932, 2.678366034]
+    y_VBB_elliptical = [-0.261834461, -0.029458246, -0.529312908, 1.020713733, 1.460951877]
 
-#     np.testing.assert_almost_equal(trajectory.x, x_VBB_elliptical)
-#     np.testing.assert_almost_equal(trajectory.y, y_VBB_elliptical)
+    np.testing.assert_almost_equal(trajectory.x, x_VBB_elliptical)
+    np.testing.assert_almost_equal(trajectory.y, y_VBB_elliptical)
+
+
+def test_cos_gt_1():
+    """
+    At some point, this test was producing a warning, because:
+    cos_nu = ... # evaluated as 1. + 2.2e-16
+    nu = np.arccos(cos_nu) * 180.
+    """
+    params = {'t_0': np.float64(0.0026949444), 'u_0': np.float64(-0.1), 't_E': np.float64(100.0),
+              's': np.float64(0.3616811648196615), 'q': np.float64(0.05364168948339145),
+              'alpha': np.float64(174.48399298813374), 'dalpha_dt': np.float64(-83.43080645981682),
+              'ds_dt': np.float64(-0.2117211460798969), 's_z': np.float64(61.23138649813132),
+              'a_s': np.float64(6.251638842152711), 'ds_z_dt': np.float64(0.0012505959259416796), 't_0_kep': 0.0}
+
+    model = mm.Model(params)
+    model.get_trajectory(0.)
+
+
+def test_cos_lt_1():
+    """
+    At some point, this test was producing a warning, because:
+    cos_nu = ... # evaluated as -1. - 2e-16
+    cos_E = (cos_nu + eccentricity) / (1. + eccentricity * cos_nu) # evaluated as -1. -1.8e-12
+    E = np.arccos(cos_E)
+    """
+    params = {'t_0': np.float64(-0.00667479), 'u_0': np.float64(-0.1), 't_E': np.float64(1078.4984291385097),
+              's': np.float64(0.36209466329235107), 'q': np.float64(0.0535850135209493),
+              'alpha': np.float64(174.4282297030638), 'dalpha_dt': np.float64(-83.47851752324286),
+              'ds_dt': np.float64(-0.21045433040240585), 's_z': np.float64(60.508521068971454),
+              'a_s': np.float64(0.5000619540039425), 'ds_z_dt': np.float64(0.0012628666306725848), 't_0_kep': 0}
+
+    model = mm.Model(params)
+    model.get_trajectory(0.)
+
+
+def setup_keplerian_elliptical(dict_to_add):
+    """
+    Setup dictionary for tests of elliptical keplerian motion
+    """
+    dict_static = {'t_0': 2456789.01234, 'u_0': 1., 't_E': 12.345,
+                   's': 1.2345, 'q': 0.01234, 'alpha': 30., 'rho': 0.001, 'ds_dt': 0.1, 'dalpha_dt': 10.}
+
+    return {**dict_static, **dict_to_add}
+
+
+class test_Keplerian_elliptical(unittest.TestCase):
+    def test_keplerian_no_s_z(self):
+        """fails if s_z is not given"""
+        dict_2 = setup_keplerian_elliptical({'ds_z_dt': 1.9, 'a_s': 1.22})
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(dict_2)
+
+    def test_keplerian_no_ds_z_dt(self):
+        """fails if ds_z_dt is not given"""
+        dict_3 = setup_keplerian_elliptical({'s_z': 0.1, 'a_s': 1.22})
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(dict_3)
+
+    def test_keplerian_only_z(self):
+        """fails if s_z and ds_z_dt are given only"""
+        dict_4 = setup_keplerian_elliptical({'s_z': 0.1, 'ds_z_dt': 1.9})
+        with self.assertRaises(KeyError):
+            mm.ModelParameters(dict_4)

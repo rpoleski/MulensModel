@@ -48,7 +48,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.52.0'
+__version__ = '0.54.4'
 
 
 class UlensModelFit(object):
@@ -186,7 +186,11 @@ class UlensModelFit(object):
             {'I': 0.4, 'V': 0.5}; note that for plotting the best model we use
             the LD coefficient same as for the first dataset,
 
-            ``'parameters'`` and ``'values'`` - used to plot specific model.
+            ``'parameters'`` and ``'values'`` - used to plot specific model,
+
+            ``'fixed_fluxes'`` - for fixing fluxes in chi2 evaluation. The value of that is a dict with key
+            ``'blend'`` or ``'source'`` and corresponding values are also dicts with dataset label as a key and
+            flux value to be set as value.
 
         fixed_parameters: *dict*
             Provide parameters that will be kept fixed during the fitting
@@ -376,8 +380,9 @@ class UlensModelFit(object):
             The values are also dicts and currently accepted keys are:
             1) for ``best model``:
             ``'file'``, ``'interactive'``, ``'time range'``, ``'magnitude range'``, ``'title'``,``'legend'``,
-            ``'rcParams'``, ``'add models'`` (allows setting ``Model.plot_lc()`` parameters and
-            ``'limb darkening u'`` to *str* or *float*), and ``'model label'``
+            ``'rcParams'``, ``'xlabel'``, ``'model label'``, ``'model kwargs'`` and
+            ``'add models'`` (allows setting ``Model.plot_lc()`` parameters and ``'limb darkening u'``
+            to *str* or *float*),
             2) for ``triangle`` and ``trace``:
             ``'file'``, and ``'shift t_0'`` (*bool*, *True* is default)
             3) for ``trajectory``:
@@ -409,11 +414,13 @@ class UlensModelFit(object):
                       'rcParams':
                           'font.size': 15
                       'model label': 'I-band model'
+                      'model kwargs': {'c': 'r', 'lw': 3.}
                       'add models':
                           [{'limb darkening u': 'V', 'label': 'V-band model', 'color': 'slateblue', 'zorder': -10}]
               }
 
             Note that 'rcParams' allows setting many matplotlib parameters.
+            Also note that MM defaults are applied only if 'rcParams' is not provided.
 
         other_output: *dict*
             Parameters for other output. Allowed value are:
@@ -566,14 +573,12 @@ class UlensModelFit(object):
         self._residuals_output = False
 
         parameters_str = (
-            't_0 u_0 t_0_1 u_0_1 t_0_2 u_0_2 t_E t_eff rho rho_1 rho_2 ' +
-            't_star t_star_1 t_star_2 pi_E_N pi_E_E s q alpha ds_dt s_z ' +
-            'ds_z_dt dalpha_dt x_caustic_in x_caustic_out t_caustic_in ' +
-            't_caustic_out xi_period xi_semimajor_axis xi_Omega_node ' +
-            'xi_inclination xi_argument_of_latitude_reference ' +
+            't_0 u_0 t_0_1 u_0_1 t_0_2 u_0_2 t_E t_eff rho rho_1 rho_2 t_star t_star_1 t_star_2 pi_E_N pi_E_E ' +
+            's q alpha ds_dt dalpha_dt s_z ds_z_dt a_s x_caustic_in x_caustic_out t_caustic_in t_caustic_out ' +
+            'xi_period xi_semimajor_axis xi_Omega_node xi_inclination xi_argument_of_latitude_reference ' +
             'xi_eccentricity xi_omega_periapsis q_source')
         self._all_MM_parameters = parameters_str.split()
-        self._fixed_only_MM_parameters = ['t_0_par', 't_0_xi']
+        self._fixed_only_MM_parameters = ['t_0_par', 't_0_kep', 't_0_xi']
 
         self._latex_conversion = dict(
             t_0='t_0', u_0='u_0',
@@ -584,7 +589,7 @@ class UlensModelFit(object):
             t_star_2='t_{\\star,2}', pi_E_N='\\pi_{{\\rm E},N}',
             pi_E_E='\\pi_{{\\rm E},E}', s='s', q='q', alpha='\\alpha',
             ds_dt='ds/dt', dalpha_dt='d\\alpha/dt',
-            s_z='s_{z}', ds_z_dt='ds_{z}/dt',
+            s_z='s_{z}', ds_z_dt='ds_{z}/dt', a_s='a_{s}',
             x_caustic_in='x_{\\rm caustic,in}',
             x_caustic_out='x_{\\rm caustic,out}',
             t_caustic_in='t_{\\rm caustic,in}',
@@ -894,6 +899,7 @@ class UlensModelFit(object):
 
         self._check_plots_parameters()
         self._check_model_parameters()
+        self._parse_other_output_parameters()
         self._get_datasets()
         self._check_ulens_model_parameters()
         self._check_fixed_parameters()
@@ -950,7 +956,7 @@ class UlensModelFit(object):
         Check if parameters of best model make sense
         """
         allowed = set(['file', 'time range', 'magnitude range', 'legend', 'rcParams', 'second Y scale',
-                       'interactive', 'title', 'add models', 'model label'])
+                       'interactive', 'title', 'add models', 'model label', 'model kwargs', 'xlabel'])
         unknown = set(self._plots['best model'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError('Unknown settings for "best model": {:}'.format(unknown))
@@ -1147,35 +1153,29 @@ class UlensModelFit(object):
 
     def _check_model_parameters(self):
         """
-        Check parameters of the MulensModel.Model provided by the user
-        directly.
+        Check parameters of the MulensModel.Model and .Event provided by the user directly.
         """
         if self._model_parameters is None:
             self._model_parameters = dict()
 
         allowed = {
-            'coords', 'default method', 'methods', 'methods parameters',
-            'methods source 1', 'methods source 2',
-            'parameters', 'values', 'limb darkening u'}
+            'coords', 'default method', 'methods', 'methods parameters', 'methods source 1', 'methods source 2',
+            'parameters', 'values', 'limb darkening u', 'fixed_fluxes'}
         keys = set(self._model_parameters.keys())
         not_allowed = keys - allowed
         if len(not_allowed) > 0:
-            raise ValueError(
-                'model keyword is a dict with keys not allowed: ' +
-                str(not_allowed))
+            raise ValueError('model keyword is a dict with keys not allowed: ' + str(not_allowed))
+
         for key in {'methods', 'methods source 1', 'methods source 2'}:
             if key in self._model_parameters:
-                self._model_parameters[key] = self._parse_methods(
-                    self._model_parameters[key])
+                self._model_parameters[key] = self._parse_methods(self._model_parameters[key])
+
         check = keys.intersection({'parameters', 'values'})
         if len(check) == 1:
-            raise ValueError("If you specify 'parameters' and 'values' for " +
-                             "'model', then both have to be defined")
-        if len(check) == 2:
-            self._model_parameters['parameters'] = (
-                self._model_parameters['parameters'].split())
-            self._model_parameters['values'] = [
-                float(x) for x in self._model_parameters['values'].split()]
+            raise ValueError("If you specify 'parameters' and 'values' for 'model', then both have to be defined")
+        elif len(check) == 2:
+            self._model_parameters['parameters'] = self._model_parameters['parameters'].split()
+            self._model_parameters['values'] = [float(x) for x in self._model_parameters['values'].split()]
 
         all_parameters = []
         if self._fixed_parameters is not None:
@@ -1337,24 +1337,18 @@ class UlensModelFit(object):
         if isinstance(self._photometry_files, str):
             self._photometry_files = [self._photometry_files]
         elif not isinstance(self._photometry_files, list):
-            raise TypeError(
-                'photometry_files should be a list or a str, but you '
-                'provided ' + str(type(self._photometry_files)))
-        files = [f if isinstance(f, dict) else {'file_name': f}
-                 for f in self._photometry_files]
-        self._datasets = []
-        self._datasets_initial = []
+            raise TypeError('photometry_files should be a list or a str, but you provided ' +
+                            str(type(self._photometry_files)))
 
-        for file_ in files:
-            dataset = self._get_1_dataset(file_, kwargs)
-            self._datasets.append(dataset)
-            self._datasets_initial.append(dataset.copy())
+        files = [f if isinstance(f, dict) else {'file_name': f} for f in self._photometry_files]
+        self._datasets = [self._get_1_dataset(file_, kwargs) for file_ in files]
+        self._data_labels = [dataset.plot_properties['label'] for dataset in self._datasets]
+        self._datasets_initial = [dataset.copy() for dataset in self._datasets]
+
         if self._residuals_output:
             if len(self._residuals_files) != len(self._datasets):
-                out = '{:} vs {:}'.format(
-                    len(self._datasets), len(self._residuals_files))
-                raise ValueError('The number of datasets and files for '
-                                 'residuals output do not match: ' + out)
+                out = '{:} vs {:}'.format(len(self._datasets), len(self._residuals_files))
+                raise ValueError('The number of datasets and files for residuals output do not match: ' + out)
 
     def _get_1_dataset(self, file_, kwargs):
         """
@@ -2120,10 +2114,8 @@ class UlensModelFit(object):
         """
         sets = list(map(self._get_no_of_dataset, values))
         if len(sets) > len(self._datasets):
-            raise ValueError(
-                "dataset specified in" +
-                key +
-                "should not repeat")
+            raise ValueError("dataset specified in {:} should not repeat".format(key))
+
         return sets
 
     def _get_settings_fit_constraints_color(self, key, value):
@@ -2198,11 +2190,7 @@ class UlensModelFit(object):
         """
         Check if the labels of datasets are unique.
         """
-        labels = [
-            dataset.plot_properties['label']
-            for dataset in self._datasets
-        ]
-        if len(labels) != len(set(labels)):
+        if len(self._data_labels) != len(set(self._data_labels)):
             raise ValueError("Declared labels of datasets must be unique.")
 
     def _parse_fit_constraints_prior(self):
@@ -2287,12 +2275,13 @@ class UlensModelFit(object):
         if '"' in label:
             label = label.strip('"')
 
-        for (i, dataset) in enumerate(self._datasets):
-            if dataset.plot_properties['label'] == label:
-                return i
+        try:
+            index = self._data_labels.index(label)
+        except ValueError:
+            raise KeyError("Unrecognized dataset label: " + label + "\nallowed labels: " +
+                           str([d.plot_properties['label'] for d in self._datasets]))
 
-        raise KeyError("Unrecognized dataset label: " + label + "\nallowed labels: " +
-                       str([d.plot_properties['label'] for d in self._datasets]))
+        return index
 
     def _read_prior_t_E_data(self):
         """
@@ -2414,13 +2403,10 @@ class UlensModelFit(object):
         if self._fixed_parameters is None:
             return
 
+        if len(self._user_parameters) > 0:
+            self._extract_fixed_user_parameters()
+
         allowed = set(self._all_MM_parameters + self._fixed_only_MM_parameters + self._other_parameters)
-
-        self._fixed_user_parameters = {}
-        for key in self._user_parameters:
-            if key in self._fixed_parameters:
-                self._fixed_user_parameters[key] = self._fixed_parameters.pop(key, None)
-
         fixed = set(self._fixed_parameters.keys())
         unknown = fixed - allowed
         if len(unknown) > 0:
@@ -2436,9 +2422,16 @@ class UlensModelFit(object):
 
         repeated = set(self._fit_parameters).intersection(fixed)
         if len(repeated) > 0:
-            raise ValueError(
-                'Some parameters are both fitted and fixed: ' +
-                '{:}'.format(repeated))
+            raise ValueError('Some parameters are both fitted and fixed: {:}'.format(repeated))
+
+    def _extract_fixed_user_parameters(self):
+        """
+        Extract fixed user-defined parameters into self._fixed_user_parameters
+        """
+        self._fixed_user_parameters = {}
+        for key in self._user_parameters:
+            if key in self._fixed_parameters:
+                self._fixed_user_parameters[key] = self._fixed_parameters.pop(key)
 
     def _make_model_and_event(self):
         """
@@ -2469,26 +2462,68 @@ class UlensModelFit(object):
             model = mm.Model(parameters, ephemerides_file=dataset.ephemerides_file, **kwargs)
             self._models_satellite.append(model)
 
-        key = 'limb darkening u'
-        for model in [self._model] + self._models_satellite:
-            if key in self._model_parameters:
-                for (band, u_value) in self._model_parameters[key].items():
-                    model.set_limb_coeff_u(band, u_value)
-            if 'default method' in self._model_parameters:
-                model.default_magnification_method = self._model_parameters['default method']
-            if 'methods' in self._model_parameters:
-                model.set_magnification_methods(self._model_parameters['methods'])
-            if 'methods parameters' in self._model_parameters:
-                model.set_magnification_methods_parameters(self._model_parameters['methods parameters'])
-            if 'methods source 1' in self._model_parameters:
-                self._model.set_magnification_methods(self._model_parameters['methods source 1'], 1)
-            if 'methods source 2' in self._model_parameters:
-                self._model.set_magnification_methods(self._model_parameters['methods source 2'], 2)
+        self._set_settings_of_models()
 
-        self._event = mm.Event(self._datasets, self._model)
+        event_kwargs = self._get_event_kwargs()
+
+        self._event = mm.Event(self._datasets, self._model, **event_kwargs)
         self._event.sum_function = 'numpy.sum'
 
         self._set_n_fluxes()
+
+    def _set_settings_of_models(self):
+        """Set settings of each internal MM.Model instance - methods and LD coeffs"""
+        for model in [self._model] + self._models_satellite:
+            key = 'limb darkening u'
+            if key in self._model_parameters:
+                for (band, u_value) in self._model_parameters[key].items():
+                    model.set_limb_coeff_u(band, u_value)
+
+            if 'default method' in self._model_parameters:
+                model.default_magnification_method = self._model_parameters['default method']
+
+            if 'methods' in self._model_parameters:
+                model.set_magnification_methods(self._model_parameters['methods'])
+
+            if 'methods parameters' in self._model_parameters:
+                model.set_magnification_methods_parameters(self._model_parameters['methods parameters'])
+
+            if 'methods source 1' in self._model_parameters:
+                model.set_magnification_methods(self._model_parameters['methods source 1'], 1)
+
+            if 'methods source 2' in self._model_parameters:
+                model.set_magnification_methods(self._model_parameters['methods source 2'], 2)
+
+    def _get_event_kwargs(self):
+        """Prepare kwargs for MM.Event, i.e., fixed fluxes info"""
+        kwargs = dict()
+        try:
+            settings = self._model_parameters['fixed_fluxes']
+        except KeyError:
+            return dict()
+
+        allowed = {'blend', 'source'}
+        unknown = set(settings.keys()) - allowed
+        if len(unknown) > 0:
+            raise ValueError(
+                'The only allowed keys in model -> fixed fluxes are "blend" and "source", not ' + str(unknown))
+
+        if 'blend' in settings:
+            kwargs['fix_blend_flux'] = self._parse_fixed_fluxes(settings['blend'])
+
+        if 'source' in settings:
+            kwargs['fix_source_flux'] = self._parse_fixed_fluxes(settings['source'])
+
+        return kwargs
+
+    def _parse_fixed_fluxes(self, settings):
+        """Parse settings for fixed fluxes"""
+        out = dict()
+
+        for (key, value) in settings.items():
+            out[self._datasets[self._get_no_of_dataset(key)]] = value
+
+        return out
 
     def _set_n_fluxes(self):
         """
@@ -2602,6 +2637,8 @@ class UlensModelFit(object):
             else:
                 if value[0] == 'gauss':
                     parameters[key] = value[1]
+                    if key in ['ds_dt', 'dalpha_dt', 'ds_z_dt']:
+                        parameters[key] += 0.1 * value[2]  # So that we don't get velocity = 0.
                 elif value[0] in ['uniform', 'log-uniform']:
                     parameters[key] = (value[1] + value[2]) / 2.
                 else:
@@ -2937,7 +2974,7 @@ class UlensModelFit(object):
         """
         print the chi2 and parameters for model provided
         """
-        out = "{:.4f}  {:}".format(chi2, " ".join([repr(x) for x in theta]))
+        out = "{:.4f}  {:}".format(chi2, " ".join([repr(float(x)) for x in theta]))
 
         flush = False
         cond_1 = self._print_model_i <= 1000 and self._print_model_i % 10 == 0
@@ -3064,6 +3101,7 @@ class UlensModelFit(object):
         key = 'color source 2'
         if key in self._fit_constraints:
             inside += self._sumup_inside_color_prior(fluxes, key, 1)
+
         return inside
 
     def _sumup_inside_color_prior(self, fluxes, key, index_plus):
@@ -3089,8 +3127,7 @@ class UlensModelFit(object):
         for settings in settings_all:
             index1 = self._get_index_of_flux(settings[3], index_plus)
             index2 = self._get_index_of_flux(settings[4], index_plus)
-            value = mm.Utils.get_mag_from_flux(
-                fluxes[index1])-mm.Utils.get_mag_from_flux(fluxes[index2])
+            value = mm.Utils.get_mag_from_flux(fluxes[index1]) - mm.Utils.get_mag_from_flux(fluxes[index2])
             inside += self._get_ln_prior_for_1_parameter(value, settings[:-2])
 
         return inside
@@ -4088,9 +4125,12 @@ class UlensModelFit(object):
 
         self._ln_like(self._best_model_theta)  # Sets all parameters to the best model.
 
-        self._reset_rcParams()
-        for (key, value) in self._plots['best model'].get('rcParams', {}).items():
-            rcParams[key] = value
+        rc_params = self._plots['best model'].get('rcParams')
+        if rc_params:
+            self._reset_rcParams()
+            rcParams.update(rc_params)
+        else:
+            mm.utils.PlotUtils.apply_defaults()
 
         kwargs_all = self._get_kwargs_for_best_model_plot()
         (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2) = kwargs_all[:6]
@@ -4119,6 +4159,9 @@ class UlensModelFit(object):
         axes = plt.subplot(grid[1])
 
         self._event.plot_residuals(**kwargs)
+        if "xlabel" in self._plots['best model']:
+            plt.xlabel(self._plots['best model']['xlabel'])
+
         plt.xlim(*xlim)
         plt.ylim(*ylim_residuals)
         axes.tick_params(**kwargs_axes_2)
@@ -4132,8 +4175,8 @@ class UlensModelFit(object):
         plot_size_ratio = 5
         hspace = 0
         tau = 1.5
-        default_model = {'color': 'black', 'linewidth': 1.0, 'zorder': np.inf}
         kwargs_grid = {'nrows': 2, 'ncols': 1, 'height_ratios': [plot_size_ratio, 1], 'hspace': hspace}
+        default_model = self._get_model_kwargs()
 
         (t_1, t_2) = self._get_time_limits_for_plot(tau, 'best model')
         (kwargs, xlim) = self._get_subtract_kwargs_and_xlim_for_best_model(t_1, t_2)
@@ -4152,6 +4195,19 @@ class UlensModelFit(object):
         kwargs_axes_2 = {**kwargs_axes_1, 'labelbottom': True}
 
         return (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2, kwargs_axes_1, kwargs_axes_2)
+
+    def _get_model_kwargs(self):
+        """Get kwargs for plotting models in best model plot"""
+        properties = {'zorder': np.inf}
+
+        properties.update(self._plots['best model'].get('model kwargs', dict()))
+        if 'c' not in properties and 'color' not in properties:
+            properties['color'] = 'black'
+
+        if 'lw' not in properties and 'linewidth' not in properties:
+            properties['linewidth'] = 1.0
+
+        return properties
 
     def _get_subtract_kwargs_and_xlim_for_best_model(self, t_1, t_2):
         """

@@ -27,6 +27,8 @@ def get_ellip(x):
         k.append(get_ellip.k[x_])
         e.append(get_ellip.e[x_])
     return (np.array(k), np.array(e))
+
+
 get_ellip.k = dict()
 get_ellip.e = dict()
 

@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>MulensModel.modelparameters module &#8212; MulensModel 3.0.0 documentation</title>
+    <title>MulensModel.modelparameters module &#8212; MulensModel 3.7.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -36,7 +36,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MulensModel.modelparameters.</span></span><span class="sig-name descname"><span class="pre">ModelParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A class for the basic microlensing model parameters (t_0, u_0,
 t_E, s, q, alpha, etc.). Can handle point lens or binary lens.
 The pi_E assumes NE coordinates (Parallel, Perpendicular
@@ -51,14 +51,12 @@ coordinates are not supported).</p>
 <dt>Attributes :</dt><dd><dl class="simple">
 <dt>parameters: <em>dictionary</em></dt><dd><p>A dictionary of parameters and their values. Do not use it to
 change parameter values, instead use e.g.:
-<code class="docutils literal notranslate"><span class="pre">model_parameters.u_0</span> <span class="pre">=</span> <span class="pre">0.1</span></code> or
-<code class="docutils literal notranslate"><span class="pre">setattr(model_parameters,</span> <span class="pre">'u_0',</span> <span class="pre">0.1)</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">model_parameters.u_0</span> <span class="pre">=</span> <span class="pre">0.1</span></code> or <code class="docutils literal notranslate"><span class="pre">setattr(model_parameters,</span> <span class="pre">'u_0',</span> <span class="pre">0.1)</span></code>.</p>
 </dd>
 </dl>
 </dd>
 <dt>Example:</dt><dd><dl class="simple">
-<dt>Define a point lens model:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">params</span> <span class="pre">=</span> <span class="pre">ModelParameters({'t_0':</span> <span class="pre">2450000.,</span> <span class="pre">'u_0':</span> <span class="pre">0.3,</span>
-<span class="pre">'t_E':</span> <span class="pre">35.})</span></code></p>
+<dt>Define a point lens model:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">params</span> <span class="pre">=</span> <span class="pre">ModelParameters({'t_0':</span> <span class="pre">2450000.,</span> <span class="pre">'u_0':</span> <span class="pre">0.3,</span> <span class="pre">'t_E':</span> <span class="pre">35.})</span></code></p>
 </dd>
 <dt>Then you can print the parameters:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">print(params)</span></code></p>
 </dd>
@@ -237,6 +235,29 @@ See
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dalpha_dt</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.dalpha_dt" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
 <p>Change rate of angle <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.alpha" title="MulensModel.modelparameters.ModelParameters.alpha"><code class="xref py py-attr docutils literal notranslate"><span class="pre">alpha</span></code></a> in deg/year.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.s_z">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">s_z</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.s_z" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>instantaneous position in the direction perpendicular to the plane
+of the sky at time t_0_kep.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.ds_z_dt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ds_z_dt</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.ds_z_dt" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>Change rate of separation <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s_z" title="MulensModel.modelparameters.ModelParameters.s_z"><code class="xref py py-attr docutils literal notranslate"><span class="pre">s_z</span></code></a> in 1/year.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.a_s">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">a_s</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.a_s" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>The ratio of the semimajor axis to the 3D separation at the reference time <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.t_0_kep" title="MulensModel.modelparameters.ModelParameters.t_0_kep"><code class="xref py py-attr docutils literal notranslate"><span class="pre">t_0_kep</span></code></a>.
+It equals 1 for circular orbit and should be close to 1 for all physically reasonable orbits.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -458,11 +479,54 @@ and is in rad/yr, not deg/yr. Cannot be set.</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.gamma_z">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gamma_z</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.gamma_z" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>Perpendicular component of instantaneous velocity of the secondary
+relative to the primary in 1/yr. It is perpendicular to the plane of the sky
+at time <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.t_0_kep" title="MulensModel.modelparameters.ModelParameters.t_0_kep"><code class="xref py py-attr docutils literal notranslate"><span class="pre">t_0_kep</span></code></a>. Equals <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.ds_z_dt" title="MulensModel.modelparameters.ModelParameters.ds_z_dt"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ds_z_dt</span></code></a>/<a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s" title="MulensModel.modelparameters.ModelParameters.s"><code class="xref py py-attr docutils literal notranslate"><span class="pre">s</span></code></a>. Cannot be set.</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.gamma">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gamma</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.gamma" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
-<p>Instantaneous velocity of the secondary relative to the primary in
-1/year. Cannot be set.</p>
+<p>Instantaneous velocity of the secondary relative to the primary in 1/year. Cannot be set.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.lens_semimajor_axis">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lens_semimajor_axis</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.lens_semimajor_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>Semi-major axis of the binary lens orbit in units of theta_E.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.lens_period">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lens_period</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.lens_period" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>Orbital period of the binary lens orbit in years.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.lens_inclination">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lens_inclination</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.lens_inclination" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>Inclination of the binary lens orbit in degrees.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.lens_Omega_node">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lens_Omega_node</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.lens_Omega_node" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>Longitude of ascending node of the binary lens orbit in degrees.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.lens_argument_of_latitude_reference">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lens_argument_of_latitude_reference</span></span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.lens_argument_of_latitude_reference" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+<p>Argument of latitude of the binary lens orbit in degrees.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -485,7 +549,21 @@ if either of the sources is finite.</p>
 <dd><p>Checks if model is static, i.e., orbital motion parameters are not set.</p>
 <dl class="simple">
 <dt>Returns :</dt><dd><dl class="simple">
-<dt>is_static: <em>boolean</em></dt><dd><p><em>True</em> if <em>dalpha_dt</em> or <em>ds_dt</em> are set.</p>
+<dt>is_static: <em>boolean</em></dt><dd><p><em>True</em> if <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.dalpha_dt" title="MulensModel.modelparameters.ModelParameters.dalpha_dt"><code class="xref py py-attr docutils literal notranslate"><span class="pre">dalpha_dt</span></code></a> or <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.ds_dt" title="MulensModel.modelparameters.ModelParameters.ds_dt"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ds_dt</span></code></a> are set.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MulensModel.modelparameters.ModelParameters.is_keplerian">
+<span class="sig-name descname"><span class="pre">is_keplerian</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MulensModel.modelparameters.ModelParameters.is_keplerian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if model includes keplerian orbital motion of the lenses,
+which can be either circular or elliptical.</p>
+<dl class="simple">
+<dt>Returns :</dt><dd><dl class="simple">
+<dt>is_keplerian: <em>boolean</em></dt><dd><p><em>True</em> if <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.s_z" title="MulensModel.modelparameters.ModelParameters.s_z"><code class="xref py py-attr docutils literal notranslate"><span class="pre">s_z</span></code></a> or <a class="reference internal" href="#MulensModel.modelparameters.ModelParameters.ds_z_dt" title="MulensModel.modelparameters.ModelParameters.ds_z_dt"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ds_z_dt</span></code></a> are set.</p>
 </dd>
 </dl>
 </dd>
