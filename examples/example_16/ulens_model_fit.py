@@ -1356,18 +1356,14 @@ class UlensModelFit(object):
         Construct a single dataset and possibly rescale uncertainties in it.
         """
         scaling = file_.pop("scale_errorbars", None)
-        _ = file_.pop("fit_errorbars", None)
         bad = file_.pop("bad", None)
 
         try:
             dataset = mm.MulensData(**{**kwargs, **file_})
         except FileNotFoundError:
-            raise FileNotFoundError(
-                'Provided file path does not exist: ' +
-                str(file_['file_name']))
+            raise FileNotFoundError('Provided file path does not exist: ' + str(file_['file_name']))
         except Exception:
-            print('Something went wrong while reading file ' +
-                  str(file_['file_name']), file=sys.stderr)
+            print('Something went wrong while reading file ' + str(file_['file_name']), file=sys.stderr)
             raise
 
         if scaling is not None:
