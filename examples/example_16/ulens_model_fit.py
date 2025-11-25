@@ -77,17 +77,6 @@ class UlensModelFit(object):
             ``'scale_errorbars': {'factor': kappa, 'minimum': epsilon}``
             to scale uncertainties.
 
-            ``'fit_errorbars': *bool*``
-            If set to *True*, then the scale_errorbars parameters will be fitted as well.
-            Meaning the ln_probability will be increased by XXX.
-            Names of parameters will follow the pattern:
-            XXX - below
-            {'factor': EER_k_{MulensData.plot_properties['label']},
-            'minimum': EER_e_{MulensData.plot_properties['label']}}
-            if not specified in yaml input file starting values will be drawn from:
-            `gauss 1. 0.05` with flat prior [0.0, 50.0] for 'factor'
-            `log-uniform 0.0001 0.1` with flat prior [0.0, 0.5] for 'minimum
-
             ``'bad'`` : *list* or *str*
             to set bad flags in MulensData
             When *str* then it should point to the file containing
@@ -619,21 +608,6 @@ class UlensModelFit(object):
         self._latex_conversion_other.
         """
         pass
-
-    def _set_fit_errorbars_scales_params(self):
-        """
-        Setting parameters for errorbars scales fitting
-        """
-        for (i, dataset) in enumerate(self._datasets):
-            if self._fit_errorbars[i]:
-                label = dataset.plot_properties['label']
-                label_safe = label.replace(' ', '_')
-                label_tex = label_safe.replace('_', '\\_')
-                self._errorbars_parameters.append('ERR_k_'+label_safe)
-                self._latex_conversion_other['ERR_k_' + label_safe] = 'ERR_{\\rm{k,'+label_tex+'}}'
-                self._errorbars_parameters.append('ERR_e_'+label_safe)
-                self._latex_conversion_other['ERR_e_' + label_safe] = 'ERR_{\\rm{e,'+label_tex+'}}'
-        # XXX - above
 
     def _guess_fitting_method(self):
         """
@@ -1429,8 +1403,7 @@ class UlensModelFit(object):
 
     def _parse_errorbars_fit_params(self):
         """
-        XXX
-        We assume self._fit_parameters_errorbars have strings in a format
+        Parse settings for fitting errorbars. We assume self._fit_parameters_errorbars have strings in a format
         ERR_k_DATASET-LABEL
         ERR_e_DATASET-LABEL
         and these correspond to 'factor' and 'minimum' kwargs of mm.MulensData.scale_errorbars()
@@ -2884,7 +2857,6 @@ class UlensModelFit(object):
         self._set_model_parameters(theta)
 
         chi2 = self._event.get_chi2()
-        print('after chi2' , self._event.datasets)
         out = -0.5 * chi2
 
         if self._print_model:
