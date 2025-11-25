@@ -1424,7 +1424,7 @@ class UlensModelFit(object):
         self._fit_parameters_errorbars = [order[i] for i in indexes if order[i] in self._errorbars_parameters]
         self._other_parameters_dict = dict()
         self._errorbars_parameters_dict = dict()
-        if len(self._fit_parameters_other) > 0:
+        if len(self._fit_parameters_other + self._fit_parameters_errorbars) > 0:
             self._flat_priors = False
 
     def _parse_errorbars_fit_params(self):
@@ -2177,8 +2177,8 @@ class UlensModelFit(object):
                 priors[key] = settings
 
             else:
-                raise KeyError(
-                    "Unrecognized key in fit_constraints/prior: " + key)
+                raise KeyError("Unrecognized key in fit_constraints/prior: " + key)
+
             self._flat_priors = False
 
         if len(priors) > 0:
@@ -2692,8 +2692,8 @@ class UlensModelFit(object):
 
     def _ln_prob(self, theta):
         """
-        Log probability of the model - combines _ln_prior(), _ln_like(),
-        and constraints which include fluxes.
+        Log probability of the model - combines _ln_prior(), _ln_like(), constraints which include fluxes,
+        and scaling of uncertainties.
 
         NOTE: we're using np.log(), i.e., natural logarithms.
         """
@@ -3660,8 +3660,10 @@ class UlensModelFit(object):
         if self._flat_priors:
             print("chi2: {:.4f}".format(-2. * self._best_model_ln_prob))
         else:
-            self._ln_like(self._best_model_theta)
-            print("chi2: {:.4f}".format(self._event.get_chi2()))
+            likelihood = self._ln_like(self._best_model_theta)
+            chi2 = self._event.get_chi2()
+            print("chi2: {:.4f}".format(chi2))
+            print("other ln_likelihood components: {:.4f}".format(likelihood - (-0.5 * chi2)))
             fluxes = self._get_fluxes()
             ln_prior_flux = self._run_flux_checks_ln_prior(fluxes)
             ln_prior = self._ln_prior(self._best_model_theta)
@@ -4453,8 +4455,7 @@ class UlensModelFit(object):
         dpi = 300
         tau = 1.5
 
-        self._ln_like(self._best_model_theta)  # Sets all parameters to
-        # the best model.
+        self._ln_like(self._best_model_theta)  # Sets all parameters to the best model.
 
         self._reset_rcParams()
 
