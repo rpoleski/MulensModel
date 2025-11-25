@@ -5,19 +5,19 @@ starting_parameters:
     u_0: gauss 0.5233 0.00001
     t_E: gauss 17.9357 0.01
     ERR_k_phot_ob08092_O4.dat: gauss 1. 0.001
-      #ERR_e_phot_ob08092_O4.dat: gauss 0.001 0.0001
+    ERR_e_phot_ob08092_O4.dat: gauss 0.001 0.0001
 min_values:
     t_0: 4000.
     u_0: 0.
     t_E: 0.
     ERR_k_phot_ob08092_O4.dat: 0.01
-      #ERR_e_phot_ob08092_O4.dat: 1.e-6
+    ERR_e_phot_ob08092_O4.dat: 1.e-6
 max_values:
     t_0: 10000.
     u_0: 1.5
     t_E: 200.
     ERR_k_phot_ob08092_O4.dat: 100
-      #ERR_e_phot_ob08092_O4.dat: 1.0
+    ERR_e_phot_ob08092_O4.dat: 1.0
 fitting_parameters:
     n_walkers: 20
     n_steps: 3000
