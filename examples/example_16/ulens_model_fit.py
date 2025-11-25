@@ -463,7 +463,6 @@ class UlensModelFit(object):
 
         self._which_task()
         self._set_default_parameters()
-        #self._set_errorbars_scales_fitting()
         if self._task == 'fit':
             if self._fit_method is None:
                 self._guess_fitting_method()
@@ -621,28 +620,6 @@ class UlensModelFit(object):
         """
         pass
 
-    def _set_errorbars_scales_fitting(self):
-        """Checking if errorbars scales should be fitted"""
-        self._fit_errorbars = self._parse_errorbars_settings()
-        if True in self._fit_errorbars:
-            self._flat_priors = False 
-            self._get_datasets()
-            self._set_fit_errorbars_scales_params()
-
-    def _parse_errorbars_settings(self):
-        """
-        Reads and check of errorbars settings
-        """
-        files = [f if isinstance(f, dict) else {'file_name': f} for f in self._photometry_files]
-        fit_errorbars = [f.get("fit_errorbars", False) for f in files]
-        fix_errorbars = [f.get("scale_errorbars", False) for f in files]
-        for i, f in enumerate(files):
-            if fit_errorbars[i] and fix_errorbars[i]:
-                raise ValueError(
-                    "You cannot both fix and fit errorbars scaling parameters for the same dataset: {:s}".format(
-                        f.get("file_name", "unknown file")))
-        return fit_errorbars
-
     def _set_fit_errorbars_scales_params(self):
         """
         Setting parameters for errorbars scales fitting
@@ -657,47 +634,6 @@ class UlensModelFit(object):
                 self._errorbars_parameters.append('ERR_e_'+label_safe)
                 self._latex_conversion_other['ERR_e_' + label_safe] = 'ERR_{\\rm{e,'+label_tex+'}}'
         # XXX - above
-
-        self._set_errorbars_scales_starting_params()
-        self._set_errorbars_scales_ranges()
-
-    def _set_errorbars_scales_starting_params(self):
-        """
-        Define starting values for errorbars scales
-        fitting if there are not already defined in yaml file
-        """
-        starting_parameters_input = self._starting_parameters_input or dict()
-        fixed_parameters = self._fixed_parameters or dict()
-        merged_parameters = {**starting_parameters_input, **fixed_parameters}
-        declared = list(merged_parameters.keys())
-
-        for key in self._errorbars_parameters:
-            if key[:3] == 'ERR':
-                if key not in declared:
-                    if key[4] == 'k':
-                        self._starting_parameters_input[key] = 'gauss 1. 0.05'
-                    if key[4] == 'e':
-                        self._starting_parameters_input[key] = 'log-uniform 0.0001 0.1'
-                    print("setting starting values for {:s} : {:s}".format(key, self._starting_parameters_input[key]))
-
-    def _set_errorbars_scales_ranges(self):
-        """
-        Define max and min values for errorbars scales
-        fitting if there not already defined in yaml file
-        """
-        fixed_parameters = self._fixed_parameters or dict()
-        for key in self._errorbars_parameters:
-            if key[:3] == 'ERR':
-                if key not in fixed_parameters.keys():
-                    if key not in self._min_values.keys():
-                        self._min_values[key] = 0.
-                    if key not in self._max_values.keys():
-                        if key[4] == 'k':
-                            self._max_values[key] = 50.
-                        if key[4] == 'e':
-                            self._max_values[key] = 0.5
-                    print("setting limits on {:s}: [{:.2f}, {:.2f}]".format(
-                        key, self._min_values[key], self._max_values[key]))
 
     def _guess_fitting_method(self):
         """
@@ -2842,33 +2778,6 @@ class UlensModelFit(object):
         for (index, kwargs) in self._errorbars_fitting.items():
             self._event.datasets[index] = self._datasets_initial[index].copy()
             self._event.datasets[index].scale_errorbars(**kwargs)
-
-    def OLD_update_datasets(self):
-        """
-        Update datasets:
-        - errorbars according to current values of errorbars scaling parameters.
-        """
-        if True in self._fit_errorbars:
-            scales = {k: v for k, v in self._errorbars_parameters_dict.items()
-                      if k.startswith('ERR')}
-            scales_sorted = []
-            for key in self._errorbars_parameters:
-                if key.startswith('ERR'):
-                    scales_sorted.append(scales[key])
-
-            self._update_errorbars_scaling(scales_sorted)
-
-    def _update_errorbars_scaling(self, scales):
-        """
-        Updates scales of errorbars
-        """
-        index = 0
-        self._event.datasets = deepcopy(self._datasets_initial)
-        for (i, dataset) in enumerate(self._event.datasets):
-            if self._fit_errorbars[i]:
-                scaling = {"factor": scales[index], "minimum":  scales[index+1]}
-                dataset.scale_errorbars(**scaling)
-                index += 2
 
     def _ln_prior(self, theta):
         """
