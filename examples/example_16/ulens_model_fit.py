@@ -1505,11 +1505,11 @@ class UlensModelFit(object):
         for parameter in self._fit_parameters_errorbars:
             index = self._data_labels.index(parameter[6:])
             t = translate[parameter[4]]
+            self._errorbars_fitting_index[parameter] = [index, t]
             if index in self._errorbars_fitting:
                 self._errorbars_fitting[index][t] = None
             else:
                 self._errorbars_fitting[index] = {t: None}
-            self._errorbars_fitting_index[parameter] = [index, t]
 
         for parameter in self._fit_parameters_errorbars:
             label = parameter[6:]
@@ -2839,8 +2839,8 @@ class UlensModelFit(object):
             (index_1, index_2) = self._errorbars_fitting_index[parameter]
             self._errorbars_fitting[index_1][index_2] = self._errorbars_parameters_dict[parameter]
 
-        self._event.datasets = [data.copy() for data in self._datasets_initial]
         for (index, kwargs) in self._errorbars_fitting.items():
+            self._event.datasets[index] = self._datasets_initial[index].copy()
             self._event.datasets[index].scale_errorbars(**kwargs)
 
     def OLD_update_datasets(self):
@@ -2986,6 +2986,7 @@ class UlensModelFit(object):
 
         if self._task == 'fit' and len(self._errorbars_parameters_dict) > 0:
             out += self._ln_prob_errors()
+
         return out
 
     def _ln_prob_errors(self):
