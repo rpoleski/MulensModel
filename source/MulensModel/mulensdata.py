@@ -789,14 +789,15 @@ class MulensData(object):
             'data_list': [self.time, *list(data_and_err)],
             'phot_fmt': self.input_fmt, 'chi2_fmt': self._chi2_fmt,
             'ephemerides_file': self._ephemerides_file,
-            'add_2450000': self._init_keys['add245'],
-            'add_2460000': self._init_keys['add246'],
+            'add_2450000': False, 'add_2460000': False,
             'bandpass': self.bandpass, 'bad': np.array(self.bad),
             'plot_properties': {**self.plot_properties}
             }
 
         out = MulensData(**kwargs)
         out._file_name = self._file_name
+        out._init_keys['add245'] = self._init_keys['add245']
+        out._init_keys['add246'] = self._init_keys['add246']
 
         return out
 
