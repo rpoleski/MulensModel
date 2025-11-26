@@ -97,9 +97,14 @@ class UlensModelFit(object):
             - UltraNest: https://johannesbuchner.github.io/UltraNest/
 
         starting_parameters: *dict*
-            Starting values of the parameters.
-            It also indicates the EMCEE fitting mode.
-            There are two possibilities for the information provided.
+            Starting values of the parameters. This option also indicates the EMCEE fitting mode.
+            Parameters can be standard MulensModel microlensing parameters, user-defined parameters, or parameters
+            for scaling uncertainties of the data provided. The latter ones have format ``ERR_X_LABEL``, where
+            ``X`` is either ``k`` (corresponds to ``factor`` kwarg of ``mm.MulensData.scale_errorbars()``) or
+            ``e`` (corresponds to ``minimum`` kwarg of ``mm.MulensData.scale_errorbars()``) and
+            ``LABEL`` is label of one of the datasets.
+
+            There are two possibilities to provide the values.
 
             First, you can provide a name of file with sets of
             parameters and names of parameters. For example:
