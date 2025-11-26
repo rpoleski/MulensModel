@@ -2345,7 +2345,7 @@ class UlensModelFit(object):
         """
         if self._fixed_parameters is None:
             return
-        
+
         if len(self._user_parameters) > 0:
             self._extract_fixed_user_parameters()
 
@@ -3032,6 +3032,7 @@ class UlensModelFit(object):
         key = 'color source 2'
         if key in self._fit_constraints:
             inside += self._sumup_inside_color_prior(fluxes, key, 1)
+
         return inside
 
     def _sumup_inside_color_prior(self, fluxes, key, index_plus):
@@ -3057,8 +3058,7 @@ class UlensModelFit(object):
         for settings in settings_all:
             index1 = self._get_index_of_flux(settings[3], index_plus)
             index2 = self._get_index_of_flux(settings[4], index_plus)
-            value = mm.Utils.get_mag_from_flux(
-                fluxes[index1])-mm.Utils.get_mag_from_flux(fluxes[index2])
+            value = mm.Utils.get_mag_from_flux(fluxes[index1]) - mm.Utils.get_mag_from_flux(fluxes[index2])
             inside += self._get_ln_prior_for_1_parameter(value, settings[:-2])
 
         return inside
