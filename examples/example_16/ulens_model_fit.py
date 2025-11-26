@@ -11,6 +11,7 @@ import math
 import numpy as np
 import shlex
 from scipy.interpolate import interp1d
+from copy import copy, deepcopy
 from matplotlib import pyplot as plt
 from matplotlib import gridspec, rcParams, rcParamsDefault, colors
 # from matplotlib.backends.backend_pdf import PdfPages
@@ -1325,10 +1326,12 @@ class UlensModelFit(object):
             raise TypeError('photometry_files should be a list or a str, but you provided ' +
                             str(type(self._photometry_files)))
 
-        files = [f if isinstance(f, dict) else {'file_name': f} for f in self._photometry_files]
-        self._datasets = [self._get_1_dataset(file_, kwargs) for file_ in files]
+        self._photometry_files = [f if isinstance(f, dict) else {'file_name': f} for f in self._photometry_files]
+        self._datasets = [self._get_1_dataset(file_, kwargs) for file_ in self._photometry_files]
         self._data_labels = [dataset.plot_properties['label'] for dataset in self._datasets]
-
+        self._datasets_initial = [dataset.copy() for dataset in self._datasets]
+        self._errorbars_parameters = ['ERR_' + t + label for label in self._data_labels for t in ['k_', 'e_']]
+        
         if self._residuals_output:
             if len(self._residuals_files) != len(self._datasets):
                 out = '{:} vs {:}'.format(len(self._datasets), len(self._residuals_files))
@@ -2785,12 +2788,40 @@ class UlensModelFit(object):
                 setattr(self._model.parameters, parameter, value)
         else:
             for (parameter, value) in parameters.items():
-                if parameter not in self._fit_parameters_other:
+                if parameter not in (self._fit_parameters_other + self._fit_parameters_errorbars):
                     setattr(self._model.parameters, parameter, value)
                 elif parameter in self._fit_parameters_errorbars:
                     self._errorbars_parameters_dict[parameter] = value
                 else:
                     self._other_parameters_dict[parameter] = value
+        self._update_errorbars_scaling()
+
+    def _update_errorbars_scaling(self):
+        """
+        Update datasets errorbars according to current values of errorbars
+        scaling parameters.
+        """
+        if True in self._fit_errorbars:
+            scales = {k: v for k, v in self._errorbars_parameters_dict.items()
+                      if k.startswith('ERR')}
+            scales_sorted = []
+            for key in self._errorbars_parameters:
+                if key.startswith('ERR'):
+                    scales_sorted.append(scales[key])
+
+            self._update_datasets(scales_sorted)
+
+    def _update_datasets(self, scales):
+        """
+        Updates scales of errorbars
+        """
+        index = 0
+        self._event.datasets=deepcopy(self._datasets_initial)
+        for (i, dataset) in enumerate(self._event.datasets):
+            if self._fit_errorbars[i]:
+                scaling = {"factor": scales[index], "minimum":  scales[index+1]}
+                dataset.scale_errorbars(**scaling)
+                index += 2
 
     def _ln_prior(self, theta):
         """
@@ -3933,6 +3964,7 @@ class UlensModelFit(object):
         """
         if not self._residuals_output:
             return
+        self._event.get_chi2()
 
         zip_ = zip(self._datasets, self._residuals_files, self._event.fits)
         for (dataset, name, fit) in zip_:
