@@ -1283,6 +1283,7 @@ class UlensModelFit(object):
 
         if scaling is not None:
             dataset.scale_errorbars(**scaling)
+            file_["scale_errorbars"] = scaling
         if bad is not None:
             self._parse_bad(bad, dataset)
 
@@ -1425,11 +1426,19 @@ class UlensModelFit(object):
             else:
                 self._errorbars_fitting[index] = {t: None}
 
+        self._check_errorbar_scaling_conflict()
         for parameter in self._fit_parameters_errorbars:
             label = parameter[6:]
             label_safe = label.replace(' ', '_')
             label_tex = label_safe.replace('_', '\\_')
             self._latex_conversion_other[parameter] = 'ERR_{\\rm{' + parameter[4] + ',' + label_tex + '}}'
+
+    def _check_errorbar_scaling_conflict(self):
+        """Check if there is a conflict in errorbars scaling."""
+        for index in self._errorbars_fitting.keys():
+            if 'scale_errorbars' in self._photometry_files[index]:
+                raise ValueError("Conflict for {:} data: ".format(self._data_labels[index]) +
+                                 "you cannot set errorbars scaling and try to fit that at the same time")
 
     def _get_parameters_latex(self):
         """
