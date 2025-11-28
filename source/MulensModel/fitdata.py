@@ -147,10 +147,16 @@ class FitData(object):
         """
         self.fit_fluxes()
 
-        # Calculate chi2
-        model_flux = self.get_model_fluxes(bad=bad)
-        diff = self._dataset.flux - model_flux
-        self._chi2_per_point = (diff / self._dataset.err_flux)**2
+        if self._dataset.chi2_fmt == 'flux':
+            model_values = self.get_model_fluxes(bad=bad)
+        elif self._dataset.chi2_fmt == 'mag':
+            model_values = self.get_model_magnitudes(bad=bad)
+        else:
+            raise ValueError('issue with MulensData.chi2_fmt of {:}'.format(self._dataset.chi2_fmt))
+
+        (data, err) = self._dataset.data_and_err_in_chi2_fmt()
+        diff = data - model_values
+        self._chi2_per_point = (diff / err)**2
 
     def _set_data_magnification_curves(self, bad=True):
         if bad:
