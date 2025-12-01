@@ -86,6 +86,30 @@ def generate_dataset(f_mod, t):
     return my_dataset
 
 
+def test_basic_chi2():
+    """Check some basic chi2 calculation including data.chi2_fmt==mag"""
+    (model, t, A) = generate_model()
+    flux = 2. * A + 3.14
+    data_1 = mm.MulensData(data_list=[t, flux, 0.01*flux], phot_fmt='flux')
+    data_2 = mm.MulensData(data_list=[t, flux, 0.01*flux], phot_fmt='flux', chi2_fmt='mag')
+
+    fit_1 = mm.FitData(model=model, dataset=data_1)
+    fit_1.update()
+    almost(fit_1.chi2, 0.)
+
+    fit_2 = mm.FitData(model=model, dataset=data_2)
+    fit_2.update()
+    almost(fit_2.chi2, 0.)
+
+    model.parameters.parameters['u_0'] += 0.1
+
+    fit_1.update()
+    almost(fit_1.chi2, 2905.114243936372)
+
+    fit_2.update()
+    almost(fit_2.chi2, 2948.034118484011)
+
+
 class TestSingleSourceFluxes(unittest.TestCase):
 
     def setUp(self):

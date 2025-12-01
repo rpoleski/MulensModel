@@ -25,8 +25,10 @@ model:
         I: 0.42
         g: 0.65
         i: 0.44
-    coords: 18:05:16.35 -28:53:42.0
-    # coordinates are needed only for parallax calculations
+    coords: 18:05:16.35 -28:53:42.0  # coordinates are needed only for parallax calculations
+    fixed_fluxes:
+        blend:
+            OGLE I-band: 0.  # This is the way to fix 0 blending flux
 # Below you can have any combination of parameters allowed by MulensModel
 fixed_parameters:
     t_0_par: 2452848.
@@ -44,6 +46,8 @@ starting_parameters:
     #   file: ob08092-o4_starting_file_input.txt
     #   parameters: t_0 u_0 t_E
     # See also ob08092-o4_starting_file.yaml or ob08092-o4_starting_file_mix.yaml
+    ERR_k_OB03235_MOA.txt: gauss 1.0 0.001 # Scaling (multiplication) of uncertainties of the second dataset.
+    # The other possibility is to use ERR_e_OB03235_MOA.txt which adds minimum uncertainty in squares.
 # prior_limits:
 #     t_0: [2452847.5, 2452848.5]
 #     u_0: [0.08, 0.18]
@@ -104,7 +108,8 @@ min_values:
     pi_E_E: -0.5
     q: 0.
     s: 1.
-    alpha: 0. 
+    alpha: 0.
+    ERR_k_OB03235_MOA.txt: 0.1
 max_values:
     t_0: 2452860.
     rho: 0.1
@@ -113,9 +118,10 @@ max_values:
     q: 1.
     s: 2.
     alpha: 360.
+    ERR_k_OB03235_MOA.txt: 10.
 fitting_parameters:
     ## EMCEE only
-    n_walkers: 20
+    n_walkers: 40
     n_steps: 4
     n_burn:  2
     progress: True
@@ -146,6 +152,7 @@ plots:
         # In case you want an interactive plot made using plotly:
         interactive : ob03235_2_model.html
         time range: 2452820 2452855
+        xlabel: BJD - 2450000
         magnitude range: 19.3 16.9
         title: OB03235 plot
         model label: I-band model

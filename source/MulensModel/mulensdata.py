@@ -6,6 +6,8 @@ import warnings
 from MulensModel.utils import Utils, PlotUtils
 from MulensModel.satelliteskycoord import SatelliteSkyCoord
 
+PlotUtils.apply_defaults()
+
 
 class MulensData(object):
     """
@@ -175,7 +177,7 @@ class MulensData(object):
     def _get_name(self):
         """extract the name of dataset"""
         if 'label' in self.plot_properties:
-            name = self.plot_properties['label']
+            name = str(self.plot_properties['label'])
         elif self._file_name is not None:
             name = self._file_name
         else:
@@ -787,14 +789,15 @@ class MulensData(object):
             'data_list': [self.time, *list(data_and_err)],
             'phot_fmt': self.input_fmt, 'chi2_fmt': self._chi2_fmt,
             'ephemerides_file': self._ephemerides_file,
-            'add_2450000': self._init_keys['add245'],
-            'add_2460000': self._init_keys['add246'],
+            'add_2450000': False, 'add_2460000': False,
             'bandpass': self.bandpass, 'bad': np.array(self.bad),
             'plot_properties': {**self.plot_properties}
             }
 
         out = MulensData(**kwargs)
         out._file_name = self._file_name
+        out._init_keys['add245'] = self._init_keys['add245']
+        out._init_keys['add246'] = self._init_keys['add246']
 
         return out
 

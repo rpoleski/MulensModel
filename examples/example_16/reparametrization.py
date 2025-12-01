@@ -20,7 +20,7 @@ def get_my_parameters(parameters):
     parameters['alpha'] = np.arcsin(u/ss) * 180 / np.pi
     for p in ['t_0_pl', 'u_0_pl', 't_E_pl']:
         parameters.pop(p)
-    
+
     return parameters
 
 
@@ -33,6 +33,7 @@ class MyUlensModelFit(UlensModelFit):
         self._latex_conversion_user = {'t_0_pl': 't_{0, pl}', 'u_0_pl': 'u_{0, pl}', 't_E_pl': 't_{{\\rm E}, pl}'}
 
     def _transform_parameters(self, p):
+        p.update(self._fixed_user_parameters)
         return get_my_parameters(p)
 
 
@@ -48,4 +49,3 @@ if __name__ == '__main__':
     ulens_model_fit = MyUlensModelFit(**settings)
 
     ulens_model_fit.run_fit()
-

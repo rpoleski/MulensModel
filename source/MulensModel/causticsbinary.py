@@ -2,7 +2,9 @@ import numpy as np
 from math import cos, sin
 import matplotlib.pyplot as plt
 
-from MulensModel.utils import Utils
+from MulensModel.utils import Utils, PlotUtils
+
+PlotUtils.apply_defaults()
 
 
 class CausticsBinary(object):
