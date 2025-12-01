@@ -4,11 +4,7 @@ from math import fsum, sqrt
 
 import VBMicrolensing
 
-from MulensModel.binarylensimports import (
-    _vbbl_wrapped, _adaptive_contouring_wrapped,
-    _vbbl_binary_mag_dark, _vbbl_binary_mag_finite, _vbbl_binary_mag_point,
-    _vbbl_SG12_5, _adaptive_contouring_linear, _solver)
-
+from MulensModel.binarylensimports import (_adaptive_contouring_wrapped, _adaptive_contouring_linear)
 from MulensModel.pointlens import _AbstractMagnification
 from MulensModel.utils import Utils
 from MulensModel.version import __version__ as mm_version
@@ -328,7 +324,7 @@ class BinaryLensPointSourceVBBLMagnification(_BinaryLensPointSourceMagnification
         Call VBBL to get 1 magnification for point source.
         This function is also called by child classes.
         """
-        return _vbbl_binary_mag_point(separation, self._q, x, y)
+        return self._vbm.BinaryMag0(separation, self._q, x, y)
 
 
 class BinaryLensPointSourceMagnification(_BinaryLensPointSourceMagnification):

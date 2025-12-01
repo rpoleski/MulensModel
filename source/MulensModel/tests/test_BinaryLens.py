@@ -126,7 +126,7 @@ def test_int_input():
     lens_2 = mm.BinaryLensPointSourceMagnification(trajectory=trajectory_2)
     result_2 = lens_2.get_magnification()
 
-    assert result_1 == result_2
+    np.testing.assert_almost_equal(result_1, result_2, decimal=13)
 
 
 def test_BinaryLensVBBLMagnification_1():
