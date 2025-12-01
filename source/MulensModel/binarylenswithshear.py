@@ -4,8 +4,6 @@ from math import sqrt
 import VBMicrolensing
 
 from MulensModel.binarylens import BinaryLensPointSourceWM95Magnification
-from MulensModel.binarylensimports import (
-    _vbbl_wrapped, _vbbl_binary_mag_point_shear, _vbbl_SG12_9)
 from MulensModel.utils import Utils
 from MulensModel.version import __version__ as mm_version
 
@@ -573,18 +571,15 @@ class BinaryLensPointSourceWithShearVBBLMagnification(BinaryLensPointSourceWithS
     """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self._vbm = VBMicrolensing.VBMicrolensing()
 
     def _get_1_magnification(self, x, y, separation):
-        magnification = _vbbl_binary_mag_point_shear(
-            float(separation), self._q, float(x), float(y), self.convergence_K,
-            self.shear_G.real, self.shear_G.imag)
+        magnification = self._vbm.BinaryMag0_shear(
+            float(separation), self._q, float(x), float(y), self.convergence_K, self.shear_G.real, self.shear_G.imag)
 
         if magnification < 1.:
-            msg = "error in BinaryLensWithShear.point_source_magnification()\ninput:\n"
-            params = [separation, self._q, x, y, self.convergence_K, self.shear_G.real, self.shear_G.imag,
-                      self.vbbl_on, _vbbl_wrapped]
-            msg += " ".join([str(p) for p in params])
-            msg += "\noutput: {:}".format(magnification)
-            raise ValueError(msg)
+            msg = "error in BinaryLensWithShear.point_source_magnification()\ninput:\n{:}\noutput: {:}"
+            params = [separation, self._q, x, y, self.convergence_K, self.shear_G.real, self.shear_G.imag]
+            raise ValueError(msg.format(" ".join([str(p) for p in params]), magnification))
 
         return magnification
