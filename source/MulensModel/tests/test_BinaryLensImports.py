@@ -97,7 +97,7 @@ def test_VBM_cmplx_roots_gen():
               0.0, 0.0006162037037037004, 0.005693722222222227, 0.006298813888888853, -0.0035301525925927266,
               0.063350366010101, 0.1906118155555555, 0.09094615694687937, 0.029791669421487667, 0.03019545454545458,
               0.0158]
-    coefficients = [(coeffs[i], coeffs[i]) for i in range(10)]
+    coefficients = [(coeffs[i], coeffs[i+10]) for i in range(10)]
     vbm = VBMicrolensing.VBMicrolensing()
     out = vbm.cmplx_roots_gen(coefficients)
     expected = [-1.50992662, 2.47560471, -1.61711916, -0.4453668, -0.75676062, -0.14298556, 0.36097464, -0.29933664,
