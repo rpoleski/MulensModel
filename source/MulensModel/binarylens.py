@@ -529,35 +529,44 @@ class BinaryLensVBBLMagnification(_BinaryLensPointSourceMagnification, _LimbDark
             Including trajectory.parameters =
             :py:class:`~MulensModel.modelparameters.ModelParameters`
 
-        gamma: *float*, optional
+        gamma: *float*
             Linear limb-darkening coefficient in gamma convention.
 
-        u_limb_darkening: *float*, optional
+        u_limb_darkening: *float*
             Linear limb-darkening coefficient in u convention.
             Note that either *gamma* or *u_limb_darkening* can be
             set.  If neither of them is provided then limb
             darkening is ignored.
 
-        accuracy: *float*, optional
+        accuracy: *float*
             Requested accuracy of the result.
 
+        relative_accuracy: *float*
+            Requested relative accuracy of the result.
     """
 
-    def __init__(self, gamma=None, u_limb_darkening=None, accuracy=0.001, **kwargs):
+    def __init__(self, gamma=None, u_limb_darkening=None, accuracy=0.001, relative_accuracy=None, **kwargs):
         super().__init__(**kwargs)
         self._set_LD_coeffs(u_limb_darkening=u_limb_darkening, gamma=gamma)
         self._set_and_check_rho()
-
-        if accuracy <= 0.:
-            raise ValueError("VBBL/VBM requires accuracy > 0 e.g. 0.01 or 0.001;\n{:} was  provided".format(accuracy))
-
-        self._accuracy = float(accuracy)
+        self._accuracy = self._parse_accuracy(accuracy)
+        self._relative_accuracy = self._parse_accuracy(relative_accuracy)
 
         self._vbm = VBMicrolensing.VBMicrolensing()
         if self._u_limb_darkening is None:
             self._vbbl_function = self._vbm.BinaryMag
         else:
             self._vbbl_function = self._vbm.BinaryMag2
+
+    def _parse_accuracy(self, accuracy):
+        """check if None and run float()"""
+        if accuracy is None:
+            return None
+
+        if accuracy <= 0.:
+            raise ValueError("VBBL/VBM requires accuracy >= 0")
+
+        return float(accuracy)
 
     def _get_1_magnification(self, x, y, separation):
         """
@@ -568,7 +577,11 @@ class BinaryLensVBBLMagnification(_BinaryLensPointSourceMagnification, _LimbDark
             args.append(self._accuracy)
         else:
             self._vbm.a1 = self._u_limb_darkening
-            self._vbm.Tol = self._accuracy
+            if self._accuracy is not None:
+                self._vbm.Tol = self._accuracy
+
+            if self._relative_accuracy is not None:
+                self._vbm.RelTol = self._relative_accuracy
 
         return self._vbbl_function(*args)
 

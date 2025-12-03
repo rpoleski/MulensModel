@@ -105,11 +105,11 @@ class Model(object):
                           'topocentric': True}
         self._default_magnification_method = 'point_source'
         self._methods = None
-        self._methods_parameters = {}
+        self._methods_parameters = dict()
         self._caustics = None
 
         self._limb_darkening_coeffs = [LimbDarkeningCoeffs() for _ in range(self.n_sources)]
-        self._bandpasses = []
+        self._bandpasses = list()
 
     def __repr__(self):
         out = '{0}'.format(self.parameters)
@@ -1006,7 +1006,7 @@ class Model(object):
         Check if the provided kwargs are valid for the given method.
         """
         msg = "{:} method allows {:} parameters, but got '{:}'."
-        allowed = {'vbbl': ['accuracy'],
+        allowed = {'vbbl': ['accuracy', 'relative_accuracy'],
                    'adaptive_contouring': ['accuracy', 'ld_accuracy']}
 
         for method, kwargs in methods_parameters.items():
@@ -1031,11 +1031,9 @@ class Model(object):
                 see :py:func:`set_magnification_methods_parameters`
         """
         if isinstance(method, (str)):
-            parameters = {
-                method.lower(): self._methods_parameters[method.lower()]}
+            parameters = {method.lower(): self._methods_parameters[method.lower()]}
         else:
-            parameters = {key.lower(): self._methods_parameters[key.lower()]
-                          for key in method}
+            parameters = {key.lower(): self._methods_parameters[key.lower()] for key in method}
 
         return parameters
 
@@ -1389,13 +1387,9 @@ class Model(object):
         """
         magnification_curve = MagnificationCurve(
             time, parameters=self.parameters,
-            parallax=self._parallax, coords=self._coords,
-            satellite_skycoord=satellite_skycoord,
-            gamma=gamma)
-        magnification_curve.set_magnification_methods(
-            self._methods, self._default_magnification_method)
-        magnification_curve.set_magnification_methods_parameters(
-            self._methods_parameters)
+            parallax=self._parallax, coords=self._coords, satellite_skycoord=satellite_skycoord, gamma=gamma)
+        magnification_curve.set_magnification_methods(self._methods, self._default_magnification_method)
+        magnification_curve.set_magnification_methods_parameters(self._methods_parameters)
 
         return magnification_curve
 
