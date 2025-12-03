@@ -224,7 +224,7 @@ class MagnificationCurve(object):
 
     def _setup_kwargs(self, method):
         """ Setup the kwargs for a given magnification object."""
-        kwargs = {}
+        kwargs = dict()
         if self._methods_parameters is not None:
             if method.lower() in self._methods_parameters.keys():
                 kwargs = self._methods_parameters[method.lower()]
@@ -391,10 +391,8 @@ class MagnificationCurve(object):
             trajectory = self._setup_trajectory(selection)
             kwargs = self._setup_kwargs(method)
 
-            if ((kwargs != {}) and
-                    (method.lower() not in ['vbbl', 'adaptive_contouring'])):
-                msg = ('Methods parameters passed for method {:}' +
-                       ' which does not accept any parameters')
+            if kwargs != dict() and method.lower() not in ['vbbl', 'adaptive_contouring']:
+                msg = 'Methods parameters passed for method {:} which does not accept any parameters'
                 raise ValueError(msg.format(method))
 
             if method.lower() == 'point_source':
