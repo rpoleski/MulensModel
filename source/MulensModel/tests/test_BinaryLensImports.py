@@ -1,90 +1,58 @@
 from numpy.testing import assert_almost_equal
-import warnings
 
 import VBMicrolensing
 
-import MulensModel as mm
 
-
-# The test presented check if VBBL code was imported properly and
-# they intentionally call private functions from mm.binarylensimports.
-
-# The values for tests were copied from other tests.
-
-
-def test_VBBL_dark():
+def test_VBM_dark():
     """
-    Directly (hence, calling private function) test imported VBBL function:
-    _vbbl_binary_mag_dark()
+    Test binary lens with limb darkening.
     """
-    if not mm.binarylensimports._vbbl_wrapped:
-        warnings.warn("VBBL not imported", UserWarning)
-        return
-
-    out = mm.binarylensimports._vbbl_binary_mag_dark(
-        1.35, 0.00578, 0.6598560303179819, -0.05280389642190758, 0.01,
-        0.001, 0.0)
+    vbm = VBMicrolensing.VBMicrolensing()
+    vbm.Tol = 0.001
+    vbm.a1 = 0.0
+    out = vbm.BinaryMag2(1.35, 0.00578, 0.6598560303179819, -0.05280389642190758, 0.01)
     assert_almost_equal(out, 1.635980468652538)
 
 
-def test_VBBL_finite():
+def test_VBM_finite():
     """
-    Directly (hence, calling private function) test imported VBBL function:
-    _vbbl_binary_mag_finite()
+    Test VBMicrolensing().BinaryMag()
     """
-    if not mm.binarylensimports._vbbl_wrapped:
-        warnings.warn("VBBL not imported", UserWarning)
-        return
-
-    out = mm.binarylensimports._vbbl_binary_mag_finite(
-        0.8, 0.1, 0.01, 0.01, 0.01, 0.001)
+    out = VBMicrolensing.VBMicrolensing().BinaryMag(0.8, 0.1, 0.01, 0.01, 0.01, 0.001)
     assert_almost_equal(out, 18.283392940574107)
 
 
-def test_VBBL_point():
+def test_VBM_point():
     """
-    Directly (hence, calling private function) test imported VBBL function:
-    _vbbl_binary_mag_point()
+    Test VBMicrolensing.BinaryMag0().
     """
-    if not mm.binarylensimports._vbbl_wrapped:
-        warnings.warn("VBBL not imported", UserWarning)
-        return
-
-    out = mm.binarylensimports._vbbl_binary_mag_point(0.8, 0.1, 0.01, 0.01)
+    out = VBMicrolensing.VBMicrolensing().BinaryMag0(0.8, 0.1, 0.01, 0.01)
     assert_almost_equal(out, 18.185448359975954)
 
 
-def test_VBBL_shear():
+def test_VBM_shear():
     """
-    Directly (hence, calling private function) test imported VBBL function:
-    _vbbl_binary_mag_point_shear()
+    Test VBMicrolensing for binary lens with shear.
     """
-    if not mm.binarylensimports._vbbl_wrapped:
-        warnings.warn("VBBL not imported", UserWarning)
-        return
-
-    out = mm.binarylensimports._vbbl_binary_mag_point_shear(
-        1.1, 0.2, 0.19090909090909103, 0.0, 0.1, 0.1, -0.1)
+    out = VBMicrolensing.VBMicrolensing().BinaryMag0_shear(1.1, 0.2, 0.19090909090909103, 0.0, 0.1, 0.1, -0.1)
     assert_almost_equal(out, 7.797177952275903)
 
 
-def test_VBBL_SG12_5():
+def test_VBM_cmplx_roots_gen_5():
     """
-    Directly (hence, calling private function) test imported VBBL function:
-    _vbbl_SG12_5()
+    Test VBM.cmplx_roots_gen() for 5th order complex polynomial.
     """
-    if not mm.binarylensimports._vbbl_wrapped:
-        warnings.warn("VBBL not imported", UserWarning)
-        return
+    coeffs = [-0.17073496203535826, -0.2960054288981844, 0.2635469112719409, 0.8257865631242759, 0.8806819361918513,
+              0.31179330108200043, 0.029491785441276515, 0.17299410121242445, 0.2364363674161051,
+              0.13879110194896355, 0.056792767235166075, -0.003964567527886535]
 
-    out = mm.binarylensimports._vbbl_SG12_5(
-        -0.17073496203535826, -0.2960054288981844, 0.2635469112719409,
-        0.8257865631242759, 0.8806819361918513, 0.31179330108200043,
-        0.029491785441276515, 0.17299410121242445, 0.2364363674161051,
-        0.13879110194896355, 0.056792767235166075, -0.003964567527886535)
+    coefficients = [(coeffs[i], coeffs[i+6]) for i in range(6)]
+    vbm = VBMicrolensing.VBMicrolensing()
+    out = vbm.cmplx_roots_gen(coefficients)
     expected = [
         -0.58000512, -1.6727006, -0.57653394, 0.56004431, -0.5526021,
         0.90541606, -0.16774112, -0.76401705, -0.14860692, -0.04307995]
+    expected = [[expected[i], expected[i+5]] for i in range(5)]
     assert_almost_equal(out, expected)
 
 
