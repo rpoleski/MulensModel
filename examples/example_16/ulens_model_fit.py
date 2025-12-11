@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.54.2'
+__version__ = '0.55.0'
 
 
 class UlensModelFit(object):
@@ -97,9 +97,14 @@ class UlensModelFit(object):
             - UltraNest: https://johannesbuchner.github.io/UltraNest/
 
         starting_parameters: *dict*
-            Starting values of the parameters.
-            It also indicates the EMCEE fitting mode.
-            There are two possibilities for the information provided.
+            Starting values of the parameters. This option also indicates the EMCEE fitting mode.
+            Parameters can be standard MulensModel microlensing parameters, user-defined parameters, or parameters
+            for scaling uncertainties of the data provided. The latter ones have format ``ERR_X_LABEL``, where
+            ``X`` is either ``k`` (corresponds to ``factor`` kwarg of ``mm.MulensData.scale_errorbars()``) or
+            ``e`` (corresponds to ``minimum`` kwarg of ``mm.MulensData.scale_errorbars()``) and
+            ``LABEL`` is label of one of the datasets.
+
+            There are two possibilities to provide the values.
 
             First, you can provide a name of file with sets of
             parameters and names of parameters. For example:
@@ -593,6 +598,7 @@ class UlensModelFit(object):
 
         self._user_parameters = []
         self._other_parameters = []
+        self._errorbars_parameters = []
         self._latex_conversion_user = dict()
         self._latex_conversion_other = dict()
 
@@ -773,6 +779,7 @@ class UlensModelFit(object):
         self._get_datasets()
         self._check_ulens_model_parameters()
         self._get_parameters_ordered()
+        self._parse_errorbars_fit_params()
         self._get_parameters_latex()
         self._set_prior_limits()
 
@@ -1245,22 +1252,19 @@ class UlensModelFit(object):
         if isinstance(self._photometry_files, str):
             self._photometry_files = [self._photometry_files]
         elif not isinstance(self._photometry_files, list):
-            raise TypeError(
-                'photometry_files should be a list or a str, but you '
-                'provided ' + str(type(self._photometry_files)))
-        files = [f if isinstance(f, dict) else {'file_name': f}
-                 for f in self._photometry_files]
-        self._datasets = []
-        for file_ in files:
-            dataset = self._get_1_dataset(file_, kwargs)
-            self._datasets.append(dataset)
+            raise TypeError('photometry_files should be a list or a str, but you provided ' +
+                            str(type(self._photometry_files)))
+
+        self._photometry_files = [f if isinstance(f, dict) else {'file_name': f} for f in self._photometry_files]
+        self._datasets = [self._get_1_dataset(file_, kwargs) for file_ in self._photometry_files]
+        self._data_labels = [dataset.plot_properties['label'] for dataset in self._datasets]
+        self._datasets_initial = [dataset.copy() for dataset in self._datasets]
+        self._errorbars_parameters = ['ERR_' + t + label for label in self._data_labels for t in ['k_', 'e_']]
 
         if self._residuals_output:
             if len(self._residuals_files) != len(self._datasets):
-                out = '{:} vs {:}'.format(
-                    len(self._datasets), len(self._residuals_files))
-                raise ValueError('The number of datasets and files for '
-                                 'residuals output do not match: ' + out)
+                out = '{:} vs {:}'.format(len(self._datasets), len(self._residuals_files))
+                raise ValueError('The number of datasets and files for residuals output do not match: ' + out)
 
     def _get_1_dataset(self, file_, kwargs):
         """
@@ -1272,16 +1276,14 @@ class UlensModelFit(object):
         try:
             dataset = mm.MulensData(**{**kwargs, **file_})
         except FileNotFoundError:
-            raise FileNotFoundError(
-                'Provided file path does not exist: ' +
-                str(file_['file_name']))
+            raise FileNotFoundError('Provided file path does not exist: ' + str(file_['file_name']))
         except Exception:
-            print('Something went wrong while reading file ' +
-                  str(file_['file_name']), file=sys.stderr)
+            print('Something went wrong while reading file ' + str(file_['file_name']), file=sys.stderr)
             raise
 
         if scaling is not None:
             dataset.scale_errorbars(**scaling)
+            file_["scale_errorbars"] = scaling
         if bad is not None:
             self._parse_bad(bad, dataset)
 
@@ -1383,7 +1385,7 @@ class UlensModelFit(object):
             to_be_checked = set(self._model_parameters['parameters'])
         else:
             raise ValueError('unexpected error: ' + str(self._task))
-        allowed = self._all_MM_parameters + self._other_parameters + self._user_parameters
+        allowed = self._all_MM_parameters + self._other_parameters + self._user_parameters + self._errorbars_parameters
         unknown = to_be_checked - set(allowed)
         if len(unknown) > 0:
             raise ValueError('Unknown parameters: {:}'.format(unknown))
@@ -1394,17 +1396,49 @@ class UlensModelFit(object):
         This is useful to make sure the order of printed parameters
         is always the same.
         """
-        order = self._all_MM_parameters + self._user_parameters + self._other_parameters
-        indexes = sorted(
-            [order.index(p) for p in self._fit_parameters_unsorted])
+        order = self._all_MM_parameters + self._user_parameters + self._other_parameters + self._errorbars_parameters
+        indexes = sorted([order.index(p) for p in self._fit_parameters_unsorted])
 
         self._fit_parameters = [order[i] for i in indexes]
-        self._fit_parameters_other = [
-            order[i] for i in indexes if order[i] in self._other_parameters]
+        self._fit_parameters_other = [order[i] for i in indexes if order[i] in self._other_parameters]
+        self._fit_parameters_errorbars = [order[i] for i in indexes if order[i] in self._errorbars_parameters]
         self._other_parameters_dict = dict()
-
-        if len(self._fit_parameters_other) > 0:
+        self._errorbars_parameters_dict = dict()
+        if len(self._fit_parameters_other + self._fit_parameters_errorbars) > 0:
             self._flat_priors = False
+
+    def _parse_errorbars_fit_params(self):
+        """
+        Parse settings for fitting errorbars. We assume self._fit_parameters_errorbars have strings in a format
+        ERR_k_DATASET-LABEL
+        ERR_e_DATASET-LABEL
+        and these correspond to 'factor' and 'minimum' kwargs of mm.MulensData.scale_errorbars()
+        """
+        translate = {'k': 'factor', 'e': 'minimum'}
+        self._errorbars_fitting = dict()
+        self._errorbars_fitting_index = dict()
+        for parameter in self._fit_parameters_errorbars:
+            index = self._data_labels.index(parameter[6:])
+            t = translate[parameter[4]]
+            self._errorbars_fitting_index[parameter] = [index, t]
+            if index in self._errorbars_fitting:
+                self._errorbars_fitting[index][t] = None
+            else:
+                self._errorbars_fitting[index] = {t: None}
+
+        self._check_errorbar_scaling_conflict()
+        for parameter in self._fit_parameters_errorbars:
+            label = parameter[6:]
+            label_safe = label.replace(' ', '_')
+            label_tex = label_safe.replace('_', '\\_')
+            self._latex_conversion_other[parameter] = 'ERR_{\\rm{' + parameter[4] + ',' + label_tex + '}}'
+
+    def _check_errorbar_scaling_conflict(self):
+        """Check if there is a conflict in errorbars scaling."""
+        for index in self._errorbars_fitting.keys():
+            if 'scale_errorbars' in self._photometry_files[index]:
+                raise ValueError("Conflict for {:} data: ".format(self._data_labels[index]) +
+                                 "you cannot set errorbars scaling and try to fit that at the same time")
 
     def _get_parameters_latex(self):
         """
@@ -2023,10 +2057,8 @@ class UlensModelFit(object):
         """
         sets = list(map(self._get_no_of_dataset, values))
         if len(sets) > len(self._datasets):
-            raise ValueError(
-                "dataset specified in" +
-                key +
-                "should not repeat")
+            raise ValueError("dataset specified in {:} should not repeat".format(key))
+
         return sets
 
     def _get_settings_fit_constraints_color(self, key, value):
@@ -2101,11 +2133,7 @@ class UlensModelFit(object):
         """
         Check if the labels of datasets are unique.
         """
-        labels = [
-            dataset.plot_properties['label']
-            for dataset in self._datasets
-        ]
-        if len(labels) != len(set(labels)):
+        if len(self._data_labels) != len(set(self._data_labels)):
             raise ValueError("Declared labels of datasets must be unique.")
 
     def _parse_fit_constraints_prior(self):
@@ -2136,8 +2164,8 @@ class UlensModelFit(object):
                 priors[key] = settings
 
             else:
-                raise KeyError(
-                    "Unrecognized key in fit_constraints/prior: " + key)
+                raise KeyError("Unrecognized key in fit_constraints/prior: " + key)
+
             self._flat_priors = False
 
         if len(priors) > 0:
@@ -2190,12 +2218,13 @@ class UlensModelFit(object):
         if '"' in label:
             label = label.strip('"')
 
-        for (i, dataset) in enumerate(self._datasets):
-            if dataset.plot_properties['label'] == label:
-                return i
+        try:
+            index = self._data_labels.index(label)
+        except ValueError:
+            raise KeyError("Unrecognized dataset label: " + label + "\nallowed labels: " +
+                           str([d.plot_properties['label'] for d in self._datasets]))
 
-        raise KeyError("Unrecognized dataset label: " + label + "\nallowed labels: " +
-                       str([d.plot_properties['label'] for d in self._datasets]))
+        return index
 
     def _read_prior_t_E_data(self):
         """
@@ -2317,30 +2346,42 @@ class UlensModelFit(object):
         if self._fixed_parameters is None:
             return
 
-        fixed = set(self._fixed_parameters.keys())
+        if len(self._user_parameters) > 0:
+            self._extract_fixed_user_parameters()
 
-        allowed = set(self._all_MM_parameters +
-                      self._fixed_only_MM_parameters +
-                      self._other_parameters)
+        allowed = set(self._all_MM_parameters + self._fixed_only_MM_parameters + self._other_parameters)
+        fixed = set(self._fixed_parameters.keys())
         unknown = fixed - allowed
         if len(unknown) > 0:
-            raise ValueError('Unknown fixed parameters: {:}'.format(unknown))
+            unknown = unknown - set(self._errorbars_parameters)
+            if len(unknown) == 0:
+                raise ValueError(
+                    'You should fix errorbar scaling parameters: {:} \n using MM.dataset property'.format(unknown))
+            elif len(unknown) > 0:
+                raise ValueError('Unknown fixed parameters: {:}'.format(unknown))
 
         if self._task == 'plot':
             return
 
         repeated = set(self._fit_parameters).intersection(fixed)
         if len(repeated) > 0:
-            raise ValueError(
-                'Some parameters are both fitted and fixed: ' +
-                '{:}'.format(repeated))
+            raise ValueError('Some parameters are both fitted and fixed: {:}'.format(repeated))
+
+    def _extract_fixed_user_parameters(self):
+        """
+        Extract fixed user-defined parameters into self._fixed_user_parameters
+        """
+        self._fixed_user_parameters = dict()
+        for key in self._user_parameters:
+            if key in self._fixed_parameters:
+                self._fixed_user_parameters[key] = self._fixed_parameters.pop(key)
 
     def _make_model_and_event(self):
         """
         Set internal MulensModel instances: Model and Event
         """
         parameters = self._get_example_parameters()
-        for key in self._other_parameters:
+        for key in self._other_parameters + self._errorbars_parameters:
             try:
                 parameters.pop(key)
             except Exception:
@@ -2638,8 +2679,8 @@ class UlensModelFit(object):
 
     def _ln_prob(self, theta):
         """
-        Log probability of the model - combines _ln_prior(), _ln_like(),
-        and constraints which include fluxes.
+        Log probability of the model - combines _ln_prior(), _ln_like(), constraints which include fluxes,
+        and scaling of uncertainties.
 
         NOTE: we're using np.log(), i.e., natural logarithms.
         """
@@ -2698,15 +2739,32 @@ class UlensModelFit(object):
         parameters = dict(zip(self._fit_parameters, theta))
         parameters = self._transform_parameters(parameters)
 
-        if len(self._fit_parameters_other) == 0:
+        if len(self._fit_parameters_other) + len(self._fit_parameters_errorbars) == 0:
             for (parameter, value) in parameters.items():
                 setattr(self._model.parameters, parameter, value)
         else:
             for (parameter, value) in parameters.items():
-                if parameter not in self._fit_parameters_other:
+                if parameter not in (self._fit_parameters_other + self._fit_parameters_errorbars):
                     setattr(self._model.parameters, parameter, value)
+                elif parameter in self._fit_parameters_errorbars:
+                    self._errorbars_parameters_dict[parameter] = value
                 else:
                     self._other_parameters_dict[parameter] = value
+
+        self._update_datasets()
+
+    def _update_datasets(self):
+        """Update errorbars scaling"""
+        if len(self._fit_parameters_errorbars) == 0:
+            return
+
+        for parameter in self._fit_parameters_errorbars:
+            (index_1, index_2) = self._errorbars_fitting_index[parameter]
+            self._errorbars_fitting[index_1][index_2] = self._errorbars_parameters_dict[parameter]
+
+        for (index, kwargs) in self._errorbars_fitting.items():
+            self._event.datasets[index] = self._datasets_initial[index].copy()
+            self._event.datasets[index].scale_errorbars(**kwargs)
 
     def _ln_prior(self, theta):
         """
@@ -2821,6 +2879,26 @@ class UlensModelFit(object):
         if self._task == 'fit' and len(self._other_parameters_dict) > 0:
             out += self._get_ln_probability_for_other_parameters()
 
+        if self._task == 'fit' and len(self._errorbars_parameters_dict) > 0:
+            out += self._ln_prob_errors()
+
+        return out
+
+    def _ln_prob_errors(self):
+        """
+        Returns ln(probability()) for scaled errorbars.
+        """
+        out = 0.
+        for index in self._errorbars_fitting.keys():
+            dataset = self._event.datasets[index]
+            if dataset.chi2_fmt == 'flux':
+                err = dataset.err_flux
+            else:
+                err = dataset.err_mag
+
+            out += np.sum(np.log(2 * np.pi * np.power(err, 2)))
+
+        out *= -0.5
         return out
 
     def _print_current_model(self, theta, chi2):
@@ -2954,6 +3032,7 @@ class UlensModelFit(object):
         key = 'color source 2'
         if key in self._fit_constraints:
             inside += self._sumup_inside_color_prior(fluxes, key, 1)
+
         return inside
 
     def _sumup_inside_color_prior(self, fluxes, key, index_plus):
@@ -2979,8 +3058,7 @@ class UlensModelFit(object):
         for settings in settings_all:
             index1 = self._get_index_of_flux(settings[3], index_plus)
             index2 = self._get_index_of_flux(settings[4], index_plus)
-            value = mm.Utils.get_mag_from_flux(
-                fluxes[index1])-mm.Utils.get_mag_from_flux(fluxes[index2])
+            value = mm.Utils.get_mag_from_flux(fluxes[index1]) - mm.Utils.get_mag_from_flux(fluxes[index2])
             inside += self._get_ln_prior_for_1_parameter(value, settings[:-2])
 
         return inside
@@ -3568,8 +3646,10 @@ class UlensModelFit(object):
         if self._flat_priors:
             print("chi2: {:.4f}".format(-2. * self._best_model_ln_prob))
         else:
-            self._ln_like(self._best_model_theta)
-            print("chi2: {:.4f}".format(self._event.get_chi2()))
+            likelihood = self._ln_like(self._best_model_theta)
+            chi2 = self._event.get_chi2()
+            print("chi2: {:.4f}".format(chi2))
+            print("other ln_likelihood components: {:.4f}".format(likelihood - (-0.5 * chi2)))
             fluxes = self._get_fluxes()
             ln_prior_flux = self._run_flux_checks_ln_prior(fluxes)
             ln_prior = self._ln_prior(self._best_model_theta)
@@ -3833,6 +3913,7 @@ class UlensModelFit(object):
         """
         if not self._residuals_output:
             return
+        self._event.get_chi2()
 
         zip_ = zip(self._datasets, self._residuals_files, self._event.fits)
         for (dataset, name, fit) in zip_:
@@ -4360,8 +4441,7 @@ class UlensModelFit(object):
         dpi = 300
         tau = 1.5
 
-        self._ln_like(self._best_model_theta)  # Sets all parameters to
-        # the best model.
+        self._ln_like(self._best_model_theta)  # Sets all parameters to the best model.
 
         self._reset_rcParams()
 
