@@ -1,3 +1,5 @@
+The VBM python API should be similar to VBBL C++ API described below.
+
 To get the image positions from VBBL, following C++ code has to be run:
 
 ```c++
