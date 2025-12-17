@@ -828,7 +828,7 @@ class Model(object):
 
                   methods = [
                       2455746., 'Quadrupole', 2455746.6, 'Hexadecapole',
-                      2455746.7, 'VBBL', 2455747., 'Hexadecapole',
+                      2455746.7, 'VBM', 2455747., 'Hexadecapole',
                       2455747.15, 'Quadrupole', 2455748.]
 
             source: *int* or *None*, optional
@@ -973,30 +973,28 @@ class Model(object):
             methods_parameters: *dict*
                 Dictionary that for method names (keys) returns dictionary
                 in the form of ``**kwargs`` that are passed to given method,
-                e.g., ``{'VBBL': {'accuracy': 0.005}}``.
+                e.g., ``{'VBM': {'accuracy': 0.005}}``.
 
         """
         if self.n_lenses == 1:
             methods_all_str = (
-                'point_source finite_source_uniform_Gould94 '
-                'finite_source_uniform_Gould94_direct '
-                'finite_source_uniform_WittMao94 finite_source_LD_WittMao94 '
-                'finite_source_LD_Yoo04 finite_source_LD_Yoo04_direct '
-                'finite_source_uniform_Lee09 finite_source_LD_Lee09')
+                'point_source finite_source_uniform_Gould94 finite_source_uniform_Gould94_direct '
+                'finite_source_uniform_WittMao94 finite_source_LD_WittMao94 finite_source_LD_Yoo04 '
+                'finite_source_LD_Yoo04_direct finite_source_uniform_Lee09 finite_source_LD_Lee09')
         elif self.n_lenses == 2:
-            methods_all_str = ('point_source quadrupole hexadecapole vbbl '
-                               'adaptive_contouring point_source_point_lens')
+            methods_all_str = (
+                'point_source quadrupole hexadecapole vbm vbbl adaptive_contouring point_source_point_lens')
         else:
             msg = 'wrong value of Model.n_lenses: {:}'
             raise ValueError(msg.format(self.n_lenses))
 
-        parameters = {
-            key.lower(): value for (key, value) in methods_parameters.items()}
+        parameters = {key.lower(): value for (key, value) in methods_parameters.items()}
         methods_all = set([m.lower() for m in methods_all_str.split()])
         methods = set(parameters.keys()) - methods_all
 
         if len(methods):
             raise KeyError('Unknown methods provided: {:}'.format(methods))
+
         self._check_magnification_methods_parameters(methods_parameters)
 
         self._methods_parameters = parameters
@@ -1006,7 +1004,8 @@ class Model(object):
         Check if the provided kwargs are valid for the given method.
         """
         msg = "{:} method allows {:} parameters, but got '{:}'."
-        allowed = {'vbbl': ['accuracy', 'relative_accuracy'],
+        allowed = {'vbm': ['accuracy', 'relative_accuracy'],
+                   'vbbl': ['accuracy', 'relative_accuracy'],
                    'adaptive_contouring': ['accuracy', 'ld_accuracy']}
 
         for method, kwargs in methods_parameters.items():
