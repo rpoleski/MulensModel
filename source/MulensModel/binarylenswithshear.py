@@ -10,27 +10,22 @@ from MulensModel.version import __version__ as mm_version
 
 class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95Magnification):
     """
-    The binary lens with shear and convergence:
-    solutions, images, parities, magnifications, etc.
+    The binary lens with shear and convergence: solutions, images, parities, magnifications, etc.
 
     Uses Witt & Mao 1995 for the binary lens magnification calculation. See
     `py:class:binarylens.BinaryLensPointSourceWM95Magnification`
 
-    The binary lens with shear and convergence equation is
-    the 9th order complex polynomial.
+    The binary lens with shear and convergence equation is the 9th order complex polynomial.
 
     Attributes :
         mass_1: *float*
-            mass of the primary (left-hand object) as a fraction of
-            the total mass.
+            mass of the primary (left-hand object) as a fraction of the total mass.
 
         mass_2: *float*
-            mass of the secondary (right-hand object) as a fraction of the
-            total mass.
+            mass of the secondary (right-hand object) as a fraction of the total mass.
 
         separation: *float*
-            separation between the two bodies as a fraction of the Einstein
-            ring.
+            separation between the two bodies as a fraction of the Einstein ring.
 
         convergence_K: *float*
             External mass sheet convergence.
@@ -38,13 +33,10 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
         shear_G: *complex*
             External mass sheat shear.
 
-    Note: mass_1 and mass_2 may be defined as a fraction of some other
-    mass than the total mass. This is possible but not recommended -
-    make sure you know what you're doing before you start using this
-    possibility.
+    Note: mass_1 and mass_2 may be defined as a fraction of some other mass than the total mass. This is possible but
+    not recommended - make sure you know what you're doing before you start using this possibility.
 
-    If you're using this class, then please cite
-    Peirson et al. (2022; ApJ 927, 24).
+    If you're using this class, then please cite Peirson et al. (2022; ApJ 927, 24).
     """
 
     def __init__(self, convergence_K=None, shear_G=None, **kwargs):
@@ -422,7 +414,7 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
                     " polynomial root solver. It is much more accurate than " +
                     "numpy.polynomial.polynomial.polyroots(). " +
                     "Skowron_and_Gould_12 method is selected in automated " +
-                    "way if VBBL is imported properly.")
+                    "way if VBM is imported properly.")
             distance = sqrt(self._source_x**2 + self._source_y**2)
             if self._mass_2 > 1.e-6 * self._mass_1 and (distance < 15. or distance < 2. * separation):
                 txt += ("\n\nThis is surprising error - please contact code " +
@@ -537,26 +529,21 @@ class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(BinaryLensPoint
 
 class BinaryLensPointSourceWithShearVBBLMagnification(BinaryLensPointSourceWithShearWM95Magnification):
     """
-    The binary lens with shear and convergence:
-    solutions, images, parities, magnifications, etc.
+    The binary lens with shear and convergence: solutions, images, parities, magnifications, etc.
 
-    Uses VBBL.
+    Uses VBMicrolensing.
 
-    The binary lens with shear and convergence equation is
-    the 9th order complex polynomial.
+    The binary lens with shear and convergence equation is the 9th order complex polynomial.
 
     Attributes :
         mass_1: *float*
-            mass of the primary (left-hand object) as a fraction of
-            the total mass.
+            mass of the primary (left-hand object) as a fraction of the total mass.
 
         mass_2: *float*
-            mass of the secondary (right-hand object) as a fraction of the
-            total mass.
+            mass of the secondary (right-hand object) as a fraction of the total mass.
 
         separation: *float*
-            separation between the two bodies as a fraction of the Einstein
-            ring.
+            separation between the two bodies as a fraction of the Einstein ring.
 
         convergence_K: *float*
             External mass sheet convergence.
@@ -564,10 +551,8 @@ class BinaryLensPointSourceWithShearVBBLMagnification(BinaryLensPointSourceWithS
         shear_G: *complex*
             External mass sheat shear.
 
-    Note: mass_1 and mass_2 may be defined as a fraction of some other
-    mass than the total mass. This is possible but not recommended -
-    make sure you know what you're doing before you start using this
-    possibility.
+    Note: mass_1 and mass_2 may be defined as a fraction of some other mass than the total mass. This is possible but
+    not recommended - make sure you know what you're doing before you start using this possibility.
     """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
