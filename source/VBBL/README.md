@@ -1,3 +1,5 @@
+NOTE: VBBL is now longer used in MulensModel. Currently, VBMicrolensing is used instead. This directory is left for backward compatibility and will be removed in MulensModel version 4.0.0.
+
 This directory contains a copy of VBBinaryLensing (or VBBL) library. Please see original release:
 
 [http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm](http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm)

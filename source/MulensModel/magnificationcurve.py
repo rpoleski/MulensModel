@@ -96,7 +96,7 @@ class MagnificationCurve(object):
 
                   methods = [
                       2455746., 'Quadrupole', 2455746.6, 'Hexadecapole',
-                      2455746.7, 'VBBL', 2455747., 'Hexadecapole',
+                      2455746.7, 'VBM', 2455747., 'Hexadecapole',
                       2455747.15, 'Quadrupole', 2455748.]
 
             default_method: *str*
@@ -151,7 +151,7 @@ class MagnificationCurve(object):
             methods_parameters: *dict*
                 Dictionary that for method names (keys) returns dictionary
                 in the form of ``**kwargs`` that are passed to given method,
-                e.g., ``{'VBBL': {'accuracy': 0.005}}``.
+                e.g., ``{'VBM': {'accuracy': 0.005}}``.
 
         """
         self._methods_parameters = methods_parameters
@@ -209,17 +209,14 @@ class MagnificationCurve(object):
                 self._set_binary_lens_w_shear_magnification_objects()
 
     def _setup_trajectory(self, selection):
-        """ Create a trajectory object for a given subset of the data
-        specified by *selection*. """
+        """Create a trajectory object for a given subset of the data specified by *selection*."""
         if self.satellite_skycoord is not None:
             satellite_skycoord = self.satellite_skycoord[selection]
         else:
             satellite_skycoord = None
 
-        trajectory = mm.Trajectory(
-            self.times[selection], parameters=self.parameters,
-            parallax=self.parallax, coords=self.coords,
-            satellite_skycoord=satellite_skycoord)
+        trajectory = mm.Trajectory(self.times[selection], parameters=self.parameters, parallax=self.parallax,
+                                   coords=self.coords, satellite_skycoord=satellite_skycoord)
         return trajectory
 
     def _setup_kwargs(self, method):
@@ -391,7 +388,7 @@ class MagnificationCurve(object):
             trajectory = self._setup_trajectory(selection)
             kwargs = self._setup_kwargs(method)
 
-            if kwargs != dict() and method.lower() not in ['vbbl', 'adaptive_contouring']:
+            if kwargs != dict() and method.lower() not in ['vbm', 'vbbl', 'adaptive_contouring']:
                 msg = 'Methods parameters passed for method {:} which does not accept any parameters'
                 raise ValueError(msg.format(method))
 
@@ -407,11 +404,9 @@ class MagnificationCurve(object):
                     mm.binarylens.\
                     BinaryLensHexadecapoleMagnification(
                     trajectory=trajectory, gamma=self._gamma)
-            elif method.lower() == 'vbbl':
+            elif method.lower() in ['vbm', 'vbbl']:
                 self._magnification_objects[method] = \
-                    mm.binarylens. \
-                    BinaryLensVBBLMagnification(
-                        trajectory=trajectory, gamma=self._gamma, **kwargs)
+                    mm.binarylens.BinaryLensVBBLMagnification(trajectory=trajectory, gamma=self._gamma, **kwargs)
             elif method.lower() == 'adaptive_contouring':
                 self._magnification_objects[method] = \
                     mm.binarylens. \
@@ -470,13 +465,12 @@ class MagnificationCurve(object):
                 From `Gould 2008 ApJ, 681, 1593`_ See
                 :py:func:`~MulensModel.binarylens.BinaryLens.hexadecapole_magnification()`
 
+            ``VBM``:
+                Uses VBMicrolensing (a Stokes theorem/contour integration code) by Valerio Bozza
+                (`Bozza 2010 MNRAS, 408, 2188 <https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract>`_).
+
             ``VBBL``:
-                Uses VBBinaryLensing (a Stokes theorem/contour
-                integration code) by Valerio Bozza
-                (`Bozza 2010 MNRAS, 408, 2188
-                <https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract>`_).
-                See
-                :py:func:`~MulensModel.binarylens.BinaryLens.vbbl_magnification()`
+                same as ``VBM`` for backward compatibility.
 
             ``Adaptive_Contouring``:
                 Uses AdaptiveContouring (a Stokes theorem/contour
