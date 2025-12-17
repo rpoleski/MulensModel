@@ -288,7 +288,7 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
         if self._solver != "Skowron_and_Gould_12":
             txt += ("\n\nYou should switch to using Skowron_and_Gould_12  polynomial root solver. It is much more "
                     "accurate than numpy.polynomial.polynomial.polyroots(). Skowron_and_Gould_12 method is selected "
-                    "in automated way if VBBL is imported properly.")
+                    "in automated way if VBM is imported properly.")
 
         distance = sqrt(self._zeta.real**2 + self._zeta.imag**2)
         if distance > 200.:
@@ -305,8 +305,7 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
 
 class BinaryLensPointSourceVBBLMagnification(_BinaryLensPointSourceMagnification):
     """
-    Equations for calculating point-source--binary-lens magnification using
-    VBBL for point sources.
+    Equations for calculating point-source--binary-lens magnification using VBM for point sources.
 
     Arguments :
         trajectory: :py:class:`~MulensModel.trajectory.Trajectory`
@@ -315,13 +314,13 @@ class BinaryLensPointSourceVBBLMagnification(_BinaryLensPointSourceMagnification
     """
     def _get_1_magnification(self, x, y, separation):
         """
-        Calculate 1 magnification using VBBL.
+        Calculate 1 magnification using VBM.
         """
         return self._get_1_magnification_point_source(float(x), float(y), float(separation))
 
     def _get_1_magnification_point_source(self, x, y, separation):
         """
-        Call VBBL to get 1 magnification for point source.
+        Call VBM to get 1 magnification for point source.
         This function is also called by child classes.
         """
         return self._vbm.BinaryMag0(separation, self._q, x, y)
@@ -330,7 +329,7 @@ class BinaryLensPointSourceVBBLMagnification(_BinaryLensPointSourceMagnification
 class BinaryLensPointSourceMagnification(_BinaryLensPointSourceMagnification):
     """
     Optimal class for calculation of point-source binary-lens magnification:
-    it first tries VBBL and then switches to Witt & Mao 1995 if the former fails.
+    it first tries VBM and then switches to Witt & Mao 1995 if the former fails.
     """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -345,7 +344,7 @@ class BinaryLensPointSourceMagnification(_BinaryLensPointSourceMagnification):
 
     def _get_1_magnification_point_source(self, x, y, separation):
         """
-        First try VBBL then WM95 to get magnification
+        First try VBM then WM95 to get magnification
         """
         repeat = False
         try:
@@ -514,12 +513,10 @@ class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
 
 class BinaryLensVBBLMagnification(_BinaryLensPointSourceMagnification, _LimbDarkeningForMagnification, _FiniteSource):
     """
-    Binary lens finite source magnification calculated using VBBL
-    library that implements advanced contour integration algorithm
-    presented by `Bozza 2010 MNRAS, 408, 2188
-    <https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract>`_.
-    See also `VBBL website by Valerio Bozza
-    <http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm>`_.
+    Binary lens finite source magnification calculated using VBMicrolensing library that implements advanced contour
+    integration algorithm presented by
+    `Bozza 2010 MNRAS, 408, 2188 <https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract>`_.
+    See also `VBBL website by Valerio Bozza <http://www.fisica.unisa.it/GravitationAstrophysics/VBBinaryLensing.htm>`_.
 
     For coordinate system convention see
     :py:class:`BinaryLensQuadrupoleMagnification`
@@ -554,9 +551,9 @@ class BinaryLensVBBLMagnification(_BinaryLensPointSourceMagnification, _LimbDark
 
         self._vbm = VBMicrolensing.VBMicrolensing()
         if self._u_limb_darkening is None:
-            self._vbbl_function = self._vbm.BinaryMag
+            self._vbm_function = self._vbm.BinaryMag
         else:
-            self._vbbl_function = self._vbm.BinaryMag2
+            self._vbm_function = self._vbm.BinaryMag2
 
     def _parse_accuracy(self, accuracy):
         """check if None and run float()"""
@@ -564,13 +561,13 @@ class BinaryLensVBBLMagnification(_BinaryLensPointSourceMagnification, _LimbDark
             return None
 
         if accuracy <= 0.:
-            raise ValueError("VBBL/VBM requires accuracy >= 0")
+            raise ValueError("VBM/VBBL requires accuracy >= 0")
 
         return float(accuracy)
 
     def _get_1_magnification(self, x, y, separation):
         """
-        Calculate 1 magnification using VBBL.
+        Calculate 1 magnification using VBM.
         """
         args = [float(separation), self._q, float(x), float(y), self._rho]
         if self._u_limb_darkening is None:
@@ -583,7 +580,7 @@ class BinaryLensVBBLMagnification(_BinaryLensPointSourceMagnification, _LimbDark
             if self._relative_accuracy is not None:
                 self._vbm.RelTol = self._relative_accuracy
 
-        return self._vbbl_function(*args)
+        return self._vbm_function(*args)
 
 
 class BinaryLensAdaptiveContouringMagnification(_BinaryLensPointSourceMagnification, _LimbDarkeningForMagnification,
