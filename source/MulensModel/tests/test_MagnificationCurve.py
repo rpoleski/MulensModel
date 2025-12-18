@@ -220,7 +220,7 @@ class TestEvent(unittest.TestCase):
         """
         mag_curve = self.setup()
         with self.assertRaises(TypeError):
-            methods = ['vbbl', 'vbbl', 100]
+            methods = ['vbm', 'vbm', 100]
             mag_curve.set_magnification_methods(methods, 'point_lens')
 
         with self.assertRaises(TypeError):
@@ -228,7 +228,7 @@ class TestEvent(unittest.TestCase):
             mag_curve.set_magnification_methods(methods, 'point_lens')
 
         with self.assertRaises(ValueError):
-            methods = [100., 'vbbl', 0]
+            methods = [100., 'vbm', 0]
             mag_curve.set_magnification_methods(methods, 'point_lens')
 
     def test_error_1_vs_2_lenses(self):

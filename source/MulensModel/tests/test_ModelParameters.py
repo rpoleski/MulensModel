@@ -226,7 +226,7 @@ def test_q_gt_1_is_good():
                          'alpha': alpha+180., 'rho': rho})
     planet_3 = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': 1/q,
                          'alpha': alpha-180., 'rho': rho})
-    list_of_methods = [3588., 'VBBL', 3594., 'hexadecapole', 3598.0]
+    list_of_methods = [3588., 'VBM', 3594., 'hexadecapole', 3598.0]
     planet.set_magnification_methods(list_of_methods)
     planet_2.set_magnification_methods(list_of_methods)
     planet_3.set_magnification_methods(list_of_methods)
@@ -258,9 +258,9 @@ def test_q_gt_1_is_smooth():
     q_max = mm.Model({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q+0.02,
                       'alpha': alpha, 'rho': rho})
 
-    planet.set_magnification_methods([3580., 'VBBL', 3595.])
-    q_min.set_magnification_methods([3580., 'VBBL', 3595.])
-    q_max.set_magnification_methods([3580., 'VBBL', 3595.])
+    planet.set_magnification_methods([3580., 'VBM', 3595.])
+    q_min.set_magnification_methods([3580., 'VBM', 3595.])
+    q_max.set_magnification_methods([3580., 'VBM', 3595.])
     t_checks = [3571, 3583, 3585.5, 3586, 3586.5, 3592.5]
     magnification = planet.get_magnification(time=t_checks)
     diff_min = magnification - q_min.get_magnification(time=t_checks)

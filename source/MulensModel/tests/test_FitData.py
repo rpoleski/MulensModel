@@ -928,11 +928,9 @@ class TestFSPLGradient(unittest.TestCase):
         model.set_magnification_methods(
             [t_lim_1, 'finite_source_uniform_Gould94', t_lim_2])
         with self.assertRaises(KeyError):
-            model.set_magnification_methods_parameters(
-                {'vbbl': {'accuracy': 0.005}})
+            model.set_magnification_methods_parameters({'vbm': {'accuracy': 0.005}})
 
-        model.set_magnification_methods_parameters(
-            {'finite_source_uniform_Gould94': {'accuracy': 0.005}})
+        model.set_magnification_methods_parameters({'finite_source_uniform_Gould94': {'accuracy': 0.005}})
         with self.assertRaises(ValueError):
             model.get_magnification(np.arange(t_lim_1, t_lim_2, 0.1))
 

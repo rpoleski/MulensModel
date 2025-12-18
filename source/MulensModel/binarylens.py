@@ -303,7 +303,7 @@ class BinaryLensPointSourceWM95Magnification(_BinaryLensPointSourceMagnification
         raise ValueError(txt)
 
 
-class BinaryLensPointSourceVBBLMagnification(_BinaryLensPointSourceMagnification):
+class BinaryLensPointSourceVBMMagnification(_BinaryLensPointSourceMagnification):
     """
     Equations for calculating point-source--binary-lens magnification using VBM for point sources.
 
@@ -333,7 +333,7 @@ class BinaryLensPointSourceMagnification(_BinaryLensPointSourceMagnification):
     """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._first = BinaryLensPointSourceVBBLMagnification(**kwargs)
+        self._first = BinaryLensPointSourceVBMMagnification(**kwargs)
         self._second = BinaryLensPointSourceWM95Magnification(**kwargs)
 
     def _get_1_magnification(self, x, y, separation):
@@ -511,7 +511,7 @@ class BinaryLensHexadecapoleMagnification(BinaryLensQuadrupoleMagnification):
         return 0.25 * fsum(out) - self._point_source_magnification
 
 
-class BinaryLensVBBLMagnification(_BinaryLensPointSourceMagnification, _LimbDarkeningForMagnification, _FiniteSource):
+class BinaryLensVBMMagnification(_BinaryLensPointSourceMagnification, _LimbDarkeningForMagnification, _FiniteSource):
     """
     Binary lens finite source magnification calculated using VBMicrolensing library that implements advanced contour
     integration algorithm presented by

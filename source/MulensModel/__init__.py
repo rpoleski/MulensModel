@@ -1,12 +1,12 @@
 from os import path
 
 from MulensModel.binarylens import BinaryLensPointSourceWM95Magnification, \
-    BinaryLensPointSourceVBBLMagnification, BinaryLensPointSourceMagnification, \
+    BinaryLensPointSourceVBMMagnification, BinaryLensPointSourceMagnification, \
     BinaryLensQuadrupoleMagnification, BinaryLensHexadecapoleMagnification, \
-    BinaryLensVBBLMagnification, BinaryLensAdaptiveContouringMagnification
+    BinaryLensVBMMagnification, BinaryLensAdaptiveContouringMagnification
 from MulensModel.binarylenswithshear import \
     BinaryLensPointSourceWithShearWM95Magnification, \
-    BinaryLensPointSourceWithShearVBBLMagnification
+    BinaryLensPointSourceWithShearVBMMagnification
 from MulensModel.causticsbinary import CausticsBinary
 from MulensModel.causticspointwithshear import CausticsPointWithShear
 from MulensModel.causticsbinarywithshear import CausticsBinaryWithShear

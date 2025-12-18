@@ -407,7 +407,7 @@ class MagnificationCurve(object):
                     mm.binarylens.BinaryLensHexadecapoleMagnification(trajectory=trajectory, gamma=self._gamma)
             elif method.lower() in ['vbm', 'vbbl']:
                 self._magnification_objects[method] = \
-                    mm.binarylens.BinaryLensVBBLMagnification(gamma=self._gamma, **kwargs)
+                    mm.binarylens.BinaryLensVBMMagnification(gamma=self._gamma, **kwargs)
             elif method.lower() == 'adaptive_contouring':
                 self._magnification_objects[method] = \
                     mm.binarylens.BinaryLensAdaptiveContouringMagnification(gamma=self._gamma, **kwargs)
@@ -433,7 +433,7 @@ class MagnificationCurve(object):
 
             if method.lower() == 'point_source':
                 self._magnification_objects[method] = \
-                    mm.binarylenswithshear.BinaryLensPointSourceWithShearVBBLMagnification(**kwargs)
+                    mm.binarylenswithshear.BinaryLensPointSourceWithShearVBMMagnification(**kwargs)
             elif method.lower() == 'point_source_wm95':
                 self._magnification_objects[method] = \
                     mm.binarylenswithshear. BinaryLensPointSourceWithShearWM95Magnification(**kwargs)

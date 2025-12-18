@@ -527,7 +527,7 @@ class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(BinaryLensPoint
         return np.array(coeffs_list).reshape(6)
 
 
-class BinaryLensPointSourceWithShearVBBLMagnification(BinaryLensPointSourceWithShearWM95Magnification):
+class BinaryLensPointSourceWithShearVBMMagnification(BinaryLensPointSourceWithShearWM95Magnification):
     """
     The binary lens with shear and convergence: solutions, images, parities, magnifications, etc.
 
