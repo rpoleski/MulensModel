@@ -194,53 +194,57 @@ def test_BinaryLensVBMMagnification_LD():
     # Above values are taken from VBBL.
 
 
-# def test_BinaryLensVBBLMagnification_2():
-#     """
-#     Check VBBL magnification calculation for binary lens with finite source
-#     that was producing wrong results for VBBL earlier than v3.5
-#     """
-#     x = [-2.8798499936424813, -2.87980198609534, -2.879750341503788]
-#     y = [0.2603315602357186, 0.26034667859291694, 0.26036294250727565]
-#     s = 0.3121409537799967
-#     q = 0.0018654668855723224
-#     rho = 0.002966662955047919
+def test_BinaryLensVBBLMagnification_2():
+    """
+    Check VBBL magnification calculation for binary lens with finite source
+    that was producing wrong results for VBBL earlier than v3.5.
 
-#     results = []
-#     for (x_, y_) in zip(x, y):
-#         trajectory = make_trajectory([x_, y_], {'s': s, 'q': q, 'rho': rho})
-#         lens = mm.BinaryLensVBBLMagnification(trajectory=trajectory)
-#         result = lens.get_magnification()
-#         results.append(result)
+    This function should be REMOVED in version 4.0.0.
+    """
+    x = [-2.8798499936424813, -2.87980198609534, -2.879750341503788]
+    y = [0.2603315602357186, 0.26034667859291694, 0.26036294250727565]
+    s = 0.3121409537799967
+    q = 0.0018654668855723224
+    rho = 0.002966662955047919
 
-#     # VBBL 2.0.1 was returning:
-#     # [1.345365452870409, 1.368843518228974, 1.3442156685350604]
-#     # i.e., the second value was wrong.
-#     # VBBL 3.5 returns:
-#     # [1.3455151798453464, 1.3449680490180915, 1.344226470628085]
-#     np.testing.assert_almost_equal(results[2], 1.344226470628085, decimal=5)
-#     mean = (results[0] + results[2]) / 2
-#     np.testing.assert_almost_equal(results[1], mean, decimal=4)
+    results = []
+    for (x_, y_) in zip(x, y):
+        trajectory = make_trajectory([x_, y_], {'s': s, 'q': q, 'rho': rho})
+        lens = mm.BinaryLensVBBLMagnification(trajectory=trajectory)
+        result = lens.get_magnification()
+        results.append(result)
+
+    # VBBL 2.0.1 was returning:
+    # [1.345365452870409, 1.368843518228974, 1.3442156685350604]
+    # i.e., the second value was wrong.
+    # VBBL 3.5 returns:
+    # [1.3455151798453464, 1.3449680490180915, 1.344226470628085]
+    np.testing.assert_almost_equal(results[2], 1.344226470628085, decimal=5)
+    mean = (results[0] + results[2]) / 2
+    np.testing.assert_almost_equal(results[1], mean, decimal=4)
 
 
-# def test_BinaryLensVBBLMagnification_LD():
-#     """
-#     Make sure VBBL with limb darkening works properly
-#     """
-#     s = 0.8
-#     q = 0.001
-#     x = 0.001
-#     y = 0.001
-#     rho = 0.001
+def test_BinaryLensVBBLMagnification_LD():
+    """
+    Make sure VBBL with limb darkening works properly.
 
-#     trajectory = make_trajectory([x, y], {'s': s, 'q': q, 'rho': rho})
-#     lens_LD = mm.BinaryLensVBBLMagnification(u_limb_darkening=0.51, trajectory=trajectory)
-#     result_LD = lens_LD.get_magnification()
-#     lens = mm.BinaryLensVBBLMagnification(trajectory=trajectory)
-#     result = lens.get_magnification()
+    This function should be REMOVED in version 4.0.0.
+    """
+    s = 0.8
+    q = 0.001
+    x = 0.001
+    y = 0.001
+    rho = 0.001
 
-#     np.testing.assert_almost_equal(result_LD, 683.31177335)
-#     np.testing.assert_almost_equal(result, 687.80333614)
-#     # Above values are taken from VBBL.
+    trajectory = make_trajectory([x, y], {'s': s, 'q': q, 'rho': rho})
+    lens_LD = mm.BinaryLensVBBLMagnification(u_limb_darkening=0.51, trajectory=trajectory)
+    result_LD = lens_LD.get_magnification()
+    lens = mm.BinaryLensVBBLMagnification(trajectory=trajectory)
+    result = lens.get_magnification()
+
+    np.testing.assert_almost_equal(result_LD, 683.31177335)
+    np.testing.assert_almost_equal(result, 687.80333614)
+    # Above values are taken from VBBL.
 
 
 def test_BinaryLensAdaptiveContouringMagnification():

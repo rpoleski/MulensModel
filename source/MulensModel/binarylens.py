@@ -326,6 +326,13 @@ class BinaryLensPointSourceVBMMagnification(_BinaryLensPointSourceMagnification)
         return self._vbm.BinaryMag0(separation, self._q, x, y)
 
 
+class BinaryLensPointSourceVBBLMagnification(BinaryLensPointSourceVBMMagnification):
+    """
+    Same as BinaryLensPointSourceVBMMagnification left for backward compatibility.
+    """
+    pass
+
+
 class BinaryLensPointSourceMagnification(_BinaryLensPointSourceMagnification):
     """
     Optimal class for calculation of point-source binary-lens magnification:
@@ -581,6 +588,13 @@ class BinaryLensVBMMagnification(_BinaryLensPointSourceMagnification, _LimbDarke
                 self._vbm.RelTol = self._relative_accuracy
 
         return self._vbm_function(*args)
+
+
+class BinaryLensVBBLMagnification(BinaryLensVBMMagnification):
+    """
+    Same as BinaryLensVBMMagnification left for backward compatibility.
+    """
+    pass
 
 
 class BinaryLensAdaptiveContouringMagnification(_BinaryLensPointSourceMagnification, _LimbDarkeningForMagnification,

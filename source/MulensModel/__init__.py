@@ -3,7 +3,8 @@ from os import path
 from MulensModel.binarylens import BinaryLensPointSourceWM95Magnification, \
     BinaryLensPointSourceVBMMagnification, BinaryLensPointSourceMagnification, \
     BinaryLensQuadrupoleMagnification, BinaryLensHexadecapoleMagnification, \
-    BinaryLensVBMMagnification, BinaryLensAdaptiveContouringMagnification
+    BinaryLensVBMMagnification, BinaryLensAdaptiveContouringMagnification, \
+    BinaryLensPointSourceVBBLMagnification, BinaryLensVBBLMagnification
 from MulensModel.binarylenswithshear import \
     BinaryLensPointSourceWithShearWM95Magnification, \
     BinaryLensPointSourceWithShearVBMMagnification
