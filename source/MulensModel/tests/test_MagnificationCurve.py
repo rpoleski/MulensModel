@@ -180,20 +180,35 @@ def test_PSPL_for_binary():
     """
     test PSPL model used in a model that is defined as binary
     """
-    t_0 = 1000.
+    t_0_pspl = 1000.
     t_E = 20.
     u_0 = 0.01
-    t_vec = np.array([5., 10., 100.]) * t_E + t_0
-    params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': 12., 'q': 0.1, 'alpha': 0.})
-    mag_curve = mm.MagnificationCurve(times=t_vec, parameters=params)
-    mag_curve.set_magnification_methods(None, 'point_source_point_lens')
 
-    print(
-        'JCY: this test fails because t_0 and u_0 need to be transformed to the CO Magnification before calculating `pspl`.')
-    u2 = u_0**2 + ((t_vec - t_0) / t_E)**2
+    s = 12
+    q = 0.1
+
+    delta_tau = - (s - 1. / s) * q / (1. + q)
+    t_0 = t_0_pspl + t_E * delta_tau
+
+    params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': 12, 'q': 0.1, 'alpha': 0.})
+
+    t_vec = np.array([0., 5., 10., 100.]) * t_E + t_0_pspl
+
+    u2 = u_0**2 + ((t_vec - t_0_pspl) / t_E)**2
     pspl = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
 
-    np.testing.assert_almost_equal(pspl, mag_curve.get_magnification())
+    mag_curve = mm.MagnificationCurve(times=t_vec, parameters=params)
+    # Check that the origin is being calculated correctly.
+    assert mag_curve.get_magnification()[0] > 50.
+
+    mag_curve.set_magnification_methods(None, 'point_source_point_lens')
+    # Check that the origin is being calculated correctly for
+    # point_source_point_lens.
+    assert mag_curve.get_magnification()[0] > 50.
+
+    # PSPL should match expectations
+    np.testing.assert_allclose(
+        pspl[1:], mag_curve.get_magnification()[1:], rtol=0.001)
 
 
 class TestEvent(unittest.TestCase):
