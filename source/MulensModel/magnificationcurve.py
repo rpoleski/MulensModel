@@ -386,35 +386,6 @@ class MagnificationCurve(object):
 
         return self._get_magnification_universal()
 
-    #def _get_point_lens_magnification_curve_for_2L1S(self, selection):
-    #    if self.parameters.s < 1.:
-    #        pspl_parameters = self.parameters
-    #    else:
-    #        delta_x = ((self.parameters.q / (1. + self.parameters.q)) *
-    #                   ((1. / self.parameters.s ) - self.parameters.s ))
-    #        delta_u0 = delta_x * np.sin(np.deg2rad(self.parameters.alpha))
-    #        delta_t0 = delta_x * self.parameters.t_E * np.cos(
-    #            np.deg2rad(self.parameters.alpha))
-    #        pspl = {key: value for key, value in self.parameters.parameters.items()}
-    #        pspl['t_0'] -= delta_t0
-    #        pspl['u_0'] -= delta_u0
-    #
-    #        # Keep the same reference times
-    #        if 'pi_E_E' in self.parameters.parameters.keys():
-    #            pspl['t_0_par'] = self.parameters.t_0_par
-    #
-    #        if 'ds_dt' in self.parameters.parameters.keys():
-    #            pspl['t_0_kep'] = self.parameters.t_0_kep
-    #
-    #        if 'xi_period' in self.parameters.parameters.keys():
-    #            pspl['t_0_xi'] = self.parameters.t_0_xi
-    #
-    #        pspl_parameters = mm.ModelParameters(pspl)
-    #        # change of origin is probably a problem for orbital motion.
-    #
-    #    trajectory = self._setup_trajectory(selection, parameters=pspl_parameters)
-    #    return mm.pointlens.PointSourcePointLensMagnification(trajectory=trajectory)
-
     def _set_binary_lens_magnification_objects(self):
         """ For simple binary lens models, create a *dict* of magnification
         objects corresponding to the user-specified magnification methods."""
