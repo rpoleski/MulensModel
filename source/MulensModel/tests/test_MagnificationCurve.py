@@ -182,7 +182,7 @@ def test_PSPL_for_binary():
     """
     t_0 = 1000.
     t_E = 20.
-    u_0 = 1.
+    u_0 = 0.01
     t_vec = np.array([5., 10., 100.]) * t_E + t_0
     params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': 12., 'q': 0.1, 'alpha': 0.})
     mag_curve = mm.MagnificationCurve(times=t_vec, parameters=params)
