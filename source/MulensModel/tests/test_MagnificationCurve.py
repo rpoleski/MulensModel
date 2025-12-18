@@ -327,10 +327,13 @@ class FSMethodWarningsTest(unittest.TestCase):
 
 
 class PSPLforBinaryTest(unittest.TestCase):
+    """
+    Test the point_source_point_lens magnification calculation is correct.
+    """
 
     def setUp(self) -> None:
-        self.t_0 = 0.
-        self.u_0 = 0.02
+        self.t_0 = 8000.
+        self.u_0 = 0.02 # HM events are important for the tests.
         self.t_E = 20.
         self.s = 10.
         self.q = 0.05
@@ -339,12 +342,16 @@ class PSPLforBinaryTest(unittest.TestCase):
             't_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E,
             's': self.s, 'q': self.q, 'alpha': self.alpha}
 
-    def _do_test(self, params, coords=None):
+    def _gen_pspl_binary_model(self, params, coords=None):
+        pspl_binary_model = mm.Model(params, coords=coords)
+        pspl_binary_model.default_magnification_method = 'point_source_point_lens'
+        return pspl_binary_model
+
+    def _do_low_mag_test(self, params, coords=None):
         binary_model = mm.Model(params, coords=coords)
         binary_model.default_magnification_method = 'point_source'
 
-        pspl_binary_model = mm.Model(params, coords=coords)
-        pspl_binary_model.default_magnification_method = 'point_source_point_lens'
+        pspl_binary_model = self._gen_pspl_binary_model(params, coords=coords)
 
         np.testing.assert_allclose(
             pspl_binary_model.get_magnification(self.t_0),
@@ -357,17 +364,26 @@ class PSPLforBinaryTest(unittest.TestCase):
         )
 
     def test_pspl(self):
-        self._do_test(self.binary_params)
+        """
+        At low magnifications (large tau), the magnification calculated with
+        point_source_point_lens should be equivalent to the magnification
+        calculated with point_source.
+        """
+        self._do_low_mag_test(self.binary_params)
 
     def test_pspl_w_piE(self):
+        """
+        ... EVEN in the presence of parallax.
+        """
         par_params = {key: value for key, value in self.binary_params.items()}
         par_params['pi_E_E'] = 0.5
         par_params['pi_E_N'] = 10.
         coords = '18:00:00 -30:00:00'
-        self._do_test(par_params, coords=coords)
+        self._do_low_mag_test(par_params, coords=coords)
 
     def test_pspl_w_orb(self):
+        """... EVEN in the presence of lens orbital motion."""
         orb_params = {key: value for key, value in self.binary_params.items()}
         orb_params['ds_dt'] = 10.0
         orb_params['dalpha_dt'] = 30.
-        self._do_test(orb_params)
+        self._do_low_mag_test(orb_params)
