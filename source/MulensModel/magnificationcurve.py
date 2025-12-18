@@ -208,19 +208,16 @@ class MagnificationCurve(object):
             else:
                 self._set_binary_lens_w_shear_magnification_objects()
 
-    def _setup_trajectory(self, selection, parameters=None):
+    def _setup_trajectory(self, selection):
         """ Create a trajectory object for a given subset of the data
         specified by *selection*. """
-        if parameters is None:
-            parameters = self.parameters
-
         if self.satellite_skycoord is not None:
             satellite_skycoord = self.satellite_skycoord[selection]
         else:
             satellite_skycoord = None
 
         trajectory = mm.Trajectory(
-            self.times[selection], parameters=parameters,
+            self.times[selection], parameters=self.parameters,
             parallax=self.parallax, coords=self.coords,
             satellite_skycoord=satellite_skycoord)
         return trajectory
