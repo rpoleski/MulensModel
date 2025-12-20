@@ -13,7 +13,7 @@
 {\LARGE Methods to calculate magnification in \MM}\\
 \bigskip
 Radek Poleski\\
-last update: Nov 2022
+last update: Dec 2025
 \end{center}
 
 \bigskip\bigskip
@@ -27,7 +27,7 @@ passed in a list, e.g.:
 \begin{verbatim}
 model = Model(...)
 model.set_magnification_methods(
-    [2455745., 'Hexadecapole', 2455746., 'VBBL', 2455747., 'Hexadecapole', 2455748.])
+    [2455745., 'Hexadecapole', 2455746., 'VBM', 2455747., 'Hexadecapole', 2455748.])
 \end{verbatim}
 
 There are two other useful functions. 
@@ -35,7 +35,7 @@ First, {\tt set\_default\_magnification\_method()}\linebreak allows setting meth
 is used outside time ranges specified above.  
 Second, \linebreak{\tt set\_magnification\_methods\_parameters()} allows 
 providing additional parameters for calculations.  Currently, only 
-{\tt VBBL} and {\tt Adaptive\_Contouring} allow providing these parameters. 
+{\tt VBM} and {\tt Adaptive\_Contouring} allow providing these parameters. 
 
 \bigskip\bigskip
 Point lens methods:
@@ -58,7 +58,7 @@ Binary lens methods:
 \item {\tt point\_source} -- assumes the source is just a point (hence not valid near caustics) and solves fifth order complex polynomial once.
 \item {\tt quadrupole} -- uses Taylor expansion -- evaluates point-source magnification at 9 points.  Works only outside caustic.
 \item {\tt hexadecapole} -- uses Taylor expansion -- evaluates point-source magnification at 13 points.  Works only outside caustic.
-\item {\tt VBBL} -- Bozza (2010) method -- finite source with limb darkening.  Most widely used method nowadays.  Parameters that ca be set: {\tt accuracy}.
+\item {\tt VBM} -- Bozza (2010) method -- finite source with limb darkening.  Most widely used method nowadays.  Parameters that ca be set: {\tt accuracy}.  This method replaces \texttt{VBBL} but both names are accepted
 \item {\tt Adaptive\_Contouring} -- Dominik (2007) method -- finite source with limb darkening.  Parameters that can be set: {\tt accuracy} and {\tt ld\_accuracy}.
 \item {\tt point\_source\_point\_lens} -- approximates binary lens as a single lens.  It is useful when binary lens effects are negligible and binary lens calculations may cause numerical errors, e.g., $q\approx10^{-6}$ and source far from caustics.  
 \end{itemize}
