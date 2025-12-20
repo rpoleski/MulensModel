@@ -42,10 +42,9 @@ hexadecapole approximation:
 [Gould 2008 ApJ, 681, 1593](https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract) and 
 [Pejcha & Heyrovsky 2009 ApJ, 690, 1772](https://ui.adsabs.harvard.edu/abs/2009ApJ...690.1772P/abstract)
 
-VBM/VBBL: 
+VBBL: 
 [Bozza 2010 MNRAS, 408, 2188](https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract) and 
 [Bozza et al. 2018 MNRAS 479, 5157](https://ui.adsabs.harvard.edu/abs/2018MNRAS.479.5157B/abstract)
-[Bozza et al. 2025 A&A 694, 219](https://ui.adsabs.harvard.edu/abs/2025A%26A...694A.219B/abstract)
 
 Adaptive Contouring:
 [Dominik 2007 MNRAS, 377, 1679](https://ui.adsabs.harvard.edu/abs/2007MNRAS.377.1679D/abstract)

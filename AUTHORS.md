@@ -15,7 +15,7 @@ People who have written parts of the code:
 * [Zosia Budzik](https://github.com/SophieBudzik) - Keplerian unit tests
 
 The code would not be in the state it is without modules that are imported by MulensModel. Special thanks to:
-* [Valerio Bozza](https://github.com/valboz) - for VBM/VBBL
+* [Valerio Bozza](https://github.com/valboz) - for VBBL
 * [Jan Skowron](https://github.com/jskowron) - for Skowron & Gould root solver
 * Andrew Gould - for Skowron & Gould root solver
 * Martin Dominik - for AdaptiveContouring
