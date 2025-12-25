@@ -28,9 +28,9 @@ model = mm.Model(parameters)
 model_1 = mm.Model(parameters_1)
 model_2 = mm.Model(parameters_2)
 
-model.set_magnification_methods([t_start, 'VBBL', t_stop])
-model_1.set_magnification_methods([t_start, 'VBBL', t_stop])
-model_2.set_magnification_methods([t_start, 'VBBL', t_stop])
+model.set_magnification_methods([t_start, 'VBM', t_stop])
+model_1.set_magnification_methods([t_start, 'VBM', t_stop])
+model_2.set_magnification_methods([t_start, 'VBM', t_stop])
 
 # Make magnification plots:
 plt.figure()

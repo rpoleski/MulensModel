@@ -172,7 +172,7 @@ class UlensModelFit(object):
 
             ``'methods parameters'`` - dict of dicts that add more parameters
             that are passed to methods calculating magnification; typical call:
-            ``'VBBL': {'accuracy': 0.01}``
+            ``'VBM': {'accuracy': 0.01}``
 
             ``'limb darkening u'`` - specifies a *dict* that gives limb
             darkening coefficients in "u" convention, e.g.,

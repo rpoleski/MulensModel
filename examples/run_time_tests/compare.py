@@ -29,9 +29,9 @@ mm_model = mm.Model(params, coords=coords)
 mm_mag = mm_model.magnification(time)
 plt.plot(time-d_time, mm_mag, 'r.', label='MulensModel')
 
-# Read VBBL output and plot it:
-vbbl_data = np.loadtxt("fake.out", unpack=True)
-plt.plot(vbbl_data[0], vbbl_data[1], 'g-.', label='VBBL')
+# Read VBM output and plot it:
+vbm_data = np.loadtxt("fake.out", unpack=True)
+plt.plot(vbm_data[0], vbm_data[1], 'g-.', label='VBM')
 
 # This are the changes I have to make to make the results as close as possible:
 pi_E_E = -pi_E_E

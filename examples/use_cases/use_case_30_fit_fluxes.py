@@ -73,7 +73,7 @@ params = {'t_0': 2457568.7692, 'u_0': 0.05321, 't_E': 9.96, 'rho': 0.00290,
           'alpha': np.rad2deg(-0.9684), 's': 0.9842, 'q': 0.0000543}
 model = MulensModel.Model(params)
 
-methods = [2457560., 'VBBL', 2457580.]
+methods = [2457560., 'VBM', 2457580.]
 
 model.set_magnification_methods(methods)
 model.set_default_magnification_method('point_source_point_lens')
