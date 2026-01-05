@@ -2,6 +2,12 @@
 
 <dl>MulensModel is package for modeling microlensing (or &mu;-lensing) events. </dl>
 
+## Roman Microlensing Data Challenge 2026 (RMDC26)
+
+[RMDC26](https://rges-pit.org/data-challenge/) was announced in Jan 2026. If you want to participate, then you're welcome to use MulensModel. It's possible some new features will be needed. In that case, please [open an issue](https://github.com/rpoleski/MulensModel/issues/new) and we will try to help.
+
+## Documentation
+
 <!-- ![example workflow](https://github.com/alpv95/MulensModel/actions/workflows/tests.yml/badge.svg) -->
 
 [**Detailed documentation: https://rpoleski.github.io/MulensModel/**](https://rpoleski.github.io/MulensModel/)
@@ -61,4 +67,4 @@ If you want to contribute to MulensModel, then please see [this file](CONTRIBUTI
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/MulensModel)
 ![example workflow](https://github.com/rpoleski/MulensModel/actions/workflows/python-app.yml/badge.svg)
 
-file revised Nov 2025
+file revised Jan 2026
