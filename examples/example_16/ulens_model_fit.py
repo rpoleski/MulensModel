@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.55.0'
+__version__ = '0.55.1'
 
 
 class UlensModelFit(object):
@@ -3094,7 +3094,7 @@ class UlensModelFit(object):
         if key in self._fit_constraints:
             prior_type, power, sigma, datasets = self._fit_constraints[key]
 
-            rho_ratio = self._model.parameters.parameters['rho_1']/self._model.parameters.parameters['rho_2']**power
+            rho_ratio = (self._model.parameters.parameters['rho_1']/self._model.parameters.parameters['rho_2'])**power
             for i, dataset in enumerate(self._datasets):
                 if i in datasets:
                     index1 = self._get_index_of_flux(i, 0)
