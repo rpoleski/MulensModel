@@ -402,3 +402,9 @@ class PSPLforBinaryTest(unittest.TestCase):
         orb_params['ds_dt'] = 10.0
         orb_params['dalpha_dt'] = 30.
         self._do_low_mag_test(orb_params)
+
+    def test_close_model(self):
+        """ The s<1 case should also work."""
+        close_params = {key: value for key, value in self.binary_params.items()}
+        close_params['s'] = 0.8
+        self._do_low_mag_test(close_params)
