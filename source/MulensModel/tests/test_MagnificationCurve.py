@@ -180,16 +180,35 @@ def test_PSPL_for_binary():
     """
     test PSPL model used in a model that is defined as binary
     """
-    t_0 = 1000.
+    t_0_pspl = 1000.
     t_E = 20.
-    u_0 = 1.
-    t_vec = np.array([10., 100.]) * t_E + t_0
-    params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': 1.2, 'q': 0.1, 'alpha': 0.})
-    mag_curve = mm.MagnificationCurve(times=t_vec, parameters=params)
-    mag_curve.set_magnification_methods(None, 'point_source_point_lens')
-    u2 = u_0**2 + ((t_vec - t_0) / t_E)**2
+    u_0 = 0.01
+
+    s = 12
+    q = 0.1
+
+    delta_tau = - (s - 1. / s) * q / (1. + q)
+    t_0 = t_0_pspl + t_E * delta_tau
+
+    params = mm.ModelParameters({'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': 12, 'q': 0.1, 'alpha': 0.})
+
+    t_vec = np.array([0., 5., 10., 100.]) * t_E + t_0_pspl
+
+    u2 = u_0**2 + ((t_vec - t_0_pspl) / t_E)**2
     pspl = (u2 + 2.) / np.sqrt(u2 * (u2 + 4.))
-    np.testing.assert_almost_equal(pspl, mag_curve.get_magnification())
+
+    mag_curve = mm.MagnificationCurve(times=t_vec, parameters=params)
+    # Check that the origin is being calculated correctly.
+    assert mag_curve.get_magnification()[0] > 50.
+
+    mag_curve.set_magnification_methods(None, 'point_source_point_lens')
+    # Check that the origin is being calculated correctly for
+    # point_source_point_lens.
+    assert mag_curve.get_magnification()[0] > 50.
+
+    # PSPL should match expectations
+    np.testing.assert_allclose(
+        pspl[1:], mag_curve.get_magnification()[1:], rtol=0.001)
 
 
 class TestEvent(unittest.TestCase):
@@ -320,3 +339,66 @@ class FSMethodWarningsTest(unittest.TestCase):
 
         with self.assertWarns(UserWarning):
             mag_curve.get_magnification()
+
+
+class PSPLforBinaryTest(unittest.TestCase):
+    """
+    Test the point_source_point_lens magnification calculation is correct.
+    """
+
+    def setUp(self) -> None:
+        self.t_0 = 2458000.
+        self.u_0 = 0.02 # HM events are important for the tests.
+        self.t_E = 20.
+        self.s = 10.
+        self.q = 0.05
+        self.alpha = 160.
+        self.binary_params = {
+            't_0': self.t_0, 'u_0': self.u_0, 't_E': self.t_E,
+            's': self.s, 'q': self.q, 'alpha': self.alpha}
+
+    def _gen_pspl_binary_model(self, params, coords=None):
+        pspl_binary_model = mm.Model(params, coords=coords)
+        pspl_binary_model.default_magnification_method = 'point_source_point_lens'
+        return pspl_binary_model
+
+    def _do_low_mag_test(self, params, coords=None):
+        binary_model = mm.Model(params, coords=coords)
+        binary_model.default_magnification_method = 'point_source'
+
+        pspl_binary_model = self._gen_pspl_binary_model(params, coords=coords)
+
+        np.testing.assert_allclose(
+            pspl_binary_model.get_magnification(self.t_0),
+            binary_model.get_magnification(self.t_0), rtol=2.)
+
+        np.testing.assert_allclose(
+            pspl_binary_model.get_magnification(self.t_0 + 2.5 * self.t_E),
+            binary_model.get_magnification(self.t_0 + 2.5 * self.t_E),
+            rtol=0.002
+        )
+
+    def test_pspl(self):
+        """
+        At low magnifications (large tau), the magnification calculated with
+        point_source_point_lens should be equivalent to the magnification
+        calculated with point_source.
+        """
+        self._do_low_mag_test(self.binary_params)
+
+    def test_pspl_w_piE(self):
+        """
+        ... EVEN in the presence of parallax.
+        """
+        par_params = {key: value for key, value in self.binary_params.items()}
+        par_params['pi_E_E'] = 0.5
+        par_params['pi_E_N'] = 10.
+        coords = '18:00:00 -30:00:00'
+        self._do_low_mag_test(par_params, coords=coords)
+
+    def test_pspl_w_orb(self):
+        """... EVEN in the presence of lens orbital motion."""
+        orb_params = {key: value for key, value in self.binary_params.items()}
+        orb_params['ds_dt'] = 10.0
+        orb_params['dalpha_dt'] = 30.
+        self._do_low_mag_test(orb_params)
