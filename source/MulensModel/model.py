@@ -717,7 +717,7 @@ class Model(object):
                 See also :py:func:`get_satellite_coords()`
 
         Returns :
-            trajectories: `:py:class:`~MulensModel.trajectory.Trajectory` object or a *list* of them
+            trajectories: :py:class:`~MulensModel.trajectory.Trajectory` object or a *list* of them
                 Single object for single source model, a *list* otherwise.
         """
         if satellite_skycoord is None:
