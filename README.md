@@ -4,6 +4,8 @@
 
 ## Roman Microlensing Data Challenge 2026 (RMDC26)
 
+<img style="float: right;" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Nancy_Grace_Roman_Space_Telescope_Illustrations_%28Roman_Title_1%29.jpg/960px-Nancy_Grace_Roman_Space_Telescope_Illustrations_%28Roman_Title_1%29.jpg">
+
 [RMDC26](https://rges-pit.org/data-challenge/) was announced in Jan 2026. If you want to participate, then you're welcome to use MulensModel. It's possible some new features will be needed. In that case, please [open an issue](https://github.com/rpoleski/MulensModel/issues/new) and we will try to help.
 
 ## Documentation
