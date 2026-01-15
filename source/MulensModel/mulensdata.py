@@ -18,8 +18,8 @@ class MulensData(object):
 
         data = MulensData(data_list=[[Dates], [Magnitudes], [Errors]])
 
-    **Parallax calculations assume that the dates supplied are
-    BJD_TDB. See** :py:class:`~MulensModel.trajectory.Trajectory`. If
+    **Parallax calculations assume that the dates supplied are BJD_TDB. See**
+    :py:class:`~MulensModel.trajectory.Trajectory`. If
     you aren't using parallax, the time system shouldn't matter as
     long as it is consistent across all MulensData and Model objects.
     If you have multiple datasets, then you also need multiple instances
@@ -56,12 +56,6 @@ class MulensData(object):
            getting satellite positions.
            Note that there is no check on time format (e.g., BJD TBD vs. HJD)
            and it should be the same as in *data_list* or *file_name*.
-
-        satellite_skycoord: *astropy.coordinates.SkyCoord*, optional
-            You can provide satellite positions as an instance of
-            :py:class:`~MulensModel.satelliteskycoord.SatelliteSkyCoord`. Useful if you want to
-            copy satellite positions from another MulensData instance. ``ephemerides_file`` is ignored if
-            this keyword is provided, but should be provided nevertheless.
 
         add_2450000: *boolean*, optional
             Adds 2450000 to the input dates. Useful if the dates
@@ -105,6 +99,12 @@ class MulensData(object):
                 show_bad: *boolean*, optional
                     Whether or not to plot data points flagged as bad.
 
+        satellite_skycoord: *astropy.coordinates.SkyCoord*, optional
+            You can provide satellite positions as an instance of
+            :py:class:`~MulensModel.satelliteskycoord.SatelliteSkyCoord`. Useful if you want to
+            copy satellite positions from another MulensData instance. The ``ephemerides_file`` is ignored if
+            this keyword is provided, but should be provided nevertheless.
+
         ``**kwargs``:
             Kwargs passed to np.loadtxt(). Works only if ``file_name`` is set.
 
@@ -118,11 +118,9 @@ class MulensData(object):
 
     """
 
-    def __init__(self, data_list=None, file_name=None,
-                 phot_fmt="mag", chi2_fmt="flux",
-                 ephemerides_file=None, satellite_skycoord=None, add_2450000=False,
-                 add_2460000=False, bandpass=None, bad=None, good=None,
-                 plot_properties=None, **kwargs):
+    def __init__(self, data_list=None, file_name=None, phot_fmt="mag", chi2_fmt="flux", ephemerides_file=None,
+                 add_2450000=False, add_2460000=False, bandpass=None, bad=None, good=None, plot_properties=None,
+                 satellite_skycoord=None, **kwargs):
 
         self._n_epochs = None
         self._horizons = None
@@ -748,10 +746,8 @@ class MulensData(object):
             raise ValueError('ephemerides_file is not defined.')
 
         if self._satellite_skycoord is None:
-            satellite_skycoord = SatelliteSkyCoord(
-                ephemerides_file=self.ephemerides_file)
-            self._satellite_skycoord = satellite_skycoord.get_satellite_coords(
-                self._time)
+            satellite_skycoord = SatelliteSkyCoord(ephemerides_file=self.ephemerides_file)
+            self._satellite_skycoord = satellite_skycoord.get_satellite_coords(self._time)
 
         return self._satellite_skycoord
 
@@ -798,13 +794,10 @@ class MulensData(object):
 
         data_and_err = self.data_and_err_in_input_fmt()
         kwargs = {
-            'data_list': [self.time, *list(data_and_err)],
-            'phot_fmt': self.input_fmt, 'chi2_fmt': self._chi2_fmt,
+            'data_list': [self.time, *list(data_and_err)], 'phot_fmt': self.input_fmt, 'chi2_fmt': self._chi2_fmt,
             'ephemerides_file': self._ephemerides_file,
-            'satellite_skycoord': copy_satellite_skycoord,
-            'add_2450000': False, 'add_2460000': False,
-            'bandpass': self.bandpass, 'bad': np.array(self.bad),
-            'plot_properties': {**self.plot_properties}
+            'add_2450000': False, 'add_2460000': False, 'bandpass': self.bandpass, 'bad': np.array(self.bad),
+            'plot_properties': {**self.plot_properties}, 'satellite_skycoord': copy_satellite_skycoord
             }
 
         out = MulensData(**kwargs)
