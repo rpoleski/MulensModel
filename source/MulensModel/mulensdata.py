@@ -790,12 +790,10 @@ class MulensData(object):
             mulens_data: :py:class:`~MulensModel.mulensdata.MulensData`
                 Copy of self.
         """
-        satellite_skycoord = None
         copy_satellite_skycoord = None
 
         if self._ephemerides_file is not None:
             satellite_skycoord = self.satellite_skycoord  # Force calculation of satellite coords.
-        if satellite_skycoord is not None:
             copy_satellite_skycoord = satellite_skycoord.copy()
 
         data_and_err = self.data_and_err_in_input_fmt()
