@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>MulensModel.magnificationcurve module &#8212; MulensModel 3.7.0 documentation</title>
+    <title>MulensModel.magnificationcurve module &#8212; MulensModel 3.9.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -84,7 +84,7 @@ method will be used for times between the times
 between which it is on the list, e.g.,</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">methods</span> <span class="o">=</span> <span class="p">[</span>
     <span class="mf">2455746.</span><span class="p">,</span> <span class="s1">&#39;Quadrupole&#39;</span><span class="p">,</span> <span class="mf">2455746.6</span><span class="p">,</span> <span class="s1">&#39;Hexadecapole&#39;</span><span class="p">,</span>
-    <span class="mf">2455746.7</span><span class="p">,</span> <span class="s1">&#39;VBBL&#39;</span><span class="p">,</span> <span class="mf">2455747.</span><span class="p">,</span> <span class="s1">&#39;Hexadecapole&#39;</span><span class="p">,</span>
+    <span class="mf">2455746.7</span><span class="p">,</span> <span class="s1">&#39;VBM&#39;</span><span class="p">,</span> <span class="mf">2455747.</span><span class="p">,</span> <span class="s1">&#39;Hexadecapole&#39;</span><span class="p">,</span>
     <span class="mf">2455747.15</span><span class="p">,</span> <span class="s1">&#39;Quadrupole&#39;</span><span class="p">,</span> <span class="mf">2455748.</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -105,7 +105,7 @@ specified in <em>methods</em>.</p>
 <dt>Parameters :</dt><dd><dl class="simple">
 <dt>methods_parameters: <em>dict</em></dt><dd><p>Dictionary that for method names (keys) returns dictionary
 in the form of <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> that are passed to given method,
-e.g., <code class="docutils literal notranslate"><span class="pre">{'VBBL':</span> <span class="pre">{'accuracy':</span> <span class="pre">0.005}}</span></code>.</p>
+e.g., <code class="docutils literal notranslate"><span class="pre">{'VBM':</span> <span class="pre">{'accuracy':</span> <span class="pre">0.005}}</span></code>.</p>
 </dd>
 </dl>
 </dd>
@@ -201,22 +201,19 @@ See
 <dt><code class="docutils literal notranslate"><span class="pre">hexadecapole</span></code>:</dt><dd><p>From <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract">Gould 2008 ApJ, 681, 1593</a> See
 <code class="xref py py-func docutils literal notranslate"><span class="pre">hexadecapole_magnification()</span></code></p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">VBBL</span></code>:</dt><dd><p>Uses VBBinaryLensing (a Stokes theorem/contour
-integration code) by Valerio Bozza
-(<a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract">Bozza 2010 MNRAS, 408, 2188</a>).
-See
-<code class="xref py py-func docutils literal notranslate"><span class="pre">vbbl_magnification()</span></code></p>
+<dt><code class="docutils literal notranslate"><span class="pre">VBM</span></code>:</dt><dd><p>Uses VBMicrolensing (a Stokes theorem/contour integration code) by Valerio Bozza
+(<a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract">Bozza 2010 MNRAS, 408, 2188</a>).</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">Adaptive_Contouring</span></code>:</dt><dd><p>Uses AdaptiveContouring (a Stokes theorem/contour
-integration code) by Martin Dominik
+<dt><code class="docutils literal notranslate"><span class="pre">VBBL</span></code>:</dt><dd><p>same as <code class="docutils literal notranslate"><span class="pre">VBM</span></code> for backward compatibility.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">Adaptive_Contouring</span></code>:</dt><dd><p>Uses AdaptiveContouring (a Stokes theorem/contour integration code) by Martin Dominik
 (<a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2007MNRAS.377.1679D/abstract">Dominik 2007 MNRAS, 377, 1679</a>).
 See
 <code class="xref py py-func docutils literal notranslate"><span class="pre">adaptive_contouring_magnification()</span></code></p>
 <p>Note that it doesn’t work if shear or convergence are set.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">point_source_point_lens</span></code>:</dt><dd><p>Uses point-source _point_-_lens_ approximation; useful when you
-consider binary lens but need magnification very far from
-the lens (e.g. at separation u = 100).</p>
+<dt><code class="docutils literal notranslate"><span class="pre">point_source_point_lens</span></code>:</dt><dd><p>Uses point-source _point_-_lens_ approximation; useful when you consider binary lens but need
+magnification very far from the lens (e.g. at separation u = 100).</p>
 </dd>
 </dl>
 </dd>
