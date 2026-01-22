@@ -99,12 +99,6 @@ class MulensData(object):
                 show_bad: *boolean*, optional
                     Whether or not to plot data points flagged as bad.
 
-        satellite_skycoord: *astropy.coordinates.SkyCoord*, optional
-            You can provide satellite positions as an instance of
-            :py:class:`~MulensModel.satelliteskycoord.SatelliteSkyCoord`. Useful if you want to
-            copy satellite positions from another MulensData instance. The ``ephemerides_file`` is ignored if
-            this keyword is provided, but should be provided nevertheless.
-
         ``**kwargs``:
             Kwargs passed to np.loadtxt(). Works only if ``file_name`` is set.
 
@@ -120,7 +114,7 @@ class MulensData(object):
 
     def __init__(self, data_list=None, file_name=None, phot_fmt="mag", chi2_fmt="flux", ephemerides_file=None,
                  add_2450000=False, add_2460000=False, bandpass=None, bad=None, good=None, plot_properties=None,
-                 satellite_skycoord=None, **kwargs):
+                 **kwargs):
 
         self._n_epochs = None
         self._horizons = None
@@ -150,7 +144,7 @@ class MulensData(object):
 
         # Set up satellite properties (if applicable)
         self._ephemerides_file = ephemerides_file
-        self._satellite_skycoord = satellite_skycoord
+        self._satellite_skycoord = None
 
     def __repr__(self):
         name = self._get_name()
@@ -786,24 +780,20 @@ class MulensData(object):
             mulens_data: :py:class:`~MulensModel.mulensdata.MulensData`
                 Copy of self.
         """
-        copy_satellite_skycoord = None
-
-        if self._ephemerides_file is not None:
-            satellite_skycoord = self.satellite_skycoord  # Force calculation of satellite coords.
-            copy_satellite_skycoord = satellite_skycoord.copy()
-
         data_and_err = self.data_and_err_in_input_fmt()
         kwargs = {
             'data_list': [self.time, *list(data_and_err)], 'phot_fmt': self.input_fmt, 'chi2_fmt': self._chi2_fmt,
             'ephemerides_file': self._ephemerides_file,
             'add_2450000': False, 'add_2460000': False, 'bandpass': self.bandpass, 'bad': np.array(self.bad),
-            'plot_properties': {**self.plot_properties}, 'satellite_skycoord': copy_satellite_skycoord
+            'plot_properties': {**self.plot_properties}
             }
 
         out = MulensData(**kwargs)
         out._file_name = self._file_name
         out._init_keys['add245'] = self._init_keys['add245']
         out._init_keys['add246'] = self._init_keys['add246']
+        if self._ephemerides_file is not None:
+            out._satellite_skycoord = self.satellite_skycoord.copy()
 
         return out
 
