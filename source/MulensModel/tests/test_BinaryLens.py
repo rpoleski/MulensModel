@@ -133,13 +133,11 @@ def test_BinaryLensVBMMagnification_1():
     """
     check basic magnification calculation using VBM
     """
-    s = 0.8
-    q = 0.1
     x = 0.01
     y = 0.01
-    rho = 0.01
+    params = {'s': 0.8, 'q': 0.1, 'rho': 0.01}
 
-    trajectory = make_trajectory([x, y], {'s': s, 'q': q, 'rho': rho})
+    trajectory = make_trajectory([x, y], params)
     lens = mm.BinaryLensVBMMagnification(trajectory=trajectory)
     result = lens.get_magnification()
     np.testing.assert_almost_equal(result, 18.2834436, decimal=3)
@@ -171,6 +169,19 @@ def test_BinaryLensVBMMagnification_2():
     np.testing.assert_almost_equal(results[2], 1.344226470628085, decimal=5)
     mean = (results[0] + results[2]) / 2
     np.testing.assert_almost_equal(results[1], mean, decimal=4)
+
+def test_BinaryLensVBMMagnification_reltol():
+    """
+    Make sure providing relative_accuracy for VBM works
+    """
+    x = 0.01
+    y = 0.01
+    params = {'s': 0.8, 'q': 0.1, 'rho': 0.01}
+
+    kwargs = {'trajectory': make_trajectory([x, y], params), 'accuracy': 0.5, 'relative_accuracy': 1.e-10}
+    lens = mm.BinaryLensVBMMagnification(**kwargs)
+    result = lens.get_magnification()
+    np.testing.assert_almost_equal(result, 18.288975003)
 
 
 def test_BinaryLensVBMMagnification_LD():
