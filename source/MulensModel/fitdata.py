@@ -147,10 +147,16 @@ class FitData(object):
         """
         self.fit_fluxes()
 
-        # Calculate chi2
-        model_flux = self.get_model_fluxes(bad=bad)
-        diff = self._dataset.flux - model_flux
-        self._chi2_per_point = (diff / self._dataset.err_flux)**2
+        if self._dataset.chi2_fmt == 'flux':
+            model_values = self.get_model_fluxes(bad=bad)
+        elif self._dataset.chi2_fmt == 'mag':
+            model_values = self.get_model_magnitudes(bad=bad)
+        else:
+            raise ValueError('issue with MulensData.chi2_fmt of {:}'.format(self._dataset.chi2_fmt))
+
+        (data, err) = self._dataset.data_and_err_in_chi2_fmt()
+        diff = data - model_values
+        self._chi2_per_point = (diff / err)**2
 
     def _set_data_magnification_curves(self, bad=True):
         if bad:
@@ -214,11 +220,11 @@ class FitData(object):
         """
         y = self._dataset.flux[self._dataset.good]
         x = np.array(self._data_magnification[0][self._dataset.good])
-        self.n_fluxes = 1
+        self._n_fluxes = 1
         for i in range(1, self._model.n_sources):
             if self.fix_source_flux_ratio[i-1] is False:
                 x = np.vstack((x, self._data_magnification[i][self._dataset.good]))
-                self.n_fluxes += 1
+                self._n_fluxes += 1
             else:
                 if len(x.shape) == 1:
                     x += self.fix_source_flux_ratio[i-1] * self._data_magnification[i][self._dataset.good]
@@ -238,21 +244,21 @@ class FitData(object):
             else:
                 x = x[:, self._dataset.good]
 
-            self.n_fluxes = self._model.n_sources
+            self._n_fluxes = self._model.n_sources
         else:
             x = None
-            if self._model.n_sources == 1:
+            if self._model.n_sources == 1 and self.fix_source_flux[0] != 0.:
                 y -= self.fix_source_flux[0] * self._data_magnification[self._dataset.good]
             else:
                 for i in range(self._model.n_sources):
                     if self.fix_source_flux[i] is False:
-                        self.n_fluxes += 1
+                        self._n_fluxes += 1
                         if x is None:
                             x = self._data_magnification[i][self._dataset.good]
                         else:
                             x = np.vstack((x, self._data_magnification[i][self._dataset.good]))
 
-                    else:
+                    elif self.fix_source_flux[i] != 0.:
                         y -= self.fix_source_flux[i] * self._data_magnification[i][self._dataset.good]
 
         return (x, y)
@@ -269,7 +275,7 @@ class FitData(object):
     def _create_arrays(self):
         """ Create x and y arrays"""
         # Initializations
-        self.n_fluxes = 0
+        self._n_fluxes = 0
         n_epochs = np.sum(self._dataset.good)
         self._calculate_magnifications(bad=False)
 
@@ -283,7 +289,7 @@ class FitData(object):
         # Account for free or fixed blending
         # Should do a runtime test to compare with lines 83-94
         if self.fix_blend_flux is False:
-            self.n_fluxes += 1
+            self._n_fluxes += 1
             if x is None:
                 x = np.ones((1, n_epochs))
             else:
@@ -300,7 +306,7 @@ class FitData(object):
         """ Take the transpose of x """
         n_epochs = np.sum(self._dataset.good)
         xT = np.copy(x).T
-        xT.shape = (n_epochs, self.n_fluxes)
+        xT.shape = (n_epochs, self._n_fluxes)
 
         return xT
 
@@ -309,7 +315,7 @@ class FitData(object):
         # Take into account uncertainties
         sigma_inverse = 1. / self._dataset.err_flux[self._dataset.good]
         y *= sigma_inverse
-        xT *= np.array([sigma_inverse] * self.n_fluxes).T
+        xT *= np.array([sigma_inverse] * self._n_fluxes).T
 
         return (xT, y)
 

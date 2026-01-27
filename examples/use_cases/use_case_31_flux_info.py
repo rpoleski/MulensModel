@@ -32,7 +32,7 @@ model = MulensModel.Model(
      'pi_E_N': -0.2154, 'pi_E_E': -0.380,
      'alpha': np.rad2deg(-0.9684), 's': 0.9842, 'q': 0.0000543})
 
-methods = [2457560., 'VBBL', 2457580.]
+methods = [2457560., 'VBM', 2457580.]
 
 model.set_magnification_methods(methods)
 model.set_default_magnification_method('point_source_point_lens')

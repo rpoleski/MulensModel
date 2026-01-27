@@ -37,7 +37,7 @@ Or a model with 2-bodies:
    
    my_1S2L_model = mm.Model({'t_0': 2452848.06, 'u_0': 0.133, 
         't_E': 61.5, 'rho': 0.00096, 'q': 0.0039, 's': 1.120, 
-        'alpha': 223.8})
+        'alpha': 43.8})
 
 (by default alpha is in degrees, but you could explicitly specify radians)
 

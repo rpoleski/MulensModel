@@ -18,6 +18,7 @@
 #
 # import os
 # import sys
+# sys.path.insert(0, os.path.abspath('/home/data/caustic/rpoleski/MulensModel/venv_VBM/lib64/python3.8/site-packages/VBMicrolensing/'))
 # sys.path.insert(0, os.path.abspath('../../source/MulensModel/'))
 from os.path import join, dirname, abspath
 

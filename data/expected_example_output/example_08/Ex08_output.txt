@@ -11,7 +11,7 @@ default magnification method: point_source
     t_0 (HJD)       u_0    t_E (d)     rho         s            q alpha (deg) 
 2460963.60793  0.445415    24.5259 0.00100   1.56450   0.00010000   151.22558 
 default magnification method: point_source
-other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBBL', 2460985.0, 'point_source_point_lens', 2470000.0]
+other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBM', 2460985.0, 'point_source_point_lens', 2470000.0]
         chi2      s       q   alpha     rho
    109588.02 0.6104 0.00001  328.09 1.31522
    109585.99 0.6104 0.00002  339.99 1.31510
@@ -113,27 +113,27 @@ Best Models
     t_0 (HJD)       u_0    t_E (d)     rho         s            q alpha (deg) 
 2460963.60793  0.445415    24.5259 0.00216   0.63918   0.00316228   340.07399 
 default magnification method: point_source
-other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBBL', 2460985.0, 'point_source_point_lens', 2470000.0]
+other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBM', 2460985.0, 'point_source_point_lens', 2470000.0]
     t_0 (HJD)       u_0    t_E (d)     rho         s            q alpha (deg) 
 2460963.60793  0.445415    24.5259 0.00396   0.63918   0.00562341   342.72424 
 default magnification method: point_source
-other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBBL', 2460985.0, 'point_source_point_lens', 2470000.0]
+other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBM', 2460985.0, 'point_source_point_lens', 2470000.0]
     t_0 (HJD)       u_0    t_E (d)     rho         s            q alpha (deg) 
 2460963.60793  0.445415    24.5259 0.00138   0.63918   0.00177828   337.86416 
 default magnification method: point_source
-other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBBL', 2460985.0, 'point_source_point_lens', 2470000.0]
+other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBM', 2460985.0, 'point_source_point_lens', 2470000.0]
     t_0 (HJD)       u_0    t_E (d)     rho         s            q alpha (deg) 
 2460963.60793  0.445415    24.5259 0.00131   0.63918   0.00100000   336.20411 
 default magnification method: point_source
-other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBBL', 2460985.0, 'point_source_point_lens', 2470000.0]
+other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBM', 2460985.0, 'point_source_point_lens', 2470000.0]
     t_0 (HJD)       u_0    t_E (d)     rho         s            q alpha (deg) 
 2460963.60793  0.445415    24.5259 0.00338   1.56450   0.00010000   151.59558 
 default magnification method: point_source
-other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBBL', 2460985.0, 'point_source_point_lens', 2470000.0]
+other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBM', 2460985.0, 'point_source_point_lens', 2470000.0]
     t_0 (HJD)       u_0    t_E (d)     rho         s            q alpha (deg) 
 2460963.60793  0.445415    24.5259 0.00216   0.63918   0.00316228   340.07399 
 default magnification method: point_source
-other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBBL', 2460985.0, 'point_source_point_lens', 2470000.0]
+other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBM', 2460985.0, 'point_source_point_lens', 2470000.0]
        message: Optimization terminated successfully.
        success: True
         status: 0
@@ -155,7 +155,7 @@ other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBBL',
     t_0 (HJD)       u_0    t_E (d)     rho         s            q alpha (deg) 
 2460963.60793  0.445415    24.5259 0.00396   0.63918   0.00562341   342.72424 
 default magnification method: point_source
-other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBBL', 2460985.0, 'point_source_point_lens', 2470000.0]
+other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBM', 2460985.0, 'point_source_point_lens', 2470000.0]
        message: Optimization terminated successfully.
        success: True
         status: 0
@@ -177,7 +177,7 @@ other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBBL',
     t_0 (HJD)       u_0    t_E (d)     rho         s            q alpha (deg) 
 2460963.60793  0.445415    24.5259 0.00138   0.63918   0.00177828   337.86416 
 default magnification method: point_source
-other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBBL', 2460985.0, 'point_source_point_lens', 2470000.0]
+other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBM', 2460985.0, 'point_source_point_lens', 2470000.0]
        message: Maximum number of function evaluations has been exceeded.
        success: False
         status: 1
@@ -199,7 +199,7 @@ other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBBL',
     t_0 (HJD)       u_0    t_E (d)     rho         s            q alpha (deg) 
 2460963.60793  0.445415    24.5259 0.00131   0.63918   0.00100000   336.20411 
 default magnification method: point_source
-other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBBL', 2460985.0, 'point_source_point_lens', 2470000.0]
+other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBM', 2460985.0, 'point_source_point_lens', 2470000.0]
        message: Maximum number of function evaluations has been exceeded.
        success: False
         status: 1
@@ -221,7 +221,7 @@ other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBBL',
     t_0 (HJD)       u_0    t_E (d)     rho         s            q alpha (deg) 
 2460963.60793  0.445415    24.5259 0.00338   1.56450   0.00010000   151.59558 
 default magnification method: point_source
-other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBBL', 2460985.0, 'point_source_point_lens', 2470000.0]
+other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBM', 2460985.0, 'point_source_point_lens', 2470000.0]
        message: Maximum number of function evaluations has been exceeded.
        success: False
         status: 1
@@ -243,6 +243,6 @@ other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBBL',
     t_0 (HJD)       u_0    t_E (d)     rho         s            q alpha (deg) 
 2460963.58989  0.356304    28.3792 0.00106   0.68145   0.00189080   340.29366 
 default magnification method: point_source
-other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBBL', 2460985.0, 'point_source_point_lens', 2470000.0]
+other magnification methods: [0.0, 'point_source_point_lens', 2460982.0, 'VBM', 2460985.0, 'point_source_point_lens', 2470000.0]
 chi2: 30378.942455161367
 Total Runtime: 0:06:49.264090

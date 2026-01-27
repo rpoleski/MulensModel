@@ -16,7 +16,7 @@ data_files = [
     for data_file in DATA_PATH.rglob("*")
     if data_file.is_file()
 ]
-package_data = {"MulensModel": sorted(data_files)}
+package_data = {"mulensmodel": sorted(data_files)}
 
 version = "unknown"
 with Path(SOURCE_PATH / "MulensModel" / "version.py").open() as in_put:
@@ -24,7 +24,7 @@ with Path(SOURCE_PATH / "MulensModel" / "version.py").open() as in_put:
         if line_.startswith('__version__'):
             version = line_.split()[2][1:-1]
 
-source_VBBL = SOURCE_PATH / "VBBL"
+# source_VBBL = SOURCE_PATH / "VBBL"
 source_AC = SOURCE_PATH / "AdaptiveContouring"
 source_MM = SOURCE_PATH / "MulensModel"
 source_MMmo = source_MM / "mulensobjects"
@@ -39,16 +39,16 @@ if platform.system() == "Darwin" and platform.machine() == "arm64":
 ext_AC = Extension(
     "MulensModel.AdaptiveContouring", **kwargs,
     sources=[str(f.relative_to(PROJECT_PATH)) for f in source_AC.glob("*.c")])
-ext_VBBL = Extension(
-    "MulensModel.VBBL", **kwargs,
-    sources=[str(f.relative_to(PROJECT_PATH)) for f in source_VBBL.glob("*.cpp")])
+# ext_VBBL = Extension(
+#     "MulensModel.VBBL", **kwargs,
+#     sources=[str(f.relative_to(PROJECT_PATH)) for f in source_VBBL.glob("*.cpp")])
 
 setup(
-    name='MulensModel',
+    name='mulensmodel',
     version=version,
     url='https://github.com/rpoleski/MulensModel',
     project_urls={'documentation': 'https://github.com/rpoleski/MulensModel'},
-    ext_modules=[ext_AC, ext_VBBL],
+    ext_modules=[ext_AC],  # ext_VBBL],
     author='Radek Poleski & Jennifer Yee',
     author_email='radek.poleski@gmail.com',
     description='package for modeling gravitational microlensing events',

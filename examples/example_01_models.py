@@ -28,7 +28,7 @@ rho = 0.001
 planet = mm.Model(
     {'t_0': t_0, 'u_0': u_0, 't_E': t_E, 's': s, 'q': q, 'alpha': alpha,
      'rho': rho})
-planet.set_magnification_methods([3589., 'VBBL', 3595.])
+planet.set_magnification_methods([3589., 'VBM', 3595.])
 
 # F1: Plot PSPL model
 plt.figure()
