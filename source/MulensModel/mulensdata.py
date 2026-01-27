@@ -18,8 +18,8 @@ class MulensData(object):
 
         data = MulensData(data_list=[[Dates], [Magnitudes], [Errors]])
 
-    **Parallax calculations assume that the dates supplied are
-    BJD_TDB. See** :py:class:`~MulensModel.trajectory.Trajectory`. If
+    **Parallax calculations assume that the dates supplied are BJD_TDB. See**
+    :py:class:`~MulensModel.trajectory.Trajectory`. If
     you aren't using parallax, the time system shouldn't matter as
     long as it is consistent across all MulensData and Model objects.
     If you have multiple datasets, then you also need multiple instances
@@ -112,15 +112,12 @@ class MulensData(object):
 
     """
 
-    def __init__(self, data_list=None, file_name=None,
-                 phot_fmt="mag", chi2_fmt="flux",
-                 ephemerides_file=None, add_2450000=False,
-                 add_2460000=False, bandpass=None, bad=None, good=None,
-                 plot_properties=None, **kwargs):
+    def __init__(self, data_list=None, file_name=None, phot_fmt="mag", chi2_fmt="flux", ephemerides_file=None,
+                 add_2450000=False, add_2460000=False, bandpass=None, bad=None, good=None, plot_properties=None,
+                 **kwargs):
 
         self._n_epochs = None
         self._horizons = None
-        self._satellite_skycoord = None
         self._errorbars_scale = None
 
         self._init_keys = {'add245': add_2450000, 'add246': add_2460000}
@@ -147,6 +144,7 @@ class MulensData(object):
 
         # Set up satellite properties (if applicable)
         self._ephemerides_file = ephemerides_file
+        self._satellite_skycoord = None
 
     def __repr__(self):
         name = self._get_name()
@@ -742,10 +740,8 @@ class MulensData(object):
             raise ValueError('ephemerides_file is not defined.')
 
         if self._satellite_skycoord is None:
-            satellite_skycoord = SatelliteSkyCoord(
-                ephemerides_file=self.ephemerides_file)
-            self._satellite_skycoord = satellite_skycoord.get_satellite_coords(
-                self._time)
+            satellite_skycoord = SatelliteSkyCoord(ephemerides_file=self.ephemerides_file)
+            self._satellite_skycoord = satellite_skycoord.get_satellite_coords(self._time)
 
         return self._satellite_skycoord
 
@@ -786,11 +782,9 @@ class MulensData(object):
         """
         data_and_err = self.data_and_err_in_input_fmt()
         kwargs = {
-            'data_list': [self.time, *list(data_and_err)],
-            'phot_fmt': self.input_fmt, 'chi2_fmt': self._chi2_fmt,
+            'data_list': [self.time, *list(data_and_err)], 'phot_fmt': self.input_fmt, 'chi2_fmt': self._chi2_fmt,
             'ephemerides_file': self._ephemerides_file,
-            'add_2450000': False, 'add_2460000': False,
-            'bandpass': self.bandpass, 'bad': np.array(self.bad),
+            'add_2450000': False, 'add_2460000': False, 'bandpass': self.bandpass, 'bad': np.array(self.bad),
             'plot_properties': {**self.plot_properties}
             }
 
@@ -798,6 +792,8 @@ class MulensData(object):
         out._file_name = self._file_name
         out._init_keys['add245'] = self._init_keys['add245']
         out._init_keys['add246'] = self._init_keys['add246']
+        if self._ephemerides_file is not None:
+            out._satellite_skycoord = self.satellite_skycoord.copy()
 
         return out
 
