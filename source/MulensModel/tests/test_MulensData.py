@@ -9,8 +9,8 @@ import MulensModel as mm
 dir_phot = os.path.join(mm.DATA_PATH, 'photometry_files')
 SAMPLE_FILE_01 = os.path.join(dir_phot, "OB08092", "phot_ob08092_O4.dat")
 SAMPLE_FILE_02 = os.path.join(dir_phot, 'OB140939', 'ob140939_Spitzer.dat')
-SAMPLE_FILE_02_EPH = os.path.join(dir_phot, 'ephemeris_files',
-                                  'Spitzer_ephemeris_01.dat')
+SAMPLE_FILE_02_EPH = os.path.join(mm.DATA_PATH, 'ephemeris_files', 'Spitzer_ephemeris_01.dat')
+print("\n", SAMPLE_FILE_02_EPH)
 
 
 def test_file_read():
@@ -95,17 +95,19 @@ def test_copy():
     n_epochs = len(np.loadtxt(SAMPLE_FILE_01))
     random_bool = np.random.choice([False, True], n_epochs, p=[0.1, 0.9])
 
-    data_1 = mm.MulensData(file_name=SAMPLE_FILE_01, good=random_bool)
+    data_1 = mm.MulensData(file_name=SAMPLE_FILE_02, good=random_bool)
     data = [data_1.time, 100.+0.*data_1.time, 1.+0.*data_1.time]
     data_3 = mm.MulensData(data, phot_fmt='flux', bad=random_bool)
     data_5 = mm.MulensData(data, add_2450000=True)
+    data_7 = mm.MulensData(data, ephemerides_file=SAMPLE_FILE_02_EPH)
 
     data_2 = data_1.copy()
     data_4 = data_3.copy()
     data_6 = data_5.copy()
+    data_8 = data_7.copy()
 
-    data_old = [data_1, data_3, data_5]
-    data_new = [data_2, data_4, data_6]
+    data_old = [data_1, data_3, data_5, data_7]
+    data_new = [data_2, data_4, data_6, data_8]
     for data in data_new:
         assert isinstance(data, mm.MulensData)
 
@@ -200,11 +202,9 @@ def test_repr_5():
     """
     Check if one can print dataset nicely - ephemerides file
     """
-    data = mm.MulensData(file_name=SAMPLE_FILE_02,
-                         ephemerides_file=SAMPLE_FILE_02_EPH)
-    expected_begin = "{0:25} n_epochs ={1:>5}, n_bad ={2:>5}".format(
-        "ob140939_Spitzer.dat:", 31, 0)
-    expected_end = "photometry_files/ephemeris_files/Spitzer_ephemeris_01.dat"
+    data = mm.MulensData(file_name=SAMPLE_FILE_02, ephemerides_file=SAMPLE_FILE_02_EPH)
+    expected_begin = "{0:25} n_epochs ={1:>5}, n_bad ={2:>5}".format("ob140939_Spitzer.dat:", 31, 0)
+    expected_end = "MulensModel/data/ephemeris_files/Spitzer_ephemeris_01.dat"
     assert str(data)[:len(expected_begin)] == expected_begin
     assert str(data)[-len(expected_end):] == expected_end
 
