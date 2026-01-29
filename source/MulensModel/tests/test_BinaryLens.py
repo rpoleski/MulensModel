@@ -177,8 +177,8 @@ def test_BinaryLensVBMMagnification_reltol():
     x = 0.01
     y = 0.01
     params = {'s': 0.8, 'q': 0.1, 'rho': 0.01}
-
-    kwargs = {'trajectory': make_trajectory([x, y], params), 'accuracy': 0.5, 'relative_accuracy': 1.e-10}
+    trajectory = make_trajectory([x, y], params)
+    kwargs = {'trajectory': trajectory, 'accuracy': 0.5, 'relative_accuracy': 1.e-10, 'u_limb_darkening': 0.5}
     lens = mm.BinaryLensVBMMagnification(**kwargs)
     result = lens.get_magnification()
     np.testing.assert_almost_equal(result, 18.288975003)
