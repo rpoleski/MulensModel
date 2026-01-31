@@ -46,6 +46,8 @@ class ModelParameters(object):
         self._count_lenses(parameters.keys())
         self._set_type(parameters.keys())
         self._check_types('alpha' in parameters.keys())
+        self._main = True  # Is it an instance accessed by the user?
+        # It is False for ._source_X_parameters in xallarap model.
 
         if self.n_sources == 1:
             self._check_valid_combination_1_source(parameters.keys())
@@ -75,6 +77,9 @@ class ModelParameters(object):
                     print("ERROR IN INITIALIZING SOURCE {0}".format(i + 1))
                     raise
 
+                # Below we're changing private property of an instance of this class that is not self.
+                self.__getattr__('_source_{0}_parameters'.format(i + 1))._main = False
+
             if self.is_xallarap:
                 self._update_sources_xallarap_reference()
 
@@ -93,7 +98,8 @@ class ModelParameters(object):
         which both are of the same type as self.
         """
         if self.n_sources == 1:
-            self._xallarap_reference_position = self._get_xallarap_position()
+            if self._main:
+                self._xallarap_reference_position = self._get_xallarap_position()
         elif self.n_sources == 2:
             delta_1 = self._source_1_parameters._get_xallarap_position()
             self._source_1_parameters._xallarap_reference_position = delta_1
