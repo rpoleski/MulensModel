@@ -1127,7 +1127,8 @@ def test_change_of_xallarap_reference_position_2():
 
 def test_change_of_xallarap_reference_position_3():
     """
-    Makre sure that chainging rho_2 doesn't change the xallarap referenc position.
+    Make sure that chainging rho_2 doesn't change the xallarap reference position.
+    Till v3.9.2 this was causing an error. The problem was only if the last changed parameter was rho_2 or t_star_2.
     """
     coords = "17:00:00.0 -30:00:00.0"
     params = {
