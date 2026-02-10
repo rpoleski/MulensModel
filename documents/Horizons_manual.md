@@ -12,6 +12,10 @@ The MulensModel package contains short template e-mail:
 This file contains all the basic settings that Horizons requires. There are only 
 a few settings that one will modify on normal basis. These are:
 
+### Your Email
+
+Start by setting the `EMAIL` field to the email you want the results sent to.
+
 ### Satellite choice
 
 This is set by keyword `COMMAND` and has a numerical value. There are many 
