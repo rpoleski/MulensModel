@@ -32,7 +32,7 @@ class CausticMultiple(object):
         self._y = None
         self._critical_curve = None
 
-    def plot(self, n_points=None, plot_lenses=False, **kwargs):
+    def plot(self, n_points=None, plot_lenses=True, **kwargs):
         """
         Plots the caustics using :py:func:`matplotlib.pyplot.scatter()`.
 
@@ -68,6 +68,7 @@ class CausticMultiple(object):
         if plot_lenses:
             for i in range(self._n_lenses):
                 plt.scatter(self.geometry[0][i*3], self.geometry[0][i*3+1], color='k', marker='x')
+                plt.annotate(str(i+1), (self.geometry[0][i*3], self.geometry[0][i*3+1]+0.005))
 
     def get_caustics(self, n_points=None):
         """

@@ -1999,8 +1999,8 @@ class ModelParameters(object):
                     self.psi = self.alpha - self.alpha_31
                 else:
                     raise ValueError("For 3 lens system either psi or alpha_31 should be provided ")
-            L_3 = [s_31 * np.cos(np.radians(self.psi))-L_1[0],
-                   s_31 * np.sin(np.radians(self.psi))-L_1[1], q_31]   # third lens with mass=1*q_31
+            L_3 = [s_31 * np.cos(np.radians(self.psi))+L_1[0],
+                   s_31 * np.sin(np.radians(self.psi))+L_1[1], q_31]   # third lens with mass=1*q_31
             geometry += L_3
         return geometry
 
