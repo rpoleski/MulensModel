@@ -2047,38 +2047,39 @@ class UlensModelFit(object):
         """
         Get settings of prior based on file.
         """
-        settings = shlex.split(value, posix=False)
-        if not path.exists(settings[0]):
-            raise ValueError('In ' + key + " provided file with prior does not exist: " + settings[0])
-        if len(settings) != 2:
-            raise ValueError('In ' + key + " only one parameter should be provided " + settings[1:])
+        file_name = value['file']
+        parameter = value['parameter']
+        if not path.exists(file_name):
+            raise ValueError("In prior '" + key + "' provided file with prior does not exist: " + file_name)
+
+        if len(value) != 2:
+            raise ValueError("In prior '" + key + "' only one parameter should be provided, not " + str(value))
+
         allowed = set(self._all_MM_parameters + self._other_parameters + self._user_parameters)
-        used = set(settings[1:])
+        used = set(parameter)
         unknown = used - allowed
         if len(unknown) > 0:
-            raise ValueError('In ' + key + " unknown parameter: " + str(unknown),
+            raise ValueError("In prior '" + key + "' unknown parameter: " + str(unknown) +
                              "recognized parameter is: " + str(allowed))
+
         fitted = set(self._fit_parameters_unsorted)
         fixed = used - fitted
         if len(fixed) > 0:
+            raise ValueError("In prior '" + key + "' there is a parameter that will NOT be fitted: " + str(fixed) +
+                             ". Fitted parameters are: " + str(fitted) +
+                             ".\nAre you sure you want to calculate the prior from a parameter that is not fitted?")
 
-            warnings.warn('In prior ' + key + " there is a parameter that will not be fitted: " +
-                          str(fixed) + ". Fitted parameters are: " + str(fitted) +
-                          ".\nAre you sure you want to calculate the prior from a parameter that is not fitted?")
-        settings = self._load_prior_file(settings)
+        return self._load_prior_file(file_, parameter)
 
-        return settings
-
-    def _load_prior_file(self, settings):
+    def _load_prior_file(self, file_, parameter):
         """
         Load file from file and return settings.
         """
-        file, parameter = settings[0], settings[1]
         try:
             dtype = np.dtype([(parameter, np.float64), ('PDF', np.float64)])
-            model = np.genfromtxt(file, dtype=dtype)
+            model = np.genfromtxt(file_, dtype=dtype)
         except Exception as e:
-            raise ValueError("Error loading prior from file: " + file, e)
+            raise ValueError("Error loading prior from file: " + file_, e)
         return [model, parameter]
 
     def _read_prior_file(self):
