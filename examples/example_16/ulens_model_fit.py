@@ -2069,7 +2069,7 @@ class UlensModelFit(object):
                              ". Fitted parameters are: " + str(fitted) +
                              ".\nAre you sure you want to calculate the prior from a parameter that is not fitted?")
 
-        return self._load_prior_file(file_, parameter)
+        return self._load_prior_file(file_name, parameter)
 
     def _load_prior_file(self, file_, parameter):
         """
