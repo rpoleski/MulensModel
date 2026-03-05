@@ -1970,7 +1970,7 @@ class UlensModelFit(object):
         key = 'from file'
         value = self._fit_constraints[key]
         self._parse_fit_constraints_ratios(key, value, 'file')
-        self._read_prior_file()
+        self._set_prior_file_interpolation_functions()
 
     def _parse_fit_constraints_soft_no_negative(self, key, value):
         """
@@ -2082,7 +2082,7 @@ class UlensModelFit(object):
             raise ValueError("Error loading prior from file: " + file_, e)
         return [model, parameter]
 
-    def _read_prior_file(self):
+    def _set_prior_file_interpolation_functions(self):
         """
         Setting the probability distribution function of a selected parameter based on a Galaxy model
         """
