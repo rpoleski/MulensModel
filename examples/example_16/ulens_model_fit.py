@@ -4174,7 +4174,7 @@ class UlensModelFit(object):
 
     def _set_plt_kwargs_for_posterior_models(self):
         """Set kwargs that will be used to plot many models from posterior"""
-        kwargs = dict()
+        kwargs = {'alpha': 0.2}
         # In future:
         # kwargs.update(self._plots['best model']['add posterior samples'].get('model kwargs', dict()))
 
@@ -4183,9 +4183,6 @@ class UlensModelFit(object):
 
         if 'lw' not in kwargs and 'linewidth' not in kwargs:
             kwargs['linewidth'] = 1.5
-
-        if 'alpha' not in kwargs:
-            kwargs['alpha'] = 0.2
 
         self._plt_kwargs_for_posterior_models = kwargs
 
