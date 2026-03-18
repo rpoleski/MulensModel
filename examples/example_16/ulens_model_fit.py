@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.55.1'
+__version__ = '0.55.2'
 
 
 class UlensModelFit(object):
@@ -2507,9 +2507,9 @@ class UlensModelFit(object):
             parameters = {**self._fixed_parameters}
 
         if self._task == 'plot':
-            parameters.update(dict(zip(
-                self._model_parameters['parameters'],
-                self._model_parameters['values'])))
+            if len(self._model_parameters['parameters']) != len(self._model_parameters['values']):
+                raise ValueError('Lengths of "parameters" and "values" in "model" don' + "'t match.")
+            parameters.update(dict(zip(self._model_parameters['parameters'], self._model_parameters['values'])))
             # XXX this is some kind of a hack:
             self._best_model_theta = []
             self._fit_parameters = []
