@@ -3497,6 +3497,21 @@ class UlensModelFit(object):
 
         self._flux_samples_flat = self._get_fluxes_to_print_EMCEE()
 
+    def _get_fluxes_to_print_EMCEE(self):
+        """
+        prepare values to be printed for EMCEE fitting
+        """
+        try:
+            blobs = np.array(self._sampler.blobs)
+        except Exception as exception:
+            raise ValueError('There was some issue with blobs:\n' +
+                             str(exception))
+        blob_sampler = np.transpose(blobs, axes=(1, 0, 2))
+        blob_samples = blob_sampler[:, self._fitting_parameters['n_burn']:, :]
+        blob_samples = blob_samples.reshape((-1, self._n_fluxes))
+
+        return blob_samples
+
     def _print_results(self, data, names="parameters", mode=None):
         """
         calculate and print median values and +- 1 sigma for given parameters
@@ -3648,21 +3663,6 @@ class UlensModelFit(object):
             if self._fixed_parameters is not None:
                 if name in self._fixed_parameters.keys():
                     self._shift_t_0_val = int(self._fixed_parameters[name])
-
-    def _get_fluxes_to_print_EMCEE(self):
-        """
-        prepare values to be printed for EMCEE fitting
-        """
-        try:
-            blobs = np.array(self._sampler.blobs)
-        except Exception as exception:
-            raise ValueError('There was some issue with blobs:\n' +
-                             str(exception))
-        blob_sampler = np.transpose(blobs, axes=(1, 0, 2))
-        blob_samples = blob_sampler[:, self._fitting_parameters['n_burn']:, :]
-        blob_samples = blob_samples.reshape((-1, self._n_fluxes))
-
-        return blob_samples
 
     def _print_best_model(self):
         """
@@ -4320,7 +4320,7 @@ class UlensModelFit(object):
 
     def _correct_t_0_value(self, theta):
         """
-        Correct t_0 t_0_1 t_0_2 in a single value
+        Correct t_0 t_0_1 t_0_2 in a single value so that it's back 245....
         """
         out = np.copy(theta)
         for (index, value) in self._shift_t_0_values.items():
