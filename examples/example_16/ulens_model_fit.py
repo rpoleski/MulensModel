@@ -374,8 +374,8 @@ class UlensModelFit(object):
             ``trajectory``, and ``best model``.
             The values are also dicts and currently accepted keys are:
             1) for ``best model``:
-            ``'file'``, ``'interactive'``, ``'time range'``, ``'magnitude range'``, ``'title'``,``'legend'``,
-            ``'rcParams'``, ``'xlabel'``, ``'model label'``, ``'model kwargs'`` and
+            ``'file'``, ``'interactive'``, ``'add posterior samples'``, ``'time range'``, ``'magnitude range'``, ``'title'``,
+            ``'legend'``, ``'rcParams'``, ``'xlabel'``, ``'model label'``, ``'model kwargs'`` and
             ``'add models'`` (allows setting ``Model.plot_lc()`` parameters and ``'limb darkening u'``
             to *str* or *float*),
             2) for ``triangle`` and ``trace``:
@@ -399,7 +399,9 @@ class UlensModelFit(object):
                       'interactive': 'my_trajectory.html'
                   'best model':
                       'file': 'my_fit_best.png'
-                      'interactive' : 'my_fit_best.html'
+                      'interactive': 'my_fit_best.html'
+                      'add posterior samples':
+                          'n_samples': 100
                       'time range': 2456000. 2456300.
                       'magnitude range': 15.123 13.012
                       'title': 'my fit best'
