@@ -2,8 +2,8 @@
 Class and script for fitting microlensing model using MulensModel.
 All the settings are read from a YAML file.
 """
-#import matplotlib
-#matplotlib.use('Agg')
+# import matplotlib
+# matplotlib.use('Agg')
 import sys
 from os import path, sep
 import tempfile
@@ -4132,6 +4132,7 @@ class UlensModelFit(object):
         Prepare kwargs/settings for best plot model.
 
         XXX NOTE - It would be better to use class properties to pass these kwargs instead of variables.
+        See, e.g., _set_plt_kwargs_for_posterior_models().
         """
         plot_size_ratio = 5
         hspace = 0
@@ -4141,6 +4142,7 @@ class UlensModelFit(object):
 
         (t_1, t_2) = self._get_time_limits_for_plot(tau, 'best model')
         (kwargs, xlim) = self._get_subtract_kwargs_and_xlim_for_best_model(t_1, t_2)
+        self._set_plt_kwargs_for_posterior_models()
 
         kwargs_model = {'t_start': t_1, 't_stop': t_2, **kwargs}
         if self._model.n_sources != 1:
@@ -4169,6 +4171,23 @@ class UlensModelFit(object):
             properties['linewidth'] = 1.0
 
         return properties
+
+    def _set_plt_kwargs_for_posterior_models(self):
+        """Set kwargs that will be used to plot many models from posterior"""
+        kwargs = dict()
+        # In future:
+        # kwargs.update(self._plots['best model']['add posterior samples'].get('model kwargs', dict()))
+
+        if 'c' not in kwargs and 'color' not in kwargs:
+            kwargs['color'] = 'gray'
+
+        if 'lw' not in kwargs and 'linewidth' not in kwargs:
+            kwargs['linewidth'] = 1.5
+
+        if 'alpha' not in kwargs:
+            kwargs['alpha'] = 0.2
+
+        self._plt_kwargs_for_posterior_models = kwargs
 
     def _get_subtract_kwargs_and_xlim_for_best_model(self, t_1, t_2):
         """
@@ -4271,10 +4290,11 @@ class UlensModelFit(object):
         """
         Plot best models: first ground-based (if needed, hence loop), then satellite ones (if needed).
         """
+        kwargs_flux = {'source_flux': fluxes[0], 'blend_flux': fluxes[1]}
         non_satellite_model = (None in [d.ephemerides_file for d in self._datasets])
         if non_satellite_model:
             kwargs_label = {'label': self._plots['best model'].get('model label', None)}
-            self._model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs_model, **kwargs_model_plt, **kwargs_label)
+            self._model.plot_lc(**kwargs_flux, **kwargs_model, **kwargs_model_plt, **kwargs_label)
 
         if 'add posterior samples' in self._plots['best model']:
             if not non_satellite_model:
@@ -4285,7 +4305,7 @@ class UlensModelFit(object):
 
         for model in self._models_satellite:
             model.parameters.parameters = {**self._model.parameters.parameters}
-            model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs_model, **kwargs_model_plt)
+            model.plot_lc(**kwargs_flux, **kwargs_model, **kwargs_model_plt)
 
         if 'add models' in self._plots['best model']:
             for dict_model in self._plots['best model']['add models']:
@@ -4312,11 +4332,15 @@ class UlensModelFit(object):
         n_all = self._flux_samples_flat.shape[0]
         n_draw = self._plots['best model']['add posterior samples']['n_samples']
         indexes = np.random.choice(np.arange(n_all), size=n_draw)
-        for index in indexes:
+        for (i, index) in enumerate(indexes):
             theta = self._correct_t_0_value(self._samples_flat[index])
             self._ln_like(theta)
             fluxes = self._flux_samples_flat[index]
-            self._model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs_model)
+            kwargs = {'source_flux': fluxes[0], 'blend_flux': fluxes[1]}
+            if 'zorder' not in self._plt_kwargs_for_posterior_models:
+                kwargs['zorder'] = 0 - n_draw + i
+
+            self._model.plot_lc(**kwargs, **kwargs_model, **self._plt_kwargs_for_posterior_models)
 
     def _correct_t_0_value(self, theta):
         """
