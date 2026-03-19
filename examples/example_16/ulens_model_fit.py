@@ -47,7 +47,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.55.2'
+__version__ = '0.55.3'
 
 
 class UlensModelFit(object):
@@ -4294,8 +4294,7 @@ class UlensModelFit(object):
             try:
                 plt.title(self._plots['best model']['title'])
             except Exception:
-                print("\npyplot.title() failed with kwargs:")
-                print(self._plots['best model']['title'], "\n")
+                print("\npyplot.title() failed with kwargs:\n", self._plots['best model']['title'], "\n")
                 raise
         else:
             return
