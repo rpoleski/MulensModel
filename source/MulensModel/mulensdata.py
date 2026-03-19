@@ -727,6 +727,15 @@ class MulensData(object):
         self._bandpass = value
 
     @property
+    def file_name(self):
+        """
+        *String*
+
+        file_name provided when initializing the MulensData object.
+        """
+        return self._file_name
+
+    @property
     def satellite_skycoord(self):
         """
         *Astropy.SkyCoord* object for satellite
