@@ -151,6 +151,8 @@ plots:
         file: ob03235_2_model.png
         # In case you want an interactive plot made using plotly:
         interactive : ob03235_2_model.html
+        add posterior samples:
+            n_samples: 100 # Plots 100 randomly selected models from posterior in opaque mode.
         time range: 2452820 2452855
         xlabel: BJD - 2450000
         magnitude range: 19.3 16.9
