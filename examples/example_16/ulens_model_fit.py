@@ -374,8 +374,8 @@ class UlensModelFit(object):
             ``trajectory``, and ``best model``.
             The values are also dicts and currently accepted keys are:
             1) for ``best model``:
-            ``'file'``, ``'interactive'``, ``'add posterior samples'``, ``'time range'``, ``'magnitude range'``, ``'title'``,
-            ``'legend'``, ``'rcParams'``, ``'xlabel'``, ``'model label'``, ``'model kwargs'`` and
+            ``'file'``, ``'interactive'``, ``'add posterior samples'``, ``'time range'``, ``'magnitude range'``,
+            ``'title'``, ``'legend'``, ``'rcParams'``, ``'xlabel'``, ``'model label'``, ``'model kwargs'`` and
             ``'add models'`` (allows setting ``Model.plot_lc()`` parameters and ``'limb darkening u'``
             to *str* or *float*),
             2) for ``triangle`` and ``trace``:
@@ -946,7 +946,8 @@ class UlensModelFit(object):
         """
         Check if there is no problem with interactive best plot
         """
-        pass
+        if 'add posterior samples' in self._plots['best model']:
+            warnings.warn("Plotting random models from posterior is not supported currently.")
 
     def _check_plots_parameters_best_model_title(self):
         """
@@ -4328,6 +4329,8 @@ class UlensModelFit(object):
         """
         Add randomly drawn models from posterior
         """
+        if self._task == 'plot':
+            warnings.warn('Currently add random posterior models to the best model plot is not supported.')
         n_all = self._flux_samples_flat.shape[0]
         n_draw = self._plots['best model']['add posterior samples']['n_samples']
         indexes = np.random.choice(np.arange(n_all), size=n_draw)
