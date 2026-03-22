@@ -2100,31 +2100,42 @@ class UlensModelFit(object):
         self._prior_file = []
         for (model, parameters) in self._fit_constraints['from file']:
             if len(parameters) == 1:
-                parameter = parameters[0]
-
-                def pdf_func(x):
-                    return np.interp(x, model[parameter], model['PDF'])
-
-                settings = {'parameters': parameter, 'PDF': pdf_func}
+                settings = self._set_prior_file_interpolation_functions_1D(parameters, model)
                 self._prior_file.append(settings)
             if len(parameters) == 2:
-                parameter_1 = parameters[0]
-                parameter_2 = parameters[1]
-                x_values = np.unique(model[parameter_1])
-                y_values = np.unique(model[parameter_2])
-                dx = x_values[1] - x_values[0]
-                dy = y_values[1] - y_values[0]
-                X, Y = np.meshgrid(x_values, y_values)
-                PDF = model['PDF'].reshape(X.shape)
-
-                def pdf_func(x, y):
-                    xi = (x - x_values[0]) / dx
-                    yi = (y - y_values[0]) / dy
-                    return map_coordinates(PDF, ([yi], [xi]), order=1)[0]  # linear
-
-                settings = {'parameters': parameters, 'PDF': pdf_func}
+                settings = self._set_prior_file_interpolation_functions_2D(parameters, model)
                 self._prior_file.append(settings)
         self._fit_constraints['from file'] = True
+
+    def _set_prior_file_interpolation_functions_1D(self, parameters, model):
+        """
+        Set interpolation functions for 1D priors from a file.
+        """
+        parameter = parameters[0]
+
+        def pdf_func(x):
+            return np.interp(x, model[parameter], model['PDF'])
+        return {'parameters': parameter, 'PDF': pdf_func}
+
+    def _set_prior_file_interpolation_functions_2D(self, parameters, model):
+        """
+        Set interpolation functions for 2D priors from a file.
+        """
+        parameter_1 = parameters[0]
+        parameter_2 = parameters[1]
+        x_values = np.unique(model[parameter_1])
+        y_values = np.unique(model[parameter_2])
+        dx = x_values[1] - x_values[0]
+        dy = y_values[1] - y_values[0]
+        X, Y = np.meshgrid(x_values, y_values)
+        PDF = model['PDF'].reshape(X.shape)
+
+        def pdf_func(x, y):
+            xi = (x - x_values[0]) / dx
+            yi = (y - y_values[0]) / dy
+            return map_coordinates(PDF, ([yi], [xi]), order=1)[0]  # linear
+
+        return {'parameters': parameters, 'PDF': pdf_func}
 
     def _fill_no_of_datasets(self, values, key):
         """
@@ -2834,7 +2845,7 @@ class UlensModelFit(object):
         out = 0.
         parameters = {**self._other_parameters_dict, **self._model.parameters.parameters}
         for prior in self._prior_file:
-            key = prior['parameter']
+            key = prior['parameters']
             pdf = prior['PDF']
             value = parameters[key]
             prob = pdf(value)

@@ -288,7 +288,8 @@ if __name__ == '__main__':
 
     # choose parameters
     parameters = ['t_E', 'pi_E_E', 'pi_E_N']
-    parameters_2D = [['pi_E_E', 't_E']]
+    parameters_2D = [['pi_E_E', 'pi_E_N'],
+                    ['pi_E_E', 't_E']]
     # convesion from MulensModel to genulens names
     conve = {
         'pi_E_E': 'pi_EE',
