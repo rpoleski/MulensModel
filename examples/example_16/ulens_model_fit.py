@@ -11,6 +11,7 @@ import math
 import numpy as np
 import shlex
 from scipy.interpolate import interp1d
+from scipy.ndimage import map_coordinates
 from matplotlib import pyplot as plt
 from matplotlib import gridspec, rcParams, rcParamsDefault, colors
 # from matplotlib.backends.backend_pdf import PdfPages
@@ -2048,7 +2049,7 @@ class UlensModelFit(object):
         Get settings of prior based on file.
         """
         file_name = value['file']
-        parameter = value['parameter']
+        parameters = value.get('parameters', value.get('parameter')).split()
         if not path.exists(file_name):
             raise ValueError("In prior '" + key + "' provided file with prior does not exist: " + file_name)
 
@@ -2056,7 +2057,7 @@ class UlensModelFit(object):
             raise ValueError("In prior '" + key + "' only one parameter should be provided, not " + str(value))
 
         allowed = set(self._all_MM_parameters + self._other_parameters + self._user_parameters)
-        used = set(parameter)
+        used = set(parameters)
         unknown = used - allowed
         if len(unknown) > 0:
             raise ValueError("In prior '" + key + "' unknown parameter: " + str(unknown) +
@@ -2069,29 +2070,60 @@ class UlensModelFit(object):
                              ". Fitted parameters are: " + str(fitted) +
                              ".\nAre you sure you want to calculate the prior from a parameter that is not fitted?")
 
-        return self._load_prior_file(file_name, parameter)
+        return self._load_prior_file(file_name, parameters)
 
-    def _load_prior_file(self, file_, parameter):
+    def _load_prior_file(self, file_, parameters):
         """
         Load file from file and return settings.
         """
-        try:
-            dtype = np.dtype([(parameter, np.float64), ('PDF', np.float64)])
-            model = np.genfromtxt(file_, dtype=dtype)
-        except Exception as e:
-            raise ValueError("Error loading prior from file: " + file_, e)
-        return [model, parameter]
+        if len(parameters) == 1:
+            try:
+                dtype = np.dtype([(parameters[0], np.float64), ('PDF', np.float64)])
+                model = np.genfromtxt(file_, dtype=dtype)
+            except Exception as e:
+                raise ValueError("Error loading prior from file: " + file_, e)
+            return [model, parameters[0]]
+        if len(parameters) == 2:
+            try:
+                dtype = np.dtype([(parameters[0], np.float64), (parameters[1], np.float64), ('PDF', np.float64)])
+                model = np.genfromtxt(file_, dtype=dtype)
+            except Exception as e:
+                raise ValueError("Error loading prior from file: " + file_, e)
+            return [model, parameters]
+        if len(parameters) > 2:
+            raise ValueError("In prior from file you can specify only one or two parameters, not " + str(parameters))
 
     def _set_prior_file_interpolation_functions(self):
         """
         Setting the probability distribution function of a selected parameter based on a Galaxy model
         """
         self._prior_file = []
-        for (model, parameter) in self._fit_constraints['from file']:
-            def pdf_func(x):
-                return np.interp(x, model[parameter], model['PDF'])
-            settings = {'parameter': parameter, 'PDF': pdf_func}
-            self._prior_file.append(settings)
+        for (model, parameters) in self._fit_constraints['from file']:
+            if len(parameters) == 1:
+                parameter = parameters[0]
+
+                def pdf_func(x):
+                    return np.interp(x, model[parameter], model['PDF'])
+
+                settings = {'parameters': parameter, 'PDF': pdf_func}
+                self._prior_file.append(settings)
+            if len(parameters) == 2:
+                parameter_1 = parameters[0]
+                parameter_2 = parameters[1]
+                x_values = np.unique(model[parameter_1])
+                y_values = np.unique(model[parameter_2])
+                dx = x_values[1] - x_values[0]
+                dy = y_values[1] - y_values[0]
+                X, Y = np.meshgrid(x_values, y_values)
+                PDF = model['PDF'].reshape(X.shape)
+
+                def pdf_func(x, y):
+                    xi = (x - x_values[0]) / dx
+                    yi = (y - y_values[0]) / dy
+                    return map_coordinates(PDF, ([yi], [xi]), order=1)[0]  # linear
+
+                settings = {'parameters': parameters, 'PDF': pdf_func}
+                self._prior_file.append(settings)
         self._fit_constraints['from file'] = True
 
     def _fill_no_of_datasets(self, values, key):

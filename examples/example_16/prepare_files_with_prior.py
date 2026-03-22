@@ -7,10 +7,21 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from scipy.stats import rv_histogram   # ,gaussian_kde
 import fastkde   # https: // github.com/LBL-EESA/fastkde.git
+from matplotlib.gridspec import GridSpec
 
 
 def Gauss(x, A, m, s):
     return A*(1./s/np.sqrt(2*np.pi)) * np.exp(-((x-m)**2) / (2 * s**2))
+
+
+def Gauss_2d(coords, A, x0, y0, sigma_x, sigma_y, theta, offset):
+    x, y = coords
+
+    a = (np.cos(theta)**2)/(2*sigma_x**2) + (np.sin(theta)**2)/(2*sigma_y**2)
+    b = -(np.sin(2*theta))/(4*sigma_x**2) + (np.sin(2*theta))/(4*sigma_y**2)
+    c = (np.sin(theta)**2)/(2*sigma_x**2) + (np.cos(theta)**2)/(2*sigma_y**2)
+
+    return offset + A * np.exp(-(a*(x-x0)**2 + 2*b*(x-x0)*(y-y0) + c*(y-y0)**2))
 
 
 def get_data(file):
@@ -47,6 +58,137 @@ def get_pdf(values, weights, parameter, nbins=10000):
     return pdf_orginal, pdf_spread_smooth, bins, limits
 
 
+def get_pdf_2D(values_x, values_y, weights, parameter_2D, prefix_output, nbins=1000):
+    """
+    Function to get the PDF from the simulated values.
+    """
+    histogram, xedges, yedges = np.histogram2d(values_x, values_y, bins=nbins, weights=weights)
+    xcenters = (xedges[:-1] + xedges[1:]) / 2
+    ycenters = (yedges[:-1] + yedges[1:]) / 2
+    X, Y = np.meshgrid(xcenters, ycenters)
+    histogram = spread_2D(X, Y, histogram, parameter_2D)
+    values_spread_x, values_spread_y = sample_2D(histogram, nbins, xedges, yedges)
+    plot_2D_points(values_x, values_y, values_spread_x, values_spread_y, parameter_2D, prefix_output)
+    pdf_spread_smooth = smooth_2D(values_spread_x, values_spread_y, X, Y, parameter_2D, prefix_output)
+    safe_pdf_2D(pdf_spread_smooth, xcenters, ycenters, parameter_2D, prefix_output)
+    plot_pdf_2D(pdf_spread_smooth, X, Y, parameter_2D, prefix_output)
+    return pdf_spread_smooth, xcenters, ycenters, histogram
+
+
+def plot_2D_points(values_x, values_y, values_spread_x, values_spread_y, parameter_2D, prefix_output):
+    plt.scatter(values_x, values_y, alpha=0.5, s=0.01, label='Original')
+    plt.scatter(values_spread_x, values_spread_y, alpha=0.5, s=0.01, label='Spreaded')
+    plt.xlabel(parameter_2D[0])
+    plt.ylabel(parameter_2D[1])
+    plt.title('Scatter plot of original and spreaded samples')
+    plt.legend()
+    file = prefix_output + 'scatter_' + parameter_2D[0] + '_' + parameter_2D[1] + '.png'
+    print("Saving scatter plot of original and spreaded samples to " + file)
+    plt.savefig(file)
+    plt.close()
+
+
+def safe_pdf_2D(pdf_spread_smooth, xcenters, ycenters, parameter_2D, prefix_output):
+    X, Y = np.meshgrid(xcenters, ycenters)
+    x = X.ravel()
+    y = Y.ravel()
+    z = pdf_spread_smooth
+    data = np.column_stack((x, y, z))
+    file_out = prefix_output + parameter_2D[0] + '_' + parameter_2D[1] + '.txt'
+    np.savetxt(file_out, data, fmt='%.6f', delimiter=' ', header='x y pdf(x,y)')
+    return data
+
+
+def smooth_2D(values_x, values_y, X, Y, parameter_2D, prefix_output):
+    """
+    Function that estimate PDF based on the sample using a gaussian kernel density estimation.
+    It returns the smoothed PDF.
+    """
+    points = [[x, y] for x, y in zip(X.ravel(), Y.ravel())]
+    pdf_spread_smooth = fastkde.fastKDE.pdf_at_points(values_x, values_y, list_of_points=points)
+
+    return pdf_spread_smooth
+
+
+def plot_pdf_2D(pdf_spread_smooth, X, Y, parameter_2D, prefix_output):
+    Z = pdf_spread_smooth  # shape (Ny, Nx)
+
+    x = np.unique(X)
+    y = np.unique(Y)
+
+    dx = x[1] - x[0]
+    dy = y[1] - y[0]
+
+    p = (Z * dx * dy).ravel()
+    p_sorted = np.sort(p)[::-1]
+    cumsum = np.cumsum(p_sorted)
+    level_95 = p_sorted[np.searchsorted(cumsum, 0.95)]
+    mask = (Z * dx * dy) >= level_95
+
+    x_min = X[np.any(mask, axis=0)].min()
+    x_max = X[np.any(mask, axis=0)].max()
+
+    y_min = Y[np.any(mask, axis=1)].min()
+    y_max = Y[np.any(mask, axis=1)].max()
+
+    px = np.sum(Z, axis=0) * dy
+    py = np.sum(Z, axis=1) * dx
+
+    fig = plt.figure(figsize=(8, 8))
+    gs = GridSpec(2, 2, width_ratios=[4, 1], height_ratios=[1, 4], hspace=0.05, wspace=0.05)
+
+    ax_main = fig.add_subplot(gs[1, 0])
+    ax_top = fig.add_subplot(gs[0, 0], sharex=ax_main)
+    ax_right = fig.add_subplot(gs[1, 1], sharey=ax_main)
+
+    #  main 2D plot
+    im = ax_main.imshow(Z, origin='lower', extent=(x.min(), x.max(), y.min(), y.max()), aspect='auto')
+
+    #  colorbar
+    cbar = plt.colorbar(im, ax=ax_right)
+    cbar.set_label('pdf(x,y)')
+
+    #  top projection (p(x))
+    ax_top.plot(x, px)
+    ax_top.set_ylabel('p(x)')
+    ax_top.tick_params(labelbottom=False)
+    ax_top.set_xlim(x_min, x_max)
+    # right projection (p(y))
+    ax_right.plot(py, y)
+    ax_right.set_xlabel('p(y)')
+    ax_right.tick_params(labelleft=False)
+    ax_right.set_ylim(y_min, y_max)
+    ax_main.set_xlabel(f'{parameter_2D[0]}')
+    ax_main.set_ylabel(f'{parameter_2D[1]}')
+    ax_main.set_xlim(x_min, x_max)
+    ax_main.set_ylim(y_min, y_max)
+
+    ax_top.set_title('2D PDF with 1D projections')
+    file = prefix_output + 'pdf_' + parameter_2D[0] + '_' + parameter_2D[1] + '.png'
+    print("Saving plot of 2D PDF to " + file)
+
+    plt.savefig(file, bbox_inches='tight')
+    plt.close()
+
+
+def sample_2D(histogram, nbins, xedges, yedges):
+    """
+    Function to sample from a 2D histogram.
+    """
+    dx = np.diff(xedges)
+    dy = np.diff(yedges)
+    area = dx[:, None] * dy[None, :]
+    probabilities = histogram * area
+    probabilities /= np.sum(probabilities)
+
+    flat_probabilities = probabilities.ravel()
+    indices = np.random.choice(len(flat_probabilities), size=nbins**2, p=flat_probabilities)
+    x_indices, y_indices = np.unravel_index(indices, histogram.shape)
+    values_x = np.random.uniform(xedges[x_indices], xedges[x_indices + 1])
+    values_y = np.random.uniform(yedges[y_indices], yedges[y_indices + 1])
+    return values_x, values_y
+
+
 def spread(values, counts, parameter):
     """
     Function to spread tails of the simulated distributions for better sampling.
@@ -62,6 +204,39 @@ def spread(values, counts, parameter):
     fit_y = Gauss(values, pars[0], pars[1], pars[2] * scale)
     print('{:s}:  A= {:.2f} mean= {:.2f}, sigma={:.2f}'.format(
         parameter, pars[0], pars[1], pars[2]*scale))
+    spread_histogram = np.add(counts, fit_y)
+    return spread_histogram
+
+
+def spread_2D(X, Y, counts, parameter):
+    """
+    Function to spread tails of the simulated distributions for better sampling.
+    It fits a gaussian function to the histogram, multiplies its sigma by a scale factor,
+    and adds the gaussian function to the initial histogram.
+    """
+    scale = 4.
+
+    # Flatten everything (curve_fit needs 1D arrays)
+    xdata = X.ravel()
+    ydata = Y.ravel()
+    zdata = counts.T.ravel()
+    p0 = (
+        np.max(counts),        # amplitude
+        np.mean(xdata),       # x0
+        np.mean(ydata),       # y0
+        np.std(xdata),        # sigma_x
+        np.std(ydata),        # sigma_y
+        0,                # theta
+        0                 # offset
+    )
+
+    pars, _ = curve_fit(Gauss_2d, (xdata, ydata), zdata, p0=p0)
+    fit_y = Gauss_2d((xdata, ydata), pars[0], pars[1], pars[2], pars[3] * scale, pars[4] * scale, pars[5], pars[6]
+                     ).reshape(counts.shape)
+
+    print(('{:s} {:s}:  A= {:.2f} x0= {:.2f}, y0={:.2f}, sigma_x={:.2f},' +
+          'sigma_y={:.2f}, theta={:.2f}, offset={:.2f}').format(
+              parameter[0], parameter[1], pars[0], pars[1], pars[2], pars[3]*scale, pars[4]*scale, pars[5], pars[6]))
     spread_histogram = np.add(counts, fit_y)
     return spread_histogram
 
@@ -93,6 +268,17 @@ def plot_prior(name, limits,  pdf_orginal, pdf_spread_smooth, prefix_output):
     plt.close()
 
 
+def plot_2D(xcenters, ycenters, histogram, parameter, prefix_output):
+    plt.imshow(histogram, origin='lower', extent=(xcenters[0], xcenters[-1], ycenters[0], ycenters[-1]), aspect='auto')
+    plt.colorbar(label='pdf(x,y)')
+    plt.xlabel(parameter[0])
+    plt.ylabel(parameter[1])
+    file = prefix_output+parameter[0]+'_'+parameter[1]+'.png'
+    print("Saving plot of used prior on " + parameter[0] + " and " + parameter[1] + " to " + file)
+    plt.savefig(file)
+    plt.close()
+
+
 if __name__ == '__main__':
 
     simulated_file = 'data/OB03235/OB03235_genulens.out'
@@ -102,18 +288,26 @@ if __name__ == '__main__':
 
     # choose parameters
     parameters = ['t_E', 'pi_E_E', 'pi_E_N']
-
+    parameters_2D = [['pi_E_E', 't_E']]
     # convesion from MulensModel to genulens names
     conve = {
         'pi_E_E': 'pi_EE',
         'pi_E_N': 'pi_EN',
         }
 
-    for parameter in parameters:
-        parameter_genulens = conve.get(parameter, parameter)
-        values = data[parameter_genulens]
-        pdf_orginal, pdf_spread_smooth, bins, limits = get_pdf(values, weights, parameter)
-        plot_prior(parameter, limits, pdf_orginal, pdf_spread_smooth, prefix_output)
-        file_out = prefix_output + parameter + '.txt'
-        combined = np.column_stack((bins, pdf_spread_smooth(bins)))
-        np.savetxt(file_out, combined, fmt='%.6f', delimiter=' ', header='# x pdf(x)')
+    # for parameter in parameters:
+    #     parameter_genulens = conve.get(parameter, parameter)
+    #     values = data[parameter_genulens]
+    #     pdf_orginal, pdf_spread_smooth, bins, limits = get_pdf(values, weights, parameter)
+    #     plot_prior(parameter, limits, pdf_orginal, pdf_spread_smooth, prefix_output)
+    #     file_out = prefix_output + parameter + '.txt'
+    #     combined = np.column_stack((bins, pdf_spread_smooth(bins)))
+    #     np.savetxt(file_out, combined, fmt='%.6f', delimiter=' ', header='# x pdf(x)')
+
+    for parameter_2D in parameters_2D:
+        parameter_genulens_1 = conve.get(parameter_2D[0], parameter_2D[0])
+        parameter_genulens_2 = conve.get(parameter_2D[1], parameter_2D[1])
+        values_x = data[parameter_genulens_1]
+        values_y = data[parameter_genulens_2]
+        weights = data['wtj']
+        _ = get_pdf_2D(values_x, values_y, weights, parameter_2D, prefix_output)
