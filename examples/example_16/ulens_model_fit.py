@@ -2082,7 +2082,7 @@ class UlensModelFit(object):
                 model = np.genfromtxt(file_, dtype=dtype)
             except Exception as e:
                 raise ValueError("Error loading prior from file: " + file_, e)
-            return [model, parameters[0]]
+            return [model, parameters]
         if len(parameters) == 2:
             try:
                 dtype = np.dtype([(parameters[0], np.float64), (parameters[1], np.float64), ('PDF', np.float64)])
@@ -2111,11 +2111,9 @@ class UlensModelFit(object):
         """
         Set interpolation functions for 1D priors from a file.
         """
-        parameter = parameters[0]
-
         def pdf_func(x):
-            return np.interp(x, model[parameter], model['PDF'])
-        return {'parameters': parameter, 'PDF': pdf_func}
+            return np.interp(x, model[parameters[0]], model['PDF'])
+        return {'parameters': parameters, 'PDF': pdf_func}
 
     def _set_prior_file_interpolation_functions_2D(self, parameters, model):
         """
@@ -2845,15 +2843,14 @@ class UlensModelFit(object):
         out = 0.
         parameters = {**self._other_parameters_dict, **self._model.parameters.parameters}
         for prior in self._prior_file:
-            key = prior['parameters']
+            keys = prior['parameters']
             pdf = prior['PDF']
-            value = parameters[key]
-            prob = pdf(value)
+            values = [parameters[key] for key in keys]
+            prob = pdf(*values)
             if prob <= 0.:
                 return -np.inf
             else:
                 out += np.log(prob)
-
         return out
 
     def _check_valid_Cassan08_trajectory(self):
