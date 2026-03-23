@@ -14,14 +14,9 @@ def Gauss(x, A, m, s):
     return A*(1./s/np.sqrt(2*np.pi)) * np.exp(-((x-m)**2) / (2 * s**2))
 
 
-def Gauss_2d(coords, A, x0, y0, sigma_x, sigma_y, theta, offset):
+def Gauss_2d(coords,A, mu_x, mu_y, sigma_x, sigma_y):
     x, y = coords
-
-    a = (np.cos(theta)**2)/(2*sigma_x**2) + (np.sin(theta)**2)/(2*sigma_y**2)
-    b = -(np.sin(2*theta))/(4*sigma_x**2) + (np.sin(2*theta))/(4*sigma_y**2)
-    c = (np.sin(theta)**2)/(2*sigma_x**2) + (np.cos(theta)**2)/(2*sigma_y**2)
-
-    return offset + A * np.exp(-(a*(x-x0)**2 + 2*b*(x-x0)*(y-y0) + c*(y-y0)**2))
+    return A * np.exp(-(((x - mu_x)**2) / (2 * sigma_x**2) + ((y - mu_y)**2) / (2 * sigma_y**2)))
 
 
 def get_data(file):
@@ -76,8 +71,9 @@ def get_pdf_2D(values_x, values_y, weights, parameter_2D, prefix_output, nbins=1
 
 
 def plot_2D_points(values_x, values_y, values_spread_x, values_spread_y, parameter_2D, prefix_output):
-    plt.scatter(values_x, values_y, alpha=0.5, s=0.01, label='Original')
     plt.scatter(values_spread_x, values_spread_y, alpha=0.5, s=0.01, label='Spreaded')
+    plt.scatter(values_x, values_y, alpha=0.5, s=0.01, label='Original')
+
     plt.xlabel(parameter_2D[0])
     plt.ylabel(parameter_2D[1])
     plt.title('Scatter plot of original and spreaded samples')
@@ -111,7 +107,7 @@ def smooth_2D(values_x, values_y, X, Y, parameter_2D, prefix_output):
 
 
 def plot_pdf_2D(pdf_spread_smooth, X, Y, parameter_2D, prefix_output):
-    Z = pdf_spread_smooth  # shape (Ny, Nx)
+    Z = pdf_spread_smooth.reshape(X.shape)  # shape (Ny, Nx)
 
     x = np.unique(X)
     y = np.unique(Y)
@@ -214,30 +210,27 @@ def spread_2D(X, Y, counts, parameter):
     It fits a gaussian function to the histogram, multiplies its sigma by a scale factor,
     and adds the gaussian function to the initial histogram.
     """
-    scale = 4.
+    scale = 10.
 
     # Flatten everything (curve_fit needs 1D arrays)
     xdata = X.ravel()
     ydata = Y.ravel()
-    zdata = counts.T.ravel()
+    zdata = counts.ravel()
     p0 = (
         np.max(counts),        # amplitude
-        np.mean(xdata),       # x0
-        np.mean(ydata),       # y0
-        np.std(xdata),        # sigma_x
-        np.std(ydata),        # sigma_y
-        0,                # theta
-        0                 # offset
+        np.average(xdata, weights=zdata),       # x0
+        np.average(ydata, weights=zdata),     # y0
+        np.sqrt(np.average((xdata - np.average(xdata, weights=zdata))**2, weights=zdata)),        # sigma_x
+        np.sqrt(np.average((ydata - np.average(ydata, weights=zdata))**2, weights=zdata)),        # sigma_y
     )
 
     pars, _ = curve_fit(Gauss_2d, (xdata, ydata), zdata, p0=p0)
-    fit_y = Gauss_2d((xdata, ydata), pars[0], pars[1], pars[2], pars[3] * scale, pars[4] * scale, pars[5], pars[6]
-                     ).reshape(counts.shape)
+    fit_z = Gauss_2d((xdata, ydata), pars[0]/2, pars[1], pars[2], pars[3] * scale, pars[4] * scale ).reshape(counts.shape)
 
     print(('{:s} {:s}:  A= {:.2f} x0= {:.2f}, y0={:.2f}, sigma_x={:.2f},' +
-          'sigma_y={:.2f}, theta={:.2f}, offset={:.2f}').format(
-              parameter[0], parameter[1], pars[0], pars[1], pars[2], pars[3]*scale, pars[4]*scale, pars[5], pars[6]))
-    spread_histogram = np.add(counts, fit_y)
+          'sigma_y={:.2f}').format(
+              parameter[0], parameter[1], pars[0], pars[1], pars[2], pars[3]*scale, pars[4]*scale))
+    spread_histogram = np.add(counts, fit_z)
     return spread_histogram
 
 
