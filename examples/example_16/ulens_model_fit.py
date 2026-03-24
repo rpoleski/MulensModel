@@ -345,13 +345,15 @@ class UlensModelFit(object):
 
             ``'from file'`` - *list* of *str*. It specifies the priors for selected parameters based on PDF in
             specified file.
-            The file should have two columns: first with parameter values and second with corresponding PDF values.
+            The file should have two or three columns:
+                - for 1D prior: first with parameters values and second with corresponding PDF values.
+                - for 2D prior: first two columns with parameters values and third with corresponding PDF values.
 
             Parameters:
                 *file* - a *str* that gives a path to the file with PDF
                 of the parameter,
-                *parameter* -  name of the parameter for which the prior should be implemented.
-            e.g., ``data/OB03235/OB03235_prior_pi_E_E.txt pi_E_E``
+                *parameters* -  name of the parameter for which the prior should be implemented.
+            e.g., `{file: data/OB03235/OB03235_prior_pi_E_E_pi_E_N.txt, parameters: pi_E_E pi_E_N}``
 
             References:
               Mao & Paczynski 1996 -
