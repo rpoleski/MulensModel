@@ -93,8 +93,8 @@ fit_constraints:
         #pi_E_N: gauss 0.00 0.15
         #pi_E_E: gauss 0.00 0.15
     from file:
-        - {file: data/OB03235/OB03235_prior_pi_E_E.txt, parameter: pi_E_E}
-        - {file: data/OB03235/OB03235_prior_pi_E_N.txt, parameter: pi_E_N}
+        #- {file: data/OB03235/OB03235_prior_pi_E_E.txt, parameter: pi_E_E}
+        - {file: data/OB03235/OB03235_prior_pi_E_E_pi_E_N.txt, parameters: pi_E_E pi_E_N}
     posterior parsing:
         abs: [u_0]
         # After running EMCEE, calculate absolute values of parameters from that list.
