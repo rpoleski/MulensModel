@@ -64,9 +64,9 @@ def get_pdf_2D(values_x, values_y, weights, parameter_2D, prefix_output, nbins=1
     histogram = spread_2D(X, Y, histogram, parameter_2D)
     values_spread_x, values_spread_y = sample_2D(histogram, nbins, xedges, yedges)
     plot_2D_points(values_x, values_y, values_spread_x, values_spread_y, parameter_2D, prefix_output)
-    pdf_spread_smooth = smooth_2D(values_spread_x, values_spread_y, X, Y, parameter_2D, prefix_output)
-    safe_pdf_2D(pdf_spread_smooth, xcenters, ycenters, parameter_2D, prefix_output)
-    plot_pdf_2D(pdf_spread_smooth, X, Y, parameter_2D, prefix_output)
+    pdf_spread_smooth ,x,y= smooth_2D(values_spread_x, values_spread_y, X, Y, parameter_2D, prefix_output, nbins=nbins)
+    safe_pdf_2D(pdf_spread_smooth, x,y , parameter_2D, prefix_output)
+    plot_pdf_2D(pdf_spread_smooth, x, y, parameter_2D, prefix_output)
     return pdf_spread_smooth, xcenters, ycenters, histogram
 
 
@@ -84,37 +84,53 @@ def plot_2D_points(values_x, values_y, values_spread_x, values_spread_y, paramet
     plt.close()
 
 
-def safe_pdf_2D(pdf_spread_smooth, xcenters, ycenters, parameter_2D, prefix_output):
-    X, Y = np.meshgrid(xcenters, ycenters)
-    x = X.ravel()
-    y = Y.ravel()
+def safe_pdf_2D(pdf_spread_smooth, x, y, parameter_2D, prefix_output):
     z = pdf_spread_smooth
+    if len(z) != len(x) and len(z) != len(y):
+        raise ValueError("Length of z does not match length of x and y")
     data = np.column_stack((x, y, z))
     file_out = prefix_output + parameter_2D[0] + '_' + parameter_2D[1] + '.txt'
     np.savetxt(file_out, data, fmt='%.6f', delimiter=' ', header='x y pdf(x,y)')
     return data
 
+def plot_map(x,y,z):
+    plt.tricontourf(x,y,z)
+    plt.colorbar(label='pdf(x,y)')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.title('2D PDF')
+    plt.show()
 
-def smooth_2D(values_x, values_y, X, Y, parameter_2D, prefix_output):
+def smooth_2D(values_x, values_y, X, Y, parameter_2D, prefix_output, nbins=1000):
     """
     Function that estimate PDF based on the sample using a gaussian kernel density estimation.
     It returns the smoothed PDF.
     """
-    points = [[x, y] for x, y in zip(X.ravel(), Y.ravel())]
+    limits_x = np.percentile(values_x, [2, 98])
+    limits_y = np.percentile(values_y, [2, 98])
+    xcenters = np.linspace(limits_x[0], limits_x[1], nbins)
+    ycenters = np.linspace(limits_y[0], limits_y[1], nbins)
+    
+    points = np.array([[x, y] for x in xcenters for y in ycenters])
+
     pdf_spread_smooth = fastkde.fastKDE.pdf_at_points(values_x, values_y, list_of_points=points)
 
-    return pdf_spread_smooth
+    return pdf_spread_smooth, points[:,0], points[:,1]
 
 
-def plot_pdf_2D(pdf_spread_smooth, X, Y, parameter_2D, prefix_output):
-    Z = pdf_spread_smooth.reshape(X.shape)  # shape (Ny, Nx)
+def plot_pdf_2D(pdf_spread_smooth, x, y, parameter_2D, prefix_output):
+    z = pdf_spread_smooth
+    
+    x_values = np.sort(np.unique(x))
+    y_values = np.sort(np.unique(y))
 
-    x = np.unique(X)
-    y = np.unique(Y)
-
-    dx = x[1] - x[0]
-    dy = y[1] - y[0]
-
+    dx = x_values[1] - x_values[0]
+    dy = y_values[1] - y_values[0]
+    
+    Z = z.reshape(len(y_values), len(x_values))
+    X = x.reshape(len(y_values), len(x_values))
+    Y = y.reshape(len(y_values), len(x_values))
+    
     p = (Z * dx * dy).ravel()
     p_sorted = np.sort(p)[::-1]
     cumsum = np.cumsum(p_sorted)
@@ -145,12 +161,12 @@ def plot_pdf_2D(pdf_spread_smooth, X, Y, parameter_2D, prefix_output):
     cbar.set_label('pdf(x,y)')
 
     #  top projection (p(x))
-    ax_top.plot(x, px)
+    ax_top.plot(x_values, px)
     ax_top.set_ylabel('p(x)')
     ax_top.tick_params(labelbottom=False)
     ax_top.set_xlim(x_min, x_max)
     # right projection (p(y))
-    ax_right.plot(py, y)
+    ax_right.plot(py, y_values)
     ax_right.set_xlabel('p(y)')
     ax_right.tick_params(labelleft=False)
     ax_right.set_ylim(y_min, y_max)
