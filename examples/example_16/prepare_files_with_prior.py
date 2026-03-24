@@ -14,7 +14,7 @@ def Gauss(x, A, m, s):
     return A*(1./s/np.sqrt(2*np.pi)) * np.exp(-((x-m)**2) / (2 * s**2))
 
 
-def Gauss_2d(coords,A, mu_x, mu_y, sigma_x, sigma_y):
+def Gauss_2d(coords, A, mu_x, mu_y, sigma_x, sigma_y):
     x, y = coords
     return A * np.exp(-(((x - mu_x)**2) / (2 * sigma_x**2) + ((y - mu_y)**2) / (2 * sigma_y**2)))
 
@@ -64,8 +64,8 @@ def get_pdf_2D(values_x, values_y, weights, parameter_2D, prefix_output, nbins=1
     histogram = spread_2D(X, Y, histogram, parameter_2D)
     values_spread_x, values_spread_y = sample_2D(histogram, nbins, xedges, yedges)
     plot_2D_points(values_x, values_y, values_spread_x, values_spread_y, parameter_2D, prefix_output)
-    pdf_spread_smooth ,x,y= smooth_2D(values_spread_x, values_spread_y, X, Y, parameter_2D, prefix_output, nbins=nbins)
-    safe_pdf_2D(pdf_spread_smooth, x,y , parameter_2D, prefix_output)
+    pdf_spread_smooth, x, y = smooth_2D(values_spread_x, values_spread_y, nbins=nbins)
+    safe_pdf_2D(pdf_spread_smooth, x, y, parameter_2D, prefix_output)
     plot_pdf_2D(pdf_spread_smooth, x, y, parameter_2D, prefix_output)
     return pdf_spread_smooth, xcenters, ycenters, histogram
 
@@ -93,15 +93,17 @@ def safe_pdf_2D(pdf_spread_smooth, x, y, parameter_2D, prefix_output):
     np.savetxt(file_out, data, fmt='%.6f', delimiter=' ', header='x y pdf(x,y)')
     return data
 
-def plot_map(x,y,z):
-    plt.tricontourf(x,y,z)
+
+def plot_map(x, y, z):
+    plt.tricontourf(x, y, z)
     plt.colorbar(label='pdf(x,y)')
     plt.xlabel('x')
     plt.ylabel('y')
     plt.title('2D PDF')
     plt.show()
 
-def smooth_2D(values_x, values_y, X, Y, parameter_2D, prefix_output, nbins=1000):
+
+def smooth_2D(values_x, values_y, nbins=1000):
     """
     Function that estimate PDF based on the sample using a gaussian kernel density estimation.
     It returns the smoothed PDF.
@@ -110,38 +112,33 @@ def smooth_2D(values_x, values_y, X, Y, parameter_2D, prefix_output, nbins=1000)
     limits_y = np.percentile(values_y, [2, 98])
     xcenters = np.linspace(limits_x[0], limits_x[1], nbins)
     ycenters = np.linspace(limits_y[0], limits_y[1], nbins)
-    
+
     points = np.array([[x, y] for x in xcenters for y in ycenters])
 
     pdf_spread_smooth = fastkde.fastKDE.pdf_at_points(values_x, values_y, list_of_points=points)
 
-    return pdf_spread_smooth, points[:,0], points[:,1]
+    return pdf_spread_smooth, points[:, 0], points[:, 1]
 
 
 def plot_pdf_2D(pdf_spread_smooth, x, y, parameter_2D, prefix_output):
+
     z = pdf_spread_smooth
-    
+
     x_values = np.sort(np.unique(x))
     y_values = np.sort(np.unique(y))
 
     dx = x_values[1] - x_values[0]
     dy = y_values[1] - y_values[0]
-    
+
     Z = z.reshape(len(y_values), len(x_values))
     X = x.reshape(len(y_values), len(x_values))
     Y = y.reshape(len(y_values), len(x_values))
-    
-    p = (Z * dx * dy).ravel()
-    p_sorted = np.sort(p)[::-1]
-    cumsum = np.cumsum(p_sorted)
-    level_95 = p_sorted[np.searchsorted(cumsum, 0.95)]
-    mask = (Z * dx * dy) >= level_95
 
-    x_min = X[np.any(mask, axis=0)].min()
-    x_max = X[np.any(mask, axis=0)].max()
+    x_min = X.min()
+    x_max = X.max()
 
-    y_min = Y[np.any(mask, axis=1)].min()
-    y_max = Y[np.any(mask, axis=1)].max()
+    y_min = Y.min()
+    y_max = Y.max()
 
     px = np.sum(Z, axis=0) * dy
     py = np.sum(Z, axis=1) * dx
@@ -226,8 +223,7 @@ def spread_2D(X, Y, counts, parameter):
     It fits a gaussian function to the histogram, multiplies its sigma by a scale factor,
     and adds the gaussian function to the initial histogram.
     """
-    scale = 10.
-
+    scale = 4.
     # Flatten everything (curve_fit needs 1D arrays)
     xdata = X.ravel()
     ydata = Y.ravel()
@@ -241,7 +237,8 @@ def spread_2D(X, Y, counts, parameter):
     )
 
     pars, _ = curve_fit(Gauss_2d, (xdata, ydata), zdata, p0=p0)
-    fit_z = Gauss_2d((xdata, ydata), pars[0]/2, pars[1], pars[2], pars[3] * scale, pars[4] * scale ).reshape(counts.shape)
+    fit_z = Gauss_2d((xdata, ydata), pars[0]/2, pars[1], pars[2], pars[3] * scale, pars[4] * scale
+                     ).reshape(counts.shape)
 
     print(('{:s} {:s}:  A= {:.2f} x0= {:.2f}, y0={:.2f}, sigma_x={:.2f},' +
           'sigma_y={:.2f}').format(
@@ -297,8 +294,7 @@ if __name__ == '__main__':
 
     # choose parameters
     parameters = ['t_E', 'pi_E_E', 'pi_E_N']
-    parameters_2D = [['pi_E_E', 'pi_E_N'],
-                    ['pi_E_E', 't_E']]
+    parameters_2D = [['pi_E_E', 'pi_E_N'], ['pi_E_E', 't_E']]
     # convesion from MulensModel to genulens names
     conve = {
         'pi_E_E': 'pi_EE',
