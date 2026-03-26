@@ -5,6 +5,8 @@ from MulensModel.model import Model
 import VBMicrolensing
 
 
+plot = False
+
 def test_VBM_vs_MM():
     """
     Test MulensModel.Model() for triple lens vs VBMicrolensing. The test is based on the example from VBMicrolensing:
@@ -80,15 +82,16 @@ def test_VBM_vs_MM():
     x_MM, y_MM = caustics_MM.get_caustics()
     x_critical_MM, y_critical_MM = caustics_MM._critical_curve.x, caustics_MM._critical_curve.y
 
-    plt.scatter(x_VBM, y_VBM, color='r', label='VBM caustics', s=4, alpha=0.1, marker='x')
-    plt.scatter(x_MM, y_MM, color='b', label='MM caustics', s=1, alpha=0.1, marker='o')
-    plt.scatter(x_critical_VBM, y_critical_VBM, color='r', label='VBM critical curve', s=4, alpha=0.1, marker='x')
-    plt.scatter(x_critical_MM, y_critical_MM, color='b', label='MM critical curve', s=1, alpha=0.1, marker='o')
-    plt.legend()
-    plt.xlabel('x')
-    plt.ylabel('y')
-    plt.title('Caustics and critical curves for triple lens')
-    plt.show()
+    if plot:
+        plt.scatter(x_VBM, y_VBM, color='r', label='VBM caustics', s=4, alpha=0.1, marker='x')
+        plt.scatter(x_MM, y_MM, color='b', label='MM caustics', s=1, alpha=0.1, marker='o')
+        plt.scatter(x_critical_VBM, y_critical_VBM, color='r', label='VBM critical curve', s=4, alpha=0.1, marker='x')
+        plt.scatter(x_critical_MM, y_critical_MM, color='b', label='MM critical curve', s=1, alpha=0.1, marker='o')
+        plt.legend()
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.title('Caustics and critical curves for triple lens')
+        plt.show()
 
     assert_almost_equal(magtriple_MM, magtriple_VBM[0], decimal=3, err_msg='Magnification')
     assert_almost_equal(x_MM, x_VBM, decimal=3, err_msg='Caustics x')
@@ -140,18 +143,19 @@ def test_2L(n=1):
         x_critical_vbm_multiple = caustics_vbm_multiple._critical_curve.x
         y_critical_vbm_multiple = caustics_vbm_multiple._critical_curve.y
 
-        plt.scatter(x_vbm, y_vbm, color='r', label='VBM caustics', s=4, alpha=0.1, marker='x')
-        plt.scatter(x_vbm_multiple, y_vbm_multiple, color='b', label='VBM multiple caustics', s=1, alpha=0.1,
-                    marker='o')
-        plt.scatter(x_critical_vbm, y_critical_vbm, color='r', label='VBM critical curve', s=4, alpha=0.1,
-                    marker='x')
-        plt.scatter(x_critical_vbm_multiple, y_critical_vbm_multiple, color='b',
-                    label='VBM multiple critical curve',  s=1, alpha=0.1, marker='o')
-        plt.legend()
-        plt.xlabel('x')
-        plt.ylabel('y')
-        plt.title('Caustics and critical curves for 2L')
-        plt.show()
+        if plot:
+            plt.scatter(x_vbm, y_vbm, color='r', label='VBM caustics', s=4, alpha=0.1, marker='x')
+            plt.scatter(x_vbm_multiple, y_vbm_multiple, color='b', label='VBM multiple caustics', s=1, alpha=0.1,
+                        marker='o')
+            plt.scatter(x_critical_vbm, y_critical_vbm, color='r', label='VBM critical curve', s=4, alpha=0.1,
+                        marker='x')
+            plt.scatter(x_critical_vbm_multiple, y_critical_vbm_multiple, color='b',
+                        label='VBM multiple critical curve',  s=1, alpha=0.1, marker='o')
+            plt.legend()
+            plt.xlabel('x')
+            plt.ylabel('y')
+            plt.title('Caustics and critical curves for 2L')
+            plt.show()
 
         assert_almost_equal(mag_2L_vbm, mag_2L_vbm_multiple, decimal=3, err_msg='Magnification')
         assert_almost_equal(x_vbm, x_vbm_multiple, decimal=3, err_msg='Caustics x')
@@ -231,34 +235,37 @@ def test_2L_plus_2L():
     x_critical_2L_2, y_critical_2L_2 = caustics_2L_2._critical_curve.x, caustics_2L_2._critical_curve.y
     trajectory_2L_2 = model_2.get_trajectory(t)
 
-    plt.scatter(x_3L, y_3L, color='r', label='3L caustics', s=4, alpha=0.5, marker='x')
-    plt.scatter(x_2L_1, y_2L_1, color='b', label='2L_1 caustics', s=1, alpha=0.5, marker='o')
-    plt.scatter(x_2L_2, y_2L_2, color='g', label='2L_2 caustics', s=1, alpha=0.5, marker='o')
-    plt.scatter(x_critical_3L, y_critical_3L, color='r', label='3L critical curve', s=4, alpha=0.5, marker='x')
-    plt.scatter(x_critical_2L_1, y_critical_2L_1, color='b', label='2L_1 critical curve', s=4, alpha=0.5, marker='o')
-    plt.scatter(x_critical_2L_2, y_critical_2L_2, color='g', label='2L_2 critical curve', s=4, alpha=0.5, marker='o')
-    plt.scatter(trajectory_3L.x, trajectory_3L.y, color='r', label='3L trajectory', s=1, alpha=0.5, marker='x')
-    plt.scatter(trajectory_2L_1.x, trajectory_2L_1.y, color='b', label='2L_1 trajectory', s=1, alpha=0.5, marker='o')
-    plt.scatter(trajectory_2L_2.x, trajectory_2L_2.y, color='g', label='2L_2 trajectory', s=1, alpha=0.5, marker='o')
-    plt.xlabel('x')
-    plt.ylabel('y')
-    plt.title('Caustics and critical curves for 3L')
-    plt.legend()
-    plt.show()
+    if plot:
+        plt.scatter(x_3L, y_3L, color='r', label='3L caustics', s=4, alpha=0.5, marker='x')
+        plt.scatter(x_2L_1, y_2L_1, color='b', label='2L_1 caustics', s=1, alpha=0.5, marker='o')
+        plt.scatter(x_2L_2, y_2L_2, color='g', label='2L_2 caustics', s=1, alpha=0.5, marker='o')
+        plt.scatter(x_critical_3L, y_critical_3L, color='r', label='3L critical curve', s=4, alpha=0.5, marker='x')
+        plt.scatter(x_critical_2L_1, y_critical_2L_1, color='b', label='2L_1 critical curve', s=4, alpha=0.5, marker='o')
+        plt.scatter(x_critical_2L_2, y_critical_2L_2, color='g', label='2L_2 critical curve', s=4, alpha=0.5, marker='o')
+        plt.scatter(trajectory_3L.x, trajectory_3L.y, color='r', label='3L trajectory', s=1, alpha=0.5, marker='x')
+        plt.scatter(trajectory_2L_1.x, trajectory_2L_1.y, color='b', label='2L_1 trajectory', s=1, alpha=0.5, marker='o')
+        plt.scatter(trajectory_2L_2.x, trajectory_2L_2.y, color='g', label='2L_2 trajectory', s=1, alpha=0.5, marker='o')
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.title('Caustics and critical curves for 3L')
+        plt.legend()
+        plt.show()
 
-    plt.scatter(t, magtriple_3L, color='r', label='3L magnification', s=4, alpha=0.5, marker='x')
-    plt.scatter(t, mag_2L_1, color='b', label='2L_1 magnification', s=1, alpha=0.5, marker='o')
-    plt.scatter(t, mag_2L_2, color='g', label='2L_2 magnification', s=1, alpha=0.5, marker='o')
-    plt.xlabel('time')
-    plt.ylabel('magnification')
-    plt.title('Magnification for 3L and 2L')
-    plt.legend()
+        plt.scatter(t, magtriple_3L, color='r', label='3L magnification', s=4, alpha=0.5, marker='x')
+        plt.scatter(t, mag_2L_1, color='b', label='2L_1 magnification', s=1, alpha=0.5, marker='o')
+        plt.scatter(t, mag_2L_2, color='g', label='2L_2 magnification', s=1, alpha=0.5, marker='o')
+        plt.xlabel('time')
+        plt.ylabel('magnification')
+        plt.title('Magnification for 3L and 2L')
+        plt.legend()
 
-    plt.show()
+        plt.show()
     # assert_almost_equal(magtriple_3L, mag_2L_1*mag_2L_2, decimal=2, err_msg='Magnification 3L vs product of 2L' )
     return 'git'
 
 
-test_VBM_vs_MM()
-test_2L(n=10)
-test_2L_plus_2L()
+if __name__ == '__main__':
+    plot = True
+    test_VBM_vs_MM()
+    test_2L(n=10)
+    test_2L_plus_2L()
