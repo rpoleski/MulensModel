@@ -965,6 +965,8 @@ class ModelParameters(object):
         """
         if 't_eff' in self.parameters.keys():
             return self.parameters['t_eff']
+        elif self._type['Cassan08']:
+            return self.t_E * self.u_0
         else:
             try:
                 return (self.parameters['t_E'] * self.parameters['u_0'])
