@@ -1006,7 +1006,7 @@ class UlensModelFit(object):
         """
         Check if parameters of trajectory plot make sense
         """
-        allowed = set(['file', 'time range', 'interactive'])
+        allowed = set(['file', 'time range', 'interactive', 'caustic epochs'])
         unknown = set(self._plots['trajectory'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
@@ -3942,6 +3942,7 @@ class UlensModelFit(object):
             self._make_trajectory_plot()
             if 'interactive' in self._plots['trajectory']:
                 self._make_interactive_plot_trajectory()
+
 
     def _triangle_plot(self):
         """
