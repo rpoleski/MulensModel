@@ -417,15 +417,15 @@ class MagnificationCurve(object):
                 self._magnification_objects[method] = \
                     mm.binarylens.BinaryLensAdaptiveContouringMagnification(gamma=self._gamma, **kwargs)
             elif method.lower() == 'point_source_point_lens':
-                if self.parameters.s < 1.:
-                    co_mag_trajectory = trajectory
+                if 'q' in self.parameters.parameters:
+                    q = self.parameters.q
+                    s = self.parameters.get_s(trajectory.times)
                 else:
-                    if 'q' in self.parameters.parameters:
-                        q = self.parameters.q
-                        s = self.parameters.get_s(trajectory.times)
-                    else:
-                        q = self.parameters.q_21
-                        s = self.parameters.s_21
+                    q = self.parameters.q_21
+                    s = self.parameters.s_21  
+                if s < 1.:
+                    co_mag_trajectory = trajectory
+                else: 
                     delta_x = - (s - 1. / s) * q / (1. + q)
                     co_mag_trajectory = mm.Trajectory(x=trajectory.x - delta_x, y=trajectory.y)
 
