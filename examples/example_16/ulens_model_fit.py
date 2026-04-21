@@ -2,6 +2,8 @@
 Class and script for fitting microlensing model using MulensModel.
 All the settings are read from a YAML file.
 """
+# import matplotlib
+# matplotlib.use('Agg')
 import sys
 from os import path, sep
 import tempfile
@@ -47,7 +49,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.55.1'
+__version__ = '0.56.0'
 
 
 class UlensModelFit(object):
@@ -372,8 +374,8 @@ class UlensModelFit(object):
             ``trajectory``, and ``best model``.
             The values are also dicts and currently accepted keys are:
             1) for ``best model``:
-            ``'file'``, ``'interactive'``, ``'time range'``, ``'magnitude range'``, ``'title'``,``'legend'``,
-            ``'rcParams'``, ``'xlabel'``, ``'model label'``, ``'model kwargs'`` and
+            ``'file'``, ``'interactive'``, ``'add posterior samples'``, ``'time range'``, ``'magnitude range'``,
+            ``'title'``, ``'legend'``, ``'rcParams'``, ``'xlabel'``, ``'model label'``, ``'model kwargs'`` and
             ``'add models'`` (allows setting ``Model.plot_lc()`` parameters and ``'limb darkening u'``
             to *str* or *float*),
             2) for ``triangle`` and ``trace``:
@@ -397,7 +399,9 @@ class UlensModelFit(object):
                       'interactive': 'my_trajectory.html'
                   'best model':
                       'file': 'my_fit_best.png'
-                      'interactive' : 'my_fit_best.html'
+                      'interactive': 'my_fit_best.html'
+                      'add posterior samples':
+                          'n_samples': 100
                       'time range': 2456000. 2456300.
                       'magnitude range': 15.123 13.012
                       'title': 'my fit best'
@@ -870,8 +874,9 @@ class UlensModelFit(object):
         """
         Check if parameters of best model make sense
         """
-        allowed = set(['file', 'time range', 'magnitude range', 'legend', 'rcParams', 'second Y scale',
-                       'interactive', 'title', 'add models', 'model label', 'model kwargs', 'xlabel'])
+        allowed = set([
+            'file', 'time range', 'magnitude range', 'legend', 'rcParams', 'second Y scale', 'interactive', 'title',
+            'add models', 'model label', 'model kwargs', 'xlabel', 'add posterior samples'])
         unknown = set(self._plots['best model'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError('Unknown settings for "best model": {:}'.format(unknown))
@@ -899,6 +904,9 @@ class UlensModelFit(object):
 
         if 'add models' in self._plots['best model']:
             self._check_plots_parameters_add_models()
+
+        if 'add posterior samples' in self._plots['best model']:
+            self._check_plots_parameters_best_model_add_posterior()
 
     def _set_time_range_for_plot(self, plot_type):
         """
@@ -938,7 +946,8 @@ class UlensModelFit(object):
         """
         Check if there is no problem with interactive best plot
         """
-        pass
+        if 'add posterior samples' in self._plots['best model']:
+            warnings.warn("Plotting random models from posterior is not supported currently.")
 
     def _check_plots_parameters_best_model_title(self):
         """
@@ -958,6 +967,25 @@ class UlensModelFit(object):
             if not isinstance(one_model, (dict)):
                 raise TypeError(
                     'All entries of "best model" -> "add models" must be dicts, not ' + str(type(one_model)))
+
+    def _check_plots_parameters_best_model_add_posterior(self):
+        """
+        Check if "best model" -> "add posterior samples" is of proper type:
+        """
+        settings = self._plots['best model']['add posterior samples']
+        if not isinstance(settings, (dict)):
+            raise TypeError(
+                'The type of "best model" -> "add posterior samples" must be a dict, not ' + str(type(settings)))
+
+        required = set(['n_samples'])
+        missing = required - set(settings)
+        if len(missing) > 0:
+            raise ValueError('Missing settings for "best model" -> "add posterior samples": {:}'.format(missing))
+
+        allowed = required.copy()
+        unknown = set(settings) - allowed
+        if len(unknown) > 0:
+            raise ValueError('Unknown settings for "best model" -> "add posterior samples": {:}'.format(unknown))
 
     def _check_plots_parameters_best_model_Y_scale(self):
         """
@@ -2507,9 +2535,9 @@ class UlensModelFit(object):
             parameters = {**self._fixed_parameters}
 
         if self._task == 'plot':
-            parameters.update(dict(zip(
-                self._model_parameters['parameters'],
-                self._model_parameters['values'])))
+            if len(self._model_parameters['parameters']) != len(self._model_parameters['values']):
+                raise ValueError('Lengths of "parameters" and "values" in "model" don' + "'t match.")
+            parameters.update(dict(zip(self._model_parameters['parameters'], self._model_parameters['values'])))
             # XXX this is some kind of a hack:
             self._best_model_theta = []
             self._fit_parameters = []
@@ -3443,11 +3471,10 @@ class UlensModelFit(object):
 
         if self._return_fluxes:
             print("Fitted fluxes (source and blending):")
-            blob_samples = self._get_fluxes_to_print_EMCEE()
-            self._print_results(blob_samples, names='fluxes')
+            self._print_results(self._flux_samples_flat, names='fluxes')
             if self._yaml_results:
                 print("Fitted fluxes: # (source and blending)", **self._yaml_kwargs)
-                self._print_yaml_results(blob_samples, names='fluxes')
+                self._print_yaml_results(self._flux_samples_flat, names='fluxes')
 
         self._print_best_model()
         if self._yaml_results:
@@ -3470,6 +3497,23 @@ class UlensModelFit(object):
         self._samples_flat = self._samples.copy().reshape((-1, n_fit))
         if 'trace' not in self._plots:
             self._samples = None
+
+        self._flux_samples_flat = self._get_fluxes_to_print_EMCEE()
+
+    def _get_fluxes_to_print_EMCEE(self):
+        """
+        prepare values to be printed for EMCEE fitting
+        """
+        try:
+            blobs = np.array(self._sampler.blobs)
+        except Exception as exception:
+            raise ValueError('There was some issue with blobs:\n' +
+                             str(exception))
+        blob_sampler = np.transpose(blobs, axes=(1, 0, 2))
+        blob_samples = blob_sampler[:, self._fitting_parameters['n_burn']:, :]
+        blob_samples = blob_samples.reshape((-1, self._n_fluxes))
+
+        return blob_samples
 
     def _print_results(self, data, names="parameters", mode=None):
         """
@@ -3600,43 +3644,28 @@ class UlensModelFit(object):
         if not self._shift_t_0:
             return
 
+        self._shift_t_0_values = dict()
         for name in ['t_0', 't_0_1', 't_0_2']:
             if name in self._fit_parameters:
                 index = self._fit_parameters.index(name)
                 values = self._samples_flat[:, index]
+                # XXX The line below is actually wrong for binary source models.
                 self._shift_t_0_val = int(np.mean(values))
+                self._shift_t_0_values[index] = self._shift_t_0_val
                 try:
                     self._samples_flat[:, index] -= self._shift_t_0_val
                     if 'trace' in self._plots:
                         self._samples[:, :, index] -= self._shift_t_0_val
                 except TypeError:
-                    fmt = ("Warning: extremely wide range of posterior {:}: "
-                           "from {:} to {:}")
-                    warnings.warn(
-                        fmt.format(name, np.min(values), np.max(values)))
+                    fmt = "Warning: extremely wide range of posterior {:}: from {:} to {:}"
+                    warnings.warn(fmt.format(name, np.min(values), np.max(values)))
                     self._samples_flat[:, index] = values - self._shift_t_0_val
                     if 'trace' in self._plots:
-                        self._samples[:, :, index] = (
-                            self._samples[:, :, index] - self._shift_t_0_val)
+                        self._samples[:, :, index] = self._samples[:, :, index] - self._shift_t_0_val
 
             if self._fixed_parameters is not None:
                 if name in self._fixed_parameters.keys():
                     self._shift_t_0_val = int(self._fixed_parameters[name])
-
-    def _get_fluxes_to_print_EMCEE(self):
-        """
-        prepare values to be printed for EMCEE fitting
-        """
-        try:
-            blobs = np.array(self._sampler.blobs)
-        except Exception as exception:
-            raise ValueError('There was some issue with blobs:\n' +
-                             str(exception))
-        blob_sampler = np.transpose(blobs, axes=(1, 0, 2))
-        blob_samples = blob_sampler[:, self._fitting_parameters['n_burn']:, :]
-        blob_samples = blob_samples.reshape((-1, self._n_fluxes))
-
-        return blob_samples
 
     def _print_best_model(self):
         """
@@ -4067,8 +4096,8 @@ class UlensModelFit(object):
             mm.utils.PlotUtils.apply_defaults()
 
         kwargs_all = self._get_kwargs_for_best_model_plot()
-        (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2) = kwargs_all[:6]
-        (kwargs_axes_1, kwargs_axes_2) = kwargs_all[6:]
+        (kwargs_grid, kwargs_model, kwargs_model_plt, kwargs, xlim, t_1, t_2) = kwargs_all[:7]
+        (kwargs_axes_1, kwargs_axes_2) = kwargs_all[7:]
         (ylim, ylim_residuals) = self._get_ylim_for_best_model_plot(t_1, t_2)
 
         grid = gridspec.GridSpec(**kwargs_grid)
@@ -4078,7 +4107,7 @@ class UlensModelFit(object):
         self._event.plot_data(**kwargs)
         fluxes = self._event.get_ref_fluxes()
 
-        self._plot_models_for_best_model_plot(fluxes, kwargs_model)
+        self._plot_models_for_best_model_plot(fluxes, kwargs_model, kwargs_model_plt)
 
         self._plot_title_for_best_model_plot()
 
@@ -4104,18 +4133,22 @@ class UlensModelFit(object):
 
     def _get_kwargs_for_best_model_plot(self):
         """
-        prepare kwargs/settings for best plot model
+        Prepare kwargs/settings for best plot model.
+
+        XXX NOTE - It would be better to use class properties to pass these kwargs instead of variables.
+        See, e.g., _set_plt_kwargs_for_posterior_models().
         """
         plot_size_ratio = 5
         hspace = 0
         tau = 1.5
         kwargs_grid = {'nrows': 2, 'ncols': 1, 'height_ratios': [plot_size_ratio, 1], 'hspace': hspace}
-        default_model = self._get_model_kwargs()
+        kwargs_model_plt = self._get_plt_kwargs_for_model()
 
         (t_1, t_2) = self._get_time_limits_for_plot(tau, 'best model')
         (kwargs, xlim) = self._get_subtract_kwargs_and_xlim_for_best_model(t_1, t_2)
+        self._set_plt_kwargs_for_posterior_models()
 
-        kwargs_model = {'t_start': t_1, 't_stop': t_2, **default_model, **kwargs}
+        kwargs_model = {'t_start': t_1, 't_stop': t_2, **kwargs}
         if self._model.n_sources != 1:
             kwargs_model['source_flux_ratio'] = self._datasets[0]
         if self._datasets[0].bandpass is not None:
@@ -4128,9 +4161,9 @@ class UlensModelFit(object):
             axis='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom=False)
         kwargs_axes_2 = {**kwargs_axes_1, 'labelbottom': True}
 
-        return (kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2, kwargs_axes_1, kwargs_axes_2)
+        return (kwargs_grid, kwargs_model, kwargs_model_plt, kwargs, xlim, t_1, t_2, kwargs_axes_1, kwargs_axes_2)
 
-    def _get_model_kwargs(self):
+    def _get_plt_kwargs_for_model(self):
         """Get kwargs for plotting models in best model plot"""
         properties = {'zorder': np.inf}
 
@@ -4142,6 +4175,20 @@ class UlensModelFit(object):
             properties['linewidth'] = 1.0
 
         return properties
+
+    def _set_plt_kwargs_for_posterior_models(self):
+        """Set kwargs that will be used to plot many models from posterior"""
+        kwargs = {'alpha': 0.2}
+        # In future:
+        # kwargs.update(self._plots['best model']['add posterior samples'].get('model kwargs', dict()))
+
+        if 'c' not in kwargs and 'color' not in kwargs:
+            kwargs['color'] = 'gray'
+
+        if 'lw' not in kwargs and 'linewidth' not in kwargs:
+            kwargs['linewidth'] = 1.5
+
+        self._plt_kwargs_for_posterior_models = kwargs
 
     def _get_subtract_kwargs_and_xlim_for_best_model(self, t_1, t_2):
         """
@@ -4240,27 +4287,34 @@ class UlensModelFit(object):
 
         return (ylim, ylim_residuals)
 
-    def _plot_models_for_best_model_plot(self, fluxes, kwargs_model):
+    def _plot_models_for_best_model_plot(self, fluxes, kwargs_model, kwargs_model_plt):
         """
         Plot best models: first ground-based (if needed, hence loop), then satellite ones (if needed).
         """
-        for dataset in self._datasets:
-            if dataset.ephemerides_file is None:
-                kwargs_label = {'label': self._plots['best model'].get('model label', None)}
-                self._model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs_model, **kwargs_label)
-                break
+        kwargs_flux = {'source_flux': fluxes[0], 'blend_flux': fluxes[1]}
+        non_satellite_model = (None in [d.ephemerides_file for d in self._datasets])
+        if non_satellite_model:
+            kwargs_label = {'label': self._plots['best model'].get('model label', None)}
+            self._model.plot_lc(**kwargs_flux, **kwargs_model, **kwargs_model_plt, **kwargs_label)
+
+        if 'add posterior samples' in self._plots['best model']:
+            if not non_satellite_model:
+                warnings.warn(
+                    "Currently there is not plotting routine for 'add posterior samples' and only satellite datasets")
+            else:
+                self._best_model_plot_add_posterior(kwargs_model)
 
         for model in self._models_satellite:
             model.parameters.parameters = {**self._model.parameters.parameters}
-            model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs_model)
+            model.plot_lc(**kwargs_flux, **kwargs_model, **kwargs_model_plt)
 
         if 'add models' in self._plots['best model']:
             for dict_model in self._plots['best model']['add models']:
-                self._plot_added_model(fluxes, kwargs_model, dict_model)
+                self._plot_added_model(fluxes, kwargs_model, kwargs_model_plt, dict_model)
 
-    def _plot_added_model(self, fluxes, kwargs_model, settings):
+    def _plot_added_model(self, fluxes, kwargs_model, kwargs_model_plt, settings):
         """Plot one additional model"""
-        kwargs = {**kwargs_model}
+        kwargs = {**kwargs_model, **kwargs_model_plt}
         if 'limb darkening u' in settings:
             value = settings.pop('limb darkening u')
             if isinstance(value, (str)):
@@ -4271,6 +4325,35 @@ class UlensModelFit(object):
         kwargs.update(settings)
 
         self._model.plot_lc(source_flux=fluxes[0], blend_flux=fluxes[1], **kwargs)
+
+    def _best_model_plot_add_posterior(self, kwargs_model):
+        """
+        Add randomly drawn models from posterior
+        """
+        if self._task == 'plot':
+            warnings.warn('Currently add random posterior models to the best model plot is not supported.')
+        n_all = self._flux_samples_flat.shape[0]
+        n_draw = self._plots['best model']['add posterior samples']['n_samples']
+        indexes = np.random.choice(np.arange(n_all), size=n_draw)
+        for (i, index) in enumerate(indexes):
+            theta = self._correct_t_0_value(self._samples_flat[index])
+            self._ln_like(theta)
+            fluxes = self._flux_samples_flat[index]
+            kwargs = {'source_flux': fluxes[0], 'blend_flux': fluxes[1]}
+            if 'zorder' not in self._plt_kwargs_for_posterior_models:
+                kwargs['zorder'] = 0 - n_draw + i
+
+            self._model.plot_lc(**kwargs, **kwargs_model, **self._plt_kwargs_for_posterior_models)
+
+    def _correct_t_0_value(self, theta):
+        """
+        Correct t_0 t_0_1 t_0_2 in a single value so that it's back 245....
+        """
+        out = np.copy(theta)
+        for (index, value) in self._shift_t_0_values.items():
+            out[index] += value
+
+        return out
 
     def _plot_legend_for_best_model_plot(self):
         """
@@ -4295,8 +4378,7 @@ class UlensModelFit(object):
             try:
                 plt.title(self._plots['best model']['title'])
             except Exception:
-                print("\npyplot.title() failed with kwargs:")
-                print(self._plots['best model']['title'], "\n")
+                print("\npyplot.title() failed with kwargs:\n", self._plots['best model']['title'], "\n")
                 raise
         else:
             return
@@ -4454,8 +4536,7 @@ class UlensModelFit(object):
         plt.xlabel(r"$x [\theta_E]$")
         plt.ylabel(r"$y [\theta_E]$")
         plt.axis('equal')
-        plt.gca().tick_params(axis='both', which='both', direction='in',
-                              top=True, right=True)
+        plt.gca().tick_params(axis='both', which='both', direction='in', top=True, right=True)
 
         self._save_figure(self._plots['trajectory'].get('file'), dpi=dpi)
 
@@ -4472,7 +4553,7 @@ class UlensModelFit(object):
             rcParams[key] = value
 
         kwargs_all = self._get_kwargs_for_best_model_plot()
-        (ylim, ylim_residuals) = self._get_ylim_for_best_model_plot(*kwargs_all[4:6])
+        (ylim, ylim_residuals) = self._get_ylim_for_best_model_plot(*kwargs_all[5:7])
         (layout, kwargs_model, kwargs_interactive, kwargs) = \
             self._prepare_interactive_layout(scale, kwargs_all, ylim, ylim_residuals)
 
@@ -4492,8 +4573,9 @@ class UlensModelFit(object):
 
     def _prepare_interactive_layout(self, scale, kwargs_all, ylim, ylim_residuals):
         """Prepares the layout for the interactive plot."""
-        kwargs_grid, kwargs_model, kwargs, xlim, t_1, t_2 = kwargs_all[:6]
-        kwargs_axes_1, kwargs_axes_2 = kwargs_all[6:]
+        kwargs_grid, kwargs_model, kwargs_model_plt, kwargs, xlim, t_1, t_2 = kwargs_all[:7]
+        kwargs_axes_1, kwargs_axes_2 = kwargs_all[7:]
+        kwargs_model = {**kwargs_model, **kwargs_model_plt}
         kwargs_interactive = self._get_kwargs_for_plotly_plot(scale)
 
         layout = self._make_interactive_layout(

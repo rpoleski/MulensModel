@@ -663,6 +663,16 @@ def test_n_lenses():
     assert p_3.n_lenses == 2
 
 
+def test_t_eff_from_C08():
+    """test if one can calculate t_eff from Cassan08 parametrization"""
+    model = mm.Model({'s': 1, 'q': 0.05, 'rho': 0.1,
+                  'x_caustic_in': 0.85, 'x_caustic_out': 0.37,
+                  't_caustic_in': 2453554., 't_caustic_out': 2453566.})
+    t_eff = model.parameters.u_0 * model.parameters.t_E
+    np.testing.assert_almost_equal(t_eff, model.parameters.t_eff)
+
+
+
 def test_single_lens_convergence_K_shear_G():
     """
     Test single lens with convergence_K and shear_G in intialized
@@ -1123,6 +1133,29 @@ def test_change_of_xallarap_reference_position_2():
     reference_2 = parameters_2.xallarap_reference_position
 
     assert np.all(reference_1 == reference_2)
+
+
+def test_change_of_xallarap_reference_position_3():
+    """
+    Make sure that chainging rho_2 doesn't change the xallarap reference position.
+    Till v3.9.2 this was causing an error. The problem was only if the last changed parameter was rho_2 or t_star_2.
+    """
+    coords = "17:00:00.0 -30:00:00.0"
+    params = {
+        't_0': 2457000., 'u_0': -0.01, 't_E': 100., 'pi_E_E': -0.1, 'pi_E_N': 0.1, 'rho_1': 0.03, 'rho_2': 0.06,
+        's': 0.4, 'q': 0.2, 'alpha': 270., 'xi_period': 550., 'xi_semimajor_axis': 1., 'xi_Omega_node': 150.,
+        'xi_inclination': 60., 'xi_argument_of_latitude_reference': 300, 'xi_eccentricity': 0.75,
+        'xi_omega_periapsis': 150., 'q_source': 5.}
+    model = mm.Model(params, coords=coords)
+    reference_1 = model.parameters.source_1_parameters.xallarap_reference_position
+    reference_2 = model.parameters.source_2_parameters.xallarap_reference_position
+    np.testing.assert_almost_equal(reference_1, reference_2)
+
+    model.parameters.rho_2 = 0.01
+    reference_3 = model.parameters.source_1_parameters.xallarap_reference_position
+    reference_4 = model.parameters.source_2_parameters.xallarap_reference_position
+    np.testing.assert_almost_equal(reference_1, reference_3)
+    np.testing.assert_almost_equal(reference_1, reference_4)
 
 
 class Test1L3SModels(unittest.TestCase):
