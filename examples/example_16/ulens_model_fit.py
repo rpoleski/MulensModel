@@ -13,6 +13,7 @@ import math
 import numpy as np
 import shlex
 from scipy.interpolate import interp1d
+from scipy.ndimage import map_coordinates
 from matplotlib import pyplot as plt
 from matplotlib import gridspec, rcParams, rcParamsDefault, colors
 # from matplotlib.backends.backend_pdf import PdfPages
@@ -352,6 +353,18 @@ class UlensModelFit(object):
                 ``'pi_E_N': gauss mean sigma`` (same for ``'pi_E_E'``) -
                 specify gaussian prior for parallax components. Parameters
                 *mean* and *sigma* are floats.
+
+            ``'from file'`` - *list* of *str*. It specifies the priors for selected parameters based on PDF in
+            specified file.
+            The file should have two or three columns:
+                - for 1D prior: first with parameters values and second with corresponding PDF values.
+                - for 2D prior: first two columns with parameters values and third with corresponding PDF values.
+
+            Parameters:
+                *file* - a *str* that gives a path to the file with PDF
+                of the parameter,
+                *parameters* -  name of the parameter for which the prior should be implemented.
+            e.g., `{file: data/OB03235/OB03235_prior_pi_E_E_pi_E_N.txt, parameters: pi_E_E pi_E_N}``
 
             References:
               Mao & Paczynski 1996 -
@@ -1868,6 +1881,7 @@ class UlensModelFit(object):
         """
         self._prior_t_E = None
         self._priors = None
+        self._prior_file = None
 
         if self._fit_constraints is None:
             self._set_default_fit_constraints()
@@ -1880,6 +1894,9 @@ class UlensModelFit(object):
 
         if 'prior' in self._fit_constraints:
             self._parse_fit_constraints_prior()
+
+        if 'from file' in self._fit_constraints:
+            self._parse_fit_constraints_prior_file()
 
     def _check_fit_constraints(self):
         """
@@ -1921,7 +1938,7 @@ class UlensModelFit(object):
         allowed_keys_color = {'color', 'color source 1', 'color source 2'}
 
         allowed_keys = {*allowed_keys_blending_flux, *allowed_keys_color, *allowed_keys_source_flux,
-                        *allowed_keys_ratio, *allowed_keys_size, "prior", "posterior parsing"}
+                        *allowed_keys_ratio, *allowed_keys_size, "prior", "posterior parsing", 'from file'}
 
         used_keys = set(self._fit_constraints.keys())
         if len(used_keys - allowed_keys) > 0:
@@ -2010,6 +2027,15 @@ class UlensModelFit(object):
                          "negative_source_2_flux_sigma_mag"]:
                 self._parse_fit_constraints_soft_no_negative(key, value)
 
+    def _parse_fit_constraints_prior_file(self):
+        """
+        Check if priors base file in fit constraint are correctly defined.
+        """
+        key = 'from file'
+        value = self._fit_constraints[key]
+        self._parse_fit_constraints_ratios(key, value, 'file')
+        self._set_prior_file_interpolation_functions()
+
     def _parse_fit_constraints_soft_no_negative(self, key, value):
         """
         Check if soft fit constraint on fluxes are correctly defined.
@@ -2032,6 +2058,8 @@ class UlensModelFit(object):
             get_settings = self._get_settings_fit_constraints_color
         if instance == 'flux':
             get_settings = self._get_settings_fit_constraints_ratio
+        if instance == 'file':
+            get_settings = self._get_settings_fit_constraints_prior_file
 
         self._check_unique_datasets_labels()
         settings_all = []
@@ -2078,6 +2106,97 @@ class UlensModelFit(object):
 
         self._fit_constraints[key] = [settings[0], power, sigma, sets]
         self._flat_priors = False
+
+    def _get_settings_fit_constraints_prior_file(self, key, value):
+        """
+        Get settings of prior based on file.
+        """
+        file_name = value['file']
+        parameters = value.get('parameters', value.get('parameter')).split()
+        if not path.exists(file_name):
+            raise ValueError("In prior '" + key + "' provided file with prior does not exist: " + file_name)
+
+        if len(value) != 2:
+            raise ValueError("In prior '" + key + "' only one parameter should be provided, not " + str(value))
+
+        allowed = set(self._all_MM_parameters + self._other_parameters + self._user_parameters)
+        used = set(parameters)
+        unknown = used - allowed
+        if len(unknown) > 0:
+            raise ValueError("In prior '" + key + "' unknown parameter: " + str(unknown) +
+                             "recognized parameter is: " + str(allowed))
+
+        fitted = set(self._fit_parameters_unsorted)
+        fixed = used - fitted
+        if len(fixed) > 0:
+            raise ValueError("In prior '" + key + "' there is a parameter that will NOT be fitted: " + str(fixed) +
+                             ". Fitted parameters are: " + str(fitted) +
+                             ".\nAre you sure you want to calculate the prior from a parameter that is not fitted?")
+
+        return self._load_prior_file(file_name, parameters)
+
+    def _load_prior_file(self, file_, parameters):
+        """
+        Load file from file and return settings.
+        """
+        if len(parameters) == 1:
+            try:
+                dtype = np.dtype([(parameters[0], np.float64), ('PDF', np.float64)])
+                model = np.genfromtxt(file_, dtype=dtype)
+            except Exception as e:
+                raise ValueError("Error loading prior from file: " + file_, e)
+            return [model, parameters]
+        if len(parameters) == 2:
+            try:
+                dtype = np.dtype([(parameters[0], np.float64), (parameters[1], np.float64), ('PDF', np.float64)])
+                model = np.genfromtxt(file_, dtype=dtype)
+            except Exception as e:
+                raise ValueError("Error loading prior from file: " + file_, e)
+            return [model, parameters]
+        if len(parameters) > 2:
+            raise ValueError("In prior from file you can specify only one or two parameters, not " + str(parameters))
+
+    def _set_prior_file_interpolation_functions(self):
+        """
+        Setting the probability distribution function of a selected parameter based on a Galaxy model
+        """
+        self._prior_file = []
+        for (model, parameters) in self._fit_constraints['from file']:
+            if len(parameters) == 1:
+                settings = self._set_prior_file_interpolation_functions_1D(parameters, model)
+                self._prior_file.append(settings)
+            if len(parameters) == 2:
+                settings = self._set_prior_file_interpolation_functions_2D(parameters, model)
+                self._prior_file.append(settings)
+        self._fit_constraints['from file'] = True
+
+    def _set_prior_file_interpolation_functions_1D(self, parameters, model):
+        """
+        Set interpolation functions for 1D priors from a file.
+        """
+        def pdf_func(x):
+            return np.interp(x, model[parameters[0]], model['PDF'])
+        return {'parameters': parameters, 'PDF': pdf_func}
+
+    def _set_prior_file_interpolation_functions_2D(self, parameters, model):
+        """
+        Set interpolation functions for 2D priors from a file.
+        """
+        parameter_1 = parameters[0]
+        parameter_2 = parameters[1]
+        x_values = np.unique(model[parameter_1])
+        y_values = np.unique(model[parameter_2])
+        dx = x_values[1] - x_values[0]
+        dy = y_values[1] - y_values[0]
+        X, Y = np.meshgrid(x_values, y_values)
+        PDF = model['PDF'].reshape(X.shape)
+
+        def pdf_func(x, y):
+            xi = (x - x_values[0]) / dx
+            yi = (y - y_values[0]) / dy
+            return map_coordinates(PDF, ([yi], [xi]), order=1)[0]  # linear
+
+        return {'parameters': parameters, 'PDF': pdf_func}
 
     def _fill_no_of_datasets(self, values, key):
         """
@@ -2841,7 +2960,29 @@ class UlensModelFit(object):
                 else:
                     raise ValueError('prior not handled: ' + parameter)
 
+        if self._prior_file is not None:
+            self._set_model_parameters(theta)
+            ln_prior += self._ln_prior_file()
+
         return ln_prior
+
+    def _ln_prior_file(self):
+        """
+        Get log prior for any parameter form model of galaxy of current model. This function is executed
+        if there is galaxy prior.
+        """
+        out = 0.
+        parameters = {**self._other_parameters_dict, **self._model.parameters.parameters}
+        for prior in self._prior_file:
+            keys = prior['parameters']
+            pdf = prior['PDF']
+            values = [parameters[key] for key in keys]
+            prob = pdf(*values)
+            if prob <= 0.:
+                return -np.inf
+            else:
+                out += np.log(prob)
+        return out
 
     def _check_valid_Cassan08_trajectory(self):
         """
@@ -4152,9 +4293,10 @@ class UlensModelFit(object):
             kwargs_model['source_flux_ratio'] = self._datasets[0]
         if self._datasets[0].bandpass is not None:
             key = 'limb darkening u'
-            if self._datasets[0].bandpass in self._model_parameters[key]:
-                u = self._model_parameters[key][self._datasets[0].bandpass]
-                kwargs_model['gamma'] = mm.Utils.u_to_gamma(u)
+            if key in self._model_parameters:
+                if self._datasets[0].bandpass in self._model_parameters[key]:
+                    u = self._model_parameters[key][self._datasets[0].bandpass]
+                    kwargs_model['gamma'] = mm.Utils.u_to_gamma(u)
 
         kwargs_axes_1 = dict(
             axis='both', direction='in', bottom=True, top=True, left=True, right=True, labelbottom=False)
