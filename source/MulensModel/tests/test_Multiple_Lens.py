@@ -13,37 +13,20 @@ def test_VBM_vs_MM():
     https://github.com/valboz/VBMicrolensing/blob/main/examples/python_examples/Triple_lens.ipynb
     """
     VBM = VBMicrolensing.VBMicrolensing()
-    # Set relative accuracy
     VBM.RelTol = 1e-04
-    # Set accuracy
     VBM.Tol = 1e-04
-    s12 = 0.765
-    # Mass ratio lens 2
-    q2 = 0.00066
-    # impact parameter
-    u0 = 0.0060
-    # alpha
-    alpha = 3.212
-    # source radius in Einstein radii of the total mass.
-    rho = 0.0567
-    # einstein radius crossing time
-    tE = 50.13
-    # time of peak magnification
-    t0 = 0
-    # separation between the last two lenses in descending order of mass in units of total ang. Einstein radii
-    s23 = 1.5
-    # Mass ratio lens 3
-    q3 = 0.000001
-    # psi
-    psi = -1.5
 
     num_points = 1000
     tmin = -50
     tmax = 50
-    t = np.linspace(t0 + tmin, t0 + tmax, num_points)
 
-    params = [np.log(s12), np.log(q2), u0, alpha, np.log(
-        rho), np.log(tE), t0, np.log(s23), np.log(q3), psi]
+    parameters = {'s_21': 0.765, 'q_21': 0.00066, 'u_0': 0.006, 'alpha': np.degrees(3.212), 'rho': 0.0567,
+                  't_E': 50.13, 't_0': 0, 's_31': 1.5, 'q_31': 0.000001, 'psi': np.degrees(-1.5)}
+    t = np.linspace(parameters['t_0'] + tmin, parameters['t_0'] + tmax, num_points)
+
+    params = [np.log(parameters['s_21']), np.log(parameters['q_21']), parameters['u_0'],
+              parameters['alpha'] * np.pi / 180., np.log(parameters['rho']), np.log(parameters['t_E']),
+              parameters['t_0'], np.log(parameters['s_31']), np.log(parameters['q_31']), parameters['psi'] * np.pi / 180.]
 
     # Set the Method that you want use : Singlepoly, Multipoly, Nopoly.
     VBM.SetMethod(VBM.Method.Nopoly)
@@ -61,19 +44,7 @@ def test_VBM_vs_MM():
         x_critical_VBM.extend(criticalcurves_VBM[i][0])
         y_critical_VBM.extend(criticalcurves_VBM[i][1])
 
-    Parameters = {
-        's_21': s12,
-        'q_21': q2,
-        'u_0': u0,
-        'alpha': np.degrees(alpha),
-        'rho': rho,
-        't_E': tE,
-        't_0': t0,
-        's_31': s23,
-        'q_31': q3,
-        'psi': np.degrees(psi),
-    }
-    model = Model(parameters=Parameters)
+    model = Model(parameters=parameters)
     model.set_magnification_methods([float(min(t)), 'vbm_multiple', float(max(t))])
     model.default_magnification_method = 'vbm_multiple'
     magtriple_MM = model.get_magnification(t)
