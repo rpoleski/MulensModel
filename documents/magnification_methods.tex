@@ -13,7 +13,7 @@
 {\LARGE Methods to calculate magnification in \MM}\\
 \bigskip
 Radek Poleski\\
-last update: Dec 2025
+last update: Feb 2026
 \end{center}
 
 \bigskip\bigskip
@@ -58,15 +58,16 @@ Binary lens methods:
 \item {\tt point\_source} -- assumes the source is just a point (hence not valid near caustics) and solves fifth order complex polynomial once.
 \item {\tt quadrupole} -- uses Taylor expansion -- evaluates point-source magnification at 9 points.  Works only outside caustic.
 \item {\tt hexadecapole} -- uses Taylor expansion -- evaluates point-source magnification at 13 points.  Works only outside caustic.
-\item {\tt VBM} -- Bozza (2010) method -- finite source with limb darkening.  Most widely used method nowadays.  Parameters that ca be set: {\tt accuracy}.  This method replaces \texttt{VBBL} but both names are accepted.
+\item {\tt VBM} -- Bozza (2010) method -- finite source with limb darkening.  Most widely used method nowadays.  Parameters that can be set: {\tt accuracy}, {\tt relative\_accuracy}.  This method replaces \texttt{VBBL} but both names are accepted.
 \item {\tt Adaptive\_Contouring} -- Dominik (2007) method -- finite source with limb darkening.  Parameters that can be set: {\tt accuracy} and {\tt ld\_accuracy}.
 \item {\tt point\_source\_point\_lens} -- approximates binary lens as a single lens.  It is useful when binary lens effects are negligible and binary lens calculations may cause numerical errors, e.g., $q\approx10^{-6}$ and source far from caustics.  
 \end{itemize}
 Note that if you define shear and convergence (Peirson et al. 2022), then {\MM} uses properly modified versions of: {\tt point\_source}, {\tt quadrupole}, or {\tt hexadecapole}. 
 
 \bigskip\bigskip
-Triple lens methods -- under construction.  Please come back later!
-
-
+Triple lens methods:
+\begin{itemize}
+\item {\tt VBM\_MULTIPLE} -- As {\tt VBM} but for multiple lenses.  Parameters that can be set: {\tt accuracy}, {\tt relative\_accuracy}, {\tt algorithm}, see Bozza (2025) for details.
+\end{itemize}
 \end{document}
 

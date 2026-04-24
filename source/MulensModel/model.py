@@ -7,6 +7,7 @@ from astropy.coordinates import SkyCoord
 from MulensModel.causticsbinary import CausticsBinary
 from MulensModel.causticspointwithshear import CausticsPointWithShear
 from MulensModel.causticsbinarywithshear import CausticsBinaryWithShear
+from MulensModel.causticsmultiple import CausticMultiple
 from MulensModel.coordinates import Coordinates
 from MulensModel.limbdarkeningcoeffs import LimbDarkeningCoeffs
 from MulensModel.magnificationcurve import MagnificationCurve
@@ -239,7 +240,6 @@ class Model(object):
             times=times, t_range=t_range, t_start=t_start, t_stop=t_stop,
             dt=dt, n_epochs=n_epochs, gamma=gamma, source_flux=source_flux,
             blend_flux=blend_flux, return_times=False)
-
         return magnitudes
 
     def _parse_fluxes_for_get_lc(self, source_flux, source_flux_ratio,
@@ -445,7 +445,7 @@ class Model(object):
         elif self.n_lenses == 2:
             self._update_caustics_binary_lens(epoch)
         else:
-            raise ValueError('updating triple lens caustics not yet coded')
+            self._update_caustics_multiple_lens(epoch)
 
     def _update_caustics_single_lens(self):
         """
@@ -478,6 +478,17 @@ class Model(object):
             self._caustics = CausticsBinaryWithShear(
                 q=self.parameters.q, s=s, shear_G=shear_G,
                 convergence_K=convergence_K)
+
+    def _update_caustics_multiple_lens(self, epoch):
+        """
+        Update self._caustics for multiple lens.
+        """
+        geometry = self.parameters.get_lens_geometry(epoch=epoch)
+        if self._caustics is not None:
+            if geometry == self._caustics.geometry:
+                return
+        else:
+            self._caustics = CausticMultiple(geometry=geometry)
 
     def plot_trajectory(
             self, times=None, t_range=None, t_start=None, t_stop=None,
@@ -984,6 +995,8 @@ class Model(object):
         elif self.n_lenses == 2:
             methods_all_str = (
                 'point_source quadrupole hexadecapole vbm vbbl adaptive_contouring point_source_point_lens')
+        elif self.n_lenses == 3:
+            methods_all_str = 'vbm_multiple'
         else:
             msg = 'wrong value of Model.n_lenses: {:}'
             raise ValueError(msg.format(self.n_lenses))
@@ -1006,6 +1019,7 @@ class Model(object):
         msg = "{:} method allows {:} parameters, but got '{:}'."
         allowed = {'vbm': ['accuracy', 'relative_accuracy'],
                    'vbbl': ['accuracy', 'relative_accuracy'],
+                   'vbm_multiple': ['accuracy', 'relative_accuracy', 'algorithm'],
                    'adaptive_contouring': ['accuracy', 'ld_accuracy']}
 
         for method, kwargs in methods_parameters.items():

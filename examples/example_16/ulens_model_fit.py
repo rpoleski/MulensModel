@@ -570,7 +570,7 @@ class UlensModelFit(object):
 
         parameters_str = (
             't_0 u_0 t_0_1 u_0_1 t_0_2 u_0_2 t_E t_eff rho rho_1 rho_2 t_star t_star_1 t_star_2 pi_E_N pi_E_E ' +
-            's q alpha ds_dt dalpha_dt s_z ds_z_dt a_s x_caustic_in x_caustic_out t_caustic_in t_caustic_out ' +
+            's s_21 s_31 q q_21 q_31 alpha alpha_31 psi ds_dt dalpha_dt s_z ds_z_dt a_s x_caustic_in x_caustic_out t_caustic_in t_caustic_out ' +
             'xi_period xi_semimajor_axis xi_Omega_node xi_inclination xi_argument_of_latitude_reference ' +
             'xi_eccentricity xi_omega_periapsis q_source')
         self._all_MM_parameters = parameters_str.split()
@@ -582,8 +582,9 @@ class UlensModelFit(object):
             t_0_2='t_{0,2}', u_0_2='u_{0,2}', t_E='t_{\\rm E}',
             t_eff='t_{\\rm eff}', rho='\\rho', rho_1='\\rho_1',
             rho_2='\\rho_2', t_star='t_{\\star}', t_star_1='t_{\\star,1}',
-            t_star_2='t_{\\star,2}', pi_E_N='\\pi_{{\\rm E},N}',
-            pi_E_E='\\pi_{{\\rm E},E}', s='s', q='q', alpha='\\alpha',
+            t_star_2='t_{\\star,2}', pi_E_N='\\pi_{{\\rm E},N}', pi_E_E='\\pi_{{\\rm E},E}',
+            s='s', s_21='s_{21}', s_31='s_{31}', q='q', q_21='q_{21}', q_31='q_{31}',
+            alpha='\\alpha', alpha_31='\\alpha_{31}', psi='\\psi',
             ds_dt='ds/dt', dalpha_dt='d\\alpha/dt',
             s_z='s_{z}', ds_z_dt='ds_{z}/dt', a_s='a_{s}',
             x_caustic_in='x_{\\rm caustic,in}',

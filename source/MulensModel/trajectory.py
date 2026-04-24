@@ -96,7 +96,7 @@ class Trajectory(object):
             self._x = x
             self._y = y
         else:
-            self._set_parallax_and_coords(parallax, coords, satellite_skycoord,earth_coords)
+            self._set_parallax_and_coords(parallax, coords, satellite_skycoord, earth_coords)
             self._times = np.atleast_1d(times)
             self._get_xy()
 
@@ -205,7 +205,7 @@ class Trajectory(object):
         if n_lenses == 1 and not is_mass_sheet:
             vector_x = vector_tau
             vector_y = vector_u
-        elif n_lenses == 2 or (n_lenses == 1 and is_mass_sheet):
+        elif n_lenses >= 2 or (n_lenses == 1 and is_mass_sheet):
             alpha = self.parameters.get_alpha(self._times) * (np.pi / 180)
             sin_alpha = np.sin(alpha)
             cos_alpha = np.cos(alpha)
@@ -215,9 +215,6 @@ class Trajectory(object):
             # The above equations use alpha in counterclockwise
             # convention, i.e., the same as proposed by Skowron et
             # al. (2011), but shifted by 180 deg.
-        else:
-            raise NotImplementedError(
-                "trajectory for more than 2 lenses not handled yet")
 
         self._x = vector_x
         self._y = vector_y
