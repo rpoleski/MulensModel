@@ -1735,6 +1735,28 @@ def test_trajectory_for_circular_orbit():
     np.testing.assert_almost_equal(trajectory.x, x_VBB_circular)
     np.testing.assert_almost_equal(trajectory.y, y_VBB_circular)
 
+def test_binary_source_rho_given(self):
+    """
+    fails if rho is given for a binary source model
+    """
+    m1 = {'t_0_1': 1, 't_0_2': 2, 't_E': 10, 'u_0_1': 0.2, 'u_0_2': 0.1, 'rho': 0.01}
+    with self.assertRaises(KeyError):
+        mm.ModelParameters(m1)
+
+def test_binary_source_t_0_given(self):
+    """
+    fails if t_0 is given for a binary source model
+    """
+    m2 = {'t_0': 1, 't_E': 10, 'u_0_1': 0.2, 'u_0_2': 0.1, 'rho_1': 0.01, 'rho_2': 0.01}
+    with self.assertRaises(KeyError):
+        mm.ModelParameters(m2)
+def test_xallarap_rho_1_given(self):
+    """
+    fails if rho_1 is given for a xallarap model
+    """
+    m3 = {'t_0': 1, 't_E': 10, 'u_0': 0.2, 'rho_1': 0.01, 'xi_period': 15, 'xi_semimajor_axis': 1.2, 'xi_inclination': 30, 'xi_Omega_node': 90, 'xi_argument_of_latitude_reference': 45}
+    with self.assertRaises(KeyError):
+        mm.ModelParameters(m3)
 
 def test_separation_for_elliptical_orbit():
     """
