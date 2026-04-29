@@ -571,12 +571,8 @@ class Model(object):
             raise ValueError(
                 'Wrong number of sources: {:}'.format(self.n_sources))
 
-        #if caustics:
-            #self.plot_caustics(marker='.', color='red')
-        #if 'caustic epochs' in self.plots['trajectory']:
-            #epochs = self.plots['trajectory']['caustic epochs']
-            #self.plot_caustics(marker='.', color='slateblue', epoch=epochs[0])
-            #self.plot_caustics(marker='.', color='deeppink', epoch=epochs[1])
+        if caustics:
+            self.plot_caustics(marker='.', color='red')
 
     def _plot_single_trajectory(self, times, parameters, satellite_skycoord,
                                 arrow, arrow_kwargs, **kwargs):

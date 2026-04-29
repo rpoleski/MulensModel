@@ -3972,7 +3972,6 @@ class UlensModelFit(object):
             if 'interactive' in self._plots['trajectory']:
                 self._make_interactive_plot_trajectory()
 
-
     def _triangle_plot(self):
         """
         Make a triangle plot
