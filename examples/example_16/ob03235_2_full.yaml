@@ -97,8 +97,8 @@ fit_constraints:
         pi_E_N: gauss 0.00 0.15
         pi_E_E: gauss 0.00 0.15
     posterior parsing:
-        abs: [u_0]
-        # After running EMCEE, calculate absolute values of parameters from that list.
+        abs: [u_0]  # After running EMCEE, calculate absolute values of parameters from that list.
+        log: [q, rho]  # And log10() of these parameters.
 min_values:
     t_0: 2452840.
     u_0: 0.

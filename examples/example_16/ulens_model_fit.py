@@ -49,7 +49,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.56.0'
+__version__ = '0.57.0'
 
 
 class UlensModelFit(object):
@@ -361,12 +361,13 @@ class UlensModelFit(object):
               Mroz et al. 2020 -
               https://ui.adsabs.harvard.edu/abs/2020ApJS..249...16M/abstract
 
-            ``'posterior parsing'`` - additional settings that allow
-            modyfying posterior after it's calculated. Possile values:
+            ``'posterior parsing'`` - additional settings that allow modifying posterior after it's calculated.
+                Possible values:
 
-                ``'abs': [...]`` - calculate absolute values for parameters
-                from given list. It's useful for e.g. ``'u_0'`` for
-                free-floating planet events.
+                ``'abs': [...]`` - calculate absolute values for parameters from given list. It's useful for,
+                e.g., ``'u_0'`` for free-floating planet events.
+
+                ``'log': [...]`` - calculate log10() for parameters from given list.
 
         plots: *dict*
             Parameters of the plots to be made after the fit. Currently
@@ -1481,15 +1482,19 @@ class UlensModelFit(object):
         if self._fit_constraints is not None:
             if 'posterior parsing' in self._fit_constraints:
                 settings = self._fit_constraints['posterior parsing']
-                if 'abs' in settings:
-                    if not isinstance(settings['abs'], list):
-                        raise ValueError("Error: fit_constraints -> posterior"
-                                         " parsing -> abs - list expected")
-                    for key in settings['abs']:
-                        conversion[key] = "|" + conversion[key] + "|"
+                for key in settings:  # We should check if the parameters do not repeat.
+                    if not isinstance(settings[key], list):
+                        raise ValueError('Error: fit_constraints -> posterior parsing -> ' + key + " - list expected")
 
-        self._fit_parameters_latex = [
-            ('$' + conversion[key] + '$') for key in self._fit_parameters]
+                    for parameter in settings[key]:
+                        if key == 'abs':
+                            conversion[parameter] = "|" + conversion[parameter] + "|"
+                        elif key == 'log':
+                            conversion[parameter] = "\\log " + conversion[parameter]
+                        else:
+                            ValueError('internal error: ' + str(key))
+
+        self._fit_parameters_latex = [('$' + conversion[key] + '$') for key in self._fit_parameters]
 
     def _parse_fitting_parameters(self):
         """
@@ -1946,7 +1951,7 @@ class UlensModelFit(object):
         Set default fitting constraints if none are provided.
         """
         self._fit_constraints = {"no_negative_blending_flux": False}
-        self._parse_posterior_abs = list()
+        self._parse_posterior = {'abs': [], 'log': []}
 
     def _check_ratio_constraints_conflict(self, allowed_keys_ratio):
         """
@@ -2203,28 +2208,27 @@ class UlensModelFit(object):
         """
         Parse constraints on what is done with posterior.
         """
+        self._parse_posterior = {'abs': [], 'log': []}
         if 'posterior parsing' not in self._fit_constraints:
-            self._parse_posterior_abs = list()
             return
 
         if self._fit_method != "EMCEE":
-            raise ValueError('Input in "posterior parsing" is allowed only'
-                             ' for EMCEE')
+            raise ValueError('Input in "posterior parsing" is allowed only for EMCEE')
 
-        allowed_keys = {"abs"}
+        allowed_keys = {"abs", "log"}
         settings = self._fit_constraints['posterior parsing']
         unknown = set(settings.keys()) - allowed_keys
+        used = set(settings.keys()).intersection(allowed_keys)
         if len(unknown) > 0:
             msg = "Unrecognized key in fit_constraints -> 'posterior parsing':"
             raise KeyError(msg + ' ' + str(unknown))
 
-        if 'abs' in settings:
-            self._parse_posterior_abs = settings['abs']
-            for parameter in self._parse_posterior_abs:
+        for key in used:
+            self._parse_posterior[key] = settings[key]
+            for parameter in self._parse_posterior[key]:
                 if parameter not in self._fit_parameters:
-                    raise ValueError(
-                        "Error - you can calculate absolute value only of "
-                        "a parameter which is fitted, not: " + parameter)
+                    raise ValueError("Error - you can calculate " + key + " function only of a parameter which is "
+                                     "fitted, not: " + parameter)
 
     def _get_no_of_dataset(self, label):
         """
@@ -3489,9 +3493,12 @@ class UlensModelFit(object):
         """
         n_burn = self._fitting_parameters['n_burn']
         self._samples = self._sampler.chain[:, n_burn:, :]
-        for parameter in self._parse_posterior_abs:
-            index = self._fit_parameters.index(parameter)
-            self._samples[:, :, index] = np.fabs(self._samples[:, :, index])
+        functions = {'abs': np.fabs, 'log': np.log10}
+        for key in self._parse_posterior:
+            function = functions[key]
+            for parameter in self._parse_posterior[key]:
+                index = self._fit_parameters.index(parameter)
+                self._samples[:, :, index] = function(self._samples[:, :, index])
 
         n_fit = self._n_fit_parameters
         self._samples_flat = self._samples.copy().reshape((-1, n_fit))
@@ -3557,8 +3564,12 @@ class UlensModelFit(object):
                 format_ = "{:} : {:.7f} +{:.7f} -{:.7f}\n"
                 if yaml:
                     format_ = "{:} : [{:.7f}, +{:.7f}, -{:.7f}]\n"
-            if parameter in self._parse_posterior_abs:
+
+            if parameter in self._parse_posterior['abs']:
                 parameter = "|{:}|".format(parameter)
+            elif parameter in self._parse_posterior['log']:
+                parameter = "log({:})".format(parameter)
+
             text += (begin + format_).format(parameter, *results_)
         return text[:-1]
 
