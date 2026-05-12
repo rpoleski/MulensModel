@@ -18,7 +18,7 @@ def get_index(list_of_models):
 def get_ids(list_of_models):
     ids = []
     for model in list_of_models:
-        ids.append(model[-12:-6])
+        ids.append(model[-12:-4])
     return ids
 def get_parameters_names(index):
     parnames = [['u_0','t_E','t_0','rho'],
@@ -55,7 +55,7 @@ def get_MMformat_for_orbital_motion(params):
 
 if __name__ == '__main__':
     event = sys.argv[1]
-    models = glob.glob(event +'/Models/*')
+    models = glob.glob(event +'/FinalModels/*')
 
     models_idxs = get_index(models)
     models_ids = get_ids(models)
