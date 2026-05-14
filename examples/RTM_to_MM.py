@@ -46,11 +46,25 @@ def get_MMformat_for_orbital_motion(params):
     new_dict.pop("gammaz")
     return new_dict
 
-def get_to_MM_format(params, model):
-    t0 = params["t_0"]
+def check_t0_format(t0):
     if t0 < 2450000:
         t0 = t0 + 2450000
-    params.update({"t_0": t0})
+    else:
+        t0 = t0
+    return t0    
+
+def get_to_MM_format(params, model):
+    if model[0] == "B":
+        t01 = params["t_0_1"]
+        t01 = check_t0_format(t01)
+        params.update({"t_0_1": t01})
+        t02 = params["t_0_2"]
+        t02 = check_t0_format(t02)
+        params.update({"t_0_2": t02})
+    else:    
+        t0 = params["t_0"]
+        t0 = check_t0_format(t0)
+        params.update({"t_0": t0})
     if model[0] == "L":
         alpha = params["alpha"] * 180/np.pi
         params.update({"alpha": alpha})
