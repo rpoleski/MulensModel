@@ -4,7 +4,7 @@ import numpy as np
 import sys
 
 def get_yaml_name(event, model):
-    nazwa_yaml = str(event)[:-1] + '_' + str(model) + '.yaml'
+    nazwa_yaml = str(event) + '_' + str(model) + '.yaml'
     return nazwa_yaml
 
 def get_index(list_of_models):
@@ -45,17 +45,31 @@ def get_MMformat_for_orbital_motion(params):
     new_dict.pop("gamma2")
     new_dict.pop("gammaz")
     return new_dict
-#def check_values(params):
-    #if params["t_0"] < 10:
-        #raise TypeError("Something wrong with values")
-    #if params["t_E"] < 0:
-        #raise TypeError("Something wrong with values")
-    #if params["q"] < 0:
-        #raise TypeError("Something wrong with values")
+
+def get_to_MM_format(params, model):
+    t0 = params["t_0"]
+    if t0 < 2450000:
+        t0 = t0 + 2450000
+    params.update({"t_0": t0})
+    if model[0] == "L":
+        alpha = params["alpha"] * 180/np.pi
+        params.update({"alpha": alpha})
+    if model[0:2] == "LO" or model[0:2] == "LK":
+        params = get_MMformat_for_orbital_motion(params)
+    if model[1] == "X":
+        t_0_par = par_dict["t_0"]
+        par_dict.update({"t_0_par": t_0_par})
+    return params
 
 if __name__ == '__main__':
     event = sys.argv[1]
-    models = glob.glob(event +'/Models/*')
+    M = sys.argv[2]
+    if M == 'final':
+        models = glob.glob(event +'/FinalModels/*')
+    elif M == 'all':
+        models = glob.glob(event +'/Models/*')
+    else:
+        raise TypeError("all or final allowed as a second arg")
 
     models_idxs = get_index(models)
     models_ids = get_ids(models)
@@ -69,17 +83,10 @@ if __name__ == '__main__':
             values = [float(v) for v in chunks]
             for x, y  in zip(par_dict.keys(), values):
                 par_dict.update({x: y})
-            if models_ids[i][0] == "L":    
-                alpha = par_dict["alpha"] * 180/np.pi    
-                par_dict.update({"alpha": alpha})
-            if models_ids[i][0:2] == "LO" or models_ids[i][0:2] == "LK":
-                par_dict = get_MMformat_for_orbital_motion(par_dict)
-            #print(par_dict.values())
-            #check_values(par_dict)
-            with open(get_yaml_name(event,models_ids[i]), 'w') as file_out:
+            par_dict = get_to_MM_format(par_dict, models_ids[i])
+            with open(get_yaml_name(event,models_ids[i]), 'x') as file_out:
                 print(get_yaml_name(event,models_ids[i]))
                 file_out.writelines("Best model:\n")
                 file_out.writelines("  Parameters:\n")
                 for x,y in par_dict.items():
-                    #print("%s: %f \n" %(x, y))
-                    file_out.writelines("    %s: %f \n" %(x, y))
+                    file_out.writelines("    {:}: {:}\n".format(x,y))
