@@ -18,7 +18,7 @@ def get_index(list_of_models):
 def get_ids(list_of_models):
     ids = []
     for model in list_of_models:
-        ids.append(model[-12:-6])
+        ids.append(model[-12:-4])
     return ids
 def get_parameters_names(index):
     parnames = [['u_0','t_E','t_0','rho'],
