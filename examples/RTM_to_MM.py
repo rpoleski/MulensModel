@@ -7,31 +7,28 @@ def get_yaml_name(event, model):
     nazwa_yaml = str(event) + '_' + str(model) + '.yaml'
     return nazwa_yaml
 
-def get_index(list_of_models):
-    modelcodes= ['PS','PX','BS','BO','LS','LX','LO','LK','TS','TX']
-    idx = []
-    for model in list_of_models:
-        model_id_short = model[-12:-10] #from modelcodes
-        idx.append(modelcodes.index(model_id_short)) #index to use for parnames
-    return idx
-
 def get_ids(list_of_models):
     ids = []
     for model in list_of_models:
         ids.append(model[-12:-4])
     return ids
-def get_parameters_names(index):
-    parnames = [['u_0','t_E','t_0','rho'],
-                    ['u_0','t_E','t_0','rho','pi_N','pi_E'],
-                    ['t_E','FR','u_0_1','u_0_2','t_0_1','t_0_2','rho_1'],
-                    ['t_E','FR','u_0_1','u_0_2','t_0_1','t_0_2','rho_1','pi_E_N','pi_E_E','gamma1','gamma2','gammaz'],
-                    ['s','q','u_0','alpha','rho','t_E','t_0'],
-                    ['s','q','u_0','alpha','rho','t_E','t_0','pi_E_N','pi_E_E'],
-                    ['s','q','u_0','alpha','rho','t_E','t_0','pi_E_N','pi_E_E','gamma1','gamma2','gammaz'],
-                    ['s','q','u_0','alpha','rho','t_E','t_0','pi_E_N','pi_E_E','gamma1','gamma2','gammaz','sz_s','a_s3d'],
-                    ['s','q','u_0','alpha','rho','t_E','t_0','s2','q2','beta'],
-                    ['s','q','u_0','alpha','rho','t_E','t_0','s2','q2','beta','pi_E_N','pi_E_E']]
-    return parnames[index]
+
+def get_parameters_names(ID):
+    model_id_short = ID[0:2]
+    model_and_parnames = {'PS': ['u_0', 't_E', 't_0', 'rho'],
+                    'PX': ['u_0', 't_E', 't_0', 'rho', 'pi_N', 'pi_E'],
+                    'BS': ['t_E', 'FR', 'u_0_1', 'u_0_2', 't_0_1', 't_0_2', 'rho_1'],
+                    'BO': ['t_E', 'FR', 'u_0_1', 'u_0_2', 't_0_1', 't_0_2', 'rho_1', 'pi_E_N', 'pi_E_E', 'gamma1', 'gamma2', 'gammaz'],
+                    'LS': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0'],
+                    'LX': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0', 'pi_E_N', 'pi_E_E'],
+                    'LO': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0', 'pi_E_N', 'pi_E_E', 'gamma1', 'gamma2', 'gammaz'],
+                    'LK': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0', 'pi_E_N', 'pi_E_E', 'gamma1', 'gamma2', 'gammaz', 'sz_s', 'a_s3d'],
+                    'TS': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0', 's2', 'q2', 'beta'],
+                    'TX': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0', 's2', 'q2', 'beta', 'pi_E_N', 'pi_E_E']}
+    for x,y in model_and_parnames.items():
+        if x == model_id_short:
+            parnames = y
+    return parnames
 
 def get_MMformat_for_orbital_motion(params):
     ds_dt = params["s"] * params["gamma1"] * 365.2422
@@ -85,10 +82,9 @@ if __name__ == '__main__':
     else:
         raise TypeError("all or final allowed as a second arg")
 
-    models_idxs = get_index(models)
     models_ids = get_ids(models)
     for i,model in enumerate(models):
-        parnames = get_parameters_names(models_idxs[i])
+        parnames = get_parameters_names(models_ids[i])
         par_dict = dict.fromkeys(parnames, None)
         with open(model) as f:
             lines = f.readlines()
