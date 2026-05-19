@@ -93,15 +93,15 @@ if __name__ == '__main__':
         parnames = get_parameters_names(model_id)
         par_dict = dict.fromkeys(parnames, None)
         with open(model) as f:
-            lines = f.readlines()
-            line = lines[0]
-            chunks = line.split(' ')
-            values = [float(v) for v in chunks]
-            par_dict.update(dict(zip(par_dict.keys(), values)))
-            par_dict = get_to_MM_format(par_dict, model_id)
-            with open(get_yaml_name(event,model_id), 'x') as file_out:
-                print(get_yaml_name(event,model_id))
-                file_out.writelines("Best model:\n")
-                file_out.writelines("  Parameters:\n")
-                for x,y in par_dict.items():
-                    file_out.writelines("    {:}: {:}\n".format(x,y))
+            line = f.readlines()[0]
+
+        chunks = line.split(' ')
+        values = [float(v) for v in chunks]
+        par_dict.update(dict(zip(par_dict.keys(), values)))
+        par_dict = get_to_MM_format(par_dict, model_id)
+        with open(get_yaml_name(event,model_id), 'x') as file_out:
+            print(get_yaml_name(event,model_id))
+            file_out.writelines("Best model:\n")
+            file_out.writelines("  Parameters:\n")
+            for x,y in par_dict.items():
+                file_out.writelines("    {:}: {:}\n".format(x,y))
