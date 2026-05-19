@@ -71,7 +71,7 @@ def get_to_MM_format(params, model):
         params.update({"alpha": alpha})
     if model[0:2] == "LO" or model[0:2] == "LK":
         params = get_MMformat_for_orbital_motion(params)
-    if model[1] == "X":
+    if model[1] == "X" or model[1] == "O" or model[1] == "K":
         t_0_par = par_dict["t_0"]
         par_dict.update({"t_0_par": t_0_par})
     return params
