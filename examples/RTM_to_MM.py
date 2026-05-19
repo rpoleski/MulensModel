@@ -77,6 +77,12 @@ def get_to_MM_format(params, model):
     return params
 
 if __name__ == '__main__':
+    if len(sys.argv) != 3:
+        print("Two parameters required:")
+        print("1 - direcotry with RTModel results")
+        print("2 - 'all' or 'final' - indicates which models should be selected")
+        sys.exit(1)
+
     event = sys.argv[1]
     M = sys.argv[2]
     if M == 'final':
