@@ -16,7 +16,7 @@ def get_ids(list_of_models):
 
 def get_parameters_names(ID):
     model_id_short = ID[0:2]
-    if model_id_short == 'BO' or model_id_short == 'LK' or model_id_short == 'TS' or model_id_short == 'TX' or model_id_short == 'TO':
+    if model_id_short in ['BO', 'LK', 'TS', 'TX', 'TO']:
         warnings.warn('The transformation of this model category is not accurate!')
         print("This model category: {:}, is not yet included in the transformation.".format(model_id_short))
     model_and_parnames = {'PS': ['u_0', 't_E', 't_0', 'rho'],
@@ -29,14 +29,12 @@ def get_parameters_names(ID):
                     'LK': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0', 'pi_E_N', 'pi_E_E', 'gamma1', 'gamma2', 'gammaz', 'sz_s', 'a_s3d'],
                     'TS': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0', 's2', 'q2', 'beta'],
                     'TX': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0', 's2', 'q2', 'beta', 'pi_E_N', 'pi_E_E']}
-    for x,y in model_and_parnames.items():
-        if x == model_id_short:
-            parnames = y
-    return parnames
+
+    return model_and_parnames[model_id_short]
 
 def get_MMformat_for_orbital_motion(params):
-    ds_dt = params["s"] * params["gamma1"] * 365.2422
-    ds_z_dt = params["gammaz"] * params["s"] * 365.2422
+    ds_dt = params["s"] * params["gamma1"] * 365.25
+    ds_z_dt = params["gammaz"] * params["s"] * 365.25
     dalpha_dt = params["gamma2"] * 365.25 *180/np.pi
     params.update({"ds_dt": ds_dt})
     params.update({"ds_z_dt": ds_z_dt})
@@ -50,8 +48,6 @@ def get_MMformat_for_orbital_motion(params):
 def check_t0_format(t0):
     if t0 < 2450000:
         t0 = t0 + 2450000
-    else:
-        t0 = t0
     return t0    
 
 def get_to_MM_format(params, model):
@@ -71,7 +67,7 @@ def get_to_MM_format(params, model):
         params.update({"alpha": alpha})
     if model[0:2] == "LO" or model[0:2] == "LK":
         params = get_MMformat_for_orbital_motion(params)
-    if model[1] == "X" or model[1] == "O" or model[1] == "K":
+    if model[1] in ["X", "O", "K"]:
         t_0_par = params["t_0"]
         params.update({"t_0_par": t_0_par})
     return params
@@ -93,19 +89,18 @@ if __name__ == '__main__':
         raise TypeError("all or final allowed as a second arg")
 
     models_ids = get_ids(models)
-    for i,model in enumerate(models):
-        parnames = get_parameters_names(models_ids[i])
+    for (model, model_id) in zip(models, models_ids):
+        parnames = get_parameters_names(model_id)
         par_dict = dict.fromkeys(parnames, None)
         with open(model) as f:
             lines = f.readlines()
             line = lines[0]
             chunks = line.split(' ')
             values = [float(v) for v in chunks]
-            for x, y  in zip(par_dict.keys(), values):
-                par_dict.update({x: y})
-            par_dict = get_to_MM_format(par_dict, models_ids[i])
-            with open(get_yaml_name(event,models_ids[i]), 'x') as file_out:
-                print(get_yaml_name(event,models_ids[i]))
+            par_dict.update(dict(zip(par_dict.keys(), values)))
+            par_dict = get_to_MM_format(par_dict, model_id)
+            with open(get_yaml_name(event,model_id), 'x') as file_out:
+                print(get_yaml_name(event,model_id))
                 file_out.writelines("Best model:\n")
                 file_out.writelines("  Parameters:\n")
                 for x,y in par_dict.items():
