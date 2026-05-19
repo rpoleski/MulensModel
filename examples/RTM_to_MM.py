@@ -83,13 +83,12 @@ def transform_RTM_to_MM(models_files):
     out = []
     for (model, model_id) in zip(models_files, models_ids):
         parnames = get_parameters_names(model_id)
-        par_dict = dict.fromkeys(parnames, None)
         with open(model) as f:
             line = f.readlines()[0]
 
         chunks = line.split(' ')
         values = [float(v) for v in chunks]
-        par_dict.update(dict(zip(par_dict.keys(), values)))
+        par_dict = dict(zip(parnames, values))
         par_dict = get_to_MM_format(par_dict, model_id)
         out.append(par_dict)
 
