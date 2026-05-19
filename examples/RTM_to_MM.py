@@ -113,7 +113,7 @@ if __name__ == '__main__':
 
     MM_dicts = transform_RTM_to_MM(models)
 
-    for (par_dict, model_id) in zip(MM_dicts, models_ids):
+    for (par_dict, model_id) in zip(MM_dicts, get_ids(models)):
         with open(get_yaml_name(event,model_id), 'x') as file_out:
             print(get_yaml_name(event,model_id))
             file_out.writelines("Best model:\n")
