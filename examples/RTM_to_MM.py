@@ -72,6 +72,30 @@ def get_to_MM_format(params, model):
         params.update({"t_0_par": t_0_par})
     return params
 
+def transform_RTM_to_MM(models_files):
+    """
+    Read RTModel format files and transform models to MulensModel format.
+    Parameters :
+        models_files: list of str
+            paths to files with RTModel results
+    """
+    models_ids = get_ids(models_files)
+    out = []
+    for (model, model_id) in zip(models_files, models_ids):
+        parnames = get_parameters_names(model_id)
+        par_dict = dict.fromkeys(parnames, None)
+        with open(model) as f:
+            line = f.readlines()[0]
+
+        chunks = line.split(' ')
+        values = [float(v) for v in chunks]
+        par_dict.update(dict(zip(par_dict.keys(), values)))
+        par_dict = get_to_MM_format(par_dict, model_id)
+        out.append(par_dict)
+
+    return out
+
+
 if __name__ == '__main__':
     if len(sys.argv) != 3:
         print("Two parameters required:")
@@ -88,17 +112,9 @@ if __name__ == '__main__':
     else:
         raise TypeError("all or final allowed as a second arg")
 
-    models_ids = get_ids(models)
-    for (model, model_id) in zip(models, models_ids):
-        parnames = get_parameters_names(model_id)
-        par_dict = dict.fromkeys(parnames, None)
-        with open(model) as f:
-            line = f.readlines()[0]
+    MM_dicts = transform_RTM_to_MM(models)
 
-        chunks = line.split(' ')
-        values = [float(v) for v in chunks]
-        par_dict.update(dict(zip(par_dict.keys(), values)))
-        par_dict = get_to_MM_format(par_dict, model_id)
+    for (par_dict, model_id) in zip(MM_dicts, models_ids):
         with open(get_yaml_name(event,model_id), 'x') as file_out:
             print(get_yaml_name(event,model_id))
             file_out.writelines("Best model:\n")
