@@ -49,7 +49,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.57.0'
+__version__ = '0.57.1'
 
 
 class UlensModelFit(object):
@@ -2507,23 +2507,27 @@ class UlensModelFit(object):
         try:
             self._event.get_chi2()
         except ValueError:
-            if 'x_caustic_in' in self._model.parameters.parameters:
-                self._model.parameters.x_caustic_in = (
-                    self._model.parameters.x_caustic_out + 0.01)
-                self._event.get_chi2()
-            else:
+            if 'x_caustic_in' not in self._model.parameters.parameters:
                 raise
+            else:
+                caustic = mm.UniformCausticSampling(s=self._model.parameters.s, q=self._model.parameters.q)
+                done = False
+                while not done:  # Try randomly drawing x_caustic_in that will make proper model.
+                    x_in = np.random.uniform()
+                    done = caustic.check_valid_trajectory(x_in, self._model.parameters.x_caustic_out)
+
+                self._model.parameters.x_caustic_in = x_in
+                self._event.get_chi2()
 
         n = 0
         for (i, dataset) in enumerate(self._datasets):
-            k = len(self._event.fits[i].source_fluxes) + 1
-            # Plus 1 is for blending.
+            k = len(self._event.fits[i].source_fluxes) + 1  # Plus 1 is for blending.
             if i == 0:
                 self._n_fluxes_per_dataset = k
             elif k != self._n_fluxes_per_dataset:
-                raise ValueError(
-                    'Strange internal error with number of source fluxes: ' +
-                    "{:} {:} {:}".format(i, k, self._n_fluxes_per_dataset))
+                fmt = 'Strange internal error with number of source fluxes: {:} {:} {:}'
+                raise ValueError(fmt.format(i, k, self._n_fluxes_per_dataset))
+
             n += k
 
         self._n_fluxes = n
