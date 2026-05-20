@@ -663,6 +663,16 @@ def test_n_lenses():
     assert p_3.n_lenses == 2
 
 
+def test_t_eff_from_C08():
+    """test if one can calculate t_eff from Cassan08 parametrization"""
+    model = mm.Model({'s': 1, 'q': 0.05, 'rho': 0.1,
+                  'x_caustic_in': 0.85, 'x_caustic_out': 0.37,
+                  't_caustic_in': 2453554., 't_caustic_out': 2453566.})
+    t_eff = model.parameters.u_0 * model.parameters.t_E
+    np.testing.assert_almost_equal(t_eff, model.parameters.t_eff)
+
+
+
 def test_single_lens_convergence_K_shear_G():
     """
     Test single lens with convergence_K and shear_G in intialized

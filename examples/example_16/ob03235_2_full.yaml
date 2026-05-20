@@ -97,8 +97,8 @@ fit_constraints:
         pi_E_N: gauss 0.00 0.15
         pi_E_E: gauss 0.00 0.15
     posterior parsing:
-        abs: [u_0]
-        # After running EMCEE, calculate absolute values of parameters from that list.
+        abs: [u_0]  # After running EMCEE, calculate absolute values of parameters from that list.
+        log: [q, rho]  # And log10() of these parameters.
 min_values:
     t_0: 2452840.
     u_0: 0.
@@ -151,6 +151,8 @@ plots:
         file: ob03235_2_model.png
         # In case you want an interactive plot made using plotly:
         interactive : ob03235_2_model.html
+        add posterior samples:
+            n_samples: 100 # Plots 100 randomly selected models from posterior in opaque mode.
         time range: 2452820 2452855
         xlabel: BJD - 2450000
         magnitude range: 19.3 16.9
