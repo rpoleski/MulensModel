@@ -1,3 +1,6 @@
+"""
+This example takes the results from RTModel in form of txt files and makes yaml files compliant with the MulensModel standard.
+"""
 import glob
 import os
 import numpy as np
@@ -21,9 +24,9 @@ def get_ids(list_of_models):
     return ids
 
 def get_parameters_names(ID):
-    ""'
+    """
     Based on the shortened  model code, gives the parameters names 
-    ""'
+    """
     model_id_short = ID[0:2]
     if model_id_short in ['BO', 'LK', 'TS', 'TX', 'TO']:
         warnings.warn('The transformation of this model category is not accurate!')
