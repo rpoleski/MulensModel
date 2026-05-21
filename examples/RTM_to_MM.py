@@ -29,8 +29,8 @@ def get_parameters_names(ID):
     """
     model_id_short = ID[0:2]
     if model_id_short in ['BO', 'LK', 'TS', 'TX', 'TO']:
-        warnings.warn('The transformation of this model category is not accurate!')
-        print("This model category: {:}, is not yet included in the transformation.".format(model_id_short))
+        warnings.warn('Transformation is not accurate!')
+        print("This model category: {:}, includes one of the following: xallarap, triple lens or elliptical orbital motion.\nThese effects are not yet included in this example.".format(model_id_short))
     model_and_parnames = {'PS': ['u_0', 't_E', 't_0', 'rho'],
                     'PX': ['u_0', 't_E', 't_0', 'rho', 'pi_N', 'pi_E'],
                     'BS': ['t_E', 'FR', 'u_0_1', 'u_0_2', 't_0_1', 't_0_2', 'rho_1'],
