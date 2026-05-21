@@ -1827,3 +1827,29 @@ class test_Keplerian_elliptical(unittest.TestCase):
         dict_4 = setup_keplerian_elliptical({'s_z': 0.1, 'ds_z_dt': 1.9})
         with self.assertRaises(KeyError):
             mm.ModelParameters(dict_4)
+
+
+def test_n_lenses_invariant():
+    """
+    Issue #66: n_lenses is constrained to {1, 2} in master, which is what
+    makes the `else` arms on model.py:447 and model.py:988 unreachable
+    (and `# pragma: no cover`-marked). If a new path (e.g. TripleLens from
+    branch 3L_first) extends this, update both call sites and drop the
+    `pragma` markers.
+    """
+    single = [
+        {'t_0': 8000., 'u_0': 0.1, 't_E': 30.},
+        {'t_0': 8000., 'u_0': 0.1, 't_E': 30., 'rho': 0.001},
+        {'t_0': 8000., 'u_0': 0.1, 't_E': 30., 'pi_E_N': 0.1, 'pi_E_E': 0.2,
+         't_0_par': 8000.},
+    ]
+    binary = [
+        {'t_0': 8000., 'u_0': 0.1, 't_E': 30., 's': 1.1, 'q': 0.01,
+         'alpha': 90.},
+        {'t_0': 8000., 'u_0': 0.1, 't_E': 30., 's': 1.1, 'q': 0.01,
+         'alpha': 90., 'rho': 0.001},
+    ]
+    for params in single:
+        assert mm.ModelParameters(params).n_lenses == 1, params
+    for params in binary:
+        assert mm.ModelParameters(params).n_lenses == 2, params
