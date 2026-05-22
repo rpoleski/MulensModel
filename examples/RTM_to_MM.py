@@ -1,11 +1,12 @@
 """
-This example takes the results from RTModel in form of txt files and makes yaml files compliant with the MulensModel standard.
+This example takes the results from RTModel in form of txt files and makes yaml files
+compliant with the MulensModel standard.
 """
 import glob
-import os
 import numpy as np
 import sys
 import warnings
+
 
 def get_yaml_name(event, model):
     """
@@ -13,6 +14,7 @@ def get_yaml_name(event, model):
     """
     nazwa_yaml = str(event) + '_' + str(model) + '.yaml'
     return nazwa_yaml
+
 
 def get_ids(list_of_models):
     """
@@ -23,9 +25,10 @@ def get_ids(list_of_models):
         ids.append(model[-12:-4])
     return ids
 
+
 def get_parameters_names(ID):
     """
-    Based on the shortened  model code, gives the parameters names 
+    Based on the shortened  model code, gives the parameters names
     """
     model_id_short = ID[0:2]
     if model_id_short in ['BO', 'LK', 'TS', 'TX', 'TO']:
@@ -44,13 +47,14 @@ def get_parameters_names(ID):
 
     return model_and_parnames[model_id_short]
 
+
 def get_MMformat_for_orbital_motion(params):
     """
     Changes the units of the orbital motion parameters
     """
     ds_dt = params["s"] * params["gamma1"] * 365.25
     ds_z_dt = params["gammaz"] * params["s"] * 365.25
-    dalpha_dt = params["gamma2"] * 365.25 *180/np.pi
+    dalpha_dt = params["gamma2"] * 365.25 * 180/np.pi
     params.update({"ds_dt": ds_dt})
     params.update({"ds_z_dt": ds_z_dt})
     params.update({"dalpha_dt": -dalpha_dt})
@@ -60,13 +64,15 @@ def get_MMformat_for_orbital_motion(params):
     new_dict.pop("gammaz")
     return new_dict
 
+
 def check_t0_format(t0):
     """
     Checks if t0 is in the MM format
     """
     if t0 < 2450000:
         t0 = t0 + 2450000
-    return t0    
+    return t0
+
 
 def get_to_MM_format(params, model):
     """
@@ -79,7 +85,7 @@ def get_to_MM_format(params, model):
         t02 = params["t_0_2"]
         t02 = check_t0_format(t02)
         params.update({"t_0_2": t02})
-    else:    
+    else:
         t0 = params["t_0"]
         t0 = check_t0_format(t0)
         params.update({"t_0": t0})
@@ -95,6 +101,7 @@ def get_to_MM_format(params, model):
             t_0_par = params["t_0"]
         params.update({"t_0_par": t_0_par})
     return params
+
 
 def transform_RTM_to_MM(models_files):
     """
@@ -129,18 +136,18 @@ if __name__ == '__main__':
     event = sys.argv[1]
     M = sys.argv[2]
     if M == 'final':
-        models = glob.glob(event +'/FinalModels/*')
+        models = glob.glob(event + '/FinalModels/*')
     elif M == 'all':
-        models = glob.glob(event +'/Models/*')
+        models = glob.glob(event + '/Models/*')
     else:
         raise TypeError("all or final allowed as a second arg")
 
     MM_dicts = transform_RTM_to_MM(models)
 
     for (par_dict, model_id) in zip(MM_dicts, get_ids(models)):
-        with open(get_yaml_name(event,model_id), 'x') as file_out:
-            print(get_yaml_name(event,model_id))
+        with open(get_yaml_name(event, model_id), 'x') as file_out:
+            print(get_yaml_name(event, model_id))
             file_out.writelines("Best model:\n")
             file_out.writelines("  Parameters:\n")
-            for x,y in par_dict.items():
-                file_out.writelines("    {:}: {:}\n".format(x,y))
+            for x, y in par_dict.items():
+                file_out.writelines("    {:}: {:}\n".format(x, y))
