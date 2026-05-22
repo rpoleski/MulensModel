@@ -735,6 +735,10 @@ class MulensData(object):
         """
         return self._file_name
 
+    @file_name.setter
+    def file_name(self, value):
+        self._file_name = value
+
     @property
     def satellite_skycoord(self):
         """
