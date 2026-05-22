@@ -458,7 +458,7 @@ class MagnificationCurve(object):
                     mm.multiplelens.MultipleLensVBMMagnification(gamma=self._gamma, **kwargs)
 
             elif method.lower() == 'point_source_point_lens':
-                if self.parameters.s < 1.:
+                if self.parameters.s_21 < 1.:
                     co_mag_trajectory = trajectory
                 else:
                     q = self.parameters.q_21
