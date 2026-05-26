@@ -184,6 +184,30 @@ def test_BinaryLensVBMMagnification_reltol():
     np.testing.assert_almost_equal(result, 18.288975003)
 
 
+def test_BinaryLensVBMMagnification_reltol_no_LD():
+    """
+    Regression test for issue #162: relative_accuracy was previously not
+    propagated to VBMicrolensing on the no-limb-darkening path, so it had
+    no effect even though the parameter was accepted. With the fix, a
+    deliberately loose RelTol must produce a visibly different
+    magnification from a tight RelTol; if the parameter were still being
+    ignored (as before the fix), both calls would return identical values.
+    """
+    x = 0.0001
+    y = 0.0001
+    params = {'s': 1.1, 'q': 0.005, 'rho': 0.001}
+    trajectory = make_trajectory([x, y], params)
+    lens_tight = mm.BinaryLensVBMMagnification(
+        trajectory=trajectory, accuracy=1.e-2, relative_accuracy=1.e-10)
+    lens_loose = mm.BinaryLensVBMMagnification(
+        trajectory=trajectory, accuracy=1.e-2, relative_accuracy=0.5)
+    m_tight = lens_tight.get_magnification()
+    m_loose = lens_loose.get_magnification()
+    assert abs(m_tight[0] - m_loose[0]) > 0.01, (
+        "relative_accuracy has no effect on the no-LD path: "
+        "tight={!r}, loose={!r}".format(m_tight[0], m_loose[0]))
+
+
 def test_BinaryLensVBMMagnification_LD():
     """
     Make sure VBM with limb darkening works properly
