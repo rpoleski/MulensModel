@@ -118,7 +118,7 @@ class LimbDarkeningCoeffs(object):
         weight_sum = 0.
         for (band, weight) in weights.items():
             try:
-                gamma_sum += self.get_limb_coeff_gamma(band)
+                gamma_sum += weight * self.get_limb_coeff_gamma(band)
             except KeyError:
                 msg = "The bandpass {:} was not set for limb darkening"
                 raise KeyError(msg.format(band))
