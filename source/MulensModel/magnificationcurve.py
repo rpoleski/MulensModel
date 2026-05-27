@@ -167,11 +167,13 @@ class MagnificationCurve(object):
         """
         if self.parameters.n_lenses == 1:
             magnification = self.get_point_lens_magnification()
-        elif self.parameters.n_lenses >= 2:
+        elif self.parameters.n_lenses == 2:
             magnification = self.get_binary_lens_magnification()
+        elif self.parameters.n_lenses == 3:
+            magnification = self.get_triple_lens_magnification()
         else:
             raise NotImplementedError(
-                "magnification for more than 2 lenses not handled yet")
+                "magnification for more than 3 lenses not handled yet")
 
         self._magnification = magnification
         return self._magnification
@@ -207,8 +209,8 @@ class MagnificationCurve(object):
                 self._set_binary_lens_magnification_objects()
             else:
                 self._set_binary_lens_w_shear_magnification_objects()
-        elif self.parameters.n_lenses > 2:
-            self._set_binary_lens_magnification_objects()
+        elif self.parameters.n_lenses == 3:
+            self._set_triple_lens_magnification_objects()
 
     def _setup_trajectory(self, selection):
         """Create a trajectory object for a given subset of the data specified by *selection*."""
@@ -412,7 +414,7 @@ class MagnificationCurve(object):
                     mm.binarylens.BinaryLensVBMMagnification(gamma=self._gamma, **kwargs)
             elif method.lower() == 'vbm_multiple':
                 self._magnification_objects[method] = \
-                    mm.binarylens.MultipleLensVBMMagnification(gamma=self._gamma, **kwargs)
+                    mm.multiplelens.MultipleLensVBMMagnification(gamma=self._gamma, **kwargs)
             elif method.lower() == 'adaptive_contouring':
                 self._magnification_objects[method] = \
                     mm.binarylens.BinaryLensAdaptiveContouringMagnification(gamma=self._gamma, **kwargs)
@@ -426,6 +428,41 @@ class MagnificationCurve(object):
                 if s < 1.:
                     co_mag_trajectory = trajectory
                 else: 
+                    delta_x = - (s - 1. / s) * q / (1. + q)
+                    co_mag_trajectory = mm.Trajectory(x=trajectory.x - delta_x, y=trajectory.y)
+
+                self._magnification_objects[method] = \
+                    mm.pointlens.PointSourcePointLensMagnification(trajectory=co_mag_trajectory)
+            else:
+                msg = 'Unknown method specified for binary lens: {:}'
+                raise ValueError(msg.format(method))
+
+    def _set_triple_lens_magnification_objects(self):
+        """
+        For simple triple lens models, create a *dict* of magnification
+        objects corresponding to the user-specified magnification methods.
+        """
+        self._magnification_objects = {}
+        for method, selection in self.methods_indices.items():
+            kwargs = self._setup_kwargs(method)
+
+            if kwargs != dict() and method.lower() not in ['vbm', 'vbm_multiple', 'vbbl', 'adaptive_contouring']:
+                msg = 'Methods parameters passed for method {:} which does not accept any parameters'
+                raise ValueError(msg.format(method))
+
+            trajectory = self._setup_trajectory(selection)
+            kwargs['trajectory'] = trajectory
+
+            if method.lower() == 'vbm_multiple':
+                self._magnification_objects[method] = \
+                    mm.multiplelens.MultipleLensVBMMagnification(gamma=self._gamma, **kwargs)
+
+            elif method.lower() == 'point_source_point_lens':
+                if self.parameters.s_21 < 1.:
+                    co_mag_trajectory = trajectory
+                else:
+                    q = self.parameters.q_21
+                    s = self.parameters.s_21
                     delta_x = - (s - 1. / s) * q / (1. + q)
                     co_mag_trajectory = mm.Trajectory(x=trajectory.x - delta_x, y=trajectory.y)
 
@@ -505,6 +542,33 @@ class MagnificationCurve(object):
         """
         if self.parameters.n_lenses < 2:
             raise ValueError("You're trying to calculate binary lens magnification, but the model provided has " +
+                             str(self.parameters.n_lenses) + " lenses")
+
+        return self._get_magnification_universal()
+
+    def get_triple_lens_magnification(self):
+        """
+        Calculate the triple lens magnification.
+        If the shear or convergence are set, then they are used.
+
+        Allowed magnification methods (set by :py:func:`set_magnification_methods()`) :
+
+            ``VBM_MULTIPLE``:
+                Uses VBMicrolensing (a Stokes theorem/contour integration code) by Valerio Bozza
+                (`Bozza 2010 MNRAS, 408, 2188 <https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract>`_).. See
+                :py:func:`~MulensModel.multiplelens.MultipleLensVBMMagnification()`
+
+            ``point_source_point_lens``:
+                Uses point-source _point_-_lens_ approximation; useful when you consider triple lens but need
+                magnification very far from the lens (e.g. at separation u = 100).
+
+        Returns :
+            magnification: *np.ndarray*
+                Vector of magnifications.
+
+        """
+        if self.parameters.n_lenses < 3:
+            raise ValueError("You're trying to calculate triple lens magnification, but the model provided has " +
                              str(self.parameters.n_lenses) + " lenses")
 
         return self._get_magnification_universal()

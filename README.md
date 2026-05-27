@@ -8,6 +8,8 @@
 
 [RMDC26](https://rges-pit.org/data-challenge/) was announced in Jan 2026. If you want to participate, then you're welcome to use MulensModel. It's possible some new features will be needed. In that case, please [open an issue](https://github.com/rpoleski/MulensModel/issues/new) and we will try to help.
 
+**NEW - we're working on triple lenses.** This feature generally works, but API may change. For current status see [the branch by mjmroz](https://github.com/mjmroz/MulensModel/tree/VBM_3L). The code is discussed in [the pull request](https://github.com/rpoleski/MulensModel/pull/213).
+
 ## Documentation
 
 <!-- ![example workflow](https://github.com/alpv95/MulensModel/actions/workflows/tests.yml/badge.svg) -->
@@ -23,7 +25,7 @@ If you want to learn more about microlensing, please visit [Microlensing Source 
 Currently, MulensModel supports:
 * Lens Systems: point lens or binary lens. Shear and convergence allowed for both point and binary lenses.
 * Source Stars: single source, binary source, or even larger number of sources.
-* Effects: finite source (1-parameter), parallax (satellite & annual), binary lens orbital motion (2-parameter or **keplerian [both circular and elliptical] - new**), xallarap effect (with one or two luminous sources), different parametrizations of microlensing models.
+* Effects: finite source (1-parameter), parallax (satellite & annual), binary lens orbital motion (2-parameter or keplerian both circular and elliptical), xallarap effect (with one or two luminous sources), different parametrizations of microlensing models.
 
 Need more? Open [an issue](https://github.com/rpoleski/MulensModel/issues), start [a discussion](https://github.com/rpoleski/MulensModel/discussions), or send us an e-mail. 
 
@@ -69,4 +71,4 @@ If you want to contribute to MulensModel, then please see [this file](CONTRIBUTI
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/MulensModel)
 ![example workflow](https://github.com/rpoleski/MulensModel/actions/workflows/python-app.yml/badge.svg)
 
-file revised Jan 2026
+file revised Apr 2026
