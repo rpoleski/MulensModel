@@ -65,10 +65,17 @@ class CausticMultiple(object):
             print("kwargs passed to plt.scatter():")
             print(kwargs)
             raise
+        # if len(self.geometry) > 1:
+        #     plt.scatter(self._x_last, self._y_last, **kwargs)
+
         if plot_lenses:
             for i in range(self._n_lenses):
                 plt.scatter(self.geometry[0][i*3], self.geometry[0][i*3+1], color='k', marker='x')
                 plt.annotate(str(i+1), (self.geometry[0][i*3], self.geometry[0][i*3+1]+0.005))
+            # if len(self.geometry) > 1:
+            #     for i in range(self._n_lenses):
+            #         plt.scatter(self.geometry[-1][i*3], self.geometry[-1][i*3+1], color='r', marker='x')
+            #         plt.annotate(str(i+1), (self.geometry[-1][i*3], self.geometry[-1][i*3+1]+0.005), color='r')
 
     def get_caustics(self, n_points=None):
         """
@@ -78,7 +85,7 @@ class CausticMultiple(object):
 
         Parameters:
             n_points : *int*, optional
-                The number of points to calculate along the caustic.
+                The number of epochpoints to calculate along the caustic.
 
         Returns:
             x, y : *list*
@@ -123,6 +130,16 @@ class CausticMultiple(object):
             self._y.extend(one_caustic[1])
             self._critical_curve.x.extend(criticalcurves[i][0])
             self._critical_curve.y.extend(criticalcurves[i][1])
+        if len(self.geometry) > 1:
+            VBM.SetLensGeometry(self.geometry[-1])
+            self._critical_curve = self.CriticalCurve()
+            caustics = VBM.Multicaustics()
+            criticalcurves = VBM.Multicriticalcurves()
+            self._x_last = []
+            self._y_last = []
+            for i, one_caustic in enumerate(caustics):
+                self._x_last.extend(one_caustic[0])
+                self._y_last.extend(one_caustic[1])
 
     class CriticalCurve(object):
         """

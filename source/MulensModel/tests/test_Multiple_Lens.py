@@ -2,14 +2,16 @@ from numpy.testing import assert_almost_equal
 import numpy as np
 import matplotlib.pyplot as plt
 from MulensModel.model import Model
+from MulensModel.modelparameters import ModelParameters
 import VBMicrolensing
+from MulensModel.orbits.orbit import Orbit
 
 
 plot = False
 
 def test_VBM_vs_MM():
     """
-    Test MulensModel.Model() for triple lens vs VBMicrolensing. The test is based on the example from VBMicrolensing:
+    Test MulensModel.Model() for triple lens vs V.BMicrolensing. The test is based on the example from VBMicrolensing:
     https://github.com/valboz/VBMicrolensing/blob/main/examples/python_examples/Triple_lens.ipynb
     """
     VBM = VBMicrolensing.VBMicrolensing()

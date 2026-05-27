@@ -15,8 +15,16 @@ permissions:
 
 jobs:
   test:
-
-    runs-on: ubuntu-latest
+    name: test (${{ matrix.os }})
+    runs-on: ${{ matrix.runs-on }}
+    strategy:
+      fail-fast: false # If false, continue with other matrix even if one fails
+      matrix:
+        include:
+          - os: linux-x86
+            runs-on: ubuntu-latest
+          - os: macos-arm
+            runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v3
