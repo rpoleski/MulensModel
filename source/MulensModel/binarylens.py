@@ -653,6 +653,13 @@ class BinaryLensVBMMagnification(_BinaryLensPointSourceMagnification, _LimbDarke
         """BinaryLensPointSourceMagnification
         Calculate 1 magnification using VBM.
         """
+        # RelTol must be set on the VBM instance for BOTH paths: BinaryMag
+        # (no LD) takes accuracy as a positional arg but still honors the
+        # RelTol property, while BinaryMag2 (with LD) reads both Tol and
+        # RelTol from the instance. Keeping this outside the if/else avoids
+        # the bug fixed in issue #162 where RelTol was applied only with LD.
+        if self._relative_accuracy is not None:
+            self._vbm.RelTol = self._relative_accuracy
         args = [float(separation), self._q, float(x), float(y), self._rho]
         if self._u_limb_darkening is None:
             args.append(self._accuracy)
@@ -660,9 +667,6 @@ class BinaryLensVBMMagnification(_BinaryLensPointSourceMagnification, _LimbDarke
             self._vbm.a1 = self._u_limb_darkening
             if self._accuracy is not None:
                 self._vbm.Tol = self._accuracy
-
-            if self._relative_accuracy is not None:
-                self._vbm.RelTol = self._relative_accuracy
 
         return self._vbm_function(*args)
 
