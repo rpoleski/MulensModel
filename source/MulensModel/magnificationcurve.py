@@ -421,7 +421,7 @@ class MagnificationCurve(object):
             elif method.lower() == 'point_source_point_lens':
                 if 'q' in self.parameters.parameters:
                     q = self.parameters.q
-                    s = self.parameters.get_s(trajectory.times)
+                    s = self.parameters.s
                 else:
                     q = self.parameters.q_21
                     s = self.parameters.s_21  
