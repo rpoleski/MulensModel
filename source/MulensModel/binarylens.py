@@ -573,7 +573,7 @@ class BinaryLensVBMMagnification(_BinaryLensPointSourceMagnification, _LimbDarke
         return float(accuracy)
 
     def _get_1_magnification(self, x, y, separation):
-        """
+        """BinaryLensPointSourceMagnification
         Calculate 1 magnification using VBM.
         """
         # RelTol must be set on the VBM instance for BOTH paths: BinaryMag

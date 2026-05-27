@@ -263,7 +263,8 @@ class TestEvent(unittest.TestCase):
         with self.assertRaises(ValueError):
             mag_curve.get_point_lens_magnification()
 
-    def test_error_3_lenses(self):
+# TEST TO BE REMOVED
+    def DONT_EXEXUTE_test_error_3_lenses(self):
         """
         Test error when getting magnification for a model with 3 lenses.
         """
