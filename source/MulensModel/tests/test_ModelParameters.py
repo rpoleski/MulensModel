@@ -1827,3 +1827,62 @@ class test_Keplerian_elliptical(unittest.TestCase):
         dict_4 = setup_keplerian_elliptical({'s_z': 0.1, 'ds_z_dt': 1.9})
         with self.assertRaises(KeyError):
             mm.ModelParameters(dict_4)
+
+
+CASSAN08_PARAMS = {
+    's': 1, 'q': 0.05, 'rho': 0.1,
+    'x_caustic_in': 0.85, 'x_caustic_out': 0.37,
+    't_caustic_in': 2453554., 't_caustic_out': 2453566.,
+}
+
+
+class TestCassan08(unittest.TestCase):
+    """
+    Tests for Cassan (2008) curvelinear parameterization — addresses
+    #65 items `_get_standard_parameters_from_Cassan08()` and
+    `uniform_caustic_sampling` (property).
+    """
+    def setUp(self):
+        self.cassan = mm.ModelParameters(dict(CASSAN08_PARAMS))
+
+    def test_standard_params_derived_from_cassan08(self):
+        """
+        Getting t_0/u_0/t_E/alpha on a Cassan08 model triggers
+        _get_standard_parameters_from_Cassan08() and returns the
+        converted standard values. decimal=6 keeps the assertion
+        robust against minor numerical drift between platforms (the
+        conversion goes through a numerical integration).
+        """
+        np.testing.assert_almost_equal(
+            self.cassan.t_0, 2453558.7641806877, decimal=6)
+        np.testing.assert_almost_equal(
+            self.cassan.u_0, 0.015286417653331648, decimal=6)
+        np.testing.assert_almost_equal(
+            self.cassan.t_E, 25.656235234615, decimal=6)
+        np.testing.assert_almost_equal(
+            self.cassan.alpha, 313.01278949896425, decimal=6)
+
+    def test_setting_standard_params_on_cassan08_raises(self):
+        """All four standard-param setters reject changes for a Cassan08
+        model — there is no way to project a new value back to the
+        curvelinear coordinates."""
+        for attr, value in [('t_0', 2456789.), ('u_0', 0.5),
+                            ('t_E', 30.), ('alpha', 90.)]:
+            with self.subTest(attr=attr):
+                with self.assertRaisesRegex(ValueError, "Cassan"):
+                    setattr(self.cassan, attr, value)
+
+    def test_uniform_caustic_sampling_returns_instance(self):
+        ucs = self.cassan.uniform_caustic_sampling
+        self.assertIsInstance(ucs, mm.UniformCausticSampling)
+        self.assertEqual(ucs.s, CASSAN08_PARAMS['s'])
+        self.assertEqual(ucs.q, CASSAN08_PARAMS['q'])
+
+    def test_uniform_caustic_sampling_raises_for_standard_params(self):
+        """The property is only valid for Cassan08-parameterized models."""
+        standard = mm.ModelParameters(
+            {'t_0': 0., 'u_0': 0.1, 't_E': 30.,
+             's': 1., 'q': 0.05, 'alpha': 90.})
+        with self.assertRaisesRegex(
+                ValueError, "curvelinear parameterization"):
+            standard.uniform_caustic_sampling
