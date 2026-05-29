@@ -85,7 +85,7 @@ class Event(object):
         else:
             raise TypeError('incorrect argument datasets of class Event()')
 
-        self._data_ref = self._set_data_ref(data_ref)
+        self._set_data_ref(data_ref)
 
         # Set event coordinates
         if coords is not None:
@@ -848,16 +848,13 @@ class Event(object):
             except ValueError:
                 pass
             else:
-                raise ValueError(
-                    'Dataset is included in Event.datasets more than once.')
+                raise ValueError('Dataset is included in Event.datasets more than once.')
 
             self._data_ref = index
         elif isinstance(new_value, (int, np.int_)):
             self._data_ref = new_value
         else:
-            raise TypeError(
-                'data_ref must be set using either *int* or *MulensData*: ' +
-                '{0}'.format(type(new_value)))
+            raise TypeError('data_ref must be set using either *int* or *MulensData*: {0}'.format(type(new_value)))
 
     @property
     def chi2(self):
