@@ -116,6 +116,8 @@ class Horizons(object):
         xyz = SkyCoord(
             ra_dec, distance=data['distance'], unit=(u.hourangle, u.deg, u.au))
         self._xyz = xyz.cartesian
+        print("self._xyz")
+        print(self._xyz)
 
     @property
     def time(self):

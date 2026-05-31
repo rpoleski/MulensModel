@@ -49,6 +49,7 @@ class SatelliteSkyCoord(object):
                 *SkyCoord* for satellite at epochs *times*.
 
         """
+        print("X")
         if self._horizons is None:
             self._prepare_horizons()
 
