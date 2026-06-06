@@ -498,8 +498,7 @@ def test_scale_fluxes():
     (f_s_new, f_b_new) = (0.1, 0.)
     exp_flux = (data.flux - f_b) * f_s_new / f_s + f_b_new
     exp_err = data.err_flux * f_s_new / f_s
-    (new_flux, new_err) = fit.scale_fluxes(
-        source_flux=f_s_new, blend_flux=f_b_new)
+    (new_flux, new_err) = fit.scale_fluxes(source_flux=f_s_new, blend_flux=f_b_new)
     assert np.abs(data.flux[num] - new_flux[num]) > 0.5
     almost(exp_flux / new_flux, 1.)
     almost(exp_err / new_err, 1.)
@@ -515,7 +514,7 @@ def test_scale_fluxes_negative_warning():
     """
     f_s = 1.0
     f_b = 0.5
-    pspl, t, A = generate_model()
+    (pspl, t, A) = generate_model()
     f_mod = f_s * A + f_b
     data = generate_dataset(f_mod, t)
     fit = mm.FitData(dataset=data, model=pspl)
@@ -525,9 +524,9 @@ def test_scale_fluxes_negative_warning():
     # producing negative values that should trigger the warning.
     with pytest.warns(UserWarning, match="negative flux"):
         (_, err_flux) = fit.scale_fluxes(source_flux=-1.0, blend_flux=0.)
-    assert np.any(err_flux < 0.), (
-        "test setup is broken: negative source_flux should produce "
-        "negative err_flux, got min={!r}".format(err_flux.min()))
+
+    assert np.any(err_flux < 0.), ("test setup is broken: negative source_flux should produce "
+                                   "negative err_flux, got min={!r}".format(err_flux.min()))
 
 
 class TestGetResiduals(unittest.TestCase):
