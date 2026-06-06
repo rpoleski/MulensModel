@@ -505,6 +505,31 @@ def test_scale_fluxes():
     almost(exp_err / new_err, 1.)
 
 
+def test_scale_fluxes_negative_warning():
+    """
+    Regression test for issue #81: FitData.scale_fluxes() should emit a
+    UserWarning when it produces negative flux uncertainties. This happens
+    when source_flux (or the fitted source flux) is negative, which is
+    unphysical and users typically don't expect it. Before this fix the
+    function returned negative err_flux silently.
+    """
+    f_s = 1.0
+    f_b = 0.5
+    pspl, t, A = generate_model()
+    f_mod = f_s * A + f_b
+    data = generate_dataset(f_mod, t)
+    fit = mm.FitData(dataset=data, model=pspl)
+    fit.fit_fluxes()
+
+    # Negative source_flux propagates straight through to err_flux,
+    # producing negative values that should trigger the warning.
+    with pytest.warns(UserWarning, match="negative flux"):
+        (_, err_flux) = fit.scale_fluxes(source_flux=-1.0, blend_flux=0.)
+    assert np.any(err_flux < 0.), (
+        "test setup is broken: negative source_flux should produce "
+        "negative err_flux, got min={!r}".format(err_flux.min()))
+
+
 class TestGetResiduals(unittest.TestCase):
     """
     test get_residuals():

@@ -497,6 +497,10 @@ class FitData(object):
             err_flux: *np.ndarray*
                 Uncertainties of fluxes from the data rescaled to the desired
                 system.
+
+        A ``UserWarning`` is emitted if ``err_flux`` contains negative
+        values, which can happen when ``source_flux`` or the fitted source
+        flux is negative.
         """
         if self.model.n_sources == 1:
             data_source_flux = self.source_flux
@@ -509,6 +513,15 @@ class FitData(object):
         flux /= data_source_flux
         flux += blend_flux
         err_flux = source_flux * self._dataset.err_flux / data_source_flux
+
+        if np.any(err_flux < 0.):
+            warnings.warn(
+                "FitData.scale_fluxes() produced negative flux "
+                "uncertainties. This happens when source_flux or the "
+                "fitted source flux is negative, which is unphysical and "
+                "usually indicates a problem with the model fit. "
+                "Downstream code may need to mask these values.",
+                UserWarning)
 
         return (flux, err_flux)
 
