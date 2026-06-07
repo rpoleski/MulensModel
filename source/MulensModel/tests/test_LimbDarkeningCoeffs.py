@@ -68,10 +68,8 @@ class TestWeightedLimbCoeffGamma(unittest.TestCase):
         """
         With weights I=1.5, V=1.0 the proper weighted mean is
         (1.5*0.45 + 1.0*0.65) / (1.5 + 1.0) = 1.325 / 2.5 = 0.53.
-        Pre-fix the function returned (0.45 + 0.65) / 2.5 = 0.44.
         """
-        result = self.coeffs.get_weighted_limb_coeff_gamma(
-            {'I': 1.5, 'V': 1.0})
+        result = self.coeffs.get_weighted_limb_coeff_gamma({'I': 1.5, 'V': 1.0})
         assert_almost_equal(result, 0.53)
 
     def test_non_dict_raises_type_error(self):
