@@ -22,13 +22,14 @@ max_values:
     u_0: 3.0
     u_0_pl: 3.0
 fitting_parameters:
-    n_walkers:  20
-    n_steps: 10000
-    n_burn:   2000
+    n_walkers:  15
+    n_steps: 1000
+    n_burn:   1
     progress: True
 fit_constraints:
     # This constraint is different than in Poleski et al. 2014, so the results will also be different.
-    negative_blending_flux_sigma_mag: 20. 
+    negative_blending_flux_sigma_mag: 20.
+  
 plots:
     triangle:
         file: ob08092-o3_triangle.png
