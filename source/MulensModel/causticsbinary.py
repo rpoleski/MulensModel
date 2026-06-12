@@ -81,8 +81,9 @@ class CausticsBinary(object):
                 Two lists of length *n_points* giving the *x*, *y*
                 coordinates of the caustic points.
         """
-        if self._x is None or self._y is None:
+        if self._x is None or self._y is None or len(self._x) != n_points:
             self._calculate(n_points=n_points)
+
         return (self._x, self._y)
 
     @property
@@ -92,6 +93,7 @@ class CausticsBinary(object):
         """
         if self._critical_curve is None:
             self._calculate()
+
         return self._critical_curve
 
     def _calculate(self, n_points=5000):
