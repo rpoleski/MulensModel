@@ -3750,12 +3750,17 @@ class UlensModelFit(object):
         samples = self._sampler.chain[:, n_burn:, :]
         if self._extras_keys is not None:
             blobs = np.array(self._sampler.blobs)
-            blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, :]
+            blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, -len(self._extras_keys):]
             samples = np.dstack((samples, blobs))
 
         if self._posterior_file_fluxes is not None:
+            if self._posterior_file_fluxes == 'all':
+                n_fluxes = self._n_fluxes
+            else:
+                n_fluxes = len(self._posterior_file_fluxes)
+
             blobs = np.array(self._sampler.blobs)
-            blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, :]
+            blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, :n_fluxes]
             if self._posterior_file_fluxes == 'all':
                 pass
             elif isinstance(self._posterior_file_fluxes, list):
