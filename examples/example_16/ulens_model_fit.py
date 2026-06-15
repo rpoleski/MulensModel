@@ -15,6 +15,7 @@ import shlex
 from scipy.interpolate import interp1d
 from matplotlib import pyplot as plt
 from matplotlib import gridspec, rcParams, rcParamsDefault, colors
+import MulensModel as mm
 # from matplotlib.backends.backend_pdf import PdfPages
 
 import_failed = set()
@@ -2732,11 +2733,11 @@ class UlensModelFit(object):
 
         if self._fit_method == "EMCEE":
             self._update_best_model_EMCEE(ln_prob, theta, fluxes)
-            return self._return_ln_prob(ln_prob, fluxes)
+            return self._return_ln_prob(ln_prob, theta, fluxes)
 
         return ln_prob
 
-    def _return_ln_prob(self, value, fluxes=None):
+    def _return_ln_prob(self, value, theta, fluxes=None):
         """
         used to parse output of _ln_prob() in order to make that function
         shorter
@@ -2754,17 +2755,20 @@ class UlensModelFit(object):
                 out += fluxes
             else:
                 pass
-        extras = self._get_extras()
+        extras = self._get_extras(theta)
         
         out += extras
         return out
     
-    def _get_extras(self):
+    def _get_extras(self, theta):
         """must return None or list"""
         extras = []
-        if 'semi_major_axis' in self._extra_parameters:
-            a = 7.0
-            extras.append(a)
+        if self._extra_parameters is not None:
+            if 'semi_major_axis' in self._extra_parameters:
+                #kep = mm.ModelParameters(theta)
+                #a = kep.lens_semimajor_axis
+                a = 7.0
+                extras.append(a)
         return extras
     def _set_model_parameters(self, theta):
         """
@@ -3488,6 +3492,10 @@ class UlensModelFit(object):
                 print("Fitted fluxes: # (source and blending)", **self._yaml_kwargs)
                 self._print_yaml_results(self._flux_samples_flat, names='fluxes')
 
+        if self._extra_parameters:
+            print("Extra parameters:")
+            self._print_results(self._extras_values, names='extras')
+
         self._print_best_model()
         if self._yaml_results:
             self._print_yaml_best_model()
@@ -3537,6 +3545,8 @@ class UlensModelFit(object):
             if self._flux_names is None:
                 self._flux_names = self._get_fluxes_names_to_print()
             ids = self._flux_names
+        elif names == "extras":
+            ids = self._extra_parameters
         else:
             raise ValueError('internal bug')
 
@@ -3747,9 +3757,10 @@ class UlensModelFit(object):
         """
         n_burn = self._fitting_parameters.get('n_burn', 0)
         samples = self._sampler.chain[:, n_burn:, :]
-        if self._extras_keys is not None:
+        if self._extra_parameters is not None:
             blobs = np.array(self._sampler.blobs)
-            blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, -len(self._extras_keys):]
+            blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, -len(self._extra_parameters):]
+            self._extras_values = blobs
             samples = np.dstack((samples, blobs))
 
         if self._posterior_file_fluxes is not None:

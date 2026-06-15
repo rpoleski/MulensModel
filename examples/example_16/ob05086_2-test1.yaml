@@ -10,6 +10,7 @@ model:
     coords: 18:04:45.71 -26:59:15.2
 fixed_parameters:
     t_0_par: 2453628.0
+extra_parameters: ['semi_major_axis']
 min_values:
     u_0: 0.
     t_E: 0.
@@ -23,9 +24,8 @@ fitting_parameters:
     n_steps: 11
     n_burn:   4
     posterior file: test.npy
-    posterior file extras: ['semi_major_axis'] 
-    posterior file thin: 3
-    posterior file fluxes: all
+    #posterior file thin: 3
+    #posterior file fluxes: all
     #plots:
     #best model:
     #    file: ob05086_2_model.png
