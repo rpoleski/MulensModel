@@ -25,6 +25,7 @@ fitting_parameters:
     posterior file: test.npy
     posterior file extras: ['semi_major_axis'] 
     posterior file thin: 3
+    posterior file fluxes: all
     #plots:
     #best model:
     #    file: ob05086_2_model.png
