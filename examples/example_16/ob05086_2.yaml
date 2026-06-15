@@ -6,7 +6,6 @@ starting_parameters:
     t_E: gauss 102. 1.
     pi_E_N: gauss 0.0 0.1
     pi_E_E: gauss 0.0 0.1
-extra_parameters: ['semi_major_axis']
 model:
     coords: 18:04:45.71 -26:59:15.2
 fixed_parameters:
@@ -21,22 +20,11 @@ max_values:
     pi_E_E: 1.
 fitting_parameters:
     n_walkers: 10
-<<<<<<< Updated upstream
-    n_steps: 11
-    n_burn:   4
-    posterior file: test.npy
-    posterior file extras: ['semi_major_axis'] 
-    posterior file thin: 3
-=======
     n_steps: 10000
     n_burn:  5000
-    #posterior file: test.npy
-    #posterior file extras: ['semi_major_axis'] 
-    #posterior file thin: 50
->>>>>>> Stashed changes
-    #plots:
-    #best model:
-    #    file: ob05086_2_model.png
-    #    time range: 2453430 2453830
-    #triangle:
-    #    file: ob05086_2_triangle.png
+plots:
+    best model:
+        file: ob05086_2_model.png
+        time range: 2453430 2453830
+    triangle:
+        file: ob05086_2_triangle.png
