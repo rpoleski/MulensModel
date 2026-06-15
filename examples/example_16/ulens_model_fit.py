@@ -2769,6 +2769,9 @@ class UlensModelFit(object):
                 #a = kep.lens_semimajor_axis
                 a = 7.0
                 extras.append(a)
+            if 'orbital_period' in self._extra_parameters:
+                T = 6.0
+                extras.append(T)
         return extras
     def _set_model_parameters(self, theta):
         """
@@ -3494,7 +3497,8 @@ class UlensModelFit(object):
 
         if self._extra_parameters:
             print("Extra parameters:")
-            self._print_results(self._extras_values, names='extras')
+            extras_values = self._get_extras_to_print_EMCEE()
+            self._print_results(extras_values, names='extras')
 
         self._print_best_model()
         if self._yaml_results:
@@ -3534,6 +3538,25 @@ class UlensModelFit(object):
         blob_samples = blob_samples.reshape((-1, self._n_fluxes))
 
         return blob_samples
+
+    def _get_extras_to_print_EMCEE(self):
+        """
+        prepare values to be printed for EMCEE fitting
+        """
+        try:
+            blobs = np.array(self._sampler.blobs)
+        except Exception as exception:
+            raise ValueError('There was some issue with blobs:\n' +
+                             str(exception))
+        #samples = np.transpose(blobs, axes=(1, 0, 2))[:, self._fitting_parameters['n_burn']:, -len(self._extra_parameters):]
+        blob_sampler = np.transpose(blobs, axes=(1, 0, 2))
+        blob_samples = blob_sampler[:, self._fitting_parameters['n_burn']:, :]
+        blob_samples = blob_samples.reshape((-1, blobs.ndim))
+        blob_samples = np.array_split(blob_samples, 3, axis=1)
+        samples = blob_samples[-1]
+
+        return samples
+
 
     def _print_results(self, data, names="parameters", mode=None):
         """
@@ -3760,7 +3783,6 @@ class UlensModelFit(object):
         if self._extra_parameters is not None:
             blobs = np.array(self._sampler.blobs)
             blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, -len(self._extra_parameters):]
-            self._extras_values = blobs
             samples = np.dstack((samples, blobs))
 
         if self._posterior_file_fluxes is not None:
