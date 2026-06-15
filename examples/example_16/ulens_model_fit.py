@@ -440,7 +440,7 @@ class UlensModelFit(object):
     def __init__(
             self, photometry_files,
             starting_parameters=None, prior_limits=None, model=None,
-            fixed_parameters=None,
+            fixed_parameters=None, extra_parameters=None,
             min_values=None, max_values=None, fitting_parameters=None,
             fit_constraints=None, plots=None, other_output=None,
             fit_method=None
@@ -451,6 +451,7 @@ class UlensModelFit(object):
         self._prior_limits = prior_limits
         self._model_parameters = model
         self._fixed_parameters = fixed_parameters
+        self._extra_parameters = extra_parameters
         self._min_values = min_values
         self._max_values = max_values
         self._fitting_parameters = fitting_parameters
@@ -1518,7 +1519,7 @@ class UlensModelFit(object):
         bools = ['progress']
         ints = ['n_walkers', 'n_burn', 'posterior file thin']
         strings = ['posterior file']
-        strings_or_lists = ['posterior file fluxes', 'posterior file extras']
+        strings_or_lists = ['posterior file fluxes']
         allowed = bools + ints + strings + strings_or_lists
 
         self._check_required_and_allowed_parameters(required, allowed)
@@ -1616,8 +1617,6 @@ class UlensModelFit(object):
                                      name + ") exists and is a directory")
             self._posterior_file_name = name[:-4]
             self._posterior_file_fluxes = None
-        if 'posterior file extras' in settings:
-            self._extras_keys = settings['posterior file extras']
         if 'posterior file fluxes' in settings:
             not_changed = ['all', None]
             if settings['posterior file fluxes'] in not_changed:
@@ -2763,7 +2762,7 @@ class UlensModelFit(object):
     def _get_extras(self):
         """must return None or list"""
         extras = []
-        if 'semi_major_axis' in self._extras_keys:
+        if 'semi_major_axis' in self._extra_parameters:
             a = 7.0
             extras.append(a)
         return extras
