@@ -49,7 +49,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.57.1'
+__version__ = '0.57.2'
 
 
 class UlensModelFit(object):
@@ -1318,7 +1318,7 @@ class UlensModelFit(object):
 
         if dataset.ephemerides_file is not None:
             self._satellites_names.append(dataset.plot_properties['label'])
-            self._satellites_colors.append(dataset.plot_properties['color'])
+            self._satellites_colors.append(dataset.plot_properties.get('color', 'blue'))
 
         return dataset
 
