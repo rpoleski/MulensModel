@@ -10,7 +10,7 @@ starting_parameters:
     ds_dt: gauss -2.6459168141712706 0.00001
     dalpha_dt: gauss 20.68892539401179 0.00001
     ds_z_dt: gauss 3.8135163114684794 0.00001
-extra_parameters: ['semi_major_axis', 'lens_period']
+extra_parameters: ['lens_period', 'semi_major_axis']
 min_values:
     u_0: 0.
     t_E: 0.
@@ -18,10 +18,10 @@ fitting_parameters:
     n_walkers: 20
     n_steps: 11
     n_burn:   4
-    posterior file: test.npy
+    posterior file: test-4.npy
 plots:
     best model:
-        file: ob05086_2_model.png
+        file: ob05086_2_model-4.png
         time range: 2453430 2453830
     triangle:
-        file: ob05086_2_triangle.png
+        file: ob05086_2_triangle-4.png
