@@ -3497,7 +3497,7 @@ class UlensModelFit(object):
 
         if self._extra_parameters:
             print("Extra parameters:")
-            extras_values = self._get_extras_to_print_EMCEE()
+            extras_values = self._get_extras_values()
             self._print_results(extras_values, names='extras')
 
         self._print_best_model()
@@ -3539,19 +3539,20 @@ class UlensModelFit(object):
 
         return blob_samples
 
-    def _get_extras_to_print_EMCEE(self):
+    def _get_extras_values(self):
         """
-        prepare values to be printed for EMCEE fitting
+        Extract values of extras from blobs.
         """
         try:
             blobs = np.array(self._sampler.blobs)
         except Exception as exception:
-            raise ValueError('There was some issue with blobs:\n' +
-                             str(exception))
+            raise ValueError('There was some issue with blobs:\n' + str(exception))
         #samples = np.transpose(blobs, axes=(1, 0, 2))[:, self._fitting_parameters['n_burn']:, -len(self._extra_parameters):]
+        # RP: What's wrong with above approach?
         blob_sampler = np.transpose(blobs, axes=(1, 0, 2))
         blob_samples = blob_sampler[:, self._fitting_parameters['n_burn']:, :]
         blob_samples = blob_samples.reshape((-1, blobs.ndim))
+        # RP: The line above fails on ob05086_2-test3.yaml because blobs_samples.shape is (10, 7, 4) and blobs.ndim = 3.
         blob_samples = np.array_split(blob_samples, 3, axis=1)
         samples = blob_samples[-1]
 
@@ -3781,9 +3782,7 @@ class UlensModelFit(object):
         n_burn = self._fitting_parameters.get('n_burn', 0)
         samples = self._sampler.chain[:, n_burn:, :]
         if self._extra_parameters is not None:
-            blobs = np.array(self._sampler.blobs)
-            blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, -len(self._extra_parameters):]
-            samples = np.dstack((samples, blobs))
+            samples = np.dstack((samples, self._get_extras_values()))
 
         if self._posterior_file_fluxes is not None:
             if self._posterior_file_fluxes == 'all':
