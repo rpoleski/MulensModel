@@ -1,11 +1,19 @@
 photometry_files:
     - {file_name: data/OB05086/starBLG234.6.I.218982.dat}
+fit_method: EMCEE
 starting_parameters:
     t_0: gauss 2453628.3 0.1
     u_0: gauss 0.375 0.005
     t_E: gauss 102. 1.
+    rho: gauss 0.0023122805388531547 0.000002
+    s: gauss 1.6263571080641581 0.00001
+    q: gauss 1.0845802575998298 0.00001
+    alpha: gauss 163.17776777772764 0.00001
     pi_E_N: gauss 0.0 0.1
     pi_E_E: gauss 0.0 0.1
+    ds_dt: gauss -2.6459168141712706 0.00001
+    dalpha_dt: gauss 20.68892539401179 0.00001
+    ds_z_dt: gauss 3.8135163114684794 0.00001
 model:
     coords: 18:04:45.71 -26:59:15.2
 fixed_parameters:
@@ -20,15 +28,15 @@ max_values:
     pi_E_N: 1.
     pi_E_E: 1.
 fitting_parameters:
-    n_walkers: 10
+    n_walkers: 30
     n_steps: 11
     n_burn:   4
     posterior file: test.npy
     #posterior file thin: 3
     #posterior file fluxes: all
-    #plots:
+plots:
     #best model:
     #    file: ob05086_2_model.png
     #    time range: 2453430 2453830
-    #triangle:
-    #    file: ob05086_2_triangle.png
+    triangle:
+        file: ob05086_2_triangle.png

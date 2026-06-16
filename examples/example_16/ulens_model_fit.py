@@ -2761,18 +2761,28 @@ class UlensModelFit(object):
         return out
     
     def _get_extras(self, theta):
-        """must return None or list"""
+        """
+        Gives parameters specifed in extra_parameters. Must return None or list.
+        """
         extras = []
         if self._extra_parameters is not None:
+            par_dict = self._get_par_dict(theta)
+            kep = mm.ModelParameters(par_dict)
             if 'semi_major_axis' in self._extra_parameters:
-                #kep = mm.ModelParameters(theta)
-                #a = kep.lens_semimajor_axis
-                a = 7.0
+                a = kep.lens_semimajor_axis
                 extras.append(a)
             if 'orbital_period' in self._extra_parameters:
-                T = 6.0
+                T = kep.orbital_period
                 extras.append(T)
         return extras
+    
+    def _get_par_dict(self, theta):
+        """
+        Current parameters of the model in dict format.
+        """
+        par_dict = dict(zip(self._fit_parameters, theta))
+        return par_dict
+
     def _set_model_parameters(self, theta):
         """
         Set microlensing parameters of self._model
@@ -4056,12 +4066,16 @@ class UlensModelFit(object):
         """
         Prepare samples that will be plotted on triangle plot
         """
+        if self._extra_parameters is not None:
+            return np.concatenate((self._samples_flat, self._get_extras_flat()), axis=1)
         return self._samples_flat
 
     def _get_labels_for_triangle_plot(self):
         """
         provide list of labels to be used by triangle plot
         """
+        if self._extra_parameters is not None:
+            return self._fit_parameters_latex + self._extra_parameters
         return self._fit_parameters_latex
 
     def _save_figure(self, file_name, figure=None, dpi=None):
