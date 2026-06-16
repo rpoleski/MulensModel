@@ -2766,22 +2766,13 @@ class UlensModelFit(object):
         """
         extras = []
         if self._extra_parameters is not None:
-            par_dict = self._get_par_dict(theta)
-            kep = mm.ModelParameters(par_dict)
             if 'semi_major_axis' in self._extra_parameters:
-                a = kep.lens_semimajor_axis
+                a = self._model.parameters.lens_semimajor_axis
                 extras.append(a)
             if 'orbital_period' in self._extra_parameters:
-                T = kep.orbital_period
+                T = self._model.parameters.orbital_period
                 extras.append(T)
         return extras
-    
-    def _get_par_dict(self, theta):
-        """
-        Current parameters of the model in dict format.
-        """
-        par_dict = dict(zip(self._fit_parameters, theta))
-        return par_dict
 
     def _set_model_parameters(self, theta):
         """
