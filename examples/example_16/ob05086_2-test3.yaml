@@ -8,7 +8,7 @@ starting_parameters:
     pi_E_E: gauss 0.0 0.1
 model:
     coords: 18:04:45.71 -26:59:15.2
-extra_parameters: ['semi_major_axis']
+extra_parameters: ['semi_major_axis', 'orbital_period']
 fixed_parameters:
     t_0_par: 2453628.0
 min_values:
