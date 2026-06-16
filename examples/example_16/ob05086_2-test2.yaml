@@ -23,8 +23,9 @@ fitting_parameters:
     n_walkers: 10
     n_steps: 11
     n_burn:   4
-    posterior file: test-2_control.npy
-    posterior file thin: 3
+    #posterior file: test-2_control.npy
+    #posterior file thin: 3
+    #posterior file fluxes: all
     #plots:
     #best model:
     #    file: ob05086_2_model.png
