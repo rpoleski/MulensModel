@@ -1,11 +1,10 @@
 photometry_files:
     - {file_name: data/OB05086/starBLG234.6.I.218982.dat}
-fit_method: EMCEE
+fit_method: 'EMCEE'
 starting_parameters:
     t_0: gauss 2453628.3 0.1
     u_0: gauss 0.375 0.005
     t_E: gauss 102. 1.
-    rho: gauss 0.0023122805388531547 0.000002
     s: gauss 1.6263571080641581 0.00001
     q: gauss 1.0845802575998298 0.00001
     alpha: gauss 163.17776777772764 0.00001

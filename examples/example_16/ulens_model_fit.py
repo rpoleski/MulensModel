@@ -2727,7 +2727,7 @@ class UlensModelFit(object):
                 "If extra parameters are present fit method has to be EMCEE.")
 
         if not np.isfinite(ln_prior):
-            return self._return_ln_prob(-np.inf)
+            return self._return_ln_prob(-np.inf, theta)
 
         ln_like = self._ln_like(theta)
         if not np.isfinite(ln_like):
@@ -2757,7 +2757,7 @@ class UlensModelFit(object):
         out = [value]
         if value == -np.inf:
             if self._return_fluxes:
-                out = [out, [0.] * self._n_fluxes]
+                out += [0.] * self._n_fluxes
             else:
                 pass
         else:
