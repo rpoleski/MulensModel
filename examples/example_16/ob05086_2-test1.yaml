@@ -32,11 +32,13 @@ fitting_parameters:
     n_steps: 11
     n_burn:   4
     posterior file: test.npy
-    #posterior file thin: 3
-    #posterior file fluxes: all
+    posterior file thin: 3
+    posterior file fluxes: all
 plots:
     #best model:
     #    file: ob05086_2_model.png
     #    time range: 2453430 2453830
     triangle:
         file: ob05086_2_triangle.png
+    trace:
+        file: test.png

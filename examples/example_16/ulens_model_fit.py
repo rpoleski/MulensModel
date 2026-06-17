@@ -2766,12 +2766,13 @@ class UlensModelFit(object):
         """
         extras = []
         if self._extra_parameters is not None:
-            if 'semi_major_axis' in self._extra_parameters:
-                a = self._model.parameters.lens_semimajor_axis
-                extras.append(a)
-            if 'orbital_period' in self._extra_parameters:
-                T = self._model.parameters.orbital_period
-                extras.append(T)
+            for par in self._extra_parameters:
+                if 'semi_major_axis' in self._extra_parameters:
+                    a = self._model.parameters.lens_semimajor_axis
+                    extras.append(a)
+                if 'lens_period' in self._extra_parameters:
+                    T = self._model.parameters.lens_period
+                    extras.append(T)
         return extras
 
     def _set_model_parameters(self, theta):
