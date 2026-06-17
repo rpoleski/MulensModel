@@ -157,6 +157,13 @@ class UlensModelFit(object):
                   'u_0': [0.46, 0.65]
                   't_E': "16. 19.6"
               }
+        
+        extra_parameters: *list of strings*
+            Additional parameters you want to a add to the final output,
+            triangle plot and posterior. They are not fitted themselves
+            but calculated from the fitted parameters. Currently lens period
+            and lens semi major axis are accepted.
+            Only works for EMCEE fitting.
 
         model: *dict*
             Additional settings for *MulensModel.Model*. Accepted keys:
@@ -2714,6 +2721,11 @@ class UlensModelFit(object):
         NOTE: we're using np.log(), i.e., natural logarithms.
         """
         ln_prior = self._ln_prior(theta)
+        if self._extra_parameters is not None:
+            if self._fit_method != 'EMCEE':
+                raise NotImplementedError(
+                "If extra parameters are present fit method has to be EMCEE.")
+
         if not np.isfinite(ln_prior):
             return self._return_ln_prob(-np.inf)
 
