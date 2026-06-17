@@ -25,3 +25,5 @@ plots:
         time range: 2453430 2453830
     triangle:
         file: ob05086_2_triangle-4.png
+    trace:
+        file: ob05086_2_trace-4.png

@@ -2727,7 +2727,7 @@ class UlensModelFit(object):
                 "If extra parameters are present fit method has to be EMCEE.")
 
         if not np.isfinite(ln_prior):
-            return self._return_ln_prob(-np.inf, theta)
+            return self._return_ln_prob(-np.inf)
 
         ln_like = self._ln_like(theta)
         if not np.isfinite(ln_like):
@@ -2745,11 +2745,11 @@ class UlensModelFit(object):
 
         if self._fit_method == "EMCEE":
             self._update_best_model_EMCEE(ln_prob, theta, fluxes)
-            return self._return_ln_prob(ln_prob, theta, fluxes)
+            return self._return_ln_prob(ln_prob, fluxes)
 
         return ln_prob
 
-    def _return_ln_prob(self, value, theta, fluxes=None):
+    def _return_ln_prob(self, value, fluxes=None):
         """
         used to parse output of _ln_prob() in order to make that function
         shorter
@@ -2767,12 +2767,12 @@ class UlensModelFit(object):
                 out += fluxes
             else:
                 pass
-        extras = self._get_extras(theta)
+        extras = self._get_extras()
         
         out += extras
         return out
     
-    def _get_extras(self, theta):
+    def _get_extras(self):
         """
         Gives parameters specifed in extra_parameters. Must return None or list.
         """
