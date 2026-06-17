@@ -3502,16 +3502,16 @@ class UlensModelFit(object):
             self._print_yaml_results(self._samples_flat)
         self._shift_t_0_in_samples()
 
+        if self._extra_parameters:
+            print("Extra parameters:")
+            self._print_results(self._get_extras_flat(), names='extras')
+
         if self._return_fluxes:
             print("Fitted fluxes (source and blending):")
             self._print_results(self._flux_samples_flat, names='fluxes')
             if self._yaml_results:
                 print("Fitted fluxes: # (source and blending)", **self._yaml_kwargs)
                 self._print_yaml_results(self._flux_samples_flat, names='fluxes')
-
-        if self._extra_parameters:
-            print("Extra parameters:")
-            self._print_results(self._get_extras_flat(), names='extras')
 
         self._print_best_model()
         if self._yaml_results:
@@ -3541,19 +3541,26 @@ class UlensModelFit(object):
         """
         prepare values to be printed for EMCEE fitting
         """
-        try:
-            blobs = np.array(self._sampler.blobs)
-        except Exception as exception:
-            raise ValueError('There was some issue with blobs:\n' +
-                             str(exception))
-        blob_sampler = np.transpose(blobs, axes=(1, 0, 2))
-        blob_samples = blob_sampler[:, self._fitting_parameters['n_burn']:, :]
+        blob_samples = self._get_fluxes_3D(self._n_fluxes)
         blob_samples = blob_samples.reshape((-1, self._n_fluxes))
 
         return blob_samples
 
+    def _get_fluxes_3D(self, n_fluxes):
+        """
+        Get values of fluxes from blobs.
+        """
+        try:
+            blobs = np.array(self._sampler.blobs)
+        except Exception as exception:
+            raise ValueError('There was some issue with blobs:\n' +str(exception))
+        fluxes_3D = np.transpose(blobs, axes=(1, 0, 2))[:, self._fitting_parameters['n_burn']:, :n_fluxes]
+
+        return fluxes_3D
+
     def _get_extras_flat(self):
         """
+        Reshape extra array to 2D.
         """
         samples = self._get_extras_3D()
         samples_flat = samples.reshape((-1, len(self._extra_parameters)))
@@ -3802,8 +3809,7 @@ class UlensModelFit(object):
             else:
                 n_fluxes = len(self._posterior_file_fluxes)
 
-            blobs = np.array(self._sampler.blobs)
-            blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, :n_fluxes]
+            blobs = self._get_fluxes_3D(n_fluxes)
             if self._posterior_file_fluxes == 'all':
                 pass
             elif isinstance(self._posterior_file_fluxes, list):
