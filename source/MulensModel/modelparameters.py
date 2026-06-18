@@ -1993,6 +1993,17 @@ class ModelParameters(object):
         """
         self._set_lens_keplerian_orbit()
         return self._lens_keplerian['semimajor_axis']
+    
+    @property
+    def lens_eccentricity(self):
+        """
+        *float*
+
+        Eccentricity axis of the binary lens orbit.
+        """
+        self._set_lens_keplerian_orbit()
+        return self._lens_keplerian['eccentricity']
+
 
     @property
     def lens_period(self):
