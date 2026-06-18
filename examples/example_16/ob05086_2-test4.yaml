@@ -16,7 +16,7 @@ min_values:
     t_E: 0.
 fitting_parameters:
     n_walkers: 20
-    n_steps: 11
+    n_steps: 100
     n_burn:   4
     posterior file: test-4.npy
 plots:

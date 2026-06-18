@@ -1500,8 +1500,8 @@ class UlensModelFit(object):
 
         self._fit_parameters_latex = [
             ('$' + conversion[key] + '$') for key in self._fit_parameters]
-        self._extra_parameters_latex = [
-            ('$' + conversion[key] + '$') for key in self._extra_parameters]
+        if self._extra_parameters is not None: 
+            self._extra_parameters_latex = [('$' + conversion[key] + '$') for key in self._extra_parameters]
 
     def _parse_fitting_parameters(self):
         """
@@ -4081,6 +4081,14 @@ class UlensModelFit(object):
             return np.concatenate((self._samples_flat, self._get_extras_flat()), axis=1)
         return self._samples_flat
 
+    def _get_samples_for_trace_plot(self):
+        """
+        Prepare samples that will be plotted on trace plot
+        """
+        if self._extra_parameters is not None:
+            return np.dstack((self._samples, self._get_extras_3D()))
+        return self._samples
+
     def _get_labels_for_triangle_plot(self):
         """
         provide list of labels to be used by triangle plot
@@ -4127,26 +4135,32 @@ class UlensModelFit(object):
         margins = {'left': 0.13, 'right': 0.97, 'top': 0.98, 'bottom': 0.05}
 
         n_grid = self._n_fit_parameters
-        if len(self._fit_parameters_latex) != n_grid:
+        if self._extra_parameters is not None:
+            n_grid += len(self._extra_parameters)
+
+        labels = self._get_labels_for_triangle_plot()
+        data = self._get_samples_for_trace_plot()
+        if len(labels) != n_grid:
             msg = "This should never happen: {:} {:}"
             raise ValueError(
-                msg.format(len(self._fit_parameters_latex), n_grid))
+                msg.format(len(labels), n_grid))
         grid = gridspec.GridSpec(n_grid, 1, hspace=0)
 
         plt.figure(figsize=figure_size)
         plt.subplots_adjust(**margins)
-        x_vector = np.arange(self._samples.shape[1])
+        x_vector = np.arange(data.shape[1])
 
-        for (i, latex_name) in enumerate(self._fit_parameters_latex):
+        for (i, latex_name) in enumerate(labels):
             if i == 0:
                 plt.subplot(grid[i])
                 ax0 = plt.gca()
             else:
                 plt.gcf().add_subplot(grid[i], sharex=ax0)
             plt.ylabel(latex_name)
-            for j in range(self._samples.shape[0]):
-                plt.plot(x_vector, self._samples[j, :, i], alpha=alpha)
-            plt.xlim(0, self._samples.shape[1])
+            for j in range(data.shape[0]):
+                plt.plot(x_vector, data[j, :, i], alpha=alpha)
+            #plt.xlim(0, data[1])
+            #bug:(
             plt.gca().tick_params(axis='both', which='both', direction='in',
                                   top=True, right=True)
             if i != self._n_fit_parameters - 1:
