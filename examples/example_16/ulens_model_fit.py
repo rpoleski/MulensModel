@@ -4159,8 +4159,7 @@ class UlensModelFit(object):
             plt.ylabel(latex_name)
             for j in range(data.shape[0]):
                 plt.plot(x_vector, data[j, :, i], alpha=alpha)
-            #plt.xlim(0, data[1])
-            #bug:(
+            plt.xlim(0, data.shape[1])
             plt.gca().tick_params(axis='both', which='both', direction='in',
                                   top=True, right=True)
             if i != self._n_fit_parameters - 1:
