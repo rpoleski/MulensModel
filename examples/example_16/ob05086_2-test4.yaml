@@ -7,10 +7,10 @@ starting_parameters:
     s: gauss 1.6263571080641581 0.00001
     q: gauss 1.0845802575998298 0.00001
     alpha: gauss 163.17776777772764 0.00001
-    ds_dt: gauss -2.6459168141712706 0.00001
+    ds_dt: gauss -20.6459168141712706 0.00001
     dalpha_dt: gauss 20.68892539401179 0.00001
-    ds_z_dt: gauss 3.8135163114684794 0.00001
-extra_parameters: ['lens_period', 'lens_semimajor_axis']
+    ds_z_dt: gauss 30.8135163114684794 0.00001
+extra_parameters: ['lens_period', 'lens_semimajor_axis', 'lens_inclination']
 min_values:
     u_0: 0.
     t_E: 0.
