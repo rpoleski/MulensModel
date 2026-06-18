@@ -595,6 +595,7 @@ class UlensModelFit(object):
             pi_E_E='\\pi_{{\\rm E},E}', s='s', q='q', alpha='\\alpha',
             ds_dt='ds/dt', dalpha_dt='d\\alpha/dt',
             s_z='s_{z}', ds_z_dt='ds_{z}/dt', a_s='a_{s}',
+            lens_semimajor_axis='a', lens_period='P',
             x_caustic_in='x_{\\rm caustic,in}',
             x_caustic_out='x_{\\rm caustic,out}',
             t_caustic_in='t_{\\rm caustic,in}',
@@ -1499,6 +1500,8 @@ class UlensModelFit(object):
 
         self._fit_parameters_latex = [
             ('$' + conversion[key] + '$') for key in self._fit_parameters]
+        self._extra_parameters_latex = [
+            ('$' + conversion[key] + '$') for key in self._extra_parameters]
 
     def _parse_fitting_parameters(self):
         """
@@ -2782,7 +2785,7 @@ class UlensModelFit(object):
                 try:
                     extras.append(getattr(self._model.parameters, par))
                 except AttributeError:
-                    print("Wrong parameter name")
+                    print("Wrong parameter name in extra parameters")
         return extras
 
     def _set_model_parameters(self, theta):
@@ -4083,7 +4086,7 @@ class UlensModelFit(object):
         provide list of labels to be used by triangle plot
         """
         if self._extra_parameters is not None:
-            return self._fit_parameters_latex + self._extra_parameters
+            return self._fit_parameters_latex + self._extra_parameters_latex
         return self._fit_parameters_latex
 
     def _save_figure(self, file_name, figure=None, dpi=None):
