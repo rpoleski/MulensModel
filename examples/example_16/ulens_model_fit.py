@@ -595,7 +595,7 @@ class UlensModelFit(object):
             ds_dt='ds/dt', dalpha_dt='d\\alpha/dt',
             s_z='s_{z}', ds_z_dt='ds_{z}/dt', a_s='a_{s}',
             lens_semimajor_axis='a', lens_period='P',
-            eccentricity='e', lens_inclination='I', 
+            lens_eccentricity='e', lens_inclination='I', 
             x_caustic_in='x_{\\rm caustic,in}',
             x_caustic_out='x_{\\rm caustic,out}',
             t_caustic_in='t_{\\rm caustic,in}',
