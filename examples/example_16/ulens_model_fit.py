@@ -15,7 +15,6 @@ import shlex
 from scipy.interpolate import interp1d
 from matplotlib import pyplot as plt
 from matplotlib import gridspec, rcParams, rcParamsDefault, colors
-import MulensModel as mm
 # from matplotlib.backends.backend_pdf import PdfPages
 
 import_failed = set()
@@ -157,7 +156,7 @@ class UlensModelFit(object):
                   'u_0': [0.46, 0.65]
                   't_E': "16. 19.6"
               }
-        
+
         extra_parameters: *list of strings*
             Additional parameters you want to a add to the final output,
             triangle plot and posterior. They are not fitted themselves
@@ -1500,7 +1499,7 @@ class UlensModelFit(object):
 
         self._fit_parameters_latex = [
             ('$' + conversion[key] + '$') for key in self._fit_parameters]
-        if self._extra_parameters is not None: 
+        if self._extra_parameters is not None:
             self._extra_parameters_latex = [('$' + conversion[key] + '$') for key in self._extra_parameters]
 
     def _parse_fitting_parameters(self):
@@ -2726,8 +2725,7 @@ class UlensModelFit(object):
         ln_prior = self._ln_prior(theta)
         if self._extra_parameters is not None:
             if self._fit_method != 'EMCEE':
-                raise NotImplementedError(
-                "If extra parameters are present fit method has to be EMCEE.")
+                raise NotImplementedError("If extra parameters are present fit method has to be EMCEE.")
 
         if not np.isfinite(ln_prior):
             return self._return_ln_prob(-np.inf)
@@ -2771,10 +2769,10 @@ class UlensModelFit(object):
             else:
                 pass
         extras = self._get_extras()
-        
+
         out += extras
         return out
-    
+
     def _get_extras(self):
         """
         Gives parameters specifed in extra_parameters. Must return None or list.
@@ -3554,7 +3552,7 @@ class UlensModelFit(object):
         try:
             blobs = np.array(self._sampler.blobs)
         except Exception as exception:
-            raise ValueError('There was some issue with blobs:\n' +str(exception))
+            raise ValueError('There was some issue with blobs:\n' + str(exception))
         fluxes_3D = np.transpose(blobs, axes=(1, 0, 2))[:, self._fitting_parameters['n_burn']:, :n_fluxes]
 
         return fluxes_3D
@@ -3578,7 +3576,6 @@ class UlensModelFit(object):
         samples_3D = np.transpose(blobs, axes=(1, 0, 2))[:, self._fitting_parameters['n_burn']:, -len(self._extra_parameters):]
 
         return samples_3D
-
 
     def _print_results(self, data, names="parameters", mode=None):
         """
