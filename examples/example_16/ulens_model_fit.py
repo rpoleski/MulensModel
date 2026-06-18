@@ -2779,12 +2779,10 @@ class UlensModelFit(object):
         extras = []
         if self._extra_parameters is not None:
             for par in self._extra_parameters:
-                if 'semi_major_axis' in self._extra_parameters:
-                    a = self._model.parameters.lens_semimajor_axis
-                    extras.append(a)
-                if 'lens_period' in self._extra_parameters:
-                    T = self._model.parameters.lens_period
-                    extras.append(T)
+                try:
+                    extras.append(getattr(self._model.parameters, par))
+                except AttributeError:
+                    print("Wrong parameter name")
         return extras
 
     def _set_model_parameters(self, theta):

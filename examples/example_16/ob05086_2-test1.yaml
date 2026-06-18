@@ -17,7 +17,7 @@ model:
     coords: 18:04:45.71 -26:59:15.2
 fixed_parameters:
     t_0_par: 2453628.0
-extra_parameters: ['semi_major_axis']
+extra_parameters: ['lens_semimajor_axis']
 min_values:
     u_0: 0.
     t_E: 0.
