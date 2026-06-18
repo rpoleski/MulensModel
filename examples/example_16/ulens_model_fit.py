@@ -2785,7 +2785,7 @@ class UlensModelFit(object):
                 try:
                     extras.append(getattr(self._model.parameters, par))
                 except AttributeError:
-                    print("Wrong parameter name in extra parameters")
+                    print("Wrong parameter name in extra parameters: {:}".format(par))
         return extras
 
     def _set_model_parameters(self, theta):
