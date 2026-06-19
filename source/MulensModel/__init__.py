@@ -38,7 +38,7 @@ __all__ = [
     'BinaryLensPointSourceWM95Magnification', 'BinaryLensPointSourceVBBLMagnification',
     'BinaryLensQuadrupoleMagnification', 'BinaryLensHexadecapoleMagnification', 'BinaryLensVBBLMagnification',
     'BinaryLensAdaptiveContouringMagnification', 'BinaryLensPointSourceWithShearWM95Magnification',
-    'BinaryLensPointSourceWithShearVBBLMagnification', 'CausticsBinary', 'CausticsPointWithShear',
+    'BinaryLensPointSourceWithShearVBMMagnification', 'CausticsBinary', 'CausticsPointWithShear',
     'CausticsBinaryWithShear', 'Coordinates', 'Event', 'FitData', 'Horizons', 'LimbDarkeningCoeffs',
     'MagnificationCurve', 'Model', 'ModelParameters', 'MulensData', 'Lens', 'Source', 'MulensSystem', 'orbits',
     'PointSourcePointLensMagnification', 'FiniteSourceUniformGould94Magnification',
