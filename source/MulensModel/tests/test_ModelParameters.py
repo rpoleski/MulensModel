@@ -4,8 +4,6 @@ import numpy as np
 
 import MulensModel as mm
 
-print()
-print(mm.__file__)
 
 class TestModelParameters(unittest.TestCase):
     def test_too_many_parameters_for_init(self):
