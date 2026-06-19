@@ -1499,8 +1499,6 @@ class UlensModelFit(object):
                         conversion[key] = "|" + conversion[key] + "|"
 
         self._fit_parameters_latex = [('$' + conversion[key] + '$') for key in self._fit_parameters]
-        #if self._extra_parameters is not None:
-            #self._extra_parameters_latex = [('$' + conversion[key] + '$') for key in self._extra_parameters]
 
     def _parse_fitting_parameters(self):
         """
