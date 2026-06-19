@@ -4,6 +4,8 @@ import numpy as np
 
 import MulensModel as mm
 
+print()
+print(mm.__file__)
 
 class TestModelParameters(unittest.TestCase):
     def test_too_many_parameters_for_init(self):
@@ -611,6 +613,7 @@ def test_lens_orbital_parameters_circular_1():
     np.testing.assert_almost_equal(parameters.lens_semimajor_axis, 1.5)
     np.testing.assert_almost_equal(parameters.lens_period, 10.)
     np.testing.assert_almost_equal(parameters.lens_inclination, 45.)
+    np.testing.assert_almost_equal(parameters.lens_eccentricity, 0.)
     np.testing.assert_almost_equal(parameters.lens_Omega_node, 0.)
     np.testing.assert_almost_equal(parameters.lens_argument_of_latitude_reference, 0.)
 

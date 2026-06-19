@@ -595,7 +595,7 @@ class UlensModelFit(object):
             ds_dt='ds/dt', dalpha_dt='d\\alpha/dt',
             s_z='s_{z}', ds_z_dt='ds_{z}/dt', a_s='a_{s}',
             lens_semimajor_axis='a', lens_period='P',
-            lens_eccentricity='e', lens_inclination='I', 
+            lens_eccentricity='e', lens_inclination='I',
             x_caustic_in='x_{\\rm caustic,in}',
             x_caustic_out='x_{\\rm caustic,out}',
             t_caustic_in='t_{\\rm caustic,in}',
@@ -2783,7 +2783,7 @@ class UlensModelFit(object):
             for par in self._extra_parameters:
                 try:
                     extras.append(getattr(self._model.parameters, par))
-                except:
+                except Exception:
                     raise AttributeError("Wrong parameter name in extra parameters: {:}".format(par))
         return extras
 
@@ -3574,7 +3574,8 @@ class UlensModelFit(object):
             blobs = np.array(self._sampler.blobs)
         except Exception as exception:
             raise ValueError('There was some issue with blobs:\n' + str(exception))
-        samples_3D = np.transpose(blobs, axes=(1, 0, 2))[:, self._fitting_parameters['n_burn']:, -len(self._extra_parameters):]
+        samples_3D = np.transpose(
+                     blobs, axes=(1, 0, 2))[:, self._fitting_parameters['n_burn']:, -len(self._extra_parameters):]
 
         return samples_3D
 
