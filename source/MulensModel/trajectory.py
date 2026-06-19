@@ -79,12 +79,10 @@ class Trajectory(object):
     _get_delta_annual_last_index = None
     _get_delta_satellite_results = dict()
 
-    def __init__(self,
-                 times=None, parameters=None, x=None, y=None, parallax=None,
+    def __init__(self, times=None, parameters=None, x=None, y=None, parallax=None,
                  coords=None, satellite_skycoord=None, earth_coords=None):
         if (parameters is not None) and (not isinstance(parameters, ModelParameters)):
-            raise TypeError(
-                'parameters must be None or a ModelParameters object')
+            raise TypeError('parameters must be None or a ModelParameters object')
 
         self.parameters = parameters
 
@@ -96,7 +94,7 @@ class Trajectory(object):
             self._x = x
             self._y = y
         else:
-            self._set_parallax_and_coords(parallax, coords, satellite_skycoord,earth_coords)
+            self._set_parallax_and_coords(parallax, coords, satellite_skycoord, earth_coords)
             self._times = np.atleast_1d(times)
             self._get_xy()
 
@@ -167,14 +165,11 @@ class Trajectory(object):
         Projection of the Earth-Satellite
         separation vector (in AU) on the sky.
         """
-        if (self.parallax['satellite'] and
-                self.satellite_skycoord is not None):
+        if self.parallax['satellite'] and self.satellite_skycoord is not None:
             delta_satellite = self._get_delta_satellite()
             return np.sqrt(delta_satellite['N']**2 + delta_satellite['E']**2)
         else:
-            raise AttributeError(
-                'Only valid for satellite parallax. ' +
-                'satellite_skycoord must be provided.')
+            raise AttributeError('Only valid for satellite parallax. The satellite_skycoord must be provided.')
 
     def _get_xy(self):
         """
@@ -250,8 +245,7 @@ class Trajectory(object):
             self._delta_N_E['N'] += delta_annual['N']
             self._delta_N_E['E'] += delta_annual['E']
 
-        if (self.parallax['satellite'] and
-                self.satellite_skycoord is not None):
+        if self.parallax['satellite'] and self.satellite_skycoord is not None:
             delta_satellite = self._get_delta_satellite()
             self._delta_N_E['N'] += delta_satellite['N']
             self._delta_N_E['E'] += delta_satellite['E']
@@ -260,8 +254,7 @@ class Trajectory(object):
             # When you implement it, make sure the behavior depends on the
             # access to the observatory location information as the satellite
             # parallax depends on the access to satellite_skycoord.
-            raise NotImplementedError(
-                "The topocentric parallax effect not implemented yet")
+            raise NotImplementedError("The topocentric parallax effect not implemented yet")
 
     def _project_delta(self):
         """
@@ -279,12 +272,13 @@ class Trajectory(object):
         """
         calculates projected Earth positions required by annual parallax
         """
-        index = (self.parameters.t_0_par, self.coords.ra.value,
-                 self.coords.dec.value, tuple(self._times.tolist()))
+        index = (self.parameters.t_0_par, self.coords.ra.value, self.coords.dec.value, tuple(self._times.tolist()))
         if index == Trajectory._get_delta_annual_last_index:
             return Trajectory._get_delta_annual_last
+
         if index in Trajectory._get_delta_annual_results:
             return Trajectory._get_delta_annual_results[index]
+
         time_ref = self.parameters.t_0_par
 
         velocity = utils.Utils.velocity_of_Earth(time_ref) / 1731.45683
@@ -294,10 +288,8 @@ class Trajectory(object):
             msg = "Some times have incorrect values: {:}".format(self._times[~np.isfinite(self._times)])
             raise ValueError(msg)
 
-        position = get_body_barycentric(
-            body='earth', time=Time(self._times, format='jd', scale='tdb'))
-        position_ref = get_body_barycentric(
-            body='earth', time=Time(time_ref, format='jd', scale='tdb'))
+        position = get_body_barycentric(body='earth', time=Time(self._times, format='jd', scale='tdb'))
+        position_ref = get_body_barycentric(body='earth', time=Time(time_ref, format='jd', scale='tdb'))
         # Seems that get_body_barycentric depends on time system, but there is
         # no way to set BJD part of BJD_TDB in astropy.Time(). The option
         # *format* above indicates if the first argument of Time() is
@@ -323,8 +315,7 @@ class Trajectory(object):
         calculates differences of Earth and satellite positions
         projected on the plane of the sky at event position
         """
-        index = (self.coords.ra.value, self.coords.dec.value,
-                 tuple(self._times.tolist()))
+        index = (self.coords.ra.value, self.coords.dec.value, tuple(self._times.tolist()))
         if index in Trajectory._get_delta_satellite_results.keys():
             return Trajectory._get_delta_satellite_results[index]
 
@@ -350,8 +341,7 @@ class Trajectory(object):
         """calculate shifts caused by xallarap effect"""
         zip_ = self.parameters.parameters.items()
         t_0_xi = self.parameters.t_0_xi
-        orbit_parameters = {
-            key[3:]: value for (key, value) in zip_ if key[:3] == "xi_"}
+        orbit_parameters = {key[3:]: value for (key, value) in zip_ if key[:3] == "xi_"}
         orbit_parameters['epoch_reference'] = t_0_xi
         orbit = Orbit(**orbit_parameters)
         positions = orbit.get_reference_plane_position(self._times)

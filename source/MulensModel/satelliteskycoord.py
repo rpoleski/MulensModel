@@ -25,7 +25,6 @@ class SatelliteSkyCoord(object):
             name of the satellite
 
     """
-
     def __init__(self, ephemerides_file, satellite=None):
         self._ephemerides_file = ephemerides_file
 
@@ -59,12 +58,10 @@ class SatelliteSkyCoord(object):
         z = self._interp_z(times)
 
         if int(astropy_version[0]) >= 4:
-            self._satellite_skycoord = SkyCoord(
-                x=x, y=y, z=z, representation_type='cartesian')
+            self._satellite_skycoord = SkyCoord(x=x, y=y, z=z, representation_type='cartesian')
             self._satellite_skycoord.representation_type = 'spherical'
         else:
-            self._satellite_skycoord = SkyCoord(
-                x=x, y=y, z=z, representation='cartesian')
+            self._satellite_skycoord = SkyCoord(x=x, y=y, z=z, representation='cartesian')
             self._satellite_skycoord.representation = 'spherical'
 
         return self._satellite_skycoord
@@ -93,7 +90,7 @@ class SatelliteSkyCoord(object):
         """
         Make sure that requested range is not too much beyond the ephemeris.
         """
-        dt = 3. / (60. * 24)
+        dt = 3. / (60. * 24)  # This means 3 minutes.
         min_ = np.min(self._horizons.time)
         max_ = np.max(self._horizons.time)
 
