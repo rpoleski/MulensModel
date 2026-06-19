@@ -1507,6 +1507,7 @@ class UlensModelFit(object):
         self._fit_parameters_latex = [('$' + conversion[key] + '$') for key in self._fit_parameters]
         if self._extra_parameters is not None:
             self._extra_parameters_latex = [('$' + conversion[key] + '$') for key in self._extra_parameters]
+
     def _parse_fitting_parameters(self):
         """
         run some checks on self._fitting_parameters to make sure that
@@ -4155,32 +4156,41 @@ class UlensModelFit(object):
         data = self._get_samples_for_trace_plot()
         if len(labels) != n_grid:
             msg = "This should never happen: {:} {:}"
-            raise ValueError(
-                msg.format(len(labels), n_grid))
-        grid = gridspec.GridSpec(n_grid, 1, hspace=0)
+            raise ValueError(msg.format(len(labels), n_grid))
 
+        grid = gridspec.GridSpec(n_grid, 1, hspace=0)
         plt.figure(figsize=figure_size)
         plt.subplots_adjust(**margins)
-        x_vector = np.arange(data.shape[1])
 
+        self._make_trace_plot_panels(labels, grid, data, alpha)
+
+        plt.xlabel('step count')
+
+        self._save_figure(self._plots['trace'].get('file'))
+
+    def _make_trace_plot_panels(self, labels, grid, data, alpha):
+        """
+        Make panels in the trace plot, i.e., run the main loop.
+        """
+        x_vector = np.arange(data.shape[1])
+        print(len(labels), self._n_fit_parameters)
         for (i, latex_name) in enumerate(labels):
             if i == 0:
                 plt.subplot(grid[i])
                 ax0 = plt.gca()
             else:
                 plt.gcf().add_subplot(grid[i], sharex=ax0)
+
             plt.ylabel(latex_name)
             for j in range(data.shape[0]):
                 plt.plot(x_vector, data[j, :, i], alpha=alpha)
+
             plt.xlim(0, data.shape[1])
-            plt.gca().tick_params(axis='both', which='both', direction='in',
-                                  top=True, right=True)
+            plt.gca().tick_params(axis='both', which='both', direction='in', top=True, right=True)
             if i != self._n_fit_parameters - 1:
                 plt.setp(plt.gca().get_xticklabels(), visible=False)
-            plt.gca().set_prop_cycle(None)
-        plt.xlabel('step count')
 
-        self._save_figure(self._plots['trace'].get('file'))
+            plt.gca().set_prop_cycle(None)
 
     def _best_model_plot(self):
         """
