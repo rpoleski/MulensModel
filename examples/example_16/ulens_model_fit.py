@@ -4173,7 +4173,7 @@ class UlensModelFit(object):
         Make panels in the trace plot, i.e., run the main loop.
         """
         x_vector = np.arange(data.shape[1])
-        print(len(labels), self._n_fit_parameters)
+
         for (i, latex_name) in enumerate(labels):
             if i == 0:
                 plt.subplot(grid[i])
@@ -4187,7 +4187,7 @@ class UlensModelFit(object):
 
             plt.xlim(0, data.shape[1])
             plt.gca().tick_params(axis='both', which='both', direction='in', top=True, right=True)
-            if i != self._n_fit_parameters - 1:
+            if i != len(labels) - 1:
                 plt.setp(plt.gca().get_xticklabels(), visible=False)
 
             plt.gca().set_prop_cycle(None)
