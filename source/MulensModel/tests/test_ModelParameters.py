@@ -615,6 +615,24 @@ def test_lens_orbital_parameters_circular_1():
     np.testing.assert_almost_equal(parameters.lens_argument_of_latitude_reference, 0.)
 
 
+def test_get_s_for_keplerian():
+    """
+    Check if get_s() returns similar values close to t_0_kep for 3 different orbital settings:
+    linear, circular, and elliptical.
+    """
+    common = dict(t_0=2459000.0, u_0=0.1, t_E=30.0, q=0.5, s=1.0, alpha=90.0,
+                  ds_dt=0.5, dalpha_dt=10.0, t_0_kep=2459000.0)
+
+    linear = mm.ModelParameters(common)
+    circular = mm.ModelParameters(dict(common, ds_z_dt=0.1))
+    elliptical = mm.ModelParameters(dict(common, s_z=0.2, ds_z_dt=0.1, a_s=1.5))
+
+    t = common["t_0_kep"] + np.array([-1.0, 0.0, 1.0, 2.0, 3.0, 4.0])
+
+    np.testing.assert_almost_equal(linear.get_s(t), circular.get_s(t), decimal=5)
+    np.testing.assert_almost_equal(linear.get_s(t), elliptical.get_s(t), decimal=5)
+
+
 def test_binary_source():
     """
     Test if binary source parameters are properly set and changed

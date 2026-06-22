@@ -1938,7 +1938,7 @@ class ModelParameters(object):
         """
         Set self._lens_keplerian for a circular orbit.
         """
-        velocity = self.s * gamma  # This is in units of R_E = D_L * theta_E.
+        velocity = self.s * gamma  # This is in units of R_E / yr = (D_L * theta_E) / yr.
         a = np.sqrt(np.sum(position**2))
         self._lens_keplerian['semimajor_axis'] = a
         self._lens_keplerian['period'] = 2 * np.pi * a / np.sqrt(np.sum(velocity**2)) * 365.25
@@ -1955,14 +1955,14 @@ class ModelParameters(object):
         """
         Set self._lens_keplerian for an elliptical orbit.
         """
-        velocity = self.s * gamma  # This is in units of R_E/yr = (D_L * theta_E) / yr.
+        velocity = self.s * gamma  # This is in units of R_E / yr = (D_L * theta_E) / yr.
         separation = np.sqrt(np.sum(position**2))
         self._lens_keplerian['semimajor_axis'] = separation * self.a_s
         h = np.cross(position, velocity)
         r_s = self.s_z / self.s
         GM_over_rE3 = self.s**3 * self.a_s * np.sqrt(1. + r_s**2) * np.sum(gamma**2) / (2. * self.a_s - 1.)
-        n = np.sqrt(GM_over_rE3 / self._lens_keplerian['semimajor_axis']**3)
-        self._lens_keplerian['period'] = 2. * np.pi / n * 365.25
+        n = np.sqrt(GM_over_rE3 / self._lens_keplerian['semimajor_axis']**3) / 365.25  # The unit is rad/day.
+        self._lens_keplerian['period'] = 2. * np.pi / n
         e = np.cross(velocity, h) / GM_over_rE3 - position / separation
         eccentricity = np.clip(np.sqrt(np.sum(e**2)), -1., 1.)
         self._lens_keplerian['eccentricity'] = eccentricity
