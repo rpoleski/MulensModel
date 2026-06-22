@@ -615,6 +615,18 @@ def test_lens_orbital_parameters_circular_1():
     np.testing.assert_almost_equal(parameters.lens_Omega_node, 0.)
     np.testing.assert_almost_equal(parameters.lens_argument_of_latitude_reference, 0.)
 
+def test_lens_eccentricity_elliptical_1():
+    """
+
+    """
+    dict_params = setup_orbital_motion_gammas(
+            {'dalpha_dt': -36./2**.5, 'ds_dt': 0., 'ds_z_dt': 36./2**.5*(np.pi/180.)*1.5, 's_z': 0.0, 'a_s': 1.0})
+    dict_params['alpha'] = 90.
+
+
+    parameters = mm.ModelParameters(dict_params)
+
+    np.testing.assert_almost_equal(parameters.lens_eccentricity, 0.0)
 
 def test_binary_source():
     """
