@@ -3,7 +3,7 @@ Extract Roman positions for Data Challenge 2026 in a format known to MulensModel
 """
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+import sys
 from astropy.time import Time
 from astroquery.jplhorizons import Horizons
 from astropy.coordinates import SkyCoord
@@ -14,8 +14,8 @@ def get_Earth_xyz(times):
     """
     For given time vector extract positions of L2 relative to Solar System Barycenter.
     """
-    padding = 0.2 # in days
-    step = "72m" # 0.05 day
+    padding = 0.2  # in days
+    step = "72m"  # 0.05 day
     keys = ['x', 'y', 'z']
 
     begin = int(min(times)/padding) * padding
@@ -60,7 +60,7 @@ def transform_GeoEcl_to_GeoEqu(relative):
     """
     skycoord = SkyCoord(**relative, frame='geocentrictrueecliptic', representation_type='cartesian', unit='au')
     skycoord = skycoord.gcrs
-    skycoord.representation_type='cartesian'
+    skycoord.representation_type = 'cartesian'
     return (skycoord.x.value, skycoord.y.value, skycoord.z.value)
 
 
@@ -76,10 +76,16 @@ if __name__ == '__main__':
     data_file = "RMDC26_Beginner_Tier_test.parquet"
     out_files_format = "RMDC26_ephemeris_season_{:}.dat"
 
-    borders = [-1000, 1600, 1800, 2000, 2850, 3000, 9000]  # These values allows breaking the data into observing seasons.
+    borders = [-1000, 1600, 1800, 2000, 2850, 3000, 9000]
+    # These values allows breaking the data into observing seasons.
     borders = 2460000 + np.array(borders)
 
-    df = pd.read_parquet(data_file)
+    try:
+        df = pd.read_parquet(data_file)
+    except Exception:
+        print("Correct data_file path to the RMDC26 file!")
+        sys.exit()
+
     df.sort_values('bjd', inplace=True)
 
     # The loop below goes over seasons.
@@ -94,4 +100,3 @@ if __name__ == '__main__':
 
         file_out = out_files_format.format(i+1)
         save_to_file(file_out, bjd_masked, out)
-
