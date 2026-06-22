@@ -159,10 +159,10 @@ class UlensModelFit(object):
 
         extra_parameters: *list of strings*
             Additional parameters you want to a add to the final output,
-            triangle plot and posterior. They are not fitted themselves
-            but calculated from the fitted parameters. Currently lens period
-            and lens semi major axis are accepted.
-            Only works for EMCEE fitting.
+            triangle plot, trace plot, and posterior. They are not fitted themselves
+            but calculated from the fitted parameters. Currently accepted values are:
+            ``lens_semimajor_axis``, ``lens_period``, ``lens_eccentricity``, and ``lens_inclination``.
+            Works only for EMCEE fitting.
 
         model: *dict*
             Additional settings for *MulensModel.Model*. Accepted keys:
