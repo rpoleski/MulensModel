@@ -96,6 +96,6 @@ class SatelliteSkyCoord(object):
 
         if max_ + dt < np.max(times) or min_ - dt > np.min(times):
             msg = ("Satellite ephemeris doesn't cover requested epochs.\n"
-                   "Ephemerides file: {:} {:}\nRequested dates: {:} {:}")
+                   "Ephemerides file range: {:} {:}\nRequested dates: {:} {:}")
             args = [min_, max_, np.min(times), np.max(times)]
             raise ValueError(msg.format(*args))
