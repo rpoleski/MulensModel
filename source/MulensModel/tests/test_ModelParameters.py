@@ -621,7 +621,7 @@ def test_lens_eccentricity_elliptical_1():
     Test ModelParamters.lens_eccentricity for eccentric orbit.
     """
     dict_params = setup_orbital_motion_gammas(
-            {'dalpha_dt': -36./2**.5, 'ds_dt': 0., 'ds_z_dt': 36./2**.5*(np.pi/180.)*1.5, 's_z': 0.0, 'a_s': 1.0})
+            {'dalpha_dt': -36./2**.5, 'ds_dt': 1.e-15, 'ds_z_dt': 36./2**.5*(np.pi/180.)*1.5, 's_z': 0.0, 'a_s': 1.0})
     dict_params['alpha'] = 90.
 
     parameters = mm.ModelParameters(dict_params)
