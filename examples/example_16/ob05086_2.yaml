@@ -8,7 +8,6 @@ starting_parameters:
     pi_E_E: gauss 0.0 0.1
 model:
     coords: 18:04:45.71 -26:59:15.2
-extra_parameters: ['semi_major_axis']
 fixed_parameters:
     t_0_par: 2453628.0
 min_values:
@@ -21,8 +20,8 @@ max_values:
     pi_E_E: 1.
 fitting_parameters:
     n_walkers: 10
-    n_steps: 11
-    n_burn:   4
+    n_steps: 10000
+    n_burn:  5000
 plots:
     best model:
         file: ob05086_2_model.png
