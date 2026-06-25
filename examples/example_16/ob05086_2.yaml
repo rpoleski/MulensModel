@@ -22,9 +22,12 @@ fitting_parameters:
     n_walkers: 10
     n_steps: 10000
     n_burn:  5000
-plots:
-    best model:
-        file: ob05086_2_model.png
-        time range: 2453430 2453830
-    triangle:
-        file: ob05086_2_triangle.png
+    posterior file: test.npy
+    posterior file extras: ['semi_major_axis'] 
+    posterior file thin: 50
+    #plots:
+    #best model:
+    #    file: ob05086_2_model.png
+    #    time range: 2453430 2453830
+    #triangle:
+    #    file: ob05086_2_triangle.png

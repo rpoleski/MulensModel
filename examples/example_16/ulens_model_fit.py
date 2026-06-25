@@ -1518,7 +1518,7 @@ class UlensModelFit(object):
         bools = ['progress']
         ints = ['n_walkers', 'n_burn', 'posterior file thin']
         strings = ['posterior file']
-        strings_or_lists = ['posterior file fluxes']
+        strings_or_lists = ['posterior file fluxes', 'posterior file extras']
         allowed = bools + ints + strings + strings_or_lists
 
         self._check_required_and_allowed_parameters(required, allowed)
@@ -1616,7 +1616,8 @@ class UlensModelFit(object):
                                      name + ") exists and is a directory")
             self._posterior_file_name = name[:-4]
             self._posterior_file_fluxes = None
-
+        if 'posterior file extras' in settings:
+            self._extras_keys = settings['posterior file extras']
         if 'posterior file fluxes' in settings:
             not_changed = ['all', None]
             if settings['posterior file fluxes'] in not_changed:
@@ -2741,19 +2742,31 @@ class UlensModelFit(object):
         used to parse output of _ln_prob() in order to make that function
         shorter
         """
+        out = [value]
         if value == -np.inf:
             if self._return_fluxes:
-                return (value, [0.] * self._n_fluxes)
+                out = [out, [0.] * self._n_fluxes]
             else:
-                return value
+                pass
         else:
             if self._return_fluxes:
                 if fluxes is None:
                     raise ValueError('Unexpected error!')
-                return (value, fluxes)
+                out += fluxes
             else:
-                return value
-
+                pass
+        extras = self._get_extras()
+        
+        out += extras
+        return out
+    
+    def _get_extras(self):
+        """must return None or list"""
+        extras = []
+        if 'semi_major_axis' in self._extras_keys:
+            a = 7.0
+            extras.append(a)
+        return extras
     def _set_model_parameters(self, theta):
         """
         Set microlensing parameters of self._model
@@ -3735,6 +3748,11 @@ class UlensModelFit(object):
         """
         n_burn = self._fitting_parameters.get('n_burn', 0)
         samples = self._sampler.chain[:, n_burn:, :]
+        if self._extras_keys is not None:
+            blobs = np.array(self._sampler.blobs)
+            blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, :]
+            samples = np.dstack((samples, blobs))
+
         if self._posterior_file_fluxes is not None:
             blobs = np.array(self._sampler.blobs)
             blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, :]
