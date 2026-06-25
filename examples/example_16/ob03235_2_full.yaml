@@ -48,6 +48,8 @@ starting_parameters:
     # See also ob08092-o4_starting_file.yaml
     ERR_k_OB03235_MOA.txt: gauss 1.0 0.001 # Scaling (multiplication) of uncertainties of the second dataset.
     # The other possibility is to use ERR_e_OB03235_MOA.txt which adds minimum uncertainty in squares.
+# extra_parameters: ["lens_period", "semi_major_axis"] #only for emcee, these parameters will be included in the output and posterior file and they
+# will be plotted on the triangle and trace plots along with the starting parameters 
 # prior_limits:
 #     t_0: [2452847.5, 2452848.5]
 #     u_0: [0.08, 0.18]

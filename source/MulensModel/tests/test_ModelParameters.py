@@ -611,6 +611,7 @@ def test_lens_orbital_parameters_circular_1():
     np.testing.assert_almost_equal(parameters.lens_semimajor_axis, 1.5)
     np.testing.assert_almost_equal(parameters.lens_period, 10.)
     np.testing.assert_almost_equal(parameters.lens_inclination, 45.)
+    np.testing.assert_almost_equal(parameters.lens_eccentricity, 0.)
     np.testing.assert_almost_equal(parameters.lens_Omega_node, 0.)
     np.testing.assert_almost_equal(parameters.lens_argument_of_latitude_reference, 0.)
 
@@ -631,6 +632,19 @@ def test_get_s_for_keplerian():
 
     np.testing.assert_almost_equal(linear.get_s(t), circular.get_s(t), decimal=5)
     np.testing.assert_almost_equal(linear.get_s(t), elliptical.get_s(t), decimal=5)
+
+
+def test_lens_eccentricity_elliptical_1():
+    """
+    Test ModelParamters.lens_eccentricity for eccentric orbit.
+    """
+    dict_params = setup_orbital_motion_gammas(
+            {'dalpha_dt': -36./2**.5, 'ds_dt': 1.e-15, 'ds_z_dt': 36./2**.5*(np.pi/180.)*1.5, 's_z': 0.0, 'a_s': 1.0})
+    dict_params['alpha'] = 90.
+
+    parameters = mm.ModelParameters(dict_params)
+
+    np.testing.assert_almost_equal(parameters.lens_eccentricity, 0.0)
 
 
 def test_binary_source():
@@ -684,11 +698,10 @@ def test_n_lenses():
 def test_t_eff_from_C08():
     """test if one can calculate t_eff from Cassan08 parametrization"""
     model = mm.Model({'s': 1, 'q': 0.05, 'rho': 0.1,
-                  'x_caustic_in': 0.85, 'x_caustic_out': 0.37,
-                  't_caustic_in': 2453554., 't_caustic_out': 2453566.})
+                      'x_caustic_in': 0.85, 'x_caustic_out': 0.37,
+                      't_caustic_in': 2453554., 't_caustic_out': 2453566.})
     t_eff = model.parameters.u_0 * model.parameters.t_E
     np.testing.assert_almost_equal(t_eff, model.parameters.t_eff)
-
 
 
 def test_single_lens_convergence_K_shear_G():
