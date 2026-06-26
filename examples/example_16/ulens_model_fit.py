@@ -1883,6 +1883,7 @@ class UlensModelFit(object):
         Parse the fitting constraints that are not simple limits on parameters
         """
         self._prior_t_E = None
+        self._prior_theta_star = None
         self._priors = None
 
         if self._fit_constraints is None:
@@ -2206,7 +2207,10 @@ class UlensModelFit(object):
                 if settings[2] < 0.:
                     raise ValueError('sigma cannot be negative: ' + words[2])
                 priors[key] = settings
-
+            elif key == 'compare_theta_star':
+                if str(value) == 'True':
+                    self._prior_theta_star = value
+                    self._check_theta_star_calculation()
             else:
                 raise KeyError("Unrecognized key in fit_constraints/prior: " + key)
 
@@ -2240,6 +2244,24 @@ class UlensModelFit(object):
                 if parameter not in self._fit_parameters:
                     raise ValueError("Error - you can calculate " + key + " function only of a parameter which is "
                                      "fitted, not: " + parameter)
+    def _check_theta_star_calculation(self):
+        """
+        Checks if theta_star_calculation is 
+        included in model if theta star comparion is True.
+        """
+        if self._prior_theta_star is not None:
+            if 'theta_star_calculation' not in self._model_parameters:
+                raise ValueError("Theta star comparison requires model['theta_star_calculation'].")
+
+    def _check_theta_star_calculation_values(self):
+        """
+        Checks the values in the theta star calculation dict
+        """
+        data_labels = [dataset.plot_properties['label'] for dataset in self._datasets]
+        for (key, value) in self._model_parameters['theta_star_calculation'].items():
+            if key in ['mag_I_label', 'mag_V_label']:
+                if value not in data_labels:
+                    raise KeyError("No dataset of this name: {:}".format(value))
 
     def _get_no_of_dataset(self, label):
         """
