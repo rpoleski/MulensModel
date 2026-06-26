@@ -49,7 +49,7 @@ except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
 
-__version__ = '0.56.0'
+__version__ = '0.58.0'
 
 
 class UlensModelFit(object):
@@ -156,6 +156,13 @@ class UlensModelFit(object):
                   'u_0': [0.46, 0.65]
                   't_E': "16. 19.6"
               }
+
+        extra_parameters: *list of strings*
+            Additional parameters you want to a add to the final output,
+            triangle plot, trace plot, and posterior. They are not fitted themselves
+            but calculated from the fitted parameters. Currently accepted values are:
+            ``lens_semimajor_axis``, ``lens_period``, ``lens_eccentricity``, and ``lens_inclination``.
+            Works only for EMCEE fitting.
 
         model: *dict*
             Additional settings for *MulensModel.Model*. Accepted keys:
@@ -361,12 +368,13 @@ class UlensModelFit(object):
               Mroz et al. 2020 -
               https://ui.adsabs.harvard.edu/abs/2020ApJS..249...16M/abstract
 
-            ``'posterior parsing'`` - additional settings that allow
-            modyfying posterior after it's calculated. Possile values:
+            ``'posterior parsing'`` - additional settings that allow modifying posterior after it's calculated.
+                Possible values:
 
-                ``'abs': [...]`` - calculate absolute values for parameters
-                from given list. It's useful for e.g. ``'u_0'`` for
-                free-floating planet events.
+                ``'abs': [...]`` - calculate absolute values for parameters from given list. It's useful for,
+                e.g., ``'u_0'`` for free-floating planet events.
+
+                ``'log': [...]`` - calculate log10() for parameters from given list.
 
         plots: *dict*
             Parameters of the plots to be made after the fit. Currently
@@ -440,7 +448,7 @@ class UlensModelFit(object):
     def __init__(
             self, photometry_files,
             starting_parameters=None, prior_limits=None, model=None,
-            fixed_parameters=None,
+            fixed_parameters=None, extra_parameters=None,
             min_values=None, max_values=None, fitting_parameters=None,
             fit_constraints=None, plots=None, other_output=None,
             fit_method=None
@@ -451,6 +459,7 @@ class UlensModelFit(object):
         self._prior_limits = prior_limits
         self._model_parameters = model
         self._fixed_parameters = fixed_parameters
+        self._extra_parameters = extra_parameters
         self._min_values = min_values
         self._max_values = max_values
         self._fitting_parameters = fitting_parameters
@@ -586,6 +595,8 @@ class UlensModelFit(object):
             pi_E_E='\\pi_{{\\rm E},E}', s='s', q='q', alpha='\\alpha',
             ds_dt='ds/dt', dalpha_dt='d\\alpha/dt',
             s_z='s_{z}', ds_z_dt='ds_{z}/dt', a_s='a_{s}',
+            lens_semimajor_axis='a', lens_period='P',
+            lens_eccentricity='e', lens_inclination='I',
             x_caustic_in='x_{\\rm caustic,in}',
             x_caustic_out='x_{\\rm caustic,out}',
             t_caustic_in='t_{\\rm caustic,in}',
@@ -1317,7 +1328,7 @@ class UlensModelFit(object):
 
         if dataset.ephemerides_file is not None:
             self._satellites_names.append(dataset.plot_properties['label'])
-            self._satellites_colors.append(dataset.plot_properties['color'])
+            self._satellites_colors.append(dataset.plot_properties.get('color', 'blue'))
 
         return dataset
 
@@ -1481,15 +1492,21 @@ class UlensModelFit(object):
         if self._fit_constraints is not None:
             if 'posterior parsing' in self._fit_constraints:
                 settings = self._fit_constraints['posterior parsing']
-                if 'abs' in settings:
-                    if not isinstance(settings['abs'], list):
-                        raise ValueError("Error: fit_constraints -> posterior"
-                                         " parsing -> abs - list expected")
-                    for key in settings['abs']:
-                        conversion[key] = "|" + conversion[key] + "|"
+                for key in settings:  # We should check if the parameters do not repeat.
+                    if not isinstance(settings[key], list):
+                        raise ValueError('Error: fit_constraints -> posterior parsing -> ' + key + " - list expected")
 
-        self._fit_parameters_latex = [
-            ('$' + conversion[key] + '$') for key in self._fit_parameters]
+                    for parameter in settings[key]:
+                        if key == 'abs':
+                            conversion[parameter] = "|" + conversion[parameter] + "|"
+                        elif key == 'log':
+                            conversion[parameter] = "\\log " + conversion[parameter]
+                        else:
+                            ValueError('internal error: ' + str(key))
+
+        self._fit_parameters_latex = [('$' + conversion[key] + '$') for key in self._fit_parameters]
+        if self._extra_parameters is not None:
+            self._extra_parameters_latex = [('$' + conversion[key] + '$') for key in self._extra_parameters]
 
     def _parse_fitting_parameters(self):
         """
@@ -1518,7 +1535,7 @@ class UlensModelFit(object):
         bools = ['progress']
         ints = ['n_walkers', 'n_burn', 'posterior file thin']
         strings = ['posterior file']
-        strings_or_lists = ['posterior file fluxes', 'posterior file extras']
+        strings_or_lists = ['posterior file fluxes']
         allowed = bools + ints + strings + strings_or_lists
 
         self._check_required_and_allowed_parameters(required, allowed)
@@ -1616,8 +1633,6 @@ class UlensModelFit(object):
                                      name + ") exists and is a directory")
             self._posterior_file_name = name[:-4]
             self._posterior_file_fluxes = None
-        if 'posterior file extras' in settings:
-            self._extras_keys = settings['posterior file extras']
         if 'posterior file fluxes' in settings:
             not_changed = ['all', None]
             if settings['posterior file fluxes'] in not_changed:
@@ -1947,7 +1962,7 @@ class UlensModelFit(object):
         Set default fitting constraints if none are provided.
         """
         self._fit_constraints = {"no_negative_blending_flux": False}
-        self._parse_posterior_abs = list()
+        self._parse_posterior = {'abs': [], 'log': []}
 
     def _check_ratio_constraints_conflict(self, allowed_keys_ratio):
         """
@@ -2204,28 +2219,27 @@ class UlensModelFit(object):
         """
         Parse constraints on what is done with posterior.
         """
+        self._parse_posterior = {'abs': [], 'log': []}
         if 'posterior parsing' not in self._fit_constraints:
-            self._parse_posterior_abs = list()
             return
 
         if self._fit_method != "EMCEE":
-            raise ValueError('Input in "posterior parsing" is allowed only'
-                             ' for EMCEE')
+            raise ValueError('Input in "posterior parsing" is allowed only for EMCEE')
 
-        allowed_keys = {"abs"}
+        allowed_keys = {"abs", "log"}
         settings = self._fit_constraints['posterior parsing']
         unknown = set(settings.keys()) - allowed_keys
+        used = set(settings.keys()).intersection(allowed_keys)
         if len(unknown) > 0:
             msg = "Unrecognized key in fit_constraints -> 'posterior parsing':"
             raise KeyError(msg + ' ' + str(unknown))
 
-        if 'abs' in settings:
-            self._parse_posterior_abs = settings['abs']
-            for parameter in self._parse_posterior_abs:
+        for key in used:
+            self._parse_posterior[key] = settings[key]
+            for parameter in self._parse_posterior[key]:
                 if parameter not in self._fit_parameters:
-                    raise ValueError(
-                        "Error - you can calculate absolute value only of "
-                        "a parameter which is fitted, not: " + parameter)
+                    raise ValueError("Error - you can calculate " + key + " function only of a parameter which is "
+                                     "fitted, not: " + parameter)
 
     def _get_no_of_dataset(self, label):
         """
@@ -2504,23 +2518,27 @@ class UlensModelFit(object):
         try:
             self._event.get_chi2()
         except ValueError:
-            if 'x_caustic_in' in self._model.parameters.parameters:
-                self._model.parameters.x_caustic_in = (
-                    self._model.parameters.x_caustic_out + 0.01)
-                self._event.get_chi2()
-            else:
+            if 'x_caustic_in' not in self._model.parameters.parameters:
                 raise
+            else:
+                caustic = mm.UniformCausticSampling(s=self._model.parameters.s, q=self._model.parameters.q)
+                done = False
+                while not done:  # Try randomly drawing x_caustic_in that will make proper model.
+                    x_in = np.random.uniform()
+                    done = caustic.check_valid_trajectory(x_in, self._model.parameters.x_caustic_out)
+
+                self._model.parameters.x_caustic_in = x_in
+                self._event.get_chi2()
 
         n = 0
         for (i, dataset) in enumerate(self._datasets):
-            k = len(self._event.fits[i].source_fluxes) + 1
-            # Plus 1 is for blending.
+            k = len(self._event.fits[i].source_fluxes) + 1  # Plus 1 is for blending.
             if i == 0:
                 self._n_fluxes_per_dataset = k
             elif k != self._n_fluxes_per_dataset:
-                raise ValueError(
-                    'Strange internal error with number of source fluxes: ' +
-                    "{:} {:} {:}".format(i, k, self._n_fluxes_per_dataset))
+                fmt = 'Strange internal error with number of source fluxes: {:} {:} {:}'
+                raise ValueError(fmt.format(i, k, self._n_fluxes_per_dataset))
+
             n += k
 
         self._n_fluxes = n
@@ -2714,6 +2732,10 @@ class UlensModelFit(object):
         NOTE: we're using np.log(), i.e., natural logarithms.
         """
         ln_prior = self._ln_prior(theta)
+        if self._extra_parameters is not None:
+            if self._fit_method != 'EMCEE':
+                raise NotImplementedError("If extra parameters are present fit method has to be EMCEE.")
+
         if not np.isfinite(ln_prior):
             return self._return_ln_prob(-np.inf)
 
@@ -2745,7 +2767,7 @@ class UlensModelFit(object):
         out = [value]
         if value == -np.inf:
             if self._return_fluxes:
-                out = [out, [0.] * self._n_fluxes]
+                out += [0.] * self._n_fluxes
             else:
                 pass
         else:
@@ -2756,17 +2778,23 @@ class UlensModelFit(object):
             else:
                 pass
         extras = self._get_extras()
-        
+
         out += extras
         return out
-    
+
     def _get_extras(self):
-        """must return None or list"""
+        """
+        Gives parameters specifed in extra_parameters. Must return None or list.
+        """
         extras = []
-        if 'semi_major_axis' in self._extras_keys:
-            a = 7.0
-            extras.append(a)
+        if self._extra_parameters is not None:
+            for par in self._extra_parameters:
+                try:
+                    extras.append(getattr(self._model.parameters, par))
+                except Exception:
+                    raise AttributeError("Wrong parameter name in extra parameters: {:}".format(par))
         return extras
+
     def _set_model_parameters(self, theta):
         """
         Set microlensing parameters of self._model
@@ -3482,6 +3510,10 @@ class UlensModelFit(object):
             self._print_yaml_results(self._samples_flat)
         self._shift_t_0_in_samples()
 
+        if self._extra_parameters:
+            print("Extra parameters:")
+            self._print_results(self._get_extras_flat(), names='extras')
+
         if self._return_fluxes:
             print("Fitted fluxes (source and blending):")
             self._print_results(self._flux_samples_flat, names='fluxes')
@@ -3502,9 +3534,12 @@ class UlensModelFit(object):
         """
         n_burn = self._fitting_parameters['n_burn']
         self._samples = self._sampler.chain[:, n_burn:, :]
-        for parameter in self._parse_posterior_abs:
-            index = self._fit_parameters.index(parameter)
-            self._samples[:, :, index] = np.fabs(self._samples[:, :, index])
+        functions = {'abs': np.fabs, 'log': np.log10}
+        for key in self._parse_posterior:
+            function = functions[key]
+            for parameter in self._parse_posterior[key]:
+                index = self._fit_parameters.index(parameter)
+                self._samples[:, :, index] = function(self._samples[:, :, index])
 
         n_fit = self._n_fit_parameters
         self._samples_flat = self._samples.copy().reshape((-1, n_fit))
@@ -3517,16 +3552,43 @@ class UlensModelFit(object):
         """
         prepare values to be printed for EMCEE fitting
         """
-        try:
-            blobs = np.array(self._sampler.blobs)
-        except Exception as exception:
-            raise ValueError('There was some issue with blobs:\n' +
-                             str(exception))
-        blob_sampler = np.transpose(blobs, axes=(1, 0, 2))
-        blob_samples = blob_sampler[:, self._fitting_parameters['n_burn']:, :]
+        blob_samples = self._get_fluxes_3D(self._n_fluxes)
         blob_samples = blob_samples.reshape((-1, self._n_fluxes))
 
         return blob_samples
+
+    def _get_fluxes_3D(self, n_fluxes):
+        """
+        Get values of fluxes from blobs.
+        """
+        try:
+            blobs = np.array(self._sampler.blobs)
+        except Exception as exception:
+            raise ValueError('There was some issue with blobs:\n' + str(exception))
+        fluxes_3D = np.transpose(blobs, axes=(1, 0, 2))[:, self._fitting_parameters['n_burn']:, :n_fluxes]
+
+        return fluxes_3D
+
+    def _get_extras_flat(self):
+        """
+        Reshape extra array to 2D.
+        """
+        samples = self._get_extras_3D()
+        samples_flat = samples.reshape((-1, len(self._extra_parameters)))
+        return samples_flat
+
+    def _get_extras_3D(self):
+        """
+        Extract 3D values of extras from blobs.
+        """
+        try:
+            blobs = np.array(self._sampler.blobs)
+        except Exception as exception:
+            raise ValueError('There was some issue with blobs:\n' + str(exception))
+        samples_3D = np.transpose(
+                     blobs, axes=(1, 0, 2))[:, self._fitting_parameters['n_burn']:, -len(self._extra_parameters):]
+
+        return samples_3D
 
     def _print_results(self, data, names="parameters", mode=None):
         """
@@ -3538,6 +3600,8 @@ class UlensModelFit(object):
             if self._flux_names is None:
                 self._flux_names = self._get_fluxes_names_to_print()
             ids = self._flux_names
+        elif names == "extras":
+            ids = self._extra_parameters
         else:
             raise ValueError('internal bug')
 
@@ -3570,8 +3634,12 @@ class UlensModelFit(object):
                 format_ = "{:} : {:.7f} +{:.7f} -{:.7f}\n"
                 if yaml:
                     format_ = "{:} : [{:.7f}, +{:.7f}, -{:.7f}]\n"
-            if parameter in self._parse_posterior_abs:
+
+            if parameter in self._parse_posterior['abs']:
                 parameter = "|{:}|".format(parameter)
+            elif parameter in self._parse_posterior['log']:
+                parameter = "log({:})".format(parameter)
+
             text += (begin + format_).format(parameter, *results_)
         return text[:-1]
 
@@ -3748,14 +3816,15 @@ class UlensModelFit(object):
         """
         n_burn = self._fitting_parameters.get('n_burn', 0)
         samples = self._sampler.chain[:, n_burn:, :]
-        if self._extras_keys is not None:
-            blobs = np.array(self._sampler.blobs)
-            blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, :]
-            samples = np.dstack((samples, blobs))
-
+        if self._extra_parameters is not None:
+            samples = np.dstack((samples, self._get_extras_3D()))
         if self._posterior_file_fluxes is not None:
-            blobs = np.array(self._sampler.blobs)
-            blobs = np.transpose(blobs, axes=(1, 0, 2))[:, n_burn:, :]
+            if self._posterior_file_fluxes == 'all':
+                n_fluxes = self._n_fluxes
+            else:
+                n_fluxes = len(self._posterior_file_fluxes)
+
+            blobs = self._get_fluxes_3D(n_fluxes)
             if self._posterior_file_fluxes == 'all':
                 pass
             elif isinstance(self._posterior_file_fluxes, list):
@@ -4022,12 +4091,24 @@ class UlensModelFit(object):
         """
         Prepare samples that will be plotted on triangle plot
         """
+        if self._extra_parameters is not None:
+            return np.concatenate((self._samples_flat, self._get_extras_flat()), axis=1)
         return self._samples_flat
+
+    def _get_samples_for_trace_plot(self):
+        """
+        Prepare samples that will be plotted on trace plot
+        """
+        if self._extra_parameters is not None:
+            return np.dstack((self._samples, self._get_extras_3D()))
+        return self._samples
 
     def _get_labels_for_triangle_plot(self):
         """
         provide list of labels to be used by triangle plot
         """
+        if self._extra_parameters is not None:
+            return self._fit_parameters_latex + self._extra_parameters_latex
         return self._fit_parameters_latex
 
     def _save_figure(self, file_name, figure=None, dpi=None):
@@ -4068,34 +4149,48 @@ class UlensModelFit(object):
         margins = {'left': 0.13, 'right': 0.97, 'top': 0.98, 'bottom': 0.05}
 
         n_grid = self._n_fit_parameters
-        if len(self._fit_parameters_latex) != n_grid:
-            msg = "This should never happen: {:} {:}"
-            raise ValueError(
-                msg.format(len(self._fit_parameters_latex), n_grid))
-        grid = gridspec.GridSpec(n_grid, 1, hspace=0)
+        if self._extra_parameters is not None:
+            n_grid += len(self._extra_parameters)
 
+        labels = self._get_labels_for_triangle_plot()
+        data = self._get_samples_for_trace_plot()
+        if len(labels) != n_grid:
+            msg = "This should never happen: {:} {:}"
+            raise ValueError(msg.format(len(labels), n_grid))
+
+        grid = gridspec.GridSpec(n_grid, 1, hspace=0)
         plt.figure(figsize=figure_size)
         plt.subplots_adjust(**margins)
-        x_vector = np.arange(self._samples.shape[1])
 
-        for (i, latex_name) in enumerate(self._fit_parameters_latex):
+        self._make_trace_plot_panels(labels, grid, data, alpha)
+
+        plt.xlabel('step count')
+
+        self._save_figure(self._plots['trace'].get('file'))
+
+    def _make_trace_plot_panels(self, labels, grid, data, alpha):
+        """
+        Make panels in the trace plot, i.e., run the main loop.
+        """
+        x_vector = np.arange(data.shape[1])
+
+        for (i, latex_name) in enumerate(labels):
             if i == 0:
                 plt.subplot(grid[i])
                 ax0 = plt.gca()
             else:
                 plt.gcf().add_subplot(grid[i], sharex=ax0)
-            plt.ylabel(latex_name)
-            for j in range(self._samples.shape[0]):
-                plt.plot(x_vector, self._samples[j, :, i], alpha=alpha)
-            plt.xlim(0, self._samples.shape[1])
-            plt.gca().tick_params(axis='both', which='both', direction='in',
-                                  top=True, right=True)
-            if i != self._n_fit_parameters - 1:
-                plt.setp(plt.gca().get_xticklabels(), visible=False)
-            plt.gca().set_prop_cycle(None)
-        plt.xlabel('step count')
 
-        self._save_figure(self._plots['trace'].get('file'))
+            plt.ylabel(latex_name)
+            for j in range(data.shape[0]):
+                plt.plot(x_vector, data[j, :, i], alpha=alpha)
+
+            plt.xlim(0, data.shape[1])
+            plt.gca().tick_params(axis='both', which='both', direction='in', top=True, right=True)
+            if i != len(labels) - 1:
+                plt.setp(plt.gca().get_xticklabels(), visible=False)
+
+            plt.gca().set_prop_cycle(None)
 
     def _best_model_plot(self):
         """

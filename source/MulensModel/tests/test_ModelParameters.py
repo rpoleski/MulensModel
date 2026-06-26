@@ -611,8 +611,40 @@ def test_lens_orbital_parameters_circular_1():
     np.testing.assert_almost_equal(parameters.lens_semimajor_axis, 1.5)
     np.testing.assert_almost_equal(parameters.lens_period, 10.)
     np.testing.assert_almost_equal(parameters.lens_inclination, 45.)
+    np.testing.assert_almost_equal(parameters.lens_eccentricity, 0.)
     np.testing.assert_almost_equal(parameters.lens_Omega_node, 0.)
     np.testing.assert_almost_equal(parameters.lens_argument_of_latitude_reference, 0.)
+
+
+def test_get_s_for_keplerian():
+    """
+    Check if get_s() returns similar values close to t_0_kep for 3 different orbital settings:
+    linear, circular, and elliptical.
+    """
+    common = dict(t_0=2459000.0, u_0=0.1, t_E=30.0, q=0.5, s=1.0, alpha=90.0,
+                  ds_dt=0.5, dalpha_dt=10.0, t_0_kep=2459000.0)
+
+    linear = mm.ModelParameters(common)
+    circular = mm.ModelParameters(dict(common, ds_z_dt=0.1))
+    elliptical = mm.ModelParameters(dict(common, s_z=0.2, ds_z_dt=0.1, a_s=1.5))
+
+    t = common["t_0_kep"] + np.array([-1.0, 0.0, 1.0, 2.0, 3.0, 4.0])
+
+    np.testing.assert_almost_equal(linear.get_s(t), circular.get_s(t), decimal=5)
+    np.testing.assert_almost_equal(linear.get_s(t), elliptical.get_s(t), decimal=5)
+
+
+def test_lens_eccentricity_elliptical_1():
+    """
+    Test ModelParamters.lens_eccentricity for eccentric orbit.
+    """
+    dict_params = setup_orbital_motion_gammas(
+            {'dalpha_dt': -36./2**.5, 'ds_dt': 1.e-15, 'ds_z_dt': 36./2**.5*(np.pi/180.)*1.5, 's_z': 0.0, 'a_s': 1.0})
+    dict_params['alpha'] = 90.
+
+    parameters = mm.ModelParameters(dict_params)
+
+    np.testing.assert_almost_equal(parameters.lens_eccentricity, 0.0)
 
 
 def test_binary_source():
@@ -666,11 +698,10 @@ def test_n_lenses():
 def test_t_eff_from_C08():
     """test if one can calculate t_eff from Cassan08 parametrization"""
     model = mm.Model({'s': 1, 'q': 0.05, 'rho': 0.1,
-                  'x_caustic_in': 0.85, 'x_caustic_out': 0.37,
-                  't_caustic_in': 2453554., 't_caustic_out': 2453566.})
+                      'x_caustic_in': 0.85, 'x_caustic_out': 0.37,
+                      't_caustic_in': 2453554., 't_caustic_out': 2453566.})
     t_eff = model.parameters.u_0 * model.parameters.t_E
     np.testing.assert_almost_equal(t_eff, model.parameters.t_eff)
-
 
 
 def test_single_lens_convergence_K_shear_G():
@@ -1827,3 +1858,29 @@ class test_Keplerian_elliptical(unittest.TestCase):
         dict_4 = setup_keplerian_elliptical({'s_z': 0.1, 'ds_z_dt': 1.9})
         with self.assertRaises(KeyError):
             mm.ModelParameters(dict_4)
+
+
+def test_n_lenses_invariant():
+    """
+    Issue #66: n_lenses is constrained to {1, 2} in master, which is what
+    makes the `else` arms on model.py:447 and model.py:988 unreachable
+    (and `# pragma: no cover`-marked). If a new path (e.g. TripleLens from
+    branch 3L_first) extends this, update both call sites and drop the
+    `pragma` markers.
+    """
+    single = [
+        {'t_0': 8000., 'u_0': 0.1, 't_E': 30.},
+        {'t_0': 8000., 'u_0': 0.1, 't_E': 30., 'rho': 0.001},
+        {'t_0': 8000., 'u_0': 0.1, 't_E': 30., 'pi_E_N': 0.1, 'pi_E_E': 0.2,
+         't_0_par': 8000.},
+    ]
+    binary = [
+        {'t_0': 8000., 'u_0': 0.1, 't_E': 30., 's': 1.1, 'q': 0.01,
+         'alpha': 90.},
+        {'t_0': 8000., 'u_0': 0.1, 't_E': 30., 's': 1.1, 'q': 0.01,
+         'alpha': 90., 'rho': 0.001},
+    ]
+    for params in single:
+        assert mm.ModelParameters(params).n_lenses == 1, params
+    for params in binary:
+        assert mm.ModelParameters(params).n_lenses == 2, params

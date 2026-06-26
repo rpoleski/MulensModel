@@ -444,8 +444,8 @@ class Model(object):
             self._update_caustics_single_lens()
         elif self.n_lenses == 2:
             self._update_caustics_binary_lens(epoch)
-        else:
-            raise ValueError('updating triple lens caustics not yet coded')
+        else:  # pragma: no cover  (reserved for TripleLens, see issue #66)
+            raise NotImplementedError("triple lens caustics not yet implemented")
 
     def _update_caustics_single_lens(self):
         """
@@ -454,8 +454,7 @@ class Model(object):
         convergence_K = self.parameters.parameters.get('convergence_K', 0)
         shear_G = self.parameters.parameters.get('shear_G', complex(0, 0))
 
-        self._caustics = CausticsPointWithShear(
-            convergence_K=convergence_K, shear_G=shear_G)
+        self._caustics = CausticsPointWithShear(convergence_K=convergence_K, shear_G=shear_G)
 
     def _update_caustics_binary_lens(self, epoch):
         """
@@ -984,9 +983,9 @@ class Model(object):
         elif self.n_lenses == 2:
             methods_all_str = (
                 'point_source quadrupole hexadecapole vbm vbbl adaptive_contouring point_source_point_lens')
-        else:
-            msg = 'wrong value of Model.n_lenses: {:}'
-            raise ValueError(msg.format(self.n_lenses))
+        else:  # pragma: no cover  (reserved for TripleLens, see issue #66)
+            raise NotImplementedError(
+                "magnification method list for n_lenses={:} not yet implemented".format(self.n_lenses))
 
         parameters = {key.lower(): value for (key, value) in methods_parameters.items()}
         methods_all = set([m.lower() for m in methods_all_str.split()])

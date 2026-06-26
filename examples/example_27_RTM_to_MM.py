@@ -33,17 +33,22 @@ def get_parameters_names(ID):
     model_id_short = ID[0:2]
     if model_id_short in ['BO', 'LK', 'TS', 'TX', 'TO']:
         warnings.warn("Transformation for {:} model is not accurate!".format(model_id_short))
-        print("This model category: {:}, includes one of the following: xallarap, triple lens or elliptical orbital motion.\nThese effects are not yet included in this example.".format(model_id_short))
-    model_and_parnames = {'PS': ['u_0', 't_E', 't_0', 'rho'],
-                    'PX': ['u_0', 't_E', 't_0', 'rho', 'pi_N', 'pi_E'],
-                    'BS': ['t_E', 'FR', 'u_0_1', 'u_0_2', 't_0_1', 't_0_2', 'rho_1'],
-                    'BO': ['t_E', 'FR', 'u_0_1', 'u_0_2', 't_0_1', 't_0_2', 'rho_1', 'pi_E_N', 'pi_E_E', 'gamma1', 'gamma2', 'gammaz'],
-                    'LS': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0'],
-                    'LX': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0', 'pi_E_N', 'pi_E_E'],
-                    'LO': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0', 'pi_E_N', 'pi_E_E', 'gamma1', 'gamma2', 'gammaz'],
-                    'LK': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0', 'pi_E_N', 'pi_E_E', 'gamma1', 'gamma2', 'gammaz', 'sz_s', 'a_s3d'],
-                    'TS': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0', 's2', 'q2', 'beta'],
-                    'TX': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0', 's2', 'q2', 'beta', 'pi_E_N', 'pi_E_E']}
+        print("This model category: {:}, includes one of the following: xallarap, triple lens or elliptical orbital "
+              "motion.\nThese effects are not yet included in this example.".format(model_id_short))
+
+    model_and_parnames = {
+        'PS': ['u_0', 't_E', 't_0', 'rho'],
+        'PX': ['u_0', 't_E', 't_0', 'rho', 'pi_N', 'pi_E'],
+        'BS': ['t_E', 'FR', 'u_0_1', 'u_0_2', 't_0_1', 't_0_2', 'rho_1'],
+        'BO': ['t_E', 'FR', 'u_0_1', 'u_0_2', 't_0_1', 't_0_2', 'rho_1', 'pi_E_N', 'pi_E_E', 'gamma1', 'gamma2',
+               'gammaz'],
+        'LS': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0'],
+        'LX': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0', 'pi_E_N', 'pi_E_E'],
+        'LO': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0', 'pi_E_N', 'pi_E_E', 'gamma1', 'gamma2', 'gammaz'],
+        'LK': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0', 'pi_E_N', 'pi_E_E', 'gamma1', 'gamma2', 'gammaz',
+               'sz_s', 'a_s3d'],
+        'TS': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0', 's2', 'q2', 'beta'],
+        'TX': ['s', 'q', 'u_0', 'alpha', 'rho', 't_E', 't_0', 's2', 'q2', 'beta', 'pi_E_N', 'pi_E_E']}
 
     return model_and_parnames[model_id_short]
 
