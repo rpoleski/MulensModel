@@ -1,11 +1,10 @@
 photometry_files:
     - {file_name: /home/data/ceres/zbudzik/events_for_rtmodel/MM/kb190967/phot_dat_MM_format/phot_KMT_I.dat, plot_properties: {color: deeppink}}
-      #- {file_name: /home/data/ceres/zbudzik/events_for_rtmodel/MM/kb190967/phot_dat_MM_format/phot_KMT_V.dat, plot_properties: {color: slateblue}}
+    - {file_name: /home/data/ceres/zbudzik/events_for_rtmodel/MM/kb190967/phot_dat_MM_format/phot_KMT_V.dat, plot_properties: {color: slateblue}}
 model:
     default method: VBBL
     coords: 17:35:53.47 -27:57:52.31
-        theta_star_calculation:
-    #relation: Adams et al. 2018
+    theta_star_calculation:
         mag_I_label: phot_KMT_I.dat
         mag_V_label: phot_KMT_V.dat
         A_I: 0.5

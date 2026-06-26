@@ -1114,7 +1114,7 @@ class UlensModelFit(object):
 
         allowed = {
             'coords', 'default method', 'methods', 'methods parameters', 'methods source 1', 'methods source 2',
-            'parameters', 'values', 'limb darkening u', 'fixed_fluxes'}
+            'parameters', 'values', 'limb darkening u', 'fixed_fluxes', 'theta_star_calculation'}
         keys = set(self._model_parameters.keys())
         not_allowed = keys - allowed
         if len(not_allowed) > 0:
@@ -1141,6 +1141,10 @@ class UlensModelFit(object):
         if 'pi_E_E' in all_parameters or 'pi_E_N' in all_parameters:
             if 'coords' not in self._model_parameters:
                 raise ValueError("Parallax model requires model['coords'].")
+        if 'theta_star_calculation' in self._model_parameters:
+            for k in ("mag_I_label", "mag_V_label", "A_I", "E(V-I)"):
+                if k not in self._model_parameters['theta_star_calculation']:
+                    raise KeyError("{:} missing from ['theta_star_calculation']".format(k))
 
     def _check_other_fit_parameters(self):
         """
