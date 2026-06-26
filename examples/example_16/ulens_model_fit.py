@@ -2248,9 +2248,10 @@ class UlensModelFit(object):
                 if parameter not in self._fit_parameters:
                     raise ValueError("Error - you can calculate " + key + " function only of a parameter which is "
                                      "fitted, not: " + parameter)
+
     def _check_theta_star_calculation(self):
         """
-        Checks if theta_star_calculation is 
+        Checks if theta_star_calculation is
         included in model if theta star comparion is True.
         """
         if self._prior_theta_star is not None:
@@ -2964,6 +2965,8 @@ class UlensModelFit(object):
 
     def _ln_prior_theta_star(self):
         """
+        Get log prior for theta_star of current model. This function is executed
+        if there is theta star compare.
         """
         delta_theta = self._get_theta_star() - self._get_theta_star_flux()
         out = self._get_log_normal(delta_theta)
@@ -2975,7 +2978,7 @@ class UlensModelFit(object):
         equations 2 and 3.
         """
         self._check_theta_star_calculation_values()
-        VK_S_0 =  self._get_color_BB88()
+        VK_S_0 = self._get_color_BB88()
         V_S_0 = self._get_mag_from_fluxes()[1]
         logtheta_LD = self._get_theta_LD(VK_S_0) - 0.2*V_S_0
         theta_star_flux = 1/2 * 10**logtheta_LD
@@ -2987,10 +2990,9 @@ class UlensModelFit(object):
         """
         self._dataset_I = self._get_no_of_dataset(self._model_parameters['theta_star_calculation']['mag_I_label'])
         self._dataset_V = self._get_no_of_dataset(self._model_parameters['theta_star_calculation']['mag_V_label'])
-        #change
+        # change
         self._A_I = self._model_parameters['theta_star_calculation']['A_I']
         self._red = self._model_parameters['theta_star_calculation']['E(V-I)']
-
 
     def _get_mag_from_fluxes(self):
         """
@@ -2999,7 +3001,7 @@ class UlensModelFit(object):
         """
         self._get_theta_star_calculation_parameters()
         fluxes = self._get_fluxes()
-        ###### change
+        # change
         fluxI = fluxes[2 * self._dataset_I]
         fluxV = fluxes[2 * self._dataset_V]
         I_S = -2.5 * np.log10(fluxI)
@@ -3038,14 +3040,14 @@ class UlensModelFit(object):
         Calculates theta_E from third Kepler law
         """
         period = self._model.parameters.lens_period
-        kappa = 8.14 #[mas/M_sun]
+        kappa = 8.14  # [mas/M_sun]
         pi_E = self._model.parameters.pi_E_mag
         a = self._model.parameters.lens_semimajor_axis
         theta_E = period/(kappa*pi_E)**(1/2) * a**(3/2)
         theta_star = theta_E * self._model.parameters.rho
         return theta_star
 
-    def _get_log_normal(self,x):
+    def _get_log_normal(self, x):
         """
         Normal distribution with mu =0 and sigma
         calculated from extincion and reddening.
@@ -3053,7 +3055,6 @@ class UlensModelFit(object):
         sigma = 0.05
         out = np.log(1/(np.sqrt(2 * np.pi * sigma**2))) - (x**2 / (2 * sigma**2))
         return out
-
 
     def _ln_like(self, theta):
         """

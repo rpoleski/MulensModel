@@ -7,7 +7,7 @@ model:
     theta_star_calculation:
         mag_I_label: phot_KMT_I.dat
         mag_V_label: phot_KMT_V.dat
-        A_I: 0.5
+        A_I: 5.0
         E(V-I): 0.05
 
 fixed_parameters:
