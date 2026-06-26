@@ -2889,6 +2889,9 @@ class UlensModelFit(object):
         if self._prior_t_E is not None:
             self._set_model_parameters(theta)
             ln_prior += self._ln_prior_t_E()
+        if self._prior_theta_star is not None:
+            self._set_model_parameters(theta)
+            ln_prior += self._ln_prior_theta_star()
         if self._fit_method == "UltraNest":
             return ln_prior
 
@@ -2954,6 +2957,99 @@ class UlensModelFit(object):
             if self._prior_t_E == 'Mroz+20':
                 out += 3. * math.log(10) * (x - self._prior_t_E_data['x_min'])
             return out
+
+    def _ln_prior_theta_star(self):
+        """
+        """
+        delta_theta = self._get_theta_star() - self._get_theta_star_flux()
+        out = self._get_log_normal(delta_theta)
+        return out
+
+    def _get_theta_star_flux(self):
+        """
+        Calculates the radius of the source star based on Adams et al. 2018
+        equations 2 and 3.
+        """
+        self._check_theta_star_calculation_values()
+        VK_S_0 =  self._get_color_BB88()
+        V_S_0 = self._get_mag_from_fluxes()[1]
+        logtheta_LD = self._get_theta_LD(VK_S_0) - 0.2*V_S_0
+        theta_star_flux = 1/2 * 10**logtheta_LD
+        return theta_star_flux
+
+    def _get_theta_star_calculation_parameters(self):
+        """
+        Unpacks the parameters required for theta star calculation
+        """
+        self._dataset_I = self._get_no_of_dataset(self._model_parameters['theta_star_calculation']['mag_I_label'])
+        self._dataset_V = self._get_no_of_dataset(self._model_parameters['theta_star_calculation']['mag_V_label'])
+        #change
+        self._A_I = self._model_parameters['theta_star_calculation']['A_I']
+        self._red = self._model_parameters['theta_star_calculation']['E(V-I)']
+
+
+    def _get_mag_from_fluxes(self):
+        """
+        Calculates magnitude of the source in I and V
+        filter and corrects them for extinction.
+        """
+        self._get_theta_star_calculation_parameters()
+        fluxes = self._get_fluxes()
+        ###### change
+        fluxI = fluxes[2 * self._dataset_I]
+        fluxV = fluxes[2 * self._dataset_V]
+        I_S = -2.5 * np.log10(fluxI)
+        V_S = -2.5 * np.log10(fluxV)
+        VI_S = V_S - I_S
+        I_S_0 = I_S - self._A_I
+
+        VI_S_0 = VI_S - self._red
+        V_S_0 = VI_S_0 + I_S_0
+        return VI_S_0, V_S_0
+
+    def _get_color_BB88(self):
+        """
+        Calculates source color V-K from V-I based on table 3 (giants) from
+        Bessell and Brett 1988.
+        """
+        VI_S_0 = self._get_mag_from_fluxes()[0]
+
+        VI_BB = [0.81, 0.91, 0.94, 0.94, 1.00, 1.08, 1.17, 1.36, 1.50, 1.63, 1.78, 1.90, 2.05, 2.25, 2.55, 3.05]
+        VK_BB = [1.75, 2.05, 2.15, 2.16, 2.31, 2.50, 2.70, 3.00, 3.26, 3.60, 3.85, 4.05, 4.30, 4.64, 5.10, 5.96]
+        VK_S_0 = np.interp(VI_S_0, VI_BB, VK_BB)
+        return VK_S_0
+
+    def _get_theta_LD(self, x):
+        """
+        Calculates polymonial from Adams et al. 2018.
+        Uses coefficients from table 3, color V-K for giants
+        """
+        c0 = 0.562
+        c1 = 0.051
+        out = c0 + c1*x
+        return out
+
+    def _get_theta_star(self):
+        """
+        Calculates theta_E from third Kepler law
+        """
+        period = self._model.parameters.lens_period
+        kappa = 8.14 #[mas/M_sun]
+        pi_E = self._model.parameters.pi_E_mag
+        a = self._model.parameters.lens_semimajor_axis
+        theta_E = period/(kappa*pi_E)**(1/2) * a**(3/2)
+        theta_star = theta_E * self._model.parameters.rho
+        return theta_star
+
+    def _get_log_normal(self,x):
+        """
+        Normal distribution with mu =0 and sigma
+        calculated from extincion and reddening.
+        """
+        sigma = 0.05
+        out = np.log(1/(np.sqrt(2 * np.pi * sigma**2))) - (x**2 / (2 * sigma**2))
+        return out
+
 
     def _ln_like(self, theta):
         """
