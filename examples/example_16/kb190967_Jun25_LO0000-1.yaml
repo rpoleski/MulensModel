@@ -4,9 +4,9 @@ photometry_files:
 model:
     default method: VBBL
     coords: 17:35:53.47 -27:57:52.31
-    theta_star_calculation:
-        mag_I_label: phot_KMT_I.dat
-        mag_V_label: phot_KMT_V.dat
+    theta star calculation:
+        mag I label: phot_KMT_I.dat
+        mag V label: phot_KMT_V.dat
         A_I: 5.0
         E(V-I): 0.05
 

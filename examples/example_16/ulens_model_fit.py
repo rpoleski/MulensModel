@@ -1114,7 +1114,7 @@ class UlensModelFit(object):
 
         allowed = {
             'coords', 'default method', 'methods', 'methods parameters', 'methods source 1', 'methods source 2',
-            'parameters', 'values', 'limb darkening u', 'fixed_fluxes', 'theta_star_calculation'}
+            'parameters', 'values', 'limb darkening u', 'fixed_fluxes', 'theta star calculation'}
         keys = set(self._model_parameters.keys())
         not_allowed = keys - allowed
         if len(not_allowed) > 0:
@@ -1141,9 +1141,9 @@ class UlensModelFit(object):
         if 'pi_E_E' in all_parameters or 'pi_E_N' in all_parameters:
             if 'coords' not in self._model_parameters:
                 raise ValueError("Parallax model requires model['coords'].")
-        if 'theta_star_calculation' in self._model_parameters:
-            compare = {"mag_I_label", "mag_V_label", "A_I", "E(V-I)"}
-            difference = compare.symmetric_difference(self._model_parameters['theta_star_calculation'])
+        if 'theta star calculation' in self._model_parameters:
+            compare = {"mag I label", "mag V label", "A_I", "E(V-I)"}
+            difference = compare.symmetric_difference(self._model_parameters['theta star calculation'])
             if len(difference) > 0:
                 raise KeyError("'theta star calculation' settings issue: {:}".format(difference))
 
@@ -2252,20 +2252,19 @@ class UlensModelFit(object):
 
     def _check_theta_star_calculation(self):
         """
-        Checks if theta_star_calculation is
-        included in model if theta star comparion is True.
+        Checks if theta star calculation is included in model if theta star comparion is True.
         """
         if self._prior_theta_star is not None:
-            if 'theta_star_calculation' not in self._model_parameters:
-                raise ValueError("Theta star comparison requires model['theta_star_calculation'].")
+            if 'theta star calculation' not in self._model_parameters:
+                raise ValueError("Theta star comparison requires model['theta star calculation'].")
 
     def _check_theta_star_calculation_values(self):
         """
         Checks the values in the theta star calculation dict
         """
         data_labels = [dataset.plot_properties['label'] for dataset in self._datasets]
-        for (key, value) in self._model_parameters['theta_star_calculation'].items():
-            if key in ['mag_I_label', 'mag_V_label']:
+        for (key, value) in self._model_parameters['theta star calculation'].items():
+            if key in ['mag I label', 'mag V label']:
                 if value not in data_labels:
                     raise KeyError("No dataset of this name: {:}".format(value))
 
@@ -2989,11 +2988,11 @@ class UlensModelFit(object):
         """
         Unpacks the parameters required for theta star calculation
         """
-        self._dataset_I = self._get_no_of_dataset(self._model_parameters['theta_star_calculation']['mag_I_label'])
-        self._dataset_V = self._get_no_of_dataset(self._model_parameters['theta_star_calculation']['mag_V_label'])
+        self._dataset_I = self._get_no_of_dataset(self._model_parameters['theta star calculation']['mag I label'])
+        self._dataset_V = self._get_no_of_dataset(self._model_parameters['theta star calculation']['mag V label'])
         # change
-        self._A_I = self._model_parameters['theta_star_calculation']['A_I']
-        self._red = self._model_parameters['theta_star_calculation']['E(V-I)']
+        self._A_I = self._model_parameters['theta star calculation']['A_I']
+        self._red = self._model_parameters['theta star calculation']['E(V-I)']
 
     def _get_mag_from_fluxes(self):
         """
