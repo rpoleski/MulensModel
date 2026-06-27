@@ -1142,9 +1142,10 @@ class UlensModelFit(object):
             if 'coords' not in self._model_parameters:
                 raise ValueError("Parallax model requires model['coords'].")
         if 'theta_star_calculation' in self._model_parameters:
-            for k in ("mag_I_label", "mag_V_label", "A_I", "E(V-I)"):
-                if k not in self._model_parameters['theta_star_calculation']:
-                    raise KeyError("{:} missing from ['theta_star_calculation']".format(k))
+            compare = {"mag_I_label", "mag_V_label", "A_I", "E(V-I)"}
+            difference = compare.symmetric_difference(self._model_parameters['theta_star_calculation'])
+            if len(difference) > 0:
+                raise KeyError("'theta star calculation' settings issue: {:}".format(difference))
 
     def _check_other_fit_parameters(self):
         """
