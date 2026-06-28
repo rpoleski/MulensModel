@@ -47,7 +47,7 @@ fitting_parameters:
     n_burn: 4
 fit_constraints:
     prior:
-        compare_theta_star: True
+        compare theta star: True
 plots:
     triangle:
         file: LO0000-1_kb190967_Jun25_triangle.png

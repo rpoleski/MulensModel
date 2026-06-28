@@ -2212,10 +2212,12 @@ class UlensModelFit(object):
                 if settings[2] < 0.:
                     raise ValueError('sigma cannot be negative: ' + words[2])
                 priors[key] = settings
-            elif key == 'compare_theta_star':
-                if str(value) == 'True':
+            elif key == 'compare theta star':
+                if value is True:
                     self._prior_theta_star = value
                     self._check_theta_star_calculation()
+                elif value is not False:
+                    raise ValueError("wrong 'compare theta star' value: {:}".format(value))
             else:
                 raise KeyError("Unrecognized key in fit_constraints/prior: " + key)
 
