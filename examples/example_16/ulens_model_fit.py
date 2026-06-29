@@ -1146,6 +1146,7 @@ class UlensModelFit(object):
             difference = compare.symmetric_difference(self._model_parameters['theta star calculation'])
             if len(difference) > 0:
                 raise KeyError("'theta star calculation' settings issue: {:}".format(difference))
+            self._check_theta_star_calculation_values()
 
     def _get_bands_for_theta_star_calculation(self):
         pass        
@@ -2271,10 +2272,10 @@ class UlensModelFit(object):
         """
         Checks the values in the theta star calculation dict
         """
-        data_labels = [dataset.plot_properties['label'] for dataset in self._datasets]
+        #data_labels = [dataset.plot_properties['label'] for dataset in self._datasets]
         for (key, value) in self._model_parameters['theta star calculation'].items():
             if key in ['mag I label', 'mag V label']:
-                if value not in data_labels:
+                if value not in self._data_labels:
                     raise KeyError("No dataset of this name: {:}".format(value))
 
     def _get_no_of_dataset(self, label):
