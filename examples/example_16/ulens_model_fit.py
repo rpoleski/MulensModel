@@ -2273,10 +2273,10 @@ class UlensModelFit(object):
         Checks the values in the theta star calculation dict
         """
         #data_labels = [dataset.plot_properties['label'] for dataset in self._datasets]
-        for (key, value) in self._model_parameters['theta star calculation'].items():
-            if key in ['mag I label', 'mag V label']:
-                if value not in self._data_labels:
-                    raise KeyError("No dataset of this name: {:}".format(value))
+        for key in ['mag I label', 'mag V label']:
+            value = self._model_parameters['theta star calculation'][key]
+            if value not in self._data_labels:
+                raise KeyError("No dataset of this name: {:}".format(value))
 
     def _get_no_of_dataset(self, label):
         """
