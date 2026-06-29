@@ -1849,7 +1849,7 @@ class ModelParameters(object):
         if self._type['keplerian motion']:
             self._set_lens_keplerian_orbit()
             sky_positions = self._lens_orbit.get_reference_plane_position(epoch)
-            alpha_of_t = self.alpha + np.arctan2(sky_positions[1, :], sky_positions[0, :]) * 180 / np.pi
+            alpha_of_t = self.alpha + np.arctan2(sky_positions[1], sky_positions[0]) * 180 / np.pi
         else:
             alpha_of_t = self.alpha + self.dalpha_dt * (epoch - self.t_0_kep) / 365.25
 

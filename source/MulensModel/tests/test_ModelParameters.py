@@ -634,6 +634,12 @@ def test_get_s_for_keplerian():
     np.testing.assert_almost_equal(linear.get_s(t), elliptical.get_s(t), decimal=5)
 
 
+def test_get_alpha_float():
+    """Make sure get_alpha() accepts float in keplerian case"""
+    parameters = mm.ModelParameters(setup_keplerian_elliptical({'ds_z_dt': 1.9}))
+    assert parameters.get_alpha(2456789.) == parameters.get_alpha([2456789.])
+
+
 def test_lens_eccentricity_elliptical_1():
     """
     Test ModelParamters.lens_eccentricity for eccentric orbit.
