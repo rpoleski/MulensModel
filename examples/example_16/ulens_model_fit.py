@@ -2987,7 +2987,7 @@ class UlensModelFit(object):
         """
         Calculates the radius of the source star based on the relation given.
         """
-        if self._model_parameters['theta star calculation']['relation'] == 'Adams+19':
+        if self._model_parameters['theta star calculation']['relation'] == 'Adams+18':
             self._ref_stars = 'giants'
             self._ref_color = 'V-K'
             theta_star_flux = self._get_theta_star_Adams()
