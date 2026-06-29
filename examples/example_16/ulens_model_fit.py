@@ -1146,7 +1146,6 @@ class UlensModelFit(object):
             difference = compare.symmetric_difference(self._model_parameters['theta star calculation'])
             if len(difference) > 0:
                 raise KeyError("'theta star calculation' settings issue: {:}".format(difference))
-            self._check_theta_star_calculation_values()
 
     def _get_bands_for_theta_star_calculation(self):
         pass        
@@ -1318,6 +1317,9 @@ class UlensModelFit(object):
                 out = '{:} vs {:}'.format(len(self._datasets), len(self._residuals_files))
                 raise ValueError('The number of datasets and files for residuals output do not match: ' + out)
 
+        if 'theta star calculation' in self._model_parameters:
+            self._check_theta_star_calculation_values()
+
     def _get_1_dataset(self, file_, kwargs):
         """
         Construct a single dataset and possibly rescale uncertainties in it.
@@ -1425,6 +1427,15 @@ class UlensModelFit(object):
             raise ValueError(
                 'Something wrong with provided bad flags for dataset ' + dataset.plot_properties['label'] + '\n ' +
                 str(bad_bool[0]))
+
+    def _check_theta_star_calculation_values(self):
+        """
+        Checks the values in the theta star calculation dict
+        """
+        for key in ['mag I label', 'mag V label']:
+            value = self._model_parameters['theta star calculation'][key]
+            if value not in self._data_labels:
+                raise KeyError("No dataset of this name: {:}".format(value))
 
     def _check_ulens_model_parameters(self):
         """
@@ -2267,16 +2278,6 @@ class UlensModelFit(object):
         if self._prior_theta_star is not None:
             if 'theta star calculation' not in self._model_parameters:
                 raise ValueError("Theta star comparison requires model['theta star calculation'].")
-
-    def _check_theta_star_calculation_values(self):
-        """
-        Checks the values in the theta star calculation dict
-        """
-        #data_labels = [dataset.plot_properties['label'] for dataset in self._datasets]
-        for key in ['mag I label', 'mag V label']:
-            value = self._model_parameters['theta star calculation'][key]
-            if value not in self._data_labels:
-                raise KeyError("No dataset of this name: {:}".format(value))
 
     def _get_no_of_dataset(self, label):
         """
