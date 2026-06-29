@@ -1142,10 +1142,18 @@ class UlensModelFit(object):
             if 'coords' not in self._model_parameters:
                 raise ValueError("Parallax model requires model['coords'].")
         if 'theta star calculation' in self._model_parameters:
-            compare = {"mag I label", "mag V label", "A_I", "E(V-I)", "relation"}
-            difference = compare.symmetric_difference(self._model_parameters['theta star calculation'])
-            if len(difference) > 0:
-                raise KeyError("'theta star calculation' settings issue: {:}".format(difference))
+            self._check_and_parse_theta_star()
+
+    def _check_and_parse_theta_star(self):
+        """
+        Check values of self._model_parameters['theta star calculation'] and parse that information
+        """
+        compare = {"mag I label", "mag V label", "A_I", "E(V-I)", "relation"}
+        difference = compare.symmetric_difference(self._model_parameters['theta star calculation'])
+        if len(difference) > 0:
+           raise KeyError("'theta star calculation' settings issue: {:}".format(difference))
+
+        self._model_parameters['theta star calculation']['relative sigma'] = 0.05
 
     def _get_bands_for_theta_star_calculation(self):
         pass        
@@ -2979,8 +2987,9 @@ class UlensModelFit(object):
         Get log prior for theta_star of current model. This function is executed
         if there is theta star compare.
         """
-        delta_theta = self._get_theta_star() - self._get_theta_star_flux()
-        sigma = 0.05
+        reference = self._get_theta_star_flux()
+        delta_theta = self._get_theta_star() - reference
+        sigma = reference * self._model_parameters['theta star calculation']['relative sigma']
         out = self._get_log_normal(delta_theta, sigma)
         return out
 
