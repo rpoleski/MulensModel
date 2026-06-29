@@ -1142,11 +1142,18 @@ class UlensModelFit(object):
             if 'coords' not in self._model_parameters:
                 raise ValueError("Parallax model requires model['coords'].")
         if 'theta star calculation' in self._model_parameters:
-            compare = {"mag I label", "mag V label", "A_I", "E(V-I)"}
+            compare = {"mag I label", "mag V label", "A_I", "E(V-I)", "relation"}
             difference = compare.symmetric_difference(self._model_parameters['theta star calculation'])
             if len(difference) > 0:
                 raise KeyError("'theta star calculation' settings issue: {:}".format(difference))
 
+    def _get_bands_for_theta_star_calculation(self):
+        pass        
+        #reddening = 
+        #self._band_1 = #V
+        #self._band_2 = #I
+
+        
     def _check_other_fit_parameters(self):
         """
         Check if there aren't any other inconsistencies between settings
@@ -2971,57 +2978,66 @@ class UlensModelFit(object):
         if there is theta star compare.
         """
         delta_theta = self._get_theta_star() - self._get_theta_star_flux()
-        out = self._get_log_normal(delta_theta)
+        sigma = 0.05
+        out = self._get_log_normal(delta_theta, sigma)
         return out
 
     def _get_theta_star_flux(self):
         """
-        Calculates the radius of the source star based on Adams et al. 2018
-        equations 2 and 3.
+        Calculates the radius of the source star based on the relation given.
         """
-        self._check_theta_star_calculation_values()
-        VK_S_0 = self._get_color_BB88()
-        V_S_0 = self._get_mag_from_fluxes()[1]
-        logtheta_LD = self._get_theta_LD(VK_S_0) - 0.2*V_S_0
-        theta_star_flux = 1/2 * 10**logtheta_LD
+        if self._model_parameters['theta star calculation']['relation'] == 'Adams+19':
+            self._ref_stars = 'giants'
+            self._ref_color = 'V-K'
+            theta_star_flux = self._get_theta_star_Adams()
+
+        else:
+            raise TypeError
         return theta_star_flux
+
+    def _get_theta_star_Adams(self):
+        """
+        """
+        VK_S_0 = self._get_color_BB88()
+        Q = self._get_mag_from_fluxes()[1]
+        logtheta_LD = self._get_theta_LD(VK_S_0) - 0.2*Q
+        theta_star = 1/2 * 10**logtheta_LD
+        return theta_star
 
     def _get_theta_star_calculation_parameters(self):
         """
         Unpacks the parameters required for theta star calculation
         """
-        self._dataset_I = self._get_no_of_dataset(self._model_parameters['theta star calculation']['mag I label'])
-        self._dataset_V = self._get_no_of_dataset(self._model_parameters['theta star calculation']['mag V label'])
+        self._dataset_1 = self._get_no_of_dataset(self._model_parameters['theta star calculation']['mag I label'])
+        self._dataset_2 = self._get_no_of_dataset(self._model_parameters['theta star calculation']['mag V label'])
         # change
         self._A_I = self._model_parameters['theta star calculation']['A_I']
-        self._red = self._model_parameters['theta star calculation']['E(V-I)']
+        self._EVI = self._model_parameters['theta star calculation']['E(V-I)']
 
     def _get_mag_from_fluxes(self):
         """
-        Calculates magnitude of the source in I and V
-        filter and corrects them for extinction.
+        Calculates magnitude of the source in 2 bands
+        and corrects them for extinction.
         """
         self._get_theta_star_calculation_parameters()
         fluxes = self._get_fluxes()
         # change
-        fluxI = fluxes[2 * self._dataset_I]
-        fluxV = fluxes[2 * self._dataset_V]
-        I_S = -2.5 * np.log10(fluxI)
-        V_S = -2.5 * np.log10(fluxV)
-        VI_S = V_S - I_S
-        I_S_0 = I_S - self._A_I
+        flux1 = fluxes[2 * self._dataset_1]
+        flux2 = fluxes[2 * self._dataset_2]
+        mag1_S = -2.5 * np.log10(flux1)
+        mag2_S = -2.5 * np.log10(flux2)
 
-        VI_S_0 = VI_S - self._red
-        V_S_0 = VI_S_0 + I_S_0
-        return VI_S_0, V_S_0
+        color_S_0 = mag1_S - mag2_S - self._EVI
+        mag1_S_0 = color_S_0 + mag2_S - self._A_I
+        return color_S_0, mag1_S_0
 
-    def _get_color_BB88(self):
+    def _get_color_BB88(self, ):
         """
         Calculates source color V-K from V-I based on table 3 (giants) from
         Bessell and Brett 1988.
         """
         VI_S_0 = self._get_mag_from_fluxes()[0]
-
+        #colors = {'giants': []}
         VI_BB = [0.81, 0.91, 0.94, 0.94, 1.00, 1.08, 1.17, 1.36, 1.50, 1.63, 1.78, 1.90, 2.05, 2.25, 2.55, 3.05]
         VK_BB = [1.75, 2.05, 2.15, 2.16, 2.31, 2.50, 2.70, 3.00, 3.26, 3.60, 3.85, 4.05, 4.30, 4.64, 5.10, 5.96]
         VK_S_0 = np.interp(VI_S_0, VI_BB, VK_BB)
@@ -3030,11 +3046,12 @@ class UlensModelFit(object):
     def _get_theta_LD(self, x):
         """
         Calculates polymonial from Adams et al. 2018.
-        Uses coefficients from table 3, color V-K for giants
+        Uses coefficients from table 3, default is color V-K for giants
         """
-        c0 = 0.562
-        c1 = 0.051
-        out = c0 + c1*x
+        table3 = {'giants': {'V-K': {'c0': 0.562, 'c1': 0.051}, 'V-H': {'c0': 0.532, 'c1': 0.076}}}
+        # error do nieistniejacych
+        line = table3[self._ref_stars][self._ref_color]
+        out = line['c0'] + line['c1']*x
         return out
 
     def _get_theta_star(self):
@@ -3042,19 +3059,18 @@ class UlensModelFit(object):
         Calculates theta_E from third Kepler law
         """
         period = self._model.parameters.lens_period
-        kappa = 8.14  # [mas/M_sun]
+        kappa = 8.14385328  # [mas/M_sun]
         pi_E = self._model.parameters.pi_E_mag
         a = self._model.parameters.lens_semimajor_axis
         theta_E = period/(kappa*pi_E)**(1/2) * a**(3/2)
         theta_star = theta_E * self._model.parameters.rho
         return theta_star
 
-    def _get_log_normal(self, x):
+    def _get_log_normal(self, x, sigma):
         """
-        Normal distribution with mu =0 and sigma
+        Normal distribution with mu=0 and sigma
         calculated from extincion and reddening.
         """
-        sigma = 0.05
         out = np.log(1/(np.sqrt(2 * np.pi * sigma**2))) - (x**2 / (2 * sigma**2))
         return out
 

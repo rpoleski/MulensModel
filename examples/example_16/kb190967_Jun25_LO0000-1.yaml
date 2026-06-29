@@ -5,6 +5,7 @@ model:
     default method: VBBL
     coords: 17:35:53.47 -27:57:52.31
     theta star calculation:
+        relation: Adams+19 
         mag I label: phot_KMT_I.dat
         mag V label: phot_KMT_V.dat
         A_I: 5.0
