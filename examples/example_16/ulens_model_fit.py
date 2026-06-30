@@ -1151,17 +1151,27 @@ class UlensModelFit(object):
         compare = {"mag I label", "mag V label", "A_I", "E(V-I)", "relation"}
         difference = compare.symmetric_difference(self._model_parameters['theta star calculation'])
         if len(difference) > 0:
-           raise KeyError("'theta star calculation' settings issue: {:}".format(difference))
+            raise KeyError("'theta star calculation' settings issue: {:}".format(difference))
 
         self._model_parameters['theta star calculation']['relative sigma'] = 0.05
 
     def _get_bands_for_theta_star_calculation(self):
-        pass        
-        #reddening = 
-        #self._band_1 = #V
-        #self._band_2 = #I
+        for key in self._model_parameters['theta star calculation']:
+            if key[0] == 'E':
+                self._base_color = key[2:5]
 
-        
+        band1 = self._base_color[0]
+        band2 = self._base_color[2]
+        # work in progress
+        if band1 == 'I':
+            self._dataset1 = self._model_parameters['theta star calculation']['mag I label']
+        elif band1 == 'V':
+            self._dataset1 = self._model_parameters['theta star calculation']['mag V label']
+        elif band2 == 'I':
+            self._dataset2 = self._model_parameters['theta star calculation']['mag I label']
+        elif band2 == 'V':
+            self._dataset2 = self._model_parameters['theta star calculation']['mag v label']
+
     def _check_other_fit_parameters(self):
         """
         Check if there aren't any other inconsistencies between settings
@@ -3019,8 +3029,9 @@ class UlensModelFit(object):
         """
         Unpacks the parameters required for theta star calculation
         """
-        self._dataset_1 = self._get_no_of_dataset(self._model_parameters['theta star calculation']['mag I label'])
-        self._dataset_2 = self._get_no_of_dataset(self._model_parameters['theta star calculation']['mag V label'])
+        self._get_bands_for_theta_star_calculation()
+        self._no_dataset_1 = self._get_no_of_dataset(self._dataset1)
+        self._no_dataset_2 = self._get_no_of_dataset(self._dataset1)
         # change
         self._A_I = self._model_parameters['theta star calculation']['A_I']
         self._EVI = self._model_parameters['theta star calculation']['E(V-I)']
@@ -3033,8 +3044,8 @@ class UlensModelFit(object):
         self._get_theta_star_calculation_parameters()
         fluxes = self._get_fluxes()
         # change
-        flux1 = fluxes[2 * self._dataset_1]
-        flux2 = fluxes[2 * self._dataset_2]
+        flux1 = fluxes[2 * self._no_dataset_1]
+        flux2 = fluxes[2 * self._no_dataset_2]
         mag1_S = -2.5 * np.log10(flux1)
         mag2_S = -2.5 * np.log10(flux2)
 
@@ -3047,12 +3058,18 @@ class UlensModelFit(object):
         Calculates source color V-K from V-I based on table 3 (giants) from
         Bessell and Brett 1988.
         """
-        VI_S_0 = self._get_mag_from_fluxes()[0]
-        #colors = {'giants': []}
-        VI_BB = [0.81, 0.91, 0.94, 0.94, 1.00, 1.08, 1.17, 1.36, 1.50, 1.63, 1.78, 1.90, 2.05, 2.25, 2.55, 3.05]
-        VK_BB = [1.75, 2.05, 2.15, 2.16, 2.31, 2.50, 2.70, 3.00, 3.26, 3.60, 3.85, 4.05, 4.30, 4.64, 5.10, 5.96]
-        VK_S_0 = np.interp(VI_S_0, VI_BB, VK_BB)
-        return VK_S_0
+        colors_BB = {'giants': {'V-I': [0.81, 0.91, 0.94, 0.94, 1.0, 1.08, 1.17, 1.36, 1.5, 1.63, 1.78, 1.9, 2.05, 2.25, 2.55, 3.05],
+                    'V-K': [1.75, 2.05, 2.15, 2.16, 2.31, 2.5, 2.7, 3.0, 3.26, 3.6, 3.85, 4.05, 4.3, 4.64, 5.1, 5.96]}}
+        color_in = self._get_mag_from_fluxes()[0]
+        if self._base_color == self._ref_color:
+            return color_in
+        else:
+            try:
+                color_out = np.interp(color_in, colors_BB[self._ref_stars][self._base_color],
+                          colors_BB[self._ref_stars][self._ref_color])
+                return color_out
+            except:
+                Exception
 
     def _get_theta_LD(self, x):
         """
