@@ -1150,8 +1150,16 @@ class UlensModelFit(object):
         """
         self._check_theta_star_parameters()
         self._get_bands_for_theta_star_calculation()
+        self._set_theta_star_defaults()
 
+    def _set_theta_star_defaults(self):
+        """
+        Set default values for theta_* calculation.
+        In future, the parameters presented here may be exposed to the user.
+        """
         self._model_parameters['theta star calculation']['relative sigma'] = 0.05
+        self._ref_stars = 'giants'
+        self._ref_color = 'V-K'
 
     def _get_bands_for_theta_star_calculation(self):
         extinction = []
@@ -3038,12 +3046,10 @@ class UlensModelFit(object):
         Right now default is Adams+18 for color V-K, and giant stars as reference.
         """
         if self._model_parameters['theta star calculation']['relation'] == 'Adams+18':
-            self._ref_stars = 'giants'
-            self._ref_color = 'V-K'
             theta_star_flux = self._get_theta_star_Adams()
-
         else:
             raise TypeError("Currently only Adams+18 accepted in 'theta star calculation''relation'")
+
         return theta_star_flux
 
     def _get_theta_star_Adams(self):
