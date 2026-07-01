@@ -470,6 +470,7 @@ class UlensModelFit(object):
 
         self._which_task()
         self._set_default_parameters()
+
         if self._task == 'fit':
             if self._fit_method is None:
                 self._guess_fitting_method()
@@ -1184,17 +1185,6 @@ class UlensModelFit(object):
         self._dataset1 = self._model_parameters['theta star calculation'][label_1]
         label_2 = self._get_label_format_for_theta_star_calculation(bands[1])
         self._dataset2 = self._model_parameters['theta star calculation'][label_2]
-
-# RP - I'm not removing block below because I don't know what was to be done here.
-        # work in progress
-#        if band1 == 'I':
-#            self._dataset1 = self._model_parameters['theta star calculation']['mag I label']
-#        elif band1 == 'V':
-#            self._dataset1 = self._model_parameters['theta star calculation']['mag V label']
-#        elif band2 == 'I':
-#            self._dataset2 = self._model_parameters['theta star calculation']['mag I label']
-#        elif band2 == 'V':
-#            self._dataset2 = self._model_parameters['theta star calculation']['mag v label']
 
     def _get_label_format_for_theta_star_calculation(self, band):
         """change band to a str provided by the user"""
@@ -3097,18 +3087,17 @@ class UlensModelFit(object):
         colors_BB = {'giants': {'V-I': [0.81, 0.91, 0.94, 0.94, 1.0, 1.08, 1.17, 1.36, 1.5, 1.63, 1.78, 1.9, 2.05, 2.25, 2.55, 3.05],
                     'V-K': [1.75, 2.05, 2.15, 2.16, 2.31, 2.5, 2.7, 3.0, 3.26, 3.6, 3.85, 4.05, 4.3, 4.64, 5.1, 5.96]}}
         color_in = self._get_mag_from_fluxes()[0]
-        # if color_in < colors_BB[self._ref_stars][self._base_color][0] or color_in > colors_BB[self._ref_stars][self._base_color][-1]:
-        #    warnings.simplefilter('once', UserWarning)
-        #    warnings.warn('input value of color out of bounds, the output will default to the first or last values')
+        ref_stars = colors_BB[self._ref_stars]
+        ref_stars_and_ref_color = ref_stars[self._ref_color]
+        ref_stars_and_base_color = ref_stars[self._base_color]
+
+        if color_in < ref_stars_and_base_color[0] or color_in > ref_stars_and_base_color[-1]:
+            warnings.warn('Input value of color out of bounds, the output will default to the first or last value')
         if self._base_color == self._ref_color:
             return color_in
         else:
-            try:
-                color_out = np.interp(color_in, colors_BB[self._ref_stars][self._base_color],
-                          colors_BB[self._ref_stars][self._ref_color])
-                return color_out
-            except:
-                raise KeyError
+            color_out = np.interp(color_in, ref_stars_and_base_color, ref_stars_and_ref_color)
+            return color_out
 
     def _get_theta_LD(self, x):
         """
@@ -3116,12 +3105,10 @@ class UlensModelFit(object):
         Uses coefficients from table 3.
         """
         table3 = {'giants': {'V-K': {'c0': 0.562, 'c1': 0.051}, 'V-H': {'c0': 0.532, 'c1': 0.076}}}
-        try:
-            line = table3[self._ref_stars][self._ref_color]
-            out = line['c0'] + line['c1']*x
-            return out
-        except:
-            raise KeyError
+        ref_stars = table3[self._ref_stars]
+        ref_color = ref_stars[self._ref_color]
+        out = ref_color['c0'] + ref_color['c1']*x
+        return out
 
     def _get_theta_star(self):
         """
