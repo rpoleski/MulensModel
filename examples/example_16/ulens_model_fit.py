@@ -1154,21 +1154,43 @@ class UlensModelFit(object):
         self._model_parameters['theta star calculation']['relative sigma'] = 0.05
 
     def _get_bands_for_theta_star_calculation(self):
+        extinction = []
         for key in self._model_parameters['theta star calculation']:
             if key[0] == 'E':
-                self._base_color = key[2:5]
+                extinction.append(key)
 
-        band1 = self._base_color[0]
-        band2 = self._base_color[2]
+        if len(extinction) != 1:
+            raise ValueError(
+                "Wrong 'theta star calculation' keys: " + str(self._model_parameters['theta star calculation']))
+
+        if extinction[0][:2] != "E(" or extinction[0][-1] != ")":
+            raise ValueError("Wrong format of extinction: " + str(extinction[0]))
+
+        self._base_color = extinction[0][2:-1]
+
+        bands = self._base_color.split("-")
+        if len(bands) != 2:
+            raise ValueError("Wrong format of extinction: " + str(extinction[0]))
+
+        label_1 = self._get_label_format_for_theta_star_calculation(bands[0])
+        self._dataset1 = self._model_parameters['theta star calculation'][label_1]
+        label_2 = self._get_label_format_for_theta_star_calculation(bands[1])
+        self._dataset2 = self._model_parameters['theta star calculation'][label_2]
+
+# RP - I'm not removing block below because I don't know what was to be done here.
         # work in progress
-        if band1 == 'I':
-            self._dataset1 = self._model_parameters['theta star calculation']['mag I label']
-        elif band1 == 'V':
-            self._dataset1 = self._model_parameters['theta star calculation']['mag V label']
-        elif band2 == 'I':
-            self._dataset2 = self._model_parameters['theta star calculation']['mag I label']
-        elif band2 == 'V':
-            self._dataset2 = self._model_parameters['theta star calculation']['mag v label']
+#        if band1 == 'I':
+#            self._dataset1 = self._model_parameters['theta star calculation']['mag I label']
+#        elif band1 == 'V':
+#            self._dataset1 = self._model_parameters['theta star calculation']['mag V label']
+#        elif band2 == 'I':
+#            self._dataset2 = self._model_parameters['theta star calculation']['mag I label']
+#        elif band2 == 'V':
+#            self._dataset2 = self._model_parameters['theta star calculation']['mag v label']
+
+    def _get_label_format_for_theta_star_calculation(self, band):
+        """change band to a str provided by the user"""
+        return "mag {:} label".format(band)
 
     def _check_theta_star_parameters(self):
         """
