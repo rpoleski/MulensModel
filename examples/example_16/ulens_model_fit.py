@@ -1148,6 +1148,8 @@ class UlensModelFit(object):
         """
         Check values of self._model_parameters['theta star calculation'] and parse that information
         """
+        self._get_bands_for_theta_star_calculation()
+
         compare = {"mag I label", "mag V label", "A_I", "E(V-I)", "relation"}
         difference = compare.symmetric_difference(self._model_parameters['theta star calculation'])
         if len(difference) > 0:
@@ -3029,7 +3031,6 @@ class UlensModelFit(object):
         """
         Unpacks the parameters required for theta star calculation
         """
-        self._get_bands_for_theta_star_calculation()
         self._no_dataset_1 = self._get_no_of_dataset(self._dataset1)
         self._no_dataset_2 = self._get_no_of_dataset(self._dataset1)
         # change
