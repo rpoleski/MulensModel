@@ -3034,22 +3034,23 @@ class UlensModelFit(object):
         """
         Calculates the radius of the source star based on the relation given.
         Right now default is Adams+18 for color V-K, and giant stars as reference.
+        Reference: https://ui.adsabs.harvard.edu/abs/2018MNRAS.473.3608A/abstract
         """
         if self._model_parameters['theta star calculation']['relation'] == 'Adams+18':
-            theta_star_flux = self._get_theta_star_Adams()
+            theta_star_flux = self._get_theta_star_Adams18()
         else:
             raise TypeError("Currently only Adams+18 accepted in 'theta star calculation''relation'")
 
         return theta_star_flux
 
-    def _get_theta_star_Adams(self):
+    def _get_theta_star_Adams18(self):
         """
         Calculates the radius of the source based on
         equations 2 and 3 from Adams et al. 2018.
         """
         PQ_0_S = self._get_color_BB88()
         Q_0_S = self._get_mag_from_fluxes()[1]
-        logtheta_LD = self._get_theta_LD(PQ_0_S) - 0.2*Q_0_S
+        logtheta_LD = self._get_theta_LD_Adams18(PQ_0_S) - 0.2*Q_0_S
         theta_star = 1/2 * 10**logtheta_LD
         return theta_star
 
@@ -3099,7 +3100,7 @@ class UlensModelFit(object):
             color_out = np.interp(color_in, ref_stars_and_base_color, ref_stars_and_ref_color)
             return color_out
 
-    def _get_theta_LD(self, x):
+    def _get_theta_LD_Adams18(self, x):
         """
         Calculates polymonial from Adams et al. 2018.
         Uses coefficients from table 3.
