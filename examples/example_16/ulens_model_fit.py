@@ -3024,13 +3024,13 @@ class UlensModelFit(object):
         Get log prior for theta_star of current model. This function is executed
         if there is theta star compare.
         """
-        reference = self._get_theta_star_flux()
+        reference = self._get_theta_star_from_flux()
         delta_theta = self._get_theta_star() - reference
         sigma = reference * self._model_parameters['theta star calculation']['relative sigma']
         out = self._get_ln_normal(delta_theta, sigma)
         return out
 
-    def _get_theta_star_flux(self):
+    def _get_theta_star_from_flux(self):
         """
         Calculates the radius of the source star based on the relation given.
         Right now default is Adams+18 for color V-K, and giant stars as reference.
