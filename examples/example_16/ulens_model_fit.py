@@ -3007,12 +3007,13 @@ class UlensModelFit(object):
         reference = self._get_theta_star_flux()
         delta_theta = self._get_theta_star() - reference
         sigma = reference * self._model_parameters['theta star calculation']['relative sigma']
-        out = self._get_log_normal(delta_theta, sigma)
+        out = self._get_ln_normal(delta_theta, sigma)
         return out
 
     def _get_theta_star_flux(self):
         """
         Calculates the radius of the source star based on the relation given.
+        Right now default is Adams+18 for color V-K, and giant stars as reference.
         """
         if self._model_parameters['theta star calculation']['relation'] == 'Adams+18':
             self._ref_stars = 'giants'
@@ -3020,25 +3021,26 @@ class UlensModelFit(object):
             theta_star_flux = self._get_theta_star_Adams()
 
         else:
-            raise TypeError
+            raise TypeError("Currently only Adams+18 accepted in 'theta star calculation''relation'")
         return theta_star_flux
 
     def _get_theta_star_Adams(self):
         """
+        Calculates the radius of the source based on
+        equations 2 and 3 from Adams et al. 2018.
         """
-        VK_S_0 = self._get_color_BB88()
-        Q = self._get_mag_from_fluxes()[1]
-        logtheta_LD = self._get_theta_LD(VK_S_0) - 0.2*Q
+        PQ_0_S = self._get_color_BB88()
+        Q_0_S = self._get_mag_from_fluxes()[1]
+        logtheta_LD = self._get_theta_LD(PQ_0_S) - 0.2*Q_0_S
         theta_star = 1/2 * 10**logtheta_LD
         return theta_star
 
     def _get_theta_star_calculation_parameters(self):
         """
-        Unpacks the parameters required for theta star calculation
+        Unpacks the parameters required for theta star calculation.
         """
         self._no_dataset_1 = self._get_no_of_dataset(self._dataset1)
         self._no_dataset_2 = self._get_no_of_dataset(self._dataset1)
-        # change
         self._A_I = self._model_parameters['theta star calculation']['A_I']
         self._EVI = self._model_parameters['theta star calculation']['E(V-I)']
 
@@ -3059,14 +3061,17 @@ class UlensModelFit(object):
         mag1_S_0 = color_S_0 + mag2_S - self._A_I
         return color_S_0, mag1_S_0
 
-    def _get_color_BB88(self, ):
+    def _get_color_BB88(self):
         """
-        Calculates source color V-K from V-I based on table 3 (giants) from
+        Calculates ref source color from base source color based on table 3 from
         Bessell and Brett 1988.
         """
         colors_BB = {'giants': {'V-I': [0.81, 0.91, 0.94, 0.94, 1.0, 1.08, 1.17, 1.36, 1.5, 1.63, 1.78, 1.9, 2.05, 2.25, 2.55, 3.05],
                     'V-K': [1.75, 2.05, 2.15, 2.16, 2.31, 2.5, 2.7, 3.0, 3.26, 3.6, 3.85, 4.05, 4.3, 4.64, 5.1, 5.96]}}
         color_in = self._get_mag_from_fluxes()[0]
+        # if color_in < colors_BB[self._ref_stars][self._base_color][0] or color_in > colors_BB[self._ref_stars][self._base_color][-1]:
+        #    warnings.simplefilter('once', UserWarning)
+        #    warnings.warn('input value of color out of bounds, the output will default to the first or last values')
         if self._base_color == self._ref_color:
             return color_in
         else:
@@ -3075,22 +3080,25 @@ class UlensModelFit(object):
                           colors_BB[self._ref_stars][self._ref_color])
                 return color_out
             except:
-                Exception
+                raise KeyError
 
     def _get_theta_LD(self, x):
         """
         Calculates polymonial from Adams et al. 2018.
-        Uses coefficients from table 3, default is color V-K for giants
+        Uses coefficients from table 3.
         """
         table3 = {'giants': {'V-K': {'c0': 0.562, 'c1': 0.051}, 'V-H': {'c0': 0.532, 'c1': 0.076}}}
-        # error do nieistniejacych
-        line = table3[self._ref_stars][self._ref_color]
-        out = line['c0'] + line['c1']*x
-        return out
+        try:
+            line = table3[self._ref_stars][self._ref_color]
+            out = line['c0'] + line['c1']*x
+            return out
+        except:
+            raise KeyError
 
     def _get_theta_star(self):
         """
-        Calculates theta_E from third Kepler law
+        Calculates theta_star from third Kepler law
+        and the theta_E lens mass dependency.
         """
         period = self._model.parameters.lens_period
         kappa = 8.14385328  # [mas/M_sun]
@@ -3100,10 +3108,9 @@ class UlensModelFit(object):
         theta_star = theta_E * self._model.parameters.rho
         return theta_star
 
-    def _get_log_normal(self, x, sigma):
+    def _get_ln_normal(self, x, sigma):
         """
-        Normal distribution with mu=0 and sigma
-        calculated from extincion and reddening.
+        Normal distribution with mu=0. 
         """
         out = np.log(1/(np.sqrt(2 * np.pi * sigma**2))) - (x**2 / (2 * sigma**2))
         return out
