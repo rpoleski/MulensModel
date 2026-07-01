@@ -1146,14 +1146,10 @@ class UlensModelFit(object):
 
     def _check_and_parse_theta_star(self):
         """
-        Check values of self._model_parameters['theta star calculation'] and parse that information
+        Check values of self._model_parameters['theta star calculation'] and parse that information; set defaults
         """
         self._get_bands_for_theta_star_calculation()
-
-        compare = {"mag I label", "mag V label", "A_I", "E(V-I)", "relation"}
-        difference = compare.symmetric_difference(self._model_parameters['theta star calculation'])
-        if len(difference) > 0:
-            raise KeyError("'theta star calculation' settings issue: {:}".format(difference))
+        self._check_theta_star_parameters()
 
         self._model_parameters['theta star calculation']['relative sigma'] = 0.05
 
@@ -1173,6 +1169,15 @@ class UlensModelFit(object):
             self._dataset2 = self._model_parameters['theta star calculation']['mag I label']
         elif band2 == 'V':
             self._dataset2 = self._model_parameters['theta star calculation']['mag v label']
+
+    def _check_theta_star_parameters(self):
+        """
+        Check values of self._model_parameters['theta star calculation']
+        """
+        compare = {"mag I label", "mag V label", "A_I", "E(V-I)", "relation"}
+        difference = compare.symmetric_difference(self._model_parameters['theta star calculation'])
+        if len(difference) > 0:
+            raise KeyError("'theta star calculation' settings issue: {:}".format(difference))
 
     def _check_other_fit_parameters(self):
         """
