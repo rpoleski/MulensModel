@@ -1148,8 +1148,8 @@ class UlensModelFit(object):
         """
         Check values of self._model_parameters['theta star calculation'] and parse that information; set defaults
         """
-        self._get_bands_for_theta_star_calculation()
         self._check_theta_star_parameters()
+        self._get_bands_for_theta_star_calculation()
 
         self._model_parameters['theta star calculation']['relative sigma'] = 0.05
 
