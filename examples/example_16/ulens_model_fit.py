@@ -1180,18 +1180,18 @@ class UlensModelFit(object):
 
         bands = self._base_color.split("-")
         if len(bands) != 2:
-            raise ValueError("Wrong format of extinction: " + str(extinction[0]))
+            raise ValueError("Wrong format of extinction: " + str(reddening[0]))
 
         self._label_1 = self._get_label_format_for_theta_star_calculation(bands[0])
         self._dataset1 = self._model_parameters['theta star calculation'][self._label_1]
         self._label_2 = self._get_label_format_for_theta_star_calculation(bands[1])
         self._dataset2 = self._model_parameters['theta star calculation'][self._label_2]
         self._get_required_theta_star_calculation_keys(bands)
-        
+
     def _get_required_theta_star_calculation_keys(self, bands):
-         self._extinction_label = "A_{:}".format(bands[1])
-         keys = ["relation", self._label_1, self._label_2, self._extinction_label]
-         self._theta_star_required_keys.update(keys)
+        self._extinction_label = "A_{:}".format(bands[1])
+        keys = ["relation", self._label_1, self._label_2, self._extinction_label]
+        self._theta_star_required_keys.update(keys)
 
     def _get_label_format_for_theta_star_calculation(self, band):
         """change band to a str provided by the user"""
@@ -1201,7 +1201,8 @@ class UlensModelFit(object):
         """
         Check values of self._model_parameters['theta star calculation']
         """
-        difference = self._theta_star_required_keys.symmetric_difference(self._model_parameters['theta star calculation'])
+        difference = self._theta_star_required_keys.symmetric_difference(
+                   self._model_parameters['theta star calculation'])
         if len(difference) > 0:
             raise KeyError("'theta star calculation' settings issue: {:}".format(difference))
 
@@ -3042,6 +3043,10 @@ class UlensModelFit(object):
         Right now default is Adams+18 for color V-K, and giant stars as reference.
         Reference: https://ui.adsabs.harvard.edu/abs/2018MNRAS.473.3608A/abstract
         """
+        if self._model.n_sources != 1:
+            raise NotImplementedError("Currently calculating get_theta_star_from_flux only works or a single source\
+                                                    because _get_mag_from_fluxes does not consider binary sources.")
+
         if self._model_parameters['theta star calculation']['relation'] == 'Adams+18':
             theta_star_flux = self._get_theta_star_Adams18()
         else:
@@ -3085,8 +3090,10 @@ class UlensModelFit(object):
         Calculates ref source color from base source color based on table 3 from
         Bessell and Brett 1988.
         """
-        colors_BB = {'giants': {'V-I': [0.81, 0.91, 0.94, 0.94, 1.0, 1.08, 1.17, 1.36, 1.5, 1.63, 1.78, 1.9, 2.05, 2.25, 2.55, 3.05],
-                    'V-K': [1.75, 2.05, 2.15, 2.16, 2.31, 2.5, 2.7, 3.0, 3.26, 3.6, 3.85, 4.05, 4.3, 4.64, 5.1, 5.96]}}
+        colors_BB = {'giants': {'V-I': [0.81, 0.91, 0.94, 0.94, 1.0, 1.08, 1.17, 1.36,
+                                        1.5, 1.63, 1.78, 1.9, 2.05, 2.25, 2.55, 3.05],
+                                'V-K': [1.75, 2.05, 2.15, 2.16, 2.31, 2.5, 2.7, 3.0, 3.26,
+                                        3.6, 3.85, 4.05, 4.3, 4.64, 5.1, 5.96]}}
         color_in = self._get_mag_from_fluxes()[0]
         ref_stars = colors_BB[self._ref_stars]
         ref_stars_and_ref_color = ref_stars[self._ref_color]
@@ -3126,7 +3133,7 @@ class UlensModelFit(object):
 
     def _get_ln_normal(self, x, sigma):
         """
-        Normal distribution with mu=0. 
+        Normal distribution with mu=0.
         """
         out = np.log(1/(np.sqrt(2 * np.pi * sigma**2))) - (x**2 / (2 * sigma**2))
         return out
