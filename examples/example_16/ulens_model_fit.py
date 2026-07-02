@@ -1164,9 +1164,13 @@ class UlensModelFit(object):
 
     def _get_bands_for_theta_star_calculation(self):
         extinction = []
-        for key in self._model_parameters['theta star calculation']:
+        for key, value in self._model_parameters['theta star calculation'].items():
             if key[0] == 'E':
                 extinction.append(key)
+                self._reddening = value
+            if key[0] == 'A':
+                self._extinction = value
+
 
         if len(extinction) != 1:
             raise ValueError(
@@ -3054,30 +3058,22 @@ class UlensModelFit(object):
         theta_star = 1/2 * 10**logtheta_LD
         return theta_star
 
-    def _get_theta_star_calculation_parameters(self):
-        """
-        Unpacks the parameters required for theta star calculation.
-        """
-        self._no_dataset_1 = self._get_no_of_dataset(self._dataset1)
-        self._no_dataset_2 = self._get_no_of_dataset(self._dataset1)
-        self._A_I = self._model_parameters['theta star calculation']['A_I']
-        self._EVI = self._model_parameters['theta star calculation']['E(V-I)']
-
     def _get_mag_from_fluxes(self):
         """
         Calculates magnitude of the source in 2 bands
         and corrects them for extinction.
         """
-        self._get_theta_star_calculation_parameters()
         fluxes = self._get_fluxes()
-        # change
-        flux1 = fluxes[2 * self._no_dataset_1]
-        flux2 = fluxes[2 * self._no_dataset_2]
+        no_dataset_1 = self._get_no_of_dataset(self._dataset1)
+        no_dataset_2 = self._get_no_of_dataset(self._dataset2)
+
+        flux1 = fluxes[2 * no_dataset_1]
+        flux2 = fluxes[2 * no_dataset_2]
         mag1_S = -2.5 * np.log10(flux1)
         mag2_S = -2.5 * np.log10(flux2)
 
-        color_S_0 = mag1_S - mag2_S - self._EVI
-        mag1_S_0 = color_S_0 + mag2_S - self._A_I
+        color_S_0 = mag1_S - mag2_S - self._reddening
+        mag1_S_0 = color_S_0 + mag2_S - self._extinction
         return color_S_0, mag1_S_0
 
     def _get_color_BB88(self):
