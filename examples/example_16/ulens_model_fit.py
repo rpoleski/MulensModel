@@ -1149,8 +1149,8 @@ class UlensModelFit(object):
         """
         Check values of self._model_parameters['theta star calculation'] and parse that information; set defaults
         """
-        self._check_theta_star_parameters()
         self._get_bands_for_theta_star_calculation()
+        self._check_theta_star_parameters()
         self._set_theta_star_defaults()
 
     def _set_theta_star_defaults(self):
@@ -1163,32 +1163,35 @@ class UlensModelFit(object):
         self._ref_color = 'V-K'
 
     def _get_bands_for_theta_star_calculation(self):
-        extinction = []
+        reddening = []
         for key, value in self._model_parameters['theta star calculation'].items():
             if key[0] == 'E':
-                extinction.append(key)
-                self._reddening = value
-            if key[0] == 'A':
-                self._extinction = value
+                reddening.append(key)
 
-
-        if len(extinction) != 1:
+        if len(reddening) != 1:
             raise ValueError(
                 "Wrong 'theta star calculation' keys: " + str(self._model_parameters['theta star calculation']))
 
-        if extinction[0][:2] != "E(" or extinction[0][-1] != ")":
-            raise ValueError("Wrong format of extinction: " + str(extinction[0]))
-
-        self._base_color = extinction[0][2:-1]
+        if reddening[0][:2] != "E(" or reddening[0][-1] != ")":
+            raise ValueError("Wrong format of extinction: " + str(reddening[0]))
+        self._reddening_label = reddening[0]
+        self._theta_star_required_keys = {reddening[0]}
+        self._base_color = reddening[0][2:-1]
 
         bands = self._base_color.split("-")
         if len(bands) != 2:
             raise ValueError("Wrong format of extinction: " + str(extinction[0]))
 
-        label_1 = self._get_label_format_for_theta_star_calculation(bands[0])
-        self._dataset1 = self._model_parameters['theta star calculation'][label_1]
-        label_2 = self._get_label_format_for_theta_star_calculation(bands[1])
-        self._dataset2 = self._model_parameters['theta star calculation'][label_2]
+        self._label_1 = self._get_label_format_for_theta_star_calculation(bands[0])
+        self._dataset1 = self._model_parameters['theta star calculation'][self._label_1]
+        self._label_2 = self._get_label_format_for_theta_star_calculation(bands[1])
+        self._dataset2 = self._model_parameters['theta star calculation'][self._label_2]
+        self._get_required_theta_star_calculation_keys(bands)
+        
+    def _get_required_theta_star_calculation_keys(self, bands):
+         self._extinction_label = "A_{:}".format(bands[1])
+         keys = ["relation", self._label_1, self._label_2, self._extinction_label]
+         self._theta_star_required_keys.update(keys)
 
     def _get_label_format_for_theta_star_calculation(self, band):
         """change band to a str provided by the user"""
@@ -1198,8 +1201,7 @@ class UlensModelFit(object):
         """
         Check values of self._model_parameters['theta star calculation']
         """
-        compare = {"mag I label", "mag V label", "A_I", "E(V-I)", "relation"}
-        difference = compare.symmetric_difference(self._model_parameters['theta star calculation'])
+        difference = self._theta_star_required_keys.symmetric_difference(self._model_parameters['theta star calculation'])
         if len(difference) > 0:
             raise KeyError("'theta star calculation' settings issue: {:}".format(difference))
 
@@ -1481,7 +1483,7 @@ class UlensModelFit(object):
         """
         Checks the values in the theta star calculation dict
         """
-        for key in ['mag I label', 'mag V label']:
+        for key in [self._label_1, self._label_2]:
             value = self._model_parameters['theta star calculation'][key]
             if value not in self._data_labels:
                 raise KeyError("No dataset of this name: {:}".format(value))
@@ -3066,14 +3068,16 @@ class UlensModelFit(object):
         fluxes = self._get_fluxes()
         no_dataset_1 = self._get_no_of_dataset(self._dataset1)
         no_dataset_2 = self._get_no_of_dataset(self._dataset2)
+        reddening = self._model_parameters['theta star calculation'][self._reddening_label]
+        extinction = self._model_parameters['theta star calculation'][self._extinction_label]
 
         flux1 = fluxes[2 * no_dataset_1]
         flux2 = fluxes[2 * no_dataset_2]
         mag1_S = -2.5 * np.log10(flux1)
         mag2_S = -2.5 * np.log10(flux2)
 
-        color_S_0 = mag1_S - mag2_S - self._reddening
-        mag1_S_0 = color_S_0 + mag2_S - self._extinction
+        color_S_0 = mag1_S - mag2_S - reddening
+        mag1_S_0 = color_S_0 + mag2_S - extinction
         return color_S_0, mag1_S_0
 
     def _get_color_BB88(self):
