@@ -29,6 +29,12 @@ model:
     fixed_fluxes:
         blend:
             OGLE I-band: 0.  # This is the way to fix 0 blending flux
+    #theta star calculation: # Works if there is data in at least 2 filters.
+        #relation: Adams+18
+        #mag I label: OB03235_OGLE.txt
+        #mag V label: 
+        #A_I: 5.0
+        #E(V-I): 0.05
 # Below you can have any combination of parameters allowed by MulensModel
 fixed_parameters:
     t_0_par: 2452848.
@@ -98,6 +104,7 @@ fit_constraints:
         # t_E: Mroz et al. 2020
         pi_E_N: gauss 0.00 0.15
         pi_E_E: gauss 0.00 0.15
+        compare theta star: False
     posterior parsing:
         abs: [u_0]  # After running EMCEE, calculate absolute values of parameters from that list.
         log: [q, rho]  # And log10() of these parameters.
