@@ -199,6 +199,9 @@ class UlensModelFit(object):
             used for calcualtion. Currently this function only uses equations from Adams et al. 2018
             with default coefficients for giant stars and color V-K.
 
+            References:
+              Adams et al. 2018 - https://ui.adsabs.harvard.edu/abs/2018MNRAS.473.3608A/abstract
+
         fixed_parameters: *dict*
             Provide parameters that will be kept fixed during the fitting
             process. This option is often used to set parameter reference
@@ -365,18 +368,14 @@ class UlensModelFit(object):
                 specify gaussian prior for parallax components. Parameters
                 *mean* and *sigma* are floats.
                 
-                ``'compare theta star': True`` - gaussian prior taking into account
-                theta_star parameter calculated by two diffferent methods.
-                Requires parallax and orbital motion int the model and photometry in
-                2 different bands.
+                ``'compare theta star': True`` - gaussian prior taking into account theta_star parameter calculated by
+                two diffferent methods. Assumes the results differ by a normal distribution with 0 mean and relative
+                sigma of 0.05. Requires parallax and orbital motion int the model and photometry in 2 different bands.
 
             References:
-              Mao & Paczynski 1996 -
-              https://ui.adsabs.harvard.edu/abs/1996ApJ...473...57M/abstract
-              Mroz et al. 2017 -
-              https://ui.adsabs.harvard.edu/abs/2017Natur.548..183M/abstract
-              Mroz et al. 2020 -
-              https://ui.adsabs.harvard.edu/abs/2020ApJS..249...16M/abstract
+              Mao & Paczynski 1996 - https://ui.adsabs.harvard.edu/abs/1996ApJ...473...57M/abstract
+              Mroz et al. 2017 - https://ui.adsabs.harvard.edu/abs/2017Natur.548..183M/abstract
+              Mroz et al. 2020 - https://ui.adsabs.harvard.edu/abs/2020ApJS..249...16M/abstract
 
             ``'posterior parsing'`` - additional settings that allow modifying posterior after it's calculated.
                 Possible values:
