@@ -194,6 +194,11 @@ class UlensModelFit(object):
             ``'blend'`` or ``'source'`` and corresponding values are also dicts with dataset label as a key and
             flux value to be set as value.
 
+            ``'theta star calculation'`` - for theta star calculation from fluxes. The value of that ia a dict with
+            keys ``'mag X label'``, ``'mag Y label'``, ``'E(X-Y)'``, ``'A_Y'`` where X and Y are filetrs used for calcualtion.
+            Currently this function uses equations from Adams et al. 2018
+            with default coefficients for giant stars and color V-K.
+
         fixed_parameters: *dict*
             Provide parameters that will be kept fixed during the fitting
             process. This option is often used to set parameter reference
@@ -359,6 +364,11 @@ class UlensModelFit(object):
                 ``'pi_E_N': gauss mean sigma`` (same for ``'pi_E_E'``) -
                 specify gaussian prior for parallax components. Parameters
                 *mean* and *sigma* are floats.
+                
+                ``'compare theta star': True`` - gaussian prior taking into account
+                theta_star parameter calculated by two diffferent methods.
+                Requires parallax and orbital motion int the model and photometry in
+                2 different bands.
 
             References:
               Mao & Paczynski 1996 -
