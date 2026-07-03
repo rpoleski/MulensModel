@@ -3060,7 +3060,7 @@ class UlensModelFit(object):
         if self._model_parameters['theta star calculation']['relation'] == 'Adams+18':
             theta_star_flux = self._get_theta_star_Adams18()
         else:
-            raise TypeError("Currently only Adams+18 accepted in 'theta star calculation''relation'")
+            raise ValueError("Currently only Adams+18 accepted in 'theta star calculation' -> 'relation'")
 
         return theta_star_flux
 
