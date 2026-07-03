@@ -1152,7 +1152,7 @@ class UlensModelFit(object):
         self._get_bands_for_theta_star_calculation()
         self._check_theta_star_parameters()
         self._set_theta_star_defaults()
-
+        
     def _set_theta_star_defaults(self):
         """
         Set default values for theta_* calculation.
@@ -1161,6 +1161,7 @@ class UlensModelFit(object):
         self._model_parameters['theta star calculation']['relative sigma'] = 0.05
         self._ref_stars = 'giants'
         self._ref_color = 'V-K'
+        self._BB88_warn = False
 
     def _get_bands_for_theta_star_calculation(self):
         reddening = []
