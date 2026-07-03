@@ -353,32 +353,27 @@ class MulensData(object):
         """
         if phot_fmt is None:
             phot_fmt = self.input_fmt
+
         if phot_fmt not in ['mag', 'flux']:
             raise ValueError('wrong value of phot_fmt: {:}'.format(phot_fmt))
 
-        (y_value, y_err) = self._get_y_value_y_err(phot_fmt, self.flux,
-                                                   self.err_flux)
+        (y_value, y_err) = self._get_y_value_y_err(phot_fmt, self.flux, self.err_flux)
 
-        self._plot_datapoints(
-            (y_value, y_err), subtract_2450000=subtract_2450000,
-            subtract_2460000=subtract_2460000, show_errorbars=show_errorbars,
-            show_bad=show_bad, **kwargs)
+        self._plot_datapoints((y_value, y_err), subtract_2450000=subtract_2450000, subtract_2460000=subtract_2460000,
+                              show_errorbars=show_errorbars, show_bad=show_bad, **kwargs)
 
         if phot_fmt == 'mag':
             (ymin, ymax) = plt.gca().get_ylim()
             if ymax > ymin:
                 plt.gca().invert_yaxis()
 
-    def _plot_datapoints(
-            self, y, subtract_2450000=False,
-            subtract_2460000=False, show_errorbars=None, show_bad=None,
-            **kwargs):
+    def _plot_datapoints(self, y, subtract_2450000=False, subtract_2460000=False, show_errorbars=None, show_bad=None,
+                         **kwargs):
         """
         plot datapoints while evaluating various contingencies
         """
         (y_value, y_err) = y
-        subtract = PlotUtils.find_subtract(subtract_2450000=subtract_2450000,
-                                           subtract_2460000=subtract_2460000)
+        subtract = PlotUtils.find_subtract(subtract_2450000=subtract_2450000, subtract_2460000=subtract_2460000)
 
         if show_errorbars is None:
             show_errorbars = self.plot_properties.get('show_errorbars', True)
@@ -386,10 +381,8 @@ class MulensData(object):
         if show_bad is None:
             show_bad = self.plot_properties.get('show_bad', False)
 
-        properties = self._set_plot_properties(
-            show_errorbars=show_errorbars, **kwargs)
-        properties_bad = self._set_plot_properties(
-            show_errorbars=show_errorbars, bad=True, **kwargs)
+        properties = self._set_plot_properties(show_errorbars=show_errorbars, **kwargs)
+        properties_bad = self._set_plot_properties(show_errorbars=show_errorbars, bad=True, **kwargs)
         if 'label' in properties_bad.keys():
             properties_bad['label'] = None
 
@@ -400,8 +393,7 @@ class MulensData(object):
 
         if show_errorbars:
             self._mask_negative_errorbars(y_err, kind='good')
-            container = self._plt_errorbar(time_good, y_good,
-                                           y_err[self.good], properties)
+            container = self._plt_errorbar(time_good, y_good, y_err[self.good], properties)
             if show_bad:
                 self._mask_negative_errorbars(y_err, kind='bad')
 
@@ -423,17 +415,14 @@ class MulensData(object):
 
     def _set_plot_properties(self, show_errorbars=True, bad=False, **kwargs):
         """
-        Set plot properties using ``**kwargs`` and
-        `py:plot_properties`. kwargs takes precedent.
+        Set plot properties using ``**kwargs`` and `py:plot_properties`. kwargs takes precedent.
 
         Keywords:
             show_errorbars: *boolean*
-                `True` means plotting done with plt.errorbar. `False`
-                means plotting done with plt.scatter.
+                `True` means plotting done with plt.errorbar. `False` means plotting done with plt.scatter.
 
             bad: *boolean*
-                `True` means marker is default to 'x'. `False` means
-                marker is default to 'o'.
+                `True` means marker is default to 'x'. `False` means marker is default to 'o'.
 
            ``**kwargs``: *dict*
                Keywords accepted by plt.errorbar() or plt.scatter().
@@ -447,9 +436,8 @@ class MulensData(object):
         marker_keys_all = ['marker', 'fmt']
         size_keys_all = ['markersize', 'ms', 's']
 
-        # Some older versions of matplotlib have problems when both
-        # 'fmt' and 'color' are specified. Below we take a list of formats
-        # from Notes section of:
+        # Some older versions of matplotlib have problems when both 'fmt' and 'color' are specified.
+        # Below we take a list of formats from Notes section of:
         # https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html
         if 'fmt' in kwargs:
             for char in ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']:
@@ -457,8 +445,7 @@ class MulensData(object):
                     kwargs['fmt'] = kwargs['fmt'].replace(char, "")
                     kwargs['color'] = char
 
-        properties = {}
-
+        properties = dict()
         # Overwrite dataset settings (i.e., self.plot_properties) with kwargs.
         for dictionary in [self.plot_properties, kwargs]:
             for (key, value) in dictionary.items():

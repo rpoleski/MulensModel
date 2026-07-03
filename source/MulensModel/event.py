@@ -321,10 +321,8 @@ class Event(object):
 
         return scaled_fluxes
 
-    def plot_data(
-            self, phot_fmt='mag', data_ref=None, show_errorbars=None,
-            show_bad=None,
-            subtract_2450000=False, subtract_2460000=False, **kwargs):
+    def plot_data(self, phot_fmt='mag', data_ref=None, show_errorbars=None, show_bad=None,
+                  subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the data scaled to the model.
 
@@ -378,11 +376,10 @@ class Event(object):
         # Get fluxes for the reference dataset
         scaled_data = self.get_scaled_fluxes(data_ref=data_ref)
         for data, (flux, err_flux) in zip(self.datasets, scaled_data):
-            (y_value, y_err) = PlotUtils.get_y_value_y_err(
-                phot_fmt, flux, err_flux)
+            (y_value, y_err) = PlotUtils.get_y_value_y_err(phot_fmt, flux, err_flux)
+            # RP: Below we call private method of another class, which should not be done.
             data._plot_datapoints(
-                (y_value, y_err), subtract_2450000=subtract_2450000,
-                subtract_2460000=subtract_2460000,
+                (y_value, y_err), subtract_2450000=subtract_2450000, subtract_2460000=subtract_2460000,
                 show_errorbars=show_errorbars, show_bad=show_bad, **kwargs)
 
             t_min = min(t_min, np.min(data.time))
@@ -390,8 +387,7 @@ class Event(object):
 
         # Plot properties
         plt.ylabel('Magnitude')
-        plt.xlabel(
-            PlotUtils.find_subtract_xlabel(subtract_2450000, subtract_2460000))
+        plt.xlabel(PlotUtils.find_subtract_xlabel(subtract_2450000, subtract_2460000))
         plt.xlim(t_min-subtract, t_max-subtract)
 
         (ymin, ymax) = plt.gca().get_ylim()
@@ -465,16 +461,13 @@ class Event(object):
         self._set_default_colors()
 
         for dataset in self.datasets:
-            # RP: Call to MulensData private function should be replaced by
-            # public functions.
+            # RP: Call to MulensData private function should be replaced by public functions.
             properties = dataset._set_plot_properties()
-            self.model.plot_source(
-                times=dataset.time, color=properties['color'], **kwargs)
+            self.model.plot_source(times=dataset.time, color=properties['color'], **kwargs)
 
     def _set_default_colors(self):
         """
-        If the user has not specified a color for a dataset, assign
-        one.
+        If the user has not specified a color for a dataset, assign one.
         """
         colors = [cycle['color'] for cycle in rcParams['axes.prop_cycle']]
 
