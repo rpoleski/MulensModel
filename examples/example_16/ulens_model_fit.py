@@ -195,8 +195,8 @@ class UlensModelFit(object):
             flux value to be set as value.
 
             ``'theta star calculation'`` - for theta star calculation from fluxes. The value of that ia a dict with
-            keys ``'mag X label'``, ``'mag Y label'``, ``'E(X-Y)'``, ``'A_Y'`` where X and Y are filetrs used for calcualtion.
-            Currently this function uses equations from Adams et al. 2018
+            keys ``'mag X label'``, ``'mag Y label'``, ``'E(X-Y)'``, ``'A_Y'``, ``{'relation': Adams+18}`` where X and Y are filetrs
+            used for calcualtion. Currently this function only uses equations from Adams et al. 2018
             with default coefficients for giant stars and color V-K.
 
         fixed_parameters: *dict*
