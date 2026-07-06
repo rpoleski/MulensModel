@@ -1,0 +1,43 @@
+photometry_files:
+    - {file_name: phot_ob120838_OGLE_I.dat, plot_properties: {color: deeppink}}
+    - {file_name: phot_ob120838_OGLE_V.dat, plot_properties: {color: slateblue}}
+model:
+    default method: VBBL
+    theta star calculation:
+        relation: Adams+18
+        mag I label: phot_ob120838_OGLE_I.dat
+        mag V label: phot_ob120838_OGLE_V.dat
+        A_I: 1.205 
+        E(V-I): 0.943
+extra_parameters: ['theta_E']
+starting_parameters:
+    t_0: gauss 2456145.909 0.00001
+    u_0: gauss 0.373 0.00001
+    t_E: gauss 40.44 0.00005
+    rho: gauss 0.00595 0.000002
+    s: gauss 2.153 0.00001
+    q: gauss 0.000395 0.00001
+    alpha: gauss 0.875 0.00001
+min_values:
+    t_0: 2456140.
+    u_0: -1.0
+    t_E: 0.0
+    rho: 0.0
+    q: 0.0
+    s: 0.0
+    alpha: -20.
+max_values:
+    t_0: 2456150.
+    u_0: 1.0
+    t_E: 400.0
+    rho: 0.1
+    q: 5.0
+    s: 4.0
+    alpha: 400.
+fitting_parameters:
+    n_walkers: 50
+    n_steps: 2000
+    n_burn: 10
+plots:
+    triangle:
+        file: ob120838_triangle.png

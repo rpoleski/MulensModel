@@ -2891,7 +2891,7 @@ class UlensModelFit(object):
         if self._extra_parameters is not None:
             for par in self._extra_parameters:
                 if par == 'theta_E':
-                    extras.append(self._theta_E)
+                    extras.append(self._get_theta_star_from_flux()*self._model.parameters.rho)
                 else:
                     try:
                         extras.append(getattr(self._model.parameters, par))
@@ -3077,7 +3077,6 @@ class UlensModelFit(object):
         Q_0_S = self._get_mag_from_fluxes()[1]
         logtheta_LD = self._get_theta_LD_Adams18(PQ_0_S) - 0.2*Q_0_S
         theta_star = 1/2 * 10**logtheta_LD
-        self._theta_E = theta_star/self._model.parameters.rho
         return theta_star
 
     def _get_mag_from_fluxes(self):
@@ -3090,8 +3089,8 @@ class UlensModelFit(object):
         no_dataset_2 = self._get_no_of_dataset(self._dataset2)
         reddening = self._model_parameters['theta star calculation'][self._reddening_label]
         extinction = self._model_parameters['theta star calculation'][self._extinction_label]
-
-        flux1 = fluxes[2 * no_dataset_1]
+        # to include binary sources correct the 2 lines below 
+        flux1 = fluxes[2 * no_dataset_1] 
         flux2 = fluxes[2 * no_dataset_2]
         mag1_S = -2.5 * np.log10(flux1)
         mag2_S = -2.5 * np.log10(flux2)
@@ -3144,8 +3143,8 @@ class UlensModelFit(object):
         kappa = 8.14385328  # [mas/M_sun]
         pi_E = self._model.parameters.pi_E_mag
         a = self._model.parameters.lens_semimajor_axis
-        self._theta_E = period/(kappa*pi_E)**(1/2) * a**(3/2)
-        theta_star = self._theta_E * self._model.parameters.rho
+        theta_E = period/(kappa*pi_E)**(1/2) * a**(3/2)
+        theta_star = theta_E * self._model.parameters.rho
         return theta_star
 
     def _get_ln_normal(self, x, sigma):
