@@ -195,9 +195,9 @@ class UlensModelFit(object):
             flux value to be set as value.
 
             ``'theta star calculation'`` - for theta star calculation from fluxes. The value of that ia a dict with
-            keys ``'mag X label'``, ``'mag Y label'``, ``'E(X-Y)'``, ``'A_Y'``, ``{'relation': Adams+18}`` where X and Y are filetrs
-            used for calcualtion. Currently this function only uses equations from Adams et al. 2018
-            with default coefficients for giant stars and color V-K.
+            keys ``'mag X label'``, ``'mag Y label'``, ``'E(X-Y)'``, ``'A_Y'``, ``{'relation': Adams+18}``
+            where X and Y are filetrs used for calcualtion. Currently this function only uses equations
+            from Adams et al. 2018 with default coefficients for giant stars and color V-K.
 
             References:
               Adams et al. 2018 - https://ui.adsabs.harvard.edu/abs/2018MNRAS.473.3608A/abstract
@@ -367,7 +367,7 @@ class UlensModelFit(object):
                 ``'pi_E_N': gauss mean sigma`` (same for ``'pi_E_E'``) -
                 specify gaussian prior for parallax components. Parameters
                 *mean* and *sigma* are floats.
-                
+
                 ``'compare theta star': True`` - gaussian prior taking into account theta_star parameter calculated by
                 two diffferent methods. Assumes the results differ by a normal distribution with 0 mean and relative
                 sigma of 0.05. Requires parallax and orbital motion int the model and photometry in 2 different bands.
@@ -1161,7 +1161,7 @@ class UlensModelFit(object):
         self._get_bands_for_theta_star_calculation()
         self._check_theta_star_parameters()
         self._set_theta_star_defaults()
-        
+
     def _set_theta_star_defaults(self):
         """
         Set default values for theta_* calculation.
