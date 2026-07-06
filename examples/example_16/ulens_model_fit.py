@@ -607,6 +607,7 @@ class UlensModelFit(object):
             s_z='s_{z}', ds_z_dt='ds_{z}/dt', a_s='a_{s}',
             lens_semimajor_axis='a', lens_period='P',
             lens_eccentricity='e', lens_inclination='I',
+            theta_E='\\theta_{E}',
             x_caustic_in='x_{\\rm caustic,in}',
             x_caustic_out='x_{\\rm caustic,out}',
             t_caustic_in='t_{\\rm caustic,in}',
@@ -2889,10 +2890,13 @@ class UlensModelFit(object):
         extras = []
         if self._extra_parameters is not None:
             for par in self._extra_parameters:
-                try:
-                    extras.append(getattr(self._model.parameters, par))
-                except Exception:
-                    raise AttributeError("Wrong parameter name in extra parameters: {:}".format(par))
+                if par == 'theta_E':
+                    extras.append(self._theta_E)
+                else:
+                    try:
+                        extras.append(getattr(self._model.parameters, par))
+                    except Exception:
+                        raise AttributeError("Wrong parameter name in extra parameters: {:}".format(par))
         return extras
 
     def _set_model_parameters(self, theta):
@@ -3073,6 +3077,7 @@ class UlensModelFit(object):
         Q_0_S = self._get_mag_from_fluxes()[1]
         logtheta_LD = self._get_theta_LD_Adams18(PQ_0_S) - 0.2*Q_0_S
         theta_star = 1/2 * 10**logtheta_LD
+        self._theta_E = theta_star/self._model.parameters.rho
         return theta_star
 
     def _get_mag_from_fluxes(self):
@@ -3139,8 +3144,8 @@ class UlensModelFit(object):
         kappa = 8.14385328  # [mas/M_sun]
         pi_E = self._model.parameters.pi_E_mag
         a = self._model.parameters.lens_semimajor_axis
-        theta_E = period/(kappa*pi_E)**(1/2) * a**(3/2)
-        theta_star = theta_E * self._model.parameters.rho
+        self._theta_E = period/(kappa*pi_E)**(1/2) * a**(3/2)
+        theta_star = self._theta_E * self._model.parameters.rho
         return theta_star
 
     def _get_ln_normal(self, x, sigma):

@@ -10,7 +10,7 @@ model:
         mag V label: phot_KMT_V.dat
         A_I: 5.0
         E(V-I): 0.05
-
+extra_parameters: ['theta_E']
 fixed_parameters:
     t_0_par: 2458640.5074665053
 starting_parameters:
