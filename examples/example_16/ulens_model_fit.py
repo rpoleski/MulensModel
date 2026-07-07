@@ -2891,7 +2891,7 @@ class UlensModelFit(object):
         if self._extra_parameters is not None:
             for par in self._extra_parameters:
                 if par == 'theta_E':
-                    extras.append(self._get_theta_star_from_flux()*self._model.parameters.rho)
+                    extras.append(self._get_theta_star_from_flux() / self._model.parameters.rho)
                 else:
                     try:
                         extras.append(getattr(self._model.parameters, par))
@@ -3092,8 +3092,8 @@ class UlensModelFit(object):
         # to include binary sources correct the 2 lines below 
         flux1 = fluxes[2 * no_dataset_1] 
         flux2 = fluxes[2 * no_dataset_2]
-        mag1_S = -2.5 * np.log10(flux1)
-        mag2_S = -2.5 * np.log10(flux2)
+        mag1_S = mm.Utils.get_mag_from_flux(flux1)
+        mag2_S = mm.Utils.get_mag_from_flux(flux2)
 
         color_S_0 = mag1_S - mag2_S - reddening
         mag1_S_0 = color_S_0 + mag2_S - extinction
