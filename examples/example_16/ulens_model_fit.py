@@ -3114,7 +3114,7 @@ class UlensModelFit(object):
         ref_stars_and_base_color = ref_stars[self._base_color]
 
         if color_in < ref_stars_and_base_color[0] or color_in > ref_stars_and_base_color[-1]:
-            if not self._BB88_warn:
+            if not self._BB88_warn: # ZB change the warning mess
                 warnings.warn('Input value of color out of bounds, the output will default to the first or last value')
                 self._BB88_warn = True
         if self._base_color == self._ref_color:
