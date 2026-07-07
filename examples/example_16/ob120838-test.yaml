@@ -41,3 +41,8 @@ fitting_parameters:
 plots:
     triangle:
         file: ob120838_triangle.png
+    best model:
+        file: ob120838_model.png
+        time range: 2456070 2456200
+    trajectory:
+        file: ob120838_trajectory.png
