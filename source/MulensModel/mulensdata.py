@@ -312,10 +312,31 @@ class MulensData(object):
         ``color``, ``marker``, ``label``, ``alpha``, ``zorder``,
         ``markersize``, or ``visible``.
 
-        See :py:class:`~MulensModel.mulensdata.MulensData`
-        for more information.
+        See :py:class:`~MulensModel.mulensdata.MulensData` for more information.
         """
         return self._plot_properties
+
+    @property
+    def plot_color(self):
+        """
+        *str*
+
+        Get color provided in :py:attr:`plot_properties`.
+        Note that it can be ``color`` or ``c`` key, or can be encoded under ``fmt`` key.
+        *None* if color is not specified.
+        """
+        if 'color' in self.plot_properties:
+            return self.plot_properties['color']
+        elif 'c' in self.plot_properties:
+            return self.plot_properties['c']
+        elif 'fmt' in self.plot_properties:
+            for char in ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']:
+                if char in self.plot_properties['fmt']:
+                    return char
+
+            return None
+        else:
+            return None
 
     def plot(self, phot_fmt=None, show_errorbars=None, show_bad=None,
              subtract_2450000=False, subtract_2460000=False, **kwargs):

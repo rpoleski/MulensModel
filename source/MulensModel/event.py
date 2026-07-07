@@ -328,8 +328,7 @@ class Event(object):
 
         Keywords (all optional):
             phot_fmt: *string* ('mag', 'flux')
-                Whether to plot the data in magnitudes or in flux. Default
-                is 'mag'.
+                Whether to plot the data in magnitudes or in flux. Default is 'mag'.
 
             data_ref: *int* or *MulensData*
                 If data_ref is not specified, uses :py:obj:`~data_ref`.
@@ -452,18 +451,14 @@ class Event(object):
     def plot_source_for_datasets(self, **kwargs):
         """
         Plot source positions for all linked datasets.
-        See :py:func:`MulensModel.model.Model.plot_source()` for
-        details.
+        See :py:func:`MulensModel.model.Model.plot_source()` for details.
 
-        Note: plots all points in datasets (including ones flagged as bad)
-        using the same marker.
+        Note: plots all points in datasets (including ones flagged as bad) using the same marker.
         """
         self._set_default_colors()
 
         for dataset in self.datasets:
-            # RP: Call to MulensData private function should be replaced by public functions.
-            properties = dataset._set_plot_properties()
-            self.model.plot_source(times=dataset.time, color=properties['color'], **kwargs)
+            self.model.plot_source(times=dataset.time, color=dataset.plot_color, **kwargs)
 
     def _set_default_colors(self):
         """
@@ -473,9 +468,9 @@ class Event(object):
 
         # Below we change the order of colors to most distinct first.
         used_colors = []
-        for data in self._datasets:
-            if 'color' in data.plot_properties.keys():
-                used_colors.append(data.plot_properties['color'])
+        for data in self.datasets:
+            if data.plot_color is not None:
+                used_colors.append(data.plot_color)
 
         if len(used_colors) == len(self._datasets):
             return
@@ -483,10 +478,7 @@ class Event(object):
         if len(used_colors) == 0:
             differences = None
         else:
-            diffs = np.array(
-                [np.min(
-                    PlotUtils.get_color_differences(used_colors, c))
-                 for c in colors])
+            diffs = np.array([np.min(PlotUtils.get_color_differences(used_colors, c)) for c in colors])
             indexes = np.argsort(diffs)[::-1]
             colors = [colors[i] for i in indexes]
             differences = diffs[indexes]
@@ -494,11 +486,10 @@ class Event(object):
         # Assign colors when needed.
         color_index = 0
         for data in self._datasets:
-            if 'color' not in data.plot_properties.keys():
+            if data.plot_color is None:
                 if differences is not None:
                     if differences[color_index] < 0.35:
-                        msg = ('The color assign to one of the datasets in ' +
-                               'automated way (' + colors[color_index] +
+                        msg = ('The color assign to one of the datasets in automated way (' + colors[color_index] +
                                ') is very similar to already used color')
                         warnings.warn(msg, UserWarning)
 
@@ -506,8 +497,7 @@ class Event(object):
                 color_index += 1
                 if color_index == len(colors):
                     color_index = 0
-                    msg = ('Too many datasets without colors assigned - ' +
-                           'same color will be used for different datasets')
+                    msg = 'Too many datasets without colors assigned - same color will be used for different datasets'
                     warnings.warn(msg, UserWarning)
 
     def get_flux_for_dataset(self, dataset):

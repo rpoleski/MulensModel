@@ -211,13 +211,13 @@ def test_repr_5():
 
 def test_repr_6():
     """
-    Check if one can print dataset nicely - color
+    Check if one can print dataset nicely and if plot_color is set properly.
     """
-    data = mm.MulensData(file_name=SAMPLE_FILE_01,
-                         plot_properties={'color': 'red'})
-    expected = "{0:25} n_epochs ={1:>5}, n_bad ={2:>5}, color = red".format(
-        "phot_ob08092_O4.dat:", 383, 0)
+    data = mm.MulensData(file_name=SAMPLE_FILE_01, plot_properties={'color': 'red'})
+    expected = "{0:25} n_epochs ={1:>5}, n_bad ={2:>5}, color = red".format("phot_ob08092_O4.dat:", 383, 0)
+
     assert str(data) == expected
+    assert data.plot_color == 'red'
 
 
 def test_repr_7():
@@ -230,3 +230,18 @@ def test_repr_7():
         "phot_ob08092_O4.dat:", 383, 0)
     expected += " Errorbar scaling: factor = 2.34 minimum = 0.012"
     assert str(data) == expected
+
+
+def test_plot_color():
+    """
+    Check if plot_color is set properly.
+    """
+    data_1 = mm.MulensData(file_name=SAMPLE_FILE_01, plot_properties={'c': 'g'})
+    data_2 = mm.MulensData(file_name=SAMPLE_FILE_01, plot_properties={'fmt': 'bo'})
+    data_3 = mm.MulensData(file_name=SAMPLE_FILE_01, plot_properties={'fmt': 'o'})
+    data_4 = mm.MulensData(file_name=SAMPLE_FILE_01)
+
+    assert data_1.plot_color == 'g'
+    assert data_2.plot_color == 'b'
+    assert data_3.plot_color is None
+    assert data_4.plot_color is None
