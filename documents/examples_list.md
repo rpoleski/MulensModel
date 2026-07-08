@@ -35,6 +35,7 @@ Tutorials MulensModel:
 * [Example 25](../examples/example_25_multiple_sources/) - more than 2 sources,
 * [Example 26](../examples/example_26_xallarap.py) - how one defines various xallarap models,
 * [Example 27](../examples/example_27_RTM_to_MM.py) - translation of parameters from [RTModel](https://github.com/valboz/RTModel) conventions to MulensModel,
+* [Example 28](../examples/example_28/) - plot trajectory based on settings,
 * Three files producing plots presented in paper describing MulensModel: [plots_1.py](../examples/plots_1.py), [plots_2.py](../examples/plots_2.py), and [plots_3.py](../examples/plots_3.py).
 
 [MulensModel documentation](https://rpoleski.github.io/MulensModel/) includes description of input and output of every function. 
