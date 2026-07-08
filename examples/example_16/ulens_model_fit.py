@@ -3058,8 +3058,8 @@ class UlensModelFit(object):
         Reference: https://ui.adsabs.harvard.edu/abs/2018MNRAS.473.3608A/abstract
         """
         if self._model.n_sources != 1:
-            raise NotImplementedError("Currently calculating get_theta_star_from_flux only works or a single source\
-                                                    because _get_mag_from_fluxes does not consider binary sources.")
+            raise NotImplementedError("""Currently calculating get_theta_star_from_flux only works or a single source
+                                     because _get_mag_from_fluxes does not consider binary sources.""")
 
         if self._model_parameters['theta star calculation']['relation'] == 'Adams+18':
             theta_star_flux = self._get_theta_star_Adams18()
@@ -3114,8 +3114,10 @@ class UlensModelFit(object):
         ref_stars_and_base_color = ref_stars[self._base_color]
 
         if color_in < ref_stars_and_base_color[0] or color_in > ref_stars_and_base_color[-1]:
-            if not self._BB88_warn: # ZB change the warning mess
-                warnings.warn('Input value of color out of bounds, the output will default to the first or last value')
+            if not self._BB88_warn:
+                msg = ("Input value of color: {:} out of bounds, the output color: {:} will default "
+                       "to the first or last value from table 3 Bessell and Brett 1988".format(self._base_color, self._ref_color))
+                warnings.warn(msg)
                 self._BB88_warn = True
         if self._base_color == self._ref_color:
             return color_in

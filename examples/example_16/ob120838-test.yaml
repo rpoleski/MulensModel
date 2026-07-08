@@ -17,7 +17,7 @@ starting_parameters:
     rho: gauss 0.00595 0.000002
     s: gauss 2.153 0.00001
     q: gauss 0.000395 0.00001
-    alpha: gauss 0.875 0.00001
+    alpha: gauss 12.66 0.00001
 min_values:
     t_0: 2456140.
     u_0: -1.0
