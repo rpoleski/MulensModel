@@ -35,9 +35,9 @@ max_values:
     s: 4.0
     alpha: 400.
 fitting_parameters:
-    n_walkers: 50
-    n_steps: 2000
-    n_burn: 10
+    n_walkers: 15
+    n_steps: 30
+    n_burn: 0
 plots:
     triangle:
         file: ob120838_triangle.png

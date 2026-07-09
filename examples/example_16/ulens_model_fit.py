@@ -3074,7 +3074,7 @@ class UlensModelFit(object):
         equations 2 and 3 from Adams et al. 2018.
         """
         PQ_0_S = self._get_color_BB88()
-        Q_0_S = self._get_mag_from_fluxes()[1]
+        Q_0_S = self._get_mag_from_fluxes()[1] - PQ_0_S
         logtheta_LD = self._get_theta_LD_Adams18(PQ_0_S) - 0.2*Q_0_S
         theta_star = 1/2 * 10**logtheta_LD
         return theta_star
@@ -3090,11 +3090,10 @@ class UlensModelFit(object):
         reddening = self._model_parameters['theta star calculation'][self._reddening_label]
         extinction = self._model_parameters['theta star calculation'][self._extinction_label]
         # to include binary sources correct the 2 lines below 
-        flux1 = fluxes[2 * no_dataset_1] 
+        flux1 = fluxes[2 * no_dataset_1]
         flux2 = fluxes[2 * no_dataset_2]
         mag1_S = mm.Utils.get_mag_from_flux(flux1)
         mag2_S = mm.Utils.get_mag_from_flux(flux2)
-
         color_S_0 = mag1_S - mag2_S - reddening
         mag1_S_0 = color_S_0 + mag2_S - extinction
         return color_S_0, mag1_S_0
@@ -3112,7 +3111,6 @@ class UlensModelFit(object):
         ref_stars = colors_BB[self._ref_stars]
         ref_stars_and_ref_color = ref_stars[self._ref_color]
         ref_stars_and_base_color = ref_stars[self._base_color]
-
         if color_in < ref_stars_and_base_color[0] or color_in > ref_stars_and_base_color[-1]:
             if not self._BB88_warn:
                 msg = ("Input value of color: {:} out of bounds, the output color: {:} will default "
