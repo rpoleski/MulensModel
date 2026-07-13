@@ -2890,13 +2890,10 @@ class UlensModelFit(object):
         extras = []
         if self._extra_parameters is not None:
             for par in self._extra_parameters:
-                if par == 'theta_E':
-                    extras.append(self._get_theta_star_from_flux() / self._model.parameters.rho)
-                else:
-                    try:
-                        extras.append(getattr(self._model.parameters, par))
-                    except Exception:
-                        raise AttributeError("Wrong parameter name in extra parameters: {:}".format(par))
+                try:
+                    extras.append(getattr(self._model.parameters, par))
+                except Exception:
+                    raise AttributeError("Wrong parameter name in extra parameters: {:}".format(par))
         return extras
 
     def _set_model_parameters(self, theta):
@@ -3089,7 +3086,7 @@ class UlensModelFit(object):
         no_dataset_2 = self._get_no_of_dataset(self._dataset2)
         reddening = self._model_parameters['theta star calculation'][self._reddening_label]
         extinction = self._model_parameters['theta star calculation'][self._extinction_label]
-        # to include binary sources correct the 2 lines below 
+        # to include binary sources correct the 2 lines below
         flux1 = fluxes[2 * no_dataset_1]
         flux2 = fluxes[2 * no_dataset_2]
         mag1_S = mm.Utils.get_mag_from_flux(flux1)
@@ -3114,7 +3111,8 @@ class UlensModelFit(object):
         if color_in < ref_stars_and_base_color[0] or color_in > ref_stars_and_base_color[-1]:
             if not self._BB88_warn:
                 msg = ("Input value of color: {:} out of bounds, the output color: {:} will default "
-                       "to the first or last value from table 3 Bessell and Brett 1988".format(self._base_color, self._ref_color))
+                       "to the first or last value from table 3"
+                       "Bessell and Brett 1988".format(self._base_color, self._ref_color))
                 warnings.warn(msg)
                 self._BB88_warn = True
         if self._base_color == self._ref_color:
