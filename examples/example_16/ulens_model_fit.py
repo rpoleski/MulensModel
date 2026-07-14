@@ -194,10 +194,10 @@ class UlensModelFit(object):
             ``'blend'`` or ``'source'`` and corresponding values are also dicts with dataset label as a key and
             flux value to be set as value.
 
-            ``'theta star calculation'`` - for theta star calculation from fluxes. The value of that ia a dict with
-            keys ``'mag X label'``, ``'mag Y label'``, ``'E(X-Y)'``, ``'A_Y'``, ``{'relation': Adams+18}``
+            ``'theta star calculation'`` - for calculation of theta_star based on fluxes. The value is a dict with
+            keys ``'mag X label'``, ``'mag Y label'``, ``'E(X-Y)'``, ``'A_Y'``, and ``{'relation': Adams+18}``
             where X and Y are filetrs used for calcualtion. Currently this function only uses equations
-            from Adams et al. 2018 with default coefficients for giant stars and color V-K.
+            from Adams et al. 2018 with default coefficients for giant stars and (V-K) color.
 
             References:
               Adams et al. 2018 - https://ui.adsabs.harvard.edu/abs/2018MNRAS.473.3608A/abstract
@@ -1174,6 +1174,9 @@ class UlensModelFit(object):
         self._BB88_warn = False
 
     def _get_bands_for_theta_star_calculation(self):
+        """
+        Find what are the bandpasses used for theta_* calculation
+        """
         reddening = []
         for key, value in self._model_parameters['theta star calculation'].items():
             if key[0] == 'E':
