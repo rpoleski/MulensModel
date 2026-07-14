@@ -3131,18 +3131,23 @@ class UlensModelFit(object):
         ref_color = ref_stars[self._ref_color]
         out = ref_color['c0'] + ref_color['c1']*x
         return out
-
-    def _get_theta_star(self):
+    
+    def _get_theta_E(self):
         """
-        Calculates theta_star from third Kepler law
-        and the theta_E lens mass dependency.
+        Calculates theta_E from third Kepler law.
         """
         period = self._model.parameters.lens_period
         kappa = 8.14385328  # [mas/M_sun]
         pi_E = self._model.parameters.pi_E_mag
         a = self._model.parameters.lens_semimajor_axis
         theta_E = period/((kappa*pi_E)**(1/2) * a**(3/2))
-        theta_star = theta_E * self._model.parameters.rho
+        return theta_E
+
+    def _get_theta_star(self):
+        """
+        Calculates theta_star from theta_E and rho.
+        """
+        theta_star = self._get_theta_E() * self._model.parameters.rho
         return theta_star
 
     def _get_ln_normal(self, x, sigma):
