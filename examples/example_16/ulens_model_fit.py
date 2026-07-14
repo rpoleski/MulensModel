@@ -3141,7 +3141,7 @@ class UlensModelFit(object):
         kappa = 8.14385328  # [mas/M_sun]
         pi_E = self._model.parameters.pi_E_mag
         a = self._model.parameters.lens_semimajor_axis
-        theta_E = period/(kappa*pi_E)**(1/2) * a**(3/2)
+        theta_E = period/((kappa*pi_E)**(1/2) * a**(3/2))
         theta_star = theta_E * self._model.parameters.rho
         return theta_star
 
