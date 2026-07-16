@@ -57,13 +57,12 @@ class Horizons(object):
         if file_type == 'Horizons':
             self._read_horizons_file()
         elif file_type == 'np.array':
-            (time, x, y, z) = np.loadtxt(
-                self._file_properties['file_name'],
-                usecols=(0, 1, 2, 3), unpack=True)
+            (time, x, y, z) = np.loadtxt(self._file_properties['file_name'], usecols=(0, 1, 2, 3), unpack=True)
             self._time = time
             key = 'representation'
             if int(astropy_version[0]) >= 4:
                 key = "representation_type"
+
             self._xyz = SkyCoord(x=x, y=y, z=z, **{key: 'cartesian'})
         else:
             raise ValueError("unexpected file_type: " + str(file_type))
@@ -97,12 +96,10 @@ class Horizons(object):
         self._get_start_end()
         data = np.genfromtxt(
             self._file_properties['file_name'],
-            dtype=[('date', 'S17'), ('ra_dec', 'S23'), ('distance', 'f8'),
-                   ('foo', 'S23')],
+            dtype=[('date', 'S17'), ('ra_dec', 'S23'), ('distance', 'f8'), ('foo', 'S23')],
             delimiter=[18, 29, 17, 24], autostrip=True,
             skip_header=self._file_properties['start_ind'] + 1,
-            skip_footer=(self._file_properties['line_count'] -
-                         self._file_properties['stop_ind']))
+            skip_footer=self._file_properties['line_count'] - self._file_properties['stop_ind'])
 
         # Fix time format
         for (i, date) in enumerate(data['date']):
@@ -111,10 +108,8 @@ class Horizons(object):
         # Currently we assume HORIZONS works in UTC.
         dates = [text.decode('UTF-8') for text in data['date']]
         self._time = Time(dates, format='iso', scale='utc').tdb.jd
-
         ra_dec = [text.decode('UTF-8') for text in data['ra_dec']]
-        xyz = SkyCoord(
-            ra_dec, distance=data['distance'], unit=(u.hourangle, u.deg, u.au))
+        xyz = SkyCoord(ra_dec, distance=data['distance'], unit=(u.hourangle, u.deg, u.au))
         self._xyz = xyz.cartesian
 
     @property

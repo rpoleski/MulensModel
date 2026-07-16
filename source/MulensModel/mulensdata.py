@@ -6,6 +6,8 @@ import warnings
 from MulensModel.utils import Utils, PlotUtils
 from MulensModel.satelliteskycoord import SatelliteSkyCoord
 
+PlotUtils.apply_defaults()
+
 
 class MulensData(object):
     """
@@ -16,8 +18,8 @@ class MulensData(object):
 
         data = MulensData(data_list=[[Dates], [Magnitudes], [Errors]])
 
-    **Parallax calculations assume that the dates supplied are
-    BJD_TDB. See** :py:class:`~MulensModel.trajectory.Trajectory`. If
+    **Parallax calculations assume that the dates supplied are BJD_TDB. See**
+    :py:class:`~MulensModel.trajectory.Trajectory`. If
     you aren't using parallax, the time system shouldn't matter as
     long as it is consistent across all MulensData and Model objects.
     If you have multiple datasets, then you also need multiple instances
@@ -110,15 +112,12 @@ class MulensData(object):
 
     """
 
-    def __init__(self, data_list=None, file_name=None,
-                 phot_fmt="mag", chi2_fmt="flux",
-                 ephemerides_file=None, add_2450000=False,
-                 add_2460000=False, bandpass=None, bad=None, good=None,
-                 plot_properties=None, **kwargs):
+    def __init__(self, data_list=None, file_name=None, phot_fmt="mag", chi2_fmt="flux", ephemerides_file=None,
+                 add_2450000=False, add_2460000=False, bandpass=None, bad=None, good=None, plot_properties=None,
+                 **kwargs):
 
         self._n_epochs = None
         self._horizons = None
-        self._satellite_skycoord = None
         self._errorbars_scale = None
 
         self._init_keys = {'add245': add_2450000, 'add246': add_2460000}
@@ -145,6 +144,7 @@ class MulensData(object):
 
         # Set up satellite properties (if applicable)
         self._ephemerides_file = ephemerides_file
+        self._satellite_skycoord = None
 
     def __repr__(self):
         name = self._get_name()
@@ -175,7 +175,7 @@ class MulensData(object):
     def _get_name(self):
         """extract the name of dataset"""
         if 'label' in self.plot_properties:
-            name = self.plot_properties['label']
+            name = str(self.plot_properties['label'])
         elif self._file_name is not None:
             name = self._file_name
         else:
@@ -312,10 +312,31 @@ class MulensData(object):
         ``color``, ``marker``, ``label``, ``alpha``, ``zorder``,
         ``markersize``, or ``visible``.
 
-        See :py:class:`~MulensModel.mulensdata.MulensData`
-        for more information.
+        See :py:class:`~MulensModel.mulensdata.MulensData` for more information.
         """
         return self._plot_properties
+
+    @property
+    def plot_color(self):
+        """
+        *str*
+
+        Get color provided in :py:attr:`plot_properties`.
+        Note that it can be ``color`` or ``c`` key, or can be encoded under ``fmt`` key.
+        *None* if color is not specified.
+        """
+        if 'color' in self.plot_properties:
+            return self.plot_properties['color']
+        elif 'c' in self.plot_properties:
+            return self.plot_properties['c']
+        elif 'fmt' in self.plot_properties:
+            for char in ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']:
+                if char in self.plot_properties['fmt']:
+                    return char
+
+            return None
+        else:
+            return None
 
     def plot(self, phot_fmt=None, show_errorbars=None, show_bad=None,
              subtract_2450000=False, subtract_2460000=False, **kwargs):
@@ -353,32 +374,27 @@ class MulensData(object):
         """
         if phot_fmt is None:
             phot_fmt = self.input_fmt
+
         if phot_fmt not in ['mag', 'flux']:
             raise ValueError('wrong value of phot_fmt: {:}'.format(phot_fmt))
 
-        (y_value, y_err) = self._get_y_value_y_err(phot_fmt, self.flux,
-                                                   self.err_flux)
+        (y_value, y_err) = self._get_y_value_y_err(phot_fmt, self.flux, self.err_flux)
 
-        self._plot_datapoints(
-            (y_value, y_err), subtract_2450000=subtract_2450000,
-            subtract_2460000=subtract_2460000, show_errorbars=show_errorbars,
-            show_bad=show_bad, **kwargs)
+        self._plot_datapoints((y_value, y_err), subtract_2450000=subtract_2450000, subtract_2460000=subtract_2460000,
+                              show_errorbars=show_errorbars, show_bad=show_bad, **kwargs)
 
         if phot_fmt == 'mag':
             (ymin, ymax) = plt.gca().get_ylim()
             if ymax > ymin:
                 plt.gca().invert_yaxis()
 
-    def _plot_datapoints(
-            self, y, subtract_2450000=False,
-            subtract_2460000=False, show_errorbars=None, show_bad=None,
-            **kwargs):
+    def _plot_datapoints(self, y, subtract_2450000=False, subtract_2460000=False, show_errorbars=None, show_bad=None,
+                         **kwargs):
         """
         plot datapoints while evaluating various contingencies
         """
         (y_value, y_err) = y
-        subtract = PlotUtils.find_subtract(subtract_2450000=subtract_2450000,
-                                           subtract_2460000=subtract_2460000)
+        subtract = PlotUtils.find_subtract(subtract_2450000=subtract_2450000, subtract_2460000=subtract_2460000)
 
         if show_errorbars is None:
             show_errorbars = self.plot_properties.get('show_errorbars', True)
@@ -386,10 +402,8 @@ class MulensData(object):
         if show_bad is None:
             show_bad = self.plot_properties.get('show_bad', False)
 
-        properties = self._set_plot_properties(
-            show_errorbars=show_errorbars, **kwargs)
-        properties_bad = self._set_plot_properties(
-            show_errorbars=show_errorbars, bad=True, **kwargs)
+        properties = self._set_plot_properties(show_errorbars=show_errorbars, **kwargs)
+        properties_bad = self._set_plot_properties(show_errorbars=show_errorbars, bad=True, **kwargs)
         if 'label' in properties_bad.keys():
             properties_bad['label'] = None
 
@@ -400,8 +414,7 @@ class MulensData(object):
 
         if show_errorbars:
             self._mask_negative_errorbars(y_err, kind='good')
-            container = self._plt_errorbar(time_good, y_good,
-                                           y_err[self.good], properties)
+            container = self._plt_errorbar(time_good, y_good, y_err[self.good], properties)
             if show_bad:
                 self._mask_negative_errorbars(y_err, kind='bad')
 
@@ -423,17 +436,14 @@ class MulensData(object):
 
     def _set_plot_properties(self, show_errorbars=True, bad=False, **kwargs):
         """
-        Set plot properties using ``**kwargs`` and
-        `py:plot_properties`. kwargs takes precedent.
+        Set plot properties using ``**kwargs`` and `py:plot_properties`. kwargs takes precedent.
 
         Keywords:
             show_errorbars: *boolean*
-                `True` means plotting done with plt.errorbar. `False`
-                means plotting done with plt.scatter.
+                `True` means plotting done with plt.errorbar. `False` means plotting done with plt.scatter.
 
             bad: *boolean*
-                `True` means marker is default to 'x'. `False` means
-                marker is default to 'o'.
+                `True` means marker is default to 'x'. `False` means marker is default to 'o'.
 
            ``**kwargs``: *dict*
                Keywords accepted by plt.errorbar() or plt.scatter().
@@ -447,9 +457,8 @@ class MulensData(object):
         marker_keys_all = ['marker', 'fmt']
         size_keys_all = ['markersize', 'ms', 's']
 
-        # Some older versions of matplotlib have problems when both
-        # 'fmt' and 'color' are specified. Below we take a list of formats
-        # from Notes section of:
+        # Some older versions of matplotlib have problems when both 'fmt' and 'color' are specified.
+        # Below we take a list of formats from Notes section of:
         # https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html
         if 'fmt' in kwargs:
             for char in ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']:
@@ -457,8 +466,7 @@ class MulensData(object):
                     kwargs['fmt'] = kwargs['fmt'].replace(char, "")
                     kwargs['color'] = char
 
-        properties = {}
-
+        properties = dict()
         # Overwrite dataset settings (i.e., self.plot_properties) with kwargs.
         for dictionary in [self.plot_properties, kwargs]:
             for (key, value) in dictionary.items():
@@ -727,6 +735,19 @@ class MulensData(object):
         self._bandpass = value
 
     @property
+    def file_name(self):
+        """
+        *String*
+
+        file_name provided when initializing the MulensData object.
+        """
+        return self._file_name
+
+    @file_name.setter
+    def file_name(self, value):
+        self._file_name = value
+
+    @property
     def satellite_skycoord(self):
         """
         *Astropy.SkyCoord* object for satellite
@@ -740,10 +761,8 @@ class MulensData(object):
             raise ValueError('ephemerides_file is not defined.')
 
         if self._satellite_skycoord is None:
-            satellite_skycoord = SatelliteSkyCoord(
-                ephemerides_file=self.ephemerides_file)
-            self._satellite_skycoord = satellite_skycoord.get_satellite_coords(
-                self._time)
+            satellite_skycoord = SatelliteSkyCoord(ephemerides_file=self.ephemerides_file)
+            self._satellite_skycoord = satellite_skycoord.get_satellite_coords(self._time)
 
         return self._satellite_skycoord
 
@@ -784,17 +803,18 @@ class MulensData(object):
         """
         data_and_err = self.data_and_err_in_input_fmt()
         kwargs = {
-            'data_list': [self.time, *list(data_and_err)],
-            'phot_fmt': self.input_fmt, 'chi2_fmt': self._chi2_fmt,
+            'data_list': [self.time, *list(data_and_err)], 'phot_fmt': self.input_fmt, 'chi2_fmt': self._chi2_fmt,
             'ephemerides_file': self._ephemerides_file,
-            'add_2450000': self._init_keys['add245'],
-            'add_2460000': self._init_keys['add246'],
-            'bandpass': self.bandpass, 'bad': np.array(self.bad),
+            'add_2450000': False, 'add_2460000': False, 'bandpass': self.bandpass, 'bad': np.array(self.bad),
             'plot_properties': {**self.plot_properties}
             }
 
         out = MulensData(**kwargs)
         out._file_name = self._file_name
+        out._init_keys['add245'] = self._init_keys['add245']
+        out._init_keys['add246'] = self._init_keys['add246']
+        if self._ephemerides_file is not None:
+            out._satellite_skycoord = self.satellite_skycoord.copy()
 
         return out
 

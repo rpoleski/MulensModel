@@ -86,6 +86,30 @@ def generate_dataset(f_mod, t):
     return my_dataset
 
 
+def test_basic_chi2():
+    """Check some basic chi2 calculation including data.chi2_fmt==mag"""
+    (model, t, A) = generate_model()
+    flux = 2. * A + 3.14
+    data_1 = mm.MulensData(data_list=[t, flux, 0.01*flux], phot_fmt='flux')
+    data_2 = mm.MulensData(data_list=[t, flux, 0.01*flux], phot_fmt='flux', chi2_fmt='mag')
+
+    fit_1 = mm.FitData(model=model, dataset=data_1)
+    fit_1.update()
+    almost(fit_1.chi2, 0.)
+
+    fit_2 = mm.FitData(model=model, dataset=data_2)
+    fit_2.update()
+    almost(fit_2.chi2, 0.)
+
+    model.parameters.parameters['u_0'] += 0.1
+
+    fit_1.update()
+    almost(fit_1.chi2, 2905.114243936372)
+
+    fit_2.update()
+    almost(fit_2.chi2, 2948.034118484011)
+
+
 class TestSingleSourceFluxes(unittest.TestCase):
 
     def setUp(self):
@@ -474,11 +498,35 @@ def test_scale_fluxes():
     (f_s_new, f_b_new) = (0.1, 0.)
     exp_flux = (data.flux - f_b) * f_s_new / f_s + f_b_new
     exp_err = data.err_flux * f_s_new / f_s
-    (new_flux, new_err) = fit.scale_fluxes(
-        source_flux=f_s_new, blend_flux=f_b_new)
+    (new_flux, new_err) = fit.scale_fluxes(source_flux=f_s_new, blend_flux=f_b_new)
     assert np.abs(data.flux[num] - new_flux[num]) > 0.5
     almost(exp_flux / new_flux, 1.)
     almost(exp_err / new_err, 1.)
+
+
+def test_scale_fluxes_negative_warning():
+    """
+    Regression test for issue #81: FitData.scale_fluxes() should emit a
+    UserWarning when it produces negative flux uncertainties. This happens
+    when source_flux (or the fitted source flux) is negative, which is
+    unphysical and users typically don't expect it. Before this fix the
+    function returned negative err_flux silently.
+    """
+    f_s = 1.0
+    f_b = 0.5
+    (pspl, t, A) = generate_model()
+    f_mod = f_s * A + f_b
+    data = generate_dataset(f_mod, t)
+    fit = mm.FitData(dataset=data, model=pspl)
+    fit.fit_fluxes()
+
+    # Negative source_flux propagates straight through to err_flux,
+    # producing negative values that should trigger the warning.
+    with pytest.warns(UserWarning, match="negative flux"):
+        (_, err_flux) = fit.scale_fluxes(source_flux=-1.0, blend_flux=0.)
+
+    assert np.any(err_flux < 0.), ("test setup is broken: negative source_flux should produce "
+                                   "negative err_flux, got min={!r}".format(err_flux.min()))
 
 
 class TestGetResiduals(unittest.TestCase):
@@ -904,11 +952,9 @@ class TestFSPLGradient(unittest.TestCase):
         model.set_magnification_methods(
             [t_lim_1, 'finite_source_uniform_Gould94', t_lim_2])
         with self.assertRaises(KeyError):
-            model.set_magnification_methods_parameters(
-                {'vbbl': {'accuracy': 0.005}})
+            model.set_magnification_methods_parameters({'vbm': {'accuracy': 0.005}})
 
-        model.set_magnification_methods_parameters(
-            {'finite_source_uniform_Gould94': {'accuracy': 0.005}})
+        model.set_magnification_methods_parameters({'finite_source_uniform_Gould94': {'accuracy': 0.005}})
         with self.assertRaises(ValueError):
             model.get_magnification(np.arange(t_lim_1, t_lim_2, 0.1))
 

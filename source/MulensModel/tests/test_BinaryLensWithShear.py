@@ -6,8 +6,7 @@ from test_BinaryLens import make_trajectory
 
 def test_ps_shear_1():
     """
-    Test if vbbl_magnification() with shear 0 and convergence 0
-    gives the same result as point_source_magnification()
+    Test if VBM with shear 0 and convergence 0 gives the same result as point_source_magnification()
     """
     s = 0.8
     q = 0.1
@@ -15,12 +14,11 @@ def test_ps_shear_1():
 
     trajectory = make_trajectory((x, y), {'s': s, 'q': q})
 
-    blws = mm.BinaryLensPointSourceWithShearVBBLMagnification(
+    blws = mm.BinaryLensPointSourceWithShearVBMMagnification(
         trajectory=trajectory, convergence_K=0.0, shear_G=complex(0, 0))
     result = blws.get_magnification()
 
-    bl = mm.BinaryLensPointSourceWM95Magnification(
-        trajectory=trajectory)
+    bl = mm.BinaryLensPointSourceWM95Magnification(trajectory=trajectory)
     result_ref = bl.get_magnification()
 
     np.testing.assert_almost_equal(result, result_ref)
@@ -39,7 +37,7 @@ def test_ps_shear_2():
     trajectory = make_trajectory((x, y), {'s': s, 'q': q})
 
     expected = 15.07985008909832
-    bl = mm.BinaryLensPointSourceWithShearVBBLMagnification(
+    bl = mm.BinaryLensPointSourceWithShearVBMMagnification(
         trajectory=trajectory, convergence_K=0.05,
         shear_G=complex(0.1, -0.06))
     bl_wm95 = mm.BinaryLensPointSourceWithShearWM95Magnification(
@@ -59,7 +57,7 @@ def test_ps_shear_3():
 
     trajectory = make_trajectory((x, y), {'s': s, 'q': q})
 
-    bl = mm.BinaryLensPointSourceWithShearVBBLMagnification(
+    bl = mm.BinaryLensPointSourceWithShearVBMMagnification(
         trajectory=trajectory, convergence_K=0.03, shear_G=complex(-0.07, 0.03))
     bl_wm95 = mm.BinaryLensPointSourceWithShearWM95Magnification(
         trajectory=trajectory, convergence_K=0.03, shear_G=complex(-0.07, 0.03))
@@ -69,9 +67,9 @@ def test_ps_shear_3():
     np.testing.assert_almost_equal(bl_wm95.get_magnification(), expected)
 
 
-def test_vbbl_vs_MM():
+def test_vbm_vs_MM():
     """
-    check if implementations in VBBL and MM give the same result
+    check if implementations in VBM and MM give the same result
     """
     s = 1.1
     q = 0.2
@@ -80,15 +78,15 @@ def test_vbbl_vs_MM():
 
     trajectory = make_trajectory((x, y), {'s': s, 'q': q})
 
-    lens_wm95 = mm.BinaryLensPointSourceWithShearVBBLMagnification(
+    lens_wm95 = mm.BinaryLensPointSourceWithShearVBMMagnification(
        trajectory=trajectory, convergence_K=0.1, shear_G=complex(0.1, -0.1))
     result = lens_wm95.get_magnification()
 
     lens = mm.BinaryLensPointSourceWithShearWM95Magnification(
        trajectory=trajectory, convergence_K=0.1, shear_G=complex(0.1, -0.1))
-    result_vbbl = lens.get_magnification()
+    result_vbm = lens.get_magnification()
 
-    np.testing.assert_almost_equal(result, result_vbbl)
+    np.testing.assert_almost_equal(result, result_vbm)
 
 
 def test_standard_vs_shear():
@@ -102,10 +100,9 @@ def test_standard_vs_shear():
 
     trajectory = make_trajectory((x, y), {'s': s, 'q': q})
 
-    lens = mm.BinaryLensPointSourceWithShearVBBLMagnification(
+    lens = mm.BinaryLensPointSourceWithShearVBMMagnification(
         trajectory=trajectory, convergence_K=0.0, shear_G=complex(0, 0))
-    lens_standard = mm.BinaryLensPointSourceWM95Magnification(
-        trajectory=trajectory)
+    lens_standard = mm.BinaryLensPointSourceWM95Magnification(trajectory=trajectory)
 
     result = lens.get_magnification()
     result_standard = lens_standard.get_magnification()

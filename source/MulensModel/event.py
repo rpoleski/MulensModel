@@ -10,6 +10,8 @@ from MulensModel.model import Model
 from MulensModel.coordinates import Coordinates
 from MulensModel.utils import PlotUtils
 
+PlotUtils.apply_defaults()
+
 
 class Event(object):
     """
@@ -83,7 +85,7 @@ class Event(object):
         else:
             raise TypeError('incorrect argument datasets of class Event()')
 
-        self._data_ref = self._set_data_ref(data_ref)
+        self._set_data_ref(data_ref)
 
         # Set event coordinates
         if coords is not None:
@@ -296,17 +298,37 @@ class Event(object):
         self.model.plot_lc(
             source_flux=f_source_0, blend_flux=f_blend_0, **kwargs)
 
-    def plot_data(
-            self, phot_fmt='mag', data_ref=None, show_errorbars=None,
-            show_bad=None,
-            subtract_2450000=False, subtract_2460000=False, **kwargs):
+    def get_scaled_fluxes(self, data_ref=None):
+        """
+        Get the data scaled to the model.
+
+        Parameters :
+            data_ref: *int* or *MulensData*
+                Reference dataset. If not specified, uses :py:obj:`~data_ref`.
+
+        Returns :
+            fluxes: *list* of *tuples* (flux, err_flux) of *np.ndarray*
+                List with a lenght as number of datasets.
+        """
+        if data_ref is None:
+            data_ref = self.data_ref
+
+        (f_source_0, f_blend_0) = self.get_flux_for_dataset(data_ref)
+        scaled_fluxes = []
+        for fit in self.fits:
+            (flux, err_flux) = fit.scale_fluxes(f_source_0, f_blend_0)
+            scaled_fluxes.append((flux, err_flux))
+
+        return scaled_fluxes
+
+    def plot_data(self, phot_fmt='mag', data_ref=None, show_errorbars=None, show_bad=None,
+                  subtract_2450000=False, subtract_2460000=False, **kwargs):
         """
         Plot the data scaled to the model.
 
         Keywords (all optional):
             phot_fmt: *string* ('mag', 'flux')
-                Whether to plot the data in magnitudes or in flux. Default
-                is 'mag'.
+                Whether to plot the data in magnitudes or in flux. Default is 'mag'.
 
             data_ref: *int* or *MulensData*
                 If data_ref is not specified, uses :py:obj:`~data_ref`.
@@ -351,16 +373,12 @@ class Event(object):
         subtract = PlotUtils.find_subtract(subtract_2450000, subtract_2460000)
 
         # Get fluxes for the reference dataset
-        (f_source_0, f_blend_0) = self.get_flux_for_dataset(data_ref)
-        for (i, data) in enumerate(self._datasets):
-            # Scale the data flux
-            (flux, err_flux) = self.fits[i].scale_fluxes(f_source_0, f_blend_0)
-            (y_value, y_err) = PlotUtils.get_y_value_y_err(
-                phot_fmt, flux, err_flux)
-
+        scaled_data = self.get_scaled_fluxes(data_ref=data_ref)
+        for data, (flux, err_flux) in zip(self.datasets, scaled_data):
+            (y_value, y_err) = PlotUtils.get_y_value_y_err(phot_fmt, flux, err_flux)
+            # RP: Below we call private method of another class, which should not be done.
             data._plot_datapoints(
-                (y_value, y_err), subtract_2450000=subtract_2450000,
-                subtract_2460000=subtract_2460000,
+                (y_value, y_err), subtract_2450000=subtract_2450000, subtract_2460000=subtract_2460000,
                 show_errorbars=show_errorbars, show_bad=show_bad, **kwargs)
 
             t_min = min(t_min, np.min(data.time))
@@ -368,8 +386,7 @@ class Event(object):
 
         # Plot properties
         plt.ylabel('Magnitude')
-        plt.xlabel(
-            PlotUtils.find_subtract_xlabel(subtract_2450000, subtract_2460000))
+        plt.xlabel(PlotUtils.find_subtract_xlabel(subtract_2450000, subtract_2460000))
         plt.xlim(t_min-subtract, t_max-subtract)
 
         (ymin, ymax) = plt.gca().get_ylim()
@@ -434,33 +451,26 @@ class Event(object):
     def plot_source_for_datasets(self, **kwargs):
         """
         Plot source positions for all linked datasets.
-        See :py:func:`MulensModel.model.Model.plot_source()` for
-        details.
+        See :py:func:`MulensModel.model.Model.plot_source()` for details.
 
-        Note: plots all points in datasets (including ones flagged as bad)
-        using the same marker.
+        Note: plots all points in datasets (including ones flagged as bad) using the same marker.
         """
         self._set_default_colors()
 
         for dataset in self.datasets:
-            # RP: Call to MulensData private function should be replaced by
-            # public functions.
-            properties = dataset._set_plot_properties()
-            self.model.plot_source(
-                times=dataset.time, color=properties['color'], **kwargs)
+            self.model.plot_source(times=dataset.time, color=dataset.plot_color, **kwargs)
 
     def _set_default_colors(self):
         """
-        If the user has not specified a color for a dataset, assign
-        one.
+        If the user has not specified a color for a dataset, assign one.
         """
         colors = [cycle['color'] for cycle in rcParams['axes.prop_cycle']]
 
         # Below we change the order of colors to most distinct first.
         used_colors = []
-        for data in self._datasets:
-            if 'color' in data.plot_properties.keys():
-                used_colors.append(data.plot_properties['color'])
+        for data in self.datasets:
+            if data.plot_color is not None:
+                used_colors.append(data.plot_color)
 
         if len(used_colors) == len(self._datasets):
             return
@@ -468,10 +478,7 @@ class Event(object):
         if len(used_colors) == 0:
             differences = None
         else:
-            diffs = np.array(
-                [np.min(
-                    PlotUtils.get_color_differences(used_colors, c))
-                 for c in colors])
+            diffs = np.array([np.min(PlotUtils.get_color_differences(used_colors, c)) for c in colors])
             indexes = np.argsort(diffs)[::-1]
             colors = [colors[i] for i in indexes]
             differences = diffs[indexes]
@@ -479,11 +486,10 @@ class Event(object):
         # Assign colors when needed.
         color_index = 0
         for data in self._datasets:
-            if 'color' not in data.plot_properties.keys():
+            if data.plot_color is None:
                 if differences is not None:
                     if differences[color_index] < 0.35:
-                        msg = ('The color assign to one of the datasets in ' +
-                               'automated way (' + colors[color_index] +
+                        msg = ('The color assign to one of the datasets in automated way (' + colors[color_index] +
                                ') is very similar to already used color')
                         warnings.warn(msg, UserWarning)
 
@@ -491,8 +497,7 @@ class Event(object):
                 color_index += 1
                 if color_index == len(colors):
                     color_index = 0
-                    msg = ('Too many datasets without colors assigned - ' +
-                           'same color will be used for different datasets')
+                    msg = 'Too many datasets without colors assigned - same color will be used for different datasets'
                     warnings.warn(msg, UserWarning)
 
     def get_flux_for_dataset(self, dataset):
@@ -826,16 +831,13 @@ class Event(object):
             except ValueError:
                 pass
             else:
-                raise ValueError(
-                    'Dataset is included in Event.datasets more than once.')
+                raise ValueError('Dataset is included in Event.datasets more than once.')
 
             self._data_ref = index
         elif isinstance(new_value, (int, np.int_)):
             self._data_ref = new_value
         else:
-            raise TypeError(
-                'data_ref must be set using either *int* or *MulensData*: ' +
-                '{0}'.format(type(new_value)))
+            raise TypeError('data_ref must be set using either *int* or *MulensData*: {0}'.format(type(new_value)))
 
     @property
     def chi2(self):

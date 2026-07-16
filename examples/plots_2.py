@@ -24,9 +24,9 @@ ra_dec = '18:00:00.00 -28:30:00.0'
 model_pspl = Model(params)
 model_planet = Model({**params, **params_planet})
 
-# Calculate finite source magnification using VBBL method for this
+# Calculate finite source magnification using VBM method for this
 # range of dates:
-model_planet.set_magnification_methods([2456937, 'VBBL', 2456945])
+model_planet.set_magnification_methods([2456937, 'VBM', 2456945])
 
 # Parallax settings:
 model_parallax = Model({**params, **params_pi_E}, coords=ra_dec)

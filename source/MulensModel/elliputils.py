@@ -1,6 +1,7 @@
 import os.path
 import numpy as np
-from scipy.interpolate import interp1d, interp2d
+from scipy.interpolate import interp1d
+from scipy.interpolate import RectBivariateSpline
 from scipy.interpolate import RegularGridInterpolator as RGI
 
 import MulensModel as mm
@@ -47,7 +48,7 @@ class EllipUtils(object):
         try:
             EllipUtils._interpolate_3 = RGI((xx, yy), values, method='cubic', bounds_error=False)
         except ValueError:
-            EllipUtils._interpolate_3 = interp2d(xx, yy, values, kind='cubic')
+            EllipUtils._interpolate_3 = RectBivariateSpline(xx, yy, values, kx=3, ky=3)
 
         EllipUtils._interpolate_3_min_x = np.min(xx)
         EllipUtils._interpolate_3_max_x = np.max(xx)

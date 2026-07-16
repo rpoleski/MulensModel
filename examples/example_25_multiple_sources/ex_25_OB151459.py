@@ -46,7 +46,7 @@ source_flux_2_2L2S = source_flux_1_2L2S * q_F_2L2S
 blend_flux_2L2S = 0.095
 source_fluxes_2L2S = [source_flux_1_2L2S, source_flux_2_2L2S]
 
-mag_methods_2L2S = [7200.1, 'VBBL', 7200.3]
+mag_methods_2L2S = [7200.1, 'VBM', 7200.3]
 
 model_2L2S = mm.Model(params_2L2S)
 model_2L2S.set_magnification_methods(mag_methods_2L2S)

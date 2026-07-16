@@ -118,11 +118,11 @@ plt.show()
 (t_planet_start, t_planet_stop) = (2460982., 2460985.)
 
 # *Set the magnification methods for the planet model*
-# VBBL method will be used between t_planet_start and t_planet_stop,
+# VBM method will be used between t_planet_start and t_planet_stop,
 # and point_source_point_lens will be used everywhere else.
 magnification_methods = [
     0., 'point_source_point_lens',
-    t_planet_start, 'VBBL', t_planet_stop,
+    t_planet_start, 'VBM', t_planet_stop,
     'point_source_point_lens', 2470000.]
 
 # Flag data related to the planet

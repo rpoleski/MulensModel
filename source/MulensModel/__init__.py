@@ -1,12 +1,13 @@
 from os import path
 
-from MulensModel.binarylens import BinaryLensPointSourceWM95Magnification,\
-    BinaryLensPointSourceVBBLMagnification, BinaryLensPointSourceMagnification, \
+from MulensModel.binarylens import BinaryLensPointSourceWM95Magnification, \
+    BinaryLensPointSourceVBMMagnification, BinaryLensPointSourceMagnification, \
     BinaryLensQuadrupoleMagnification, BinaryLensHexadecapoleMagnification, \
-    BinaryLensVBBLMagnification, BinaryLensAdaptiveContouringMagnification
+    BinaryLensVBMMagnification, BinaryLensAdaptiveContouringMagnification, \
+    BinaryLensPointSourceVBBLMagnification, BinaryLensVBBLMagnification
 from MulensModel.binarylenswithshear import \
     BinaryLensPointSourceWithShearWM95Magnification, \
-    BinaryLensPointSourceWithShearVBBLMagnification
+    BinaryLensPointSourceWithShearVBMMagnification
 from MulensModel.causticsbinary import CausticsBinary
 from MulensModel.causticspointwithshear import CausticsPointWithShear
 from MulensModel.causticsbinarywithshear import CausticsBinaryWithShear
@@ -37,19 +38,15 @@ __all__ = [
     'BinaryLensPointSourceWM95Magnification', 'BinaryLensPointSourceVBBLMagnification',
     'BinaryLensQuadrupoleMagnification', 'BinaryLensHexadecapoleMagnification', 'BinaryLensVBBLMagnification',
     'BinaryLensAdaptiveContouringMagnification', 'BinaryLensPointSourceWithShearWM95Magnification',
-    'BinaryLensPointSourceWithShearVBBLMagnification', 'CausticsBinary', 'CausticsPointWithShear',
+    'BinaryLensPointSourceWithShearVBMMagnification', 'CausticsBinary', 'CausticsPointWithShear',
     'CausticsBinaryWithShear', 'Coordinates', 'Event', 'FitData', 'Horizons', 'LimbDarkeningCoeffs',
     'MagnificationCurve', 'Model', 'ModelParameters', 'MulensData', 'Lens', 'Source', 'MulensSystem', 'orbits',
     'PointSourcePointLensMagnification', 'FiniteSourceUniformGould94Magnification',
     'FiniteSourceLDYoo04Magnification', 'PointSourcePointLensWithShearMagnification', 'B0B1Utils', 'EllipUtils',
     'SatelliteSkyCoord', 'Trajectory', 'UniformCausticSampling', 'MAG_ZEROPOINT', 'Utils', '__version__']
 
-MODULE_PATH = path.abspath(__file__)
-for i in range(3):
-    MODULE_PATH = path.dirname(MODULE_PATH)
+# Set MODULE_PATH to the module directory
+MODULE_PATH = path.dirname(path.abspath(__file__))
 
-path_1 = path.join(MODULE_PATH, 'data')
-if path.isdir(path_1):
-    DATA_PATH = path_1
-else:
-    DATA_PATH = path.join(path.dirname(__file__), 'data')
+# Set DATA_PATH to the data directory within the package
+DATA_PATH = path.join(path.dirname(__file__), 'data')

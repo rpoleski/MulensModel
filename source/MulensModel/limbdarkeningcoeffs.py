@@ -108,19 +108,20 @@ class LimbDarkeningCoeffs(object):
             gamma: *float*
                 The value of weighted gamma.
 
+        Note: this function is currently not used by any part of MM.
         """
-
         if not isinstance(weights, dict):
-            raise TypeError(
-                "LimbDarkeningCoeffs.get_weighted_limb_coeff_gamma() " +
-                "parameter has to be dict, not {:}".format(type(weights)))
+            txt = "LimbDarkeningCoeffs.get_weighted_limb_coeff_gamma() parameter has to be dict, not {:}"
+            raise TypeError(txt.format(type(weights)))
+
         gamma_sum = 0.
         weight_sum = 0.
         for (band, weight) in weights.items():
             try:
-                gamma_sum += self.get_limb_coeff_gamma(band)
+                gamma_sum += weight * self.get_limb_coeff_gamma(band)
             except KeyError:
                 msg = "The bandpass {:} was not set for limb darkening"
                 raise KeyError(msg.format(band))
             weight_sum += weight
+
         return gamma_sum / weight_sum

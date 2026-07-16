@@ -32,7 +32,7 @@ model_1S2L = Model({'t_0': 2452848.06, 'u_0': 0.1317, 't_E': 61.5,
 
 # Since rho is set, define a time range and method to apply finite
 # source effects:
-model_1S2L.set_magnification_methods([2452833., 'VBBL', 2452845.])
+model_1S2L.set_magnification_methods([2452833., 'VBM', 2452845.])
 
 # Combine the data and model into an Event:
 my_event = Event(datasets=[OGLE_data, MOA_data], model=model_1S2L)

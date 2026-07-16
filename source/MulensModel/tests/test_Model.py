@@ -403,7 +403,7 @@ class TestBLPS_ShearActive(unittest.TestCase):
         self.data = mm.MulensData(data_list=[self.t, self.t*0.+16.,
                                              self.t*0.+0.01])
 
-    def test_vbbl_fail(self):
+    def test_vbm_fail(self):
         self.model.default_magnification_method = 'point_source'
         magnification = self.model.get_magnification(self.data.time[0])
         assert not isclose(magnification[0], 4.691830781584699, abs_tol=1e-2)
@@ -429,7 +429,7 @@ class TestBLPS_Shear(unittest.TestCase):
         self.data = mm.MulensData(data_list=[self.t, self.t*0.+16.,
                                              self.t*0.+0.01])
 
-    def test_vbbl(self):
+    def test_vbm(self):
         self.model.default_magnification_method = 'point_source'
         magnification = self.model.get_magnification(self.data.time[0])
         almost(magnification[0], 4.691830781584699)
@@ -453,8 +453,7 @@ def test_BLPS_02():
 
     t = np.array([6112.5, 6113., 6114., 6115., 6116., 6117., 6118., 6119])
     t += 2450000.
-    methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5,
-               'VBBL', 2456117.5]
+    methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole', 2456116.5, 'VBM', 2456117.5]
     model.set_magnification_methods(methods)
     assert model.default_magnification_method == 'point_source'
     assert model.methods == methods
@@ -467,7 +466,7 @@ def test_BLPS_02():
     almost(result, expected, decimal=4)
 
     # Possibly, this test should be re-created in test_FitData.py
-    # Below we test passing the limb coeff to VBBL function.
+    # Below we test passing the limb coeff to VBM function.
     # data.bandpass = 'I'
     model.set_limb_coeff_u('I', 10.)
     # This is an absurd value but I needed something quick.
@@ -577,18 +576,18 @@ class TestMethodsParameters(unittest.TestCase):
             't_0': t_0, 'u_0': u_0, 't_E': t_E, 'alpha': alpha, 's': s,
             'q': q, 'rho': rho})
         methods = [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
-                   2456116.5, 'VBBL', 2456117.5]
+                   2456116.5, 'VBM', 2456117.5]
         self.model_1 = mm.Model(parameters=self.params)
         self.model_1.set_magnification_methods(methods)
 
-        vbbl_options_2 = {'accuracy': 0.1}
-        methods_parameters_2 = {'VBBL': vbbl_options_2}
+        vbm_options_2 = {'accuracy': 0.1}
+        methods_parameters_2 = {'VBM': vbm_options_2}
         self.model_2 = mm.Model(parameters=self.params)
         self.model_2.set_magnification_methods(methods)
         self.model_2.set_magnification_methods_parameters(methods_parameters_2)
 
-        vbbl_options_3 = {'accuracy': 1.e-5}
-        methods_parameters_3 = {'VBBL': vbbl_options_3}
+        vbm_options_3 = {'accuracy': 1.e-5}
+        methods_parameters_3 = {'VBM': vbm_options_3}
         self.model_3 = mm.Model(parameters=self.params)
         self.model_3.set_magnification_methods(methods)
         self.model_3.set_magnification_methods_parameters(methods_parameters_3)
@@ -598,8 +597,7 @@ class TestMethodsParameters(unittest.TestCase):
             assert (model.default_magnification_method == 'point_source')
             assert (model.methods ==
                     [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
-                     2456116.5,
-                     'VBBL', 2456117.5])
+                     2456116.5, 'VBM', 2456117.5])
 
         test_model_methods(self.model_1)
         test_model_methods(self.model_2)
@@ -608,12 +606,10 @@ class TestMethodsParameters(unittest.TestCase):
     def test_get_magnification_methods(self):
         assert (self.model_1.get_magnification_methods() ==
                 [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
-                 2456116.5,
-                 'VBBL', 2456117.5])
+                 2456116.5, 'VBM', 2456117.5])
         assert (self.model_1.get_magnification_methods(source=1) ==
                 [2456113.5, 'Quadrupole', 2456114.5, 'Hexadecapole',
-                 2456116.5,
-                 'VBBL', 2456117.5])
+                 2456116.5, 'VBM', 2456117.5])
         with self.assertRaises(IndexError):
             self.model_1.get_magnification_methods(source=2)
 
@@ -628,12 +624,10 @@ class TestMethodsParameters(unittest.TestCase):
 
     def test_get_magnification_methods_parameters(self):
         with self.assertRaises(KeyError):
-            self.model_1.get_magnification_methods_parameters('vbbl')
+            self.model_1.get_magnification_methods_parameters('vbm')
 
-        assert (self.model_2.get_magnification_methods_parameters(
-            'vbbl') == {'vbbl': {'accuracy': 0.1}})
-        assert (self.model_3.get_magnification_methods_parameters(
-            'vbbl') == {'vbbl': {'accuracy': 1.e-5}})
+        assert (self.model_2.get_magnification_methods_parameters('vbm') == {'vbm': {'accuracy': 0.1}})
+        assert (self.model_3.get_magnification_methods_parameters('vbm') == {'vbm': {'accuracy': 1.e-5}})
 
     def test_default_magnification_methods(self):
         """
@@ -645,14 +639,14 @@ class TestMethodsParameters(unittest.TestCase):
         model.default_magnification_method = 'point_source_point_lens'
         assert model.default_magnification_method == 'point_source_point_lens'
 
-        model.default_magnification_method = 'VBBL'
-        assert model.default_magnification_method == 'VBBL'
+        model.default_magnification_method = 'VBM'
+        assert model.default_magnification_method == 'VBM'
 
     def test_wrong_parameter_name(self):
         """
         Test if KeyError is raised when wrong parameter name is used.
         """
-        wrong_par = {'VBBL': {'acuracy': 1.e-5}}
+        wrong_par = {'VBM': {'acuracy': 1.e-5}}
         with self.assertRaises(KeyError):
             self.model_3.set_magnification_methods_parameters(wrong_par)
 

@@ -82,11 +82,11 @@ will not read those.
 
 If you need more detailed description, see:
 
-[ftp://ssd.jpl.nasa.gov/pub/ssd/horizons_batch_example.brief](ftp://ssd.jpl.nasa.gov/pub/ssd/horizons_batch_example.brief)
+[`https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch_example.brief`](https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch_example.brief)
 
 or
 
-[ftp://ssd.jpl.nasa.gov/pub/ssd/horizons_batch_example.long](ftp://ssd.jpl.nasa.gov/pub/ssd/horizons_batch_example.long)
+[`https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch_example.long`](https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch_example.long)
 
 Once you are done with all the settings, you're ready to send an e-mail. 
 Just open your e-mail program and: 
