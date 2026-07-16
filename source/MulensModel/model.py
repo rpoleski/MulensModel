@@ -479,7 +479,7 @@ class Model(object):
 
     def plot_trajectory(
             self, times=None, t_range=None, t_start=None, t_stop=None,
-            dt=None, n_epochs=None, caustics=False,
+            dt=None, n_epochs=None, caustics=False, caustic_epochs=None,
             arrow=True, satellite_skycoord=None, arrow_kwargs=None,
             **kwargs):
         """
@@ -570,7 +570,8 @@ class Model(object):
                 'Wrong number of sources: {:}'.format(self.n_sources))
 
         if caustics:
-            self.plot_caustics(marker='.', color='red')
+            for E in caustic_epochs:
+                self.plot_caustics(epoch = E, marker='.', color='deeppink')
 
     def _plot_single_trajectory(self, times, parameters, satellite_skycoord,
                                 arrow, arrow_kwargs, **kwargs):

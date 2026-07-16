@@ -993,7 +993,7 @@ class UlensModelFit(object):
         """
         Check if parameters of trajectory plot make sense
         """
-        allowed = set(['file', 'time range', 'interactive'])
+        allowed = set(['file', 'time range', 'interactive', 'caustic epochs'])
         unknown = set(self._plots['trajectory'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
@@ -1003,6 +1003,15 @@ class UlensModelFit(object):
 
         if 'interactive' in self._plots['trajectory']:
             self._check_plots_parameters_trajectory_interactive()
+        if 'caustic epochs' in self._plots['trajectory']:
+            self._multiple_caustics = True
+            self._check_caustic_epochs()
+    
+    def _check_caustic_epochs(self):
+        """
+        Check if enetered epochs and in the time range.
+        """
+        pass
 
     def _check_plots_parameters_trajectory_interactive(self):
         """
@@ -4303,7 +4312,8 @@ class UlensModelFit(object):
         self._reset_rcParams()
 
         t_range = self._set_time_limits_for_trajectory_plot(tau)
-        kwargs = {'caustics': True, 't_range': t_range}
+        caustic_epochs = self._plots['trajectory']['caustic epochs'] 
+        kwargs = {'caustics': True, 't_range': t_range, 'caustic_epochs': caustic_epochs}
 
         self._model.plot_trajectory(**kwargs)
 
