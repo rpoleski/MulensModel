@@ -1070,7 +1070,7 @@ class UlensModelFit(object):
         if 'caustic epochs' in self._plots['trajectory']:
             self._multiple_caustics = True
             self._check_caustic_epochs()
-    
+
     def _check_caustic_epochs(self):
         """
         Check if enetered epochs and in the time range.
@@ -3144,7 +3144,7 @@ class UlensModelFit(object):
         ref_color = ref_stars[self._ref_color]
         out = ref_color['c0'] + ref_color['c1']*x
         return out
-    
+
     def _get_theta_E(self):
         """
         Calculates theta_E from third Kepler law.

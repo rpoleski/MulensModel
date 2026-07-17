@@ -583,7 +583,7 @@ class Model(object):
         """
         for E in caustic_epochs:
             label = 'epoch: ' + str(E) + ' HJD'
-            self.plot_caustics(epoch = E, marker='.', label=label)
+            self.plot_caustics(epoch=E, marker='.', label=label)
 
     def _plot_single_trajectory(self, times, parameters, satellite_skycoord,
                                 arrow, arrow_kwargs, **kwargs):
