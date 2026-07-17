@@ -1056,6 +1056,7 @@ class UlensModelFit(object):
         """
         Check if parameters of trajectory plot make sense
         """
+        self._multiple_caustics = False
         allowed = set(['file', 'time range', 'interactive', 'caustic epochs'])
         unknown = set(self._plots['trajectory'].keys()) - allowed
         if len(unknown) > 0:

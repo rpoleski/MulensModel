@@ -538,7 +538,7 @@ class Model(object):
         They have slightly different behavior.
 
         """
-        kwargs = {'color': 'dodgerblue'}
+        kwargs = {'color': 'deepskyblue'}
         if not arrow and arrow_kwargs is not None:
             raise ValueError(
                 "arrow_kwargs can be only given if arrow is True")
@@ -582,7 +582,8 @@ class Model(object):
         Plots multiple caustics for given epochs.
         """
         for E in caustic_epochs:
-            self.plot_caustics(epoch = E, marker='.', label=str(E))
+            label = 'epoch: ' + str(E) + ' HJD'
+            self.plot_caustics(epoch = E, marker='.', label=label)
 
     def _plot_single_trajectory(self, times, parameters, satellite_skycoord,
                                 arrow, arrow_kwargs, **kwargs):
