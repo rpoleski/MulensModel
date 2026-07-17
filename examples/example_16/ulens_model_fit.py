@@ -4312,8 +4312,10 @@ class UlensModelFit(object):
         self._reset_rcParams()
 
         t_range = self._set_time_limits_for_trajectory_plot(tau)
-        caustic_epochs = self._plots['trajectory']['caustic epochs'] 
-        kwargs = {'caustics': True, 't_range': t_range, 'caustic_epochs': caustic_epochs}
+        kwargs = {'caustics': True, 't_range': t_range}
+        if self._multiple_caustics:
+            caustic_epochs = self._plots['trajectory']['caustic epochs']
+            kwargs.update({'caustic_epochs': caustic_epochs})
 
         self._model.plot_trajectory(**kwargs)
 
