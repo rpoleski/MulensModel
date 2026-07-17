@@ -291,6 +291,9 @@ def test_horizons_3d():
     """
     Test if Horizons properly reads file with 3D coordinates.
     We use the satellite that has the same position as Earth.
+
+    NOTE - the naming is misleading. The SatelliteSkyCoord is supposed to return Earth-centric coords,
+    whereas these two files have barycentric coords.
     """
     file_in = os.path.join(dir_2, "earth_position_1.dat")
     file_out = os.path.join(dir_2, "earth_position_2.dat")
@@ -308,23 +311,18 @@ def test_d_perp():
     """
     Test that the calculation of d_perp works correctly.
     """
-    ref_data = np.genfromtxt(
-        SAMPLE_FILE_04_REF, dtype=None, encoding='utf-8',
-        names=['HJD', 'qn', 'qe', 'qr'])
+    ref_data = np.genfromtxt(SAMPLE_FILE_04_REF, dtype=None, encoding='utf-8', names=['HJD', 'qn', 'qe', 'qr'])
     with open(SAMPLE_FILE_04_REF, 'r') as data_file:
         line = data_file.readline()
         coords = line.split('=')[1]
 
-    params = {'t_0': 2458310.7772,  'u_0': -0.006877, 't_E': 15.931,
-              'pi_E_N': 0., 'pi_E_E': 0.}
-    model = mm.Model(
-        params, coords=coords, ephemerides_file=SAMPLE_FILE_04_EPH)
+    params = {'t_0': 2458310.7772,  'u_0': -0.006877, 't_E': 15.931, 'pi_E_N': 0., 'pi_E_E': 0.}
+    model = mm.Model(params, coords=coords, ephemerides_file=SAMPLE_FILE_04_EPH)
     trajectory = model.get_trajectory(ref_data['HJD'] + 2450000.)
     d_perp = trajectory.d_perp
 
     # PSPL parameters shouldn't matter, so double-check that's true
-    model_prime = mm.Model(
-        params, coords=coords, ephemerides_file=SAMPLE_FILE_04_EPH)
+    model_prime = mm.Model(params, coords=coords, ephemerides_file=SAMPLE_FILE_04_EPH)
     model_prime.parameters.t_E = 3.
     model_prime.parameters.t_0 = 2450000.
     trajectory_prime = model_prime.get_trajectory(ref_data['HJD'] + 2450000.)
@@ -332,5 +330,4 @@ def test_d_perp():
     np.testing.assert_allclose(d_perp, d_perp_prime)
 
     # Real d_perp test.
-    np.testing.assert_allclose(
-        d_perp, np.sqrt(ref_data['qn']**2 + ref_data['qe']**2), rtol=0.01)
+    np.testing.assert_allclose(d_perp, np.sqrt(ref_data['qn']**2 + ref_data['qe']**2), rtol=0.01)

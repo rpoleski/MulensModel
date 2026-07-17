@@ -9,8 +9,8 @@ import MulensModel as mm
 dir_phot = os.path.join(mm.DATA_PATH, 'photometry_files')
 SAMPLE_FILE_01 = os.path.join(dir_phot, "OB08092", "phot_ob08092_O4.dat")
 SAMPLE_FILE_02 = os.path.join(dir_phot, 'OB140939', 'ob140939_Spitzer.dat')
-SAMPLE_FILE_02_EPH = os.path.join(dir_phot, 'ephemeris_files',
-                                  'Spitzer_ephemeris_01.dat')
+SAMPLE_FILE_02_EPH = os.path.join(mm.DATA_PATH, 'ephemeris_files', 'Spitzer_ephemeris_01.dat')
+print("\n", SAMPLE_FILE_02_EPH)
 
 
 def test_file_read():
@@ -95,26 +95,29 @@ def test_copy():
     n_epochs = len(np.loadtxt(SAMPLE_FILE_01))
     random_bool = np.random.choice([False, True], n_epochs, p=[0.1, 0.9])
 
-    data_1 = mm.MulensData(file_name=SAMPLE_FILE_01, good=random_bool)
-    data_2 = data_1.copy()
+    data_1 = mm.MulensData(file_name=SAMPLE_FILE_02, good=random_bool)
     data = [data_1.time, 100.+0.*data_1.time, 1.+0.*data_1.time]
     data_3 = mm.MulensData(data, phot_fmt='flux', bad=random_bool)
+    data_5 = mm.MulensData(data, add_2450000=True)
+    data_7 = mm.MulensData(data, ephemerides_file=SAMPLE_FILE_02_EPH)
+
+    data_2 = data_1.copy()
     data_4 = data_3.copy()
+    data_6 = data_5.copy()
+    data_8 = data_7.copy()
 
-    assert isinstance(data_2, mm.MulensData)
-    assert isinstance(data_4, mm.MulensData)
+    data_old = [data_1, data_3, data_5, data_7]
+    data_new = [data_2, data_4, data_6, data_8]
+    for data in data_new:
+        assert isinstance(data, mm.MulensData)
 
-    attributes = ['time', 'mag', 'err_mag', 'flux', 'err_flux',
-                  'bad', 'good', 'plot_properties']
+    attributes = ['time', 'mag', 'err_mag', 'flux', 'err_flux', 'bad', 'good', 'plot_properties']
     for attribute in attributes:
-        value_1 = getattr(data_1, attribute)
-        value_2 = getattr(data_2, attribute)
-        assert value_1 is not value_2
-        assert np.all(value_1 == value_2)
-        value_1 = getattr(data_3, attribute)
-        value_2 = getattr(data_4, attribute)
-        assert value_1 is not value_2
-        assert np.all(value_1 == value_2)
+        for (old, new) in zip(data_old, data_new):
+            value_1 = getattr(old, attribute)
+            value_2 = getattr(new, attribute)
+            assert value_1 is not value_2
+            assert np.all(value_1 == value_2)
 
 
 def test_scale_errorbars():
@@ -199,24 +202,22 @@ def test_repr_5():
     """
     Check if one can print dataset nicely - ephemerides file
     """
-    data = mm.MulensData(file_name=SAMPLE_FILE_02,
-                         ephemerides_file=SAMPLE_FILE_02_EPH)
-    expected_begin = "{0:25} n_epochs ={1:>5}, n_bad ={2:>5}".format(
-        "ob140939_Spitzer.dat:", 31, 0)
-    expected_end = "photometry_files/ephemeris_files/Spitzer_ephemeris_01.dat"
+    data = mm.MulensData(file_name=SAMPLE_FILE_02, ephemerides_file=SAMPLE_FILE_02_EPH)
+    expected_begin = "{0:25} n_epochs ={1:>5}, n_bad ={2:>5}".format("ob140939_Spitzer.dat:", 31, 0)
+    expected_end = "MulensModel/data/ephemeris_files/Spitzer_ephemeris_01.dat"
     assert str(data)[:len(expected_begin)] == expected_begin
     assert str(data)[-len(expected_end):] == expected_end
 
 
 def test_repr_6():
     """
-    Check if one can print dataset nicely - color
+    Check if one can print dataset nicely and if plot_color is set properly.
     """
-    data = mm.MulensData(file_name=SAMPLE_FILE_01,
-                         plot_properties={'color': 'red'})
-    expected = "{0:25} n_epochs ={1:>5}, n_bad ={2:>5}, color = red".format(
-        "phot_ob08092_O4.dat:", 383, 0)
+    data = mm.MulensData(file_name=SAMPLE_FILE_01, plot_properties={'color': 'red'})
+    expected = "{0:25} n_epochs ={1:>5}, n_bad ={2:>5}, color = red".format("phot_ob08092_O4.dat:", 383, 0)
+
     assert str(data) == expected
+    assert data.plot_color == 'red'
 
 
 def test_repr_7():
@@ -229,3 +230,18 @@ def test_repr_7():
         "phot_ob08092_O4.dat:", 383, 0)
     expected += " Errorbar scaling: factor = 2.34 minimum = 0.012"
     assert str(data) == expected
+
+
+def test_plot_color():
+    """
+    Check if plot_color is set properly.
+    """
+    data_1 = mm.MulensData(file_name=SAMPLE_FILE_01, plot_properties={'c': 'g'})
+    data_2 = mm.MulensData(file_name=SAMPLE_FILE_01, plot_properties={'fmt': 'bo'})
+    data_3 = mm.MulensData(file_name=SAMPLE_FILE_01, plot_properties={'fmt': 'o'})
+    data_4 = mm.MulensData(file_name=SAMPLE_FILE_01)
+
+    assert data_1.plot_color == 'g'
+    assert data_2.plot_color == 'b'
+    assert data_3.plot_color is None
+    assert data_4.plot_color is None

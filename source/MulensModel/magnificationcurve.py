@@ -96,7 +96,7 @@ class MagnificationCurve(object):
 
                   methods = [
                       2455746., 'Quadrupole', 2455746.6, 'Hexadecapole',
-                      2455746.7, 'VBBL', 2455747., 'Hexadecapole',
+                      2455746.7, 'VBM', 2455747., 'Hexadecapole',
                       2455747.15, 'Quadrupole', 2455748.]
 
             default_method: *str*
@@ -151,7 +151,7 @@ class MagnificationCurve(object):
             methods_parameters: *dict*
                 Dictionary that for method names (keys) returns dictionary
                 in the form of ``**kwargs`` that are passed to given method,
-                e.g., ``{'VBBL': {'accuracy': 0.005}}``.
+                e.g., ``{'VBM': {'accuracy': 0.005}}``.
 
         """
         self._methods_parameters = methods_parameters
@@ -209,22 +209,19 @@ class MagnificationCurve(object):
                 self._set_binary_lens_w_shear_magnification_objects()
 
     def _setup_trajectory(self, selection):
-        """ Create a trajectory object for a given subset of the data
-        specified by *selection*. """
+        """Create a trajectory object for a given subset of the data specified by *selection*."""
         if self.satellite_skycoord is not None:
             satellite_skycoord = self.satellite_skycoord[selection]
         else:
             satellite_skycoord = None
 
-        trajectory = mm.Trajectory(
-            self.times[selection], parameters=self.parameters,
-            parallax=self.parallax, coords=self.coords,
-            satellite_skycoord=satellite_skycoord)
+        trajectory = mm.Trajectory(self.times[selection], parameters=self.parameters, parallax=self.parallax,
+                                   coords=self.coords, satellite_skycoord=satellite_skycoord)
         return trajectory
 
     def _setup_kwargs(self, method):
         """ Setup the kwargs for a given magnification object."""
-        kwargs = {}
+        kwargs = dict()
         if self._methods_parameters is not None:
             if method.lower() in self._methods_parameters.keys():
                 kwargs = self._methods_parameters[method.lower()]
@@ -384,45 +381,47 @@ class MagnificationCurve(object):
         return self._get_magnification_universal()
 
     def _set_binary_lens_magnification_objects(self):
-        """ For simple binary lens models, create a *dict* of magnification
-        objects corresponding to the user-specified magnification methods."""
+        """
+        For simple binary lens models, create a *dict* of magnification
+        objects corresponding to the user-specified magnification methods.
+        """
         self._magnification_objects = {}
         for method, selection in self.methods_indices.items():
-            trajectory = self._setup_trajectory(selection)
             kwargs = self._setup_kwargs(method)
 
-            if ((kwargs != {}) and
-                    (method.lower() not in ['vbbl', 'adaptive_contouring'])):
-                msg = ('Methods parameters passed for method {:}' +
-                       ' which does not accept any parameters')
+            if kwargs != dict() and method.lower() not in ['vbm', 'vbbl', 'adaptive_contouring']:
+                msg = 'Methods parameters passed for method {:} which does not accept any parameters'
                 raise ValueError(msg.format(method))
+
+            trajectory = self._setup_trajectory(selection)
+            kwargs['trajectory'] = trajectory
 
             if method.lower() == 'point_source':
                 self._magnification_objects[method] = \
                     mm.binarylens.BinaryLensPointSourceMagnification(trajectory=trajectory)
             elif method.lower() == 'quadrupole':
                 self._magnification_objects[method] = \
-                    mm.binarylens.BinaryLensQuadrupoleMagnification(
-                    trajectory=trajectory, gamma=self._gamma)
+                    mm.binarylens.BinaryLensQuadrupoleMagnification(trajectory=trajectory, gamma=self._gamma)
             elif method.lower() == 'hexadecapole':
                 self._magnification_objects[method] = \
-                    mm.binarylens.\
-                    BinaryLensHexadecapoleMagnification(
-                    trajectory=trajectory, gamma=self._gamma)
-            elif method.lower() == 'vbbl':
+                    mm.binarylens.BinaryLensHexadecapoleMagnification(trajectory=trajectory, gamma=self._gamma)
+            elif method.lower() in ['vbm', 'vbbl']:
                 self._magnification_objects[method] = \
-                    mm.binarylens. \
-                    BinaryLensVBBLMagnification(
-                        trajectory=trajectory, gamma=self._gamma, **kwargs)
+                    mm.binarylens.BinaryLensVBMMagnification(gamma=self._gamma, **kwargs)
             elif method.lower() == 'adaptive_contouring':
                 self._magnification_objects[method] = \
-                    mm.binarylens. \
-                    BinaryLensAdaptiveContouringMagnification(
-                        trajectory=trajectory, gamma=self._gamma, **kwargs)
+                    mm.binarylens.BinaryLensAdaptiveContouringMagnification(gamma=self._gamma, **kwargs)
             elif method.lower() == 'point_source_point_lens':
+                if self.parameters.s < 1.:
+                    co_mag_trajectory = trajectory
+                else:
+                    q = self.parameters.q
+                    s = self.parameters.get_s(trajectory.times)
+                    delta_x = - (s - 1. / s) * q / (1. + q)
+                    co_mag_trajectory = mm.Trajectory(x=trajectory.x - delta_x, y=trajectory.y)
+
                 self._magnification_objects[method] = \
-                    mm.pointlens.PointSourcePointLensMagnification(
-                        trajectory=trajectory)
+                    mm.pointlens.PointSourcePointLensMagnification(trajectory=co_mag_trajectory)
             else:
                 msg = 'Unknown method specified for binary lens: {:}'
                 raise ValueError(msg.format(method))
@@ -434,24 +433,20 @@ class MagnificationCurve(object):
         """
         self._magnification_objects = {}
         for method, selection in self.methods_indices.items():
-            trajectory = self._setup_trajectory(selection)
             K = self.parameters.parameters.get('convergence_K', 0)
             G = self.parameters.parameters.get('shear_G', complex(0, 0))
             kwargs = {'convergence_K': K, 'shear_G': G}
+            trajectory = self._setup_trajectory(selection)
+            kwargs['trajectory'] = trajectory
 
             if method.lower() == 'point_source':
                 self._magnification_objects[method] = \
-                    mm.binarylenswithshear. \
-                    BinaryLensPointSourceWithShearVBBLMagnification(
-                            trajectory=trajectory, **kwargs)
+                    mm.binarylenswithshear.BinaryLensPointSourceWithShearVBMMagnification(**kwargs)
             elif method.lower() == 'point_source_wm95':
                 self._magnification_objects[method] = \
-                    mm.binarylenswithshear. \
-                    BinaryLensPointSourceWithShearWM95Magnification(
-                            trajectory=trajectory, **kwargs)
+                    mm.binarylenswithshear. BinaryLensPointSourceWithShearWM95Magnification(**kwargs)
             else:
-                msg = 'Unknown method specified for binary lens: {:}'
-                raise ValueError(msg.format(method))
+                raise ValueError('Unknown method specified for binary lens: {:}'.format(method))
 
     def get_binary_lens_magnification(self):
         """
@@ -463,8 +458,7 @@ class MagnificationCurve(object):
                 standard point source magnification calculation.
 
             ``quadrupole``:
-                From `Gould 2008 ApJ, 681, 1593
-                <https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract>`_.
+                From `Gould 2008 ApJ, 681, 1593 <https://ui.adsabs.harvard.edu/abs/2008ApJ...681.1593G/abstract>`_.
                 See
                 :py:func:`~MulensModel.binarylens.BinaryLens.hexadecapole_magnification()`
 
@@ -472,28 +466,24 @@ class MagnificationCurve(object):
                 From `Gould 2008 ApJ, 681, 1593`_ See
                 :py:func:`~MulensModel.binarylens.BinaryLens.hexadecapole_magnification()`
 
+            ``VBM``:
+                Uses VBMicrolensing (a Stokes theorem/contour integration code) by Valerio Bozza
+                (`Bozza 2010 MNRAS, 408, 2188 <https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract>`_).
+
             ``VBBL``:
-                Uses VBBinaryLensing (a Stokes theorem/contour
-                integration code) by Valerio Bozza
-                (`Bozza 2010 MNRAS, 408, 2188
-                <https://ui.adsabs.harvard.edu/abs/2010MNRAS.408.2188B/abstract>`_).
-                See
-                :py:func:`~MulensModel.binarylens.BinaryLens.vbbl_magnification()`
+                same as ``VBM`` for backward compatibility.
 
             ``Adaptive_Contouring``:
-                Uses AdaptiveContouring (a Stokes theorem/contour
-                integration code) by Martin Dominik
-                (`Dominik 2007 MNRAS, 377, 1679
-                <https://ui.adsabs.harvard.edu/abs/2007MNRAS.377.1679D/abstract>`_).
+                Uses AdaptiveContouring (a Stokes theorem/contour integration code) by Martin Dominik
+                (`Dominik 2007 MNRAS, 377, 1679 <https://ui.adsabs.harvard.edu/abs/2007MNRAS.377.1679D/abstract>`_).
                 See
                 :py:func:`~MulensModel.binarylens.BinaryLens.adaptive_contouring_magnification()`
 
                 Note that it doesn't work if shear or convergence are set.
 
             ``point_source_point_lens``:
-                Uses point-source _point_-_lens_ approximation; useful when you
-                consider binary lens but need magnification very far from
-                the lens (e.g. at separation u = 100).
+                Uses point-source _point_-_lens_ approximation; useful when you consider binary lens but need
+                magnification very far from the lens (e.g. at separation u = 100).
 
         Returns :
             magnification: *np.ndarray*
@@ -501,10 +491,8 @@ class MagnificationCurve(object):
 
         """
         if self.parameters.n_lenses != 2:
-            raise ValueError(
-                "You're trying to calculate binary lens magnification, but "
-                "the model provided has " + str(self.parameters.n_lenses) +
-                " lenses")
+            raise ValueError("You're trying to calculate binary lens magnification, but the model provided has " +
+                             str(self.parameters.n_lenses) + " lenses")
 
         return self._get_magnification_universal()
 

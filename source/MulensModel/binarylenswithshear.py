@@ -1,37 +1,31 @@
 import warnings
 import numpy as np
 from math import sqrt
+import VBMicrolensing
 
 from MulensModel.binarylens import BinaryLensPointSourceWM95Magnification
-from MulensModel.binarylensimports import (
-    _vbbl_wrapped, _vbbl_binary_mag_point_shear, _vbbl_SG12_9)
 from MulensModel.utils import Utils
 from MulensModel.version import __version__ as mm_version
 
 
 class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95Magnification):
     """
-    The binary lens with shear and convergence:
-    solutions, images, parities, magnifications, etc.
+    The binary lens with shear and convergence: solutions, images, parities, magnifications, etc.
 
     Uses Witt & Mao 1995 for the binary lens magnification calculation. See
     `py:class:binarylens.BinaryLensPointSourceWM95Magnification`
 
-    The binary lens with shear and convergence equation is
-    the 9th order complex polynomial.
+    The binary lens with shear and convergence equation is the 9th order complex polynomial.
 
     Attributes :
         mass_1: *float*
-            mass of the primary (left-hand object) as a fraction of
-            the total mass.
+            mass of the primary (left-hand object) as a fraction of the total mass.
 
         mass_2: *float*
-            mass of the secondary (right-hand object) as a fraction of the
-            total mass.
+            mass of the secondary (right-hand object) as a fraction of the total mass.
 
         separation: *float*
-            separation between the two bodies as a fraction of the Einstein
-            ring.
+            separation between the two bodies as a fraction of the Einstein ring.
 
         convergence_K: *float*
             External mass sheet convergence.
@@ -39,13 +33,10 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
         shear_G: *complex*
             External mass sheat shear.
 
-    Note: mass_1 and mass_2 may be defined as a fraction of some other
-    mass than the total mass. This is possible but not recommended -
-    make sure you know what you're doing before you start using this
-    possibility.
+    Note: mass_1 and mass_2 may be defined as a fraction of some other mass than the total mass. This is possible but
+    not recommended - make sure you know what you're doing before you start using this possibility.
 
-    If you're using this class, then please cite
-    Peirson et al. (2022; ApJ 927, 24).
+    If you're using this class, then please cite Peirson et al. (2022; ApJ 927, 24).
     """
 
     def __init__(self, convergence_K=None, shear_G=None, **kwargs):
@@ -362,22 +353,19 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
         if self._solver == 'numpy':
             self._polynomial_roots = np_polyroots(polynomial)
         elif self._solver == 'Skowron_and_Gould_12':
-            args = polynomial.real.tolist() + polynomial.imag.tolist()
+            coefficients = [(polynomial.real[i], polynomial.imag[i]) for i in range(10)]
             try:
-                out = _vbbl_SG12_9(*args)
+                roots = self._vbm.cmplx_roots_gen(coefficients)
             except ValueError as err:
                 err2 = "\n\nSwitching from Skowron & Gould 2012 to numpy"
                 warnings.warn(str(err) + err2, UserWarning)
                 self._solver = 'numpy'
                 self._polynomial_roots = np_polyroots(polynomial)
             else:
-                roots = [
-                    out[i] + out[i+9] * 1.j
-                    for i in range(9) if (
-                        (abs(out[i]) > 1e-10 or abs(out[i+9]) > 1e-10)
-                        and (abs(out[i] - self._position_z1) > 1e-10
-                             or abs(out[i+9]) > 1e-10))]
-                self._polynomial_roots = np.array(roots)
+                self._polynomial_roots = np.array([
+                    roots[i][0] + roots[i][1] * 1.j for i in range(9)
+                    if ((abs(roots[i][0]) > 1e-10 or abs(roots[i][1]) > 1e-10)
+                        and (abs(roots[i][0] - self._position_z1) > 1e-10 or abs(roots[i][1]) > 1e-10))])
         else:
             raise ValueError('Unknown solver: {:}'.format(self._solver))
         self._last_polynomial_input = polynomial_input
@@ -426,7 +414,7 @@ class BinaryLensPointSourceWithShearWM95Magnification(BinaryLensPointSourceWM95M
                     " polynomial root solver. It is much more accurate than " +
                     "numpy.polynomial.polynomial.polyroots(). " +
                     "Skowron_and_Gould_12 method is selected in automated " +
-                    "way if VBBL is imported properly.")
+                    "way if VBM is imported properly.")
             distance = sqrt(self._source_x**2 + self._source_y**2)
             if self._mass_2 > 1.e-6 * self._mass_1 and (distance < 15. or distance < 2. * separation):
                 txt += ("\n\nThis is surprising error - please contact code " +
@@ -539,28 +527,23 @@ class BinaryLensPointSourceWithShearWM95PlanetFrameMagnification(BinaryLensPoint
         return np.array(coeffs_list).reshape(6)
 
 
-class BinaryLensPointSourceWithShearVBBLMagnification(BinaryLensPointSourceWithShearWM95Magnification):
+class BinaryLensPointSourceWithShearVBMMagnification(BinaryLensPointSourceWithShearWM95Magnification):
     """
-    The binary lens with shear and convergence:
-    solutions, images, parities, magnifications, etc.
+    The binary lens with shear and convergence: solutions, images, parities, magnifications, etc.
 
-    Uses VBBL.
+    Uses VBMicrolensing.
 
-    The binary lens with shear and convergence equation is
-    the 9th order complex polynomial.
+    The binary lens with shear and convergence equation is the 9th order complex polynomial.
 
     Attributes :
         mass_1: *float*
-            mass of the primary (left-hand object) as a fraction of
-            the total mass.
+            mass of the primary (left-hand object) as a fraction of the total mass.
 
         mass_2: *float*
-            mass of the secondary (right-hand object) as a fraction of the
-            total mass.
+            mass of the secondary (right-hand object) as a fraction of the total mass.
 
         separation: *float*
-            separation between the two bodies as a fraction of the Einstein
-            ring.
+            separation between the two bodies as a fraction of the Einstein ring.
 
         convergence_K: *float*
             External mass sheet convergence.
@@ -568,26 +551,20 @@ class BinaryLensPointSourceWithShearVBBLMagnification(BinaryLensPointSourceWithS
         shear_G: *complex*
             External mass sheat shear.
 
-    Note: mass_1 and mass_2 may be defined as a fraction of some other
-    mass than the total mass. This is possible but not recommended -
-    make sure you know what you're doing before you start using this
-    possibility.
+    Note: mass_1 and mass_2 may be defined as a fraction of some other mass than the total mass. This is possible but
+    not recommended - make sure you know what you're doing before you start using this possibility.
     """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self._vbm = VBMicrolensing.VBMicrolensing()
 
     def _get_1_magnification(self, x, y, separation):
-
-        magnification = _vbbl_binary_mag_point_shear(
-            float(separation), self._q, float(x), float(y), self.convergence_K,
-            self.shear_G.real, self.shear_G.imag)
+        magnification = self._vbm.BinaryMag0_shear(
+            float(separation), self._q, float(x), float(y), self.convergence_K, self.shear_G.real, self.shear_G.imag)
 
         if magnification < 1.:
-            msg = "error in BinaryLensWithShear.point_source_magnification()\ninput:\n"
-            params = [separation, self._q, x, y, self.convergence_K, self.shear_G.real, self.shear_G.imag,
-                      self.vbbl_on, _vbbl_wrapped]
-            msg += " ".join([str(p) for p in params])
-            msg += "\noutput: {:}".format(magnification)
-            raise ValueError(msg)
+            msg = "error in BinaryLensWithShear.point_source_magnification()\ninput:\n{:}\noutput: {:}"
+            params = [separation, self._q, x, y, self.convergence_K, self.shear_G.real, self.shear_G.imag]
+            raise ValueError(msg.format(" ".join([str(p) for p in params]), magnification))
 
         return magnification

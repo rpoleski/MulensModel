@@ -15,6 +15,8 @@ from MulensModel.satelliteskycoord import SatelliteSkyCoord
 from MulensModel.trajectory import Trajectory
 from MulensModel.utils import Utils, PlotUtils
 
+PlotUtils.apply_defaults()
+
 
 class Model(object):
     """
@@ -103,11 +105,11 @@ class Model(object):
                           'topocentric': True}
         self._default_magnification_method = 'point_source'
         self._methods = None
-        self._methods_parameters = {}
+        self._methods_parameters = dict()
         self._caustics = None
 
         self._limb_darkening_coeffs = [LimbDarkeningCoeffs() for _ in range(self.n_sources)]
-        self._bandpasses = []
+        self._bandpasses = list()
 
     def __repr__(self):
         out = '{0}'.format(self.parameters)
@@ -442,8 +444,8 @@ class Model(object):
             self._update_caustics_single_lens()
         elif self.n_lenses == 2:
             self._update_caustics_binary_lens(epoch)
-        else:
-            raise ValueError('updating triple lens caustics not yet coded')
+        else:  # pragma: no cover  (reserved for TripleLens, see issue #66)
+            raise NotImplementedError("triple lens caustics not yet implemented")
 
     def _update_caustics_single_lens(self):
         """
@@ -452,8 +454,7 @@ class Model(object):
         convergence_K = self.parameters.parameters.get('convergence_K', 0)
         shear_G = self.parameters.parameters.get('shear_G', complex(0, 0))
 
-        self._caustics = CausticsPointWithShear(
-            convergence_K=convergence_K, shear_G=shear_G)
+        self._caustics = CausticsPointWithShear(convergence_K=convergence_K, shear_G=shear_G)
 
     def _update_caustics_binary_lens(self, epoch):
         """
@@ -726,7 +727,7 @@ class Model(object):
                 See also :py:func:`get_satellite_coords()`
 
         Returns :
-            trajectories: `:py:class:`~MulensModel.trajectory.Trajectory` object or a *list* of them
+            trajectories: :py:class:`~MulensModel.trajectory.Trajectory` object or a *list* of them
                 Single object for single source model, a *list* otherwise.
         """
         if satellite_skycoord is None:
@@ -837,7 +838,7 @@ class Model(object):
 
                   methods = [
                       2455746., 'Quadrupole', 2455746.6, 'Hexadecapole',
-                      2455746.7, 'VBBL', 2455747., 'Hexadecapole',
+                      2455746.7, 'VBM', 2455747., 'Hexadecapole',
                       2455747.15, 'Quadrupole', 2455748.]
 
             source: *int* or *None*, optional
@@ -982,30 +983,28 @@ class Model(object):
             methods_parameters: *dict*
                 Dictionary that for method names (keys) returns dictionary
                 in the form of ``**kwargs`` that are passed to given method,
-                e.g., ``{'VBBL': {'accuracy': 0.005}}``.
+                e.g., ``{'VBM': {'accuracy': 0.005}}``.
 
         """
         if self.n_lenses == 1:
             methods_all_str = (
-                'point_source finite_source_uniform_Gould94 '
-                'finite_source_uniform_Gould94_direct '
-                'finite_source_uniform_WittMao94 finite_source_LD_WittMao94 '
-                'finite_source_LD_Yoo04 finite_source_LD_Yoo04_direct '
-                'finite_source_uniform_Lee09 finite_source_LD_Lee09')
+                'point_source finite_source_uniform_Gould94 finite_source_uniform_Gould94_direct '
+                'finite_source_uniform_WittMao94 finite_source_LD_WittMao94 finite_source_LD_Yoo04 '
+                'finite_source_LD_Yoo04_direct finite_source_uniform_Lee09 finite_source_LD_Lee09')
         elif self.n_lenses == 2:
-            methods_all_str = ('point_source quadrupole hexadecapole vbbl '
-                               'adaptive_contouring point_source_point_lens')
-        else:
-            msg = 'wrong value of Model.n_lenses: {:}'
-            raise ValueError(msg.format(self.n_lenses))
+            methods_all_str = (
+                'point_source quadrupole hexadecapole vbm vbbl adaptive_contouring point_source_point_lens')
+        else:  # pragma: no cover  (reserved for TripleLens, see issue #66)
+            raise NotImplementedError(
+                "magnification method list for n_lenses={:} not yet implemented".format(self.n_lenses))
 
-        parameters = {
-            key.lower(): value for (key, value) in methods_parameters.items()}
+        parameters = {key.lower(): value for (key, value) in methods_parameters.items()}
         methods_all = set([m.lower() for m in methods_all_str.split()])
         methods = set(parameters.keys()) - methods_all
 
         if len(methods):
             raise KeyError('Unknown methods provided: {:}'.format(methods))
+
         self._check_magnification_methods_parameters(methods_parameters)
 
         self._methods_parameters = parameters
@@ -1015,7 +1014,8 @@ class Model(object):
         Check if the provided kwargs are valid for the given method.
         """
         msg = "{:} method allows {:} parameters, but got '{:}'."
-        allowed = {'vbbl': ['accuracy'],
+        allowed = {'vbm': ['accuracy', 'relative_accuracy'],
+                   'vbbl': ['accuracy', 'relative_accuracy'],
                    'adaptive_contouring': ['accuracy', 'ld_accuracy']}
 
         for method, kwargs in methods_parameters.items():
@@ -1040,11 +1040,9 @@ class Model(object):
                 see :py:func:`set_magnification_methods_parameters`
         """
         if isinstance(method, (str)):
-            parameters = {
-                method.lower(): self._methods_parameters[method.lower()]}
+            parameters = {method.lower(): self._methods_parameters[method.lower()]}
         else:
-            parameters = {key.lower(): self._methods_parameters[key.lower()]
-                          for key in method}
+            parameters = {key.lower(): self._methods_parameters[key.lower()] for key in method}
 
         return parameters
 
@@ -1398,13 +1396,9 @@ class Model(object):
         """
         magnification_curve = MagnificationCurve(
             time, parameters=self.parameters,
-            parallax=self._parallax, coords=self._coords,
-            satellite_skycoord=satellite_skycoord,
-            gamma=gamma)
-        magnification_curve.set_magnification_methods(
-            self._methods, self._default_magnification_method)
-        magnification_curve.set_magnification_methods_parameters(
-            self._methods_parameters)
+            parallax=self._parallax, coords=self._coords, satellite_skycoord=satellite_skycoord, gamma=gamma)
+        magnification_curve.set_magnification_methods(self._methods, self._default_magnification_method)
+        magnification_curve.set_magnification_methods_parameters(self._methods_parameters)
 
         return magnification_curve
 

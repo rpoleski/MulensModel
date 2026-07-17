@@ -19,7 +19,7 @@ my_pspl_model = MulensModel.Model({'t_0': 2452848.06, 'u_0': 0.133, 't_E': 61.5}
 my_1S2L_model = MulensModel.Model(
     {'t_0': 2452848.06, 'u_0': 0.133, 't_E': 61.5, 'rho': 0.00096, 'q': 0.0039, 's': 1.120, 'alpha': 43.8})
 # Since rho is set, define a time range and method to apply finite source effects:
-my_1S2L_model.set_magnification_methods([2452833., 'VBBL', 2452845.])
+my_1S2L_model.set_magnification_methods([2452833., 'VBM', 2452845.])
 
 # Plot those models:
 my_pspl_model.plot_magnification(t_range=[2452810, 2452890], subtract_2450000=True, color='red', linestyle=':',

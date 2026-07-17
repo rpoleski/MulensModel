@@ -42,6 +42,15 @@ def generate_binary_source_datasets(model_1, model_2):
     return (data_1, data_2)
 
 
+def test_data_ref():
+    """Simple test checking if data_ref is treated properly"""
+    data_1 = mm.MulensData(file_name=SAMPLE_FILE_01)
+    data_2 = mm.MulensData(file_name=SAMPLE_FILE_01)
+    model = mm.Model({'t_0': 0, 'u_0': .5, 't_E': 10.})
+    event = mm.Event(model=model, datasets=[data_1, data_2], data_ref=1)
+    assert event.data_ref == 1
+
+
 # ----------
 # Event Coordinates Tests
 def test_model_event_coords():

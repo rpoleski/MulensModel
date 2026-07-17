@@ -11,4 +11,4 @@ Smallest chi2 model:
     t_0 (HJD)       u_0    t_E (d)    t_star (d)         s            q alpha (deg)
 2454245.44660  0.003801    72.8159      0.060030   0.88100   0.00015000    66.75127
 default magnification method: point_source_point_lens
-other magnification methods: [2454244.5, 'VBBL', 2454246.0]
+other magnification methods: [2454244.5, 'VBM', 2454246.0]

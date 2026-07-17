@@ -25,8 +25,8 @@ params_static = {
     't_0_3': 7197., 'u_0_3': -0.28, 'rho_3': 2.e-3}
 
 params = {**params_static,
-    'pi_E_E': 100.0, 'pi_E_N': 1.0,
-    'ds_dt': 3.0, 'dalpha_dt': 360., 't_0_kep': 7200.2}
+          'pi_E_E': 100.0, 'pi_E_N': 1.0,
+          'ds_dt': 3.0, 'dalpha_dt': 360., 't_0_kep': 7200.2}
 
 q_F_2 = 0.181
 source_flux_1 = 0.061
@@ -35,8 +35,8 @@ source_flux_3 = 3. * source_flux_1
 blend_flux = 0.095
 source_fluxes = [source_flux_1, source_flux_2, source_flux_3]
 
-mag_methods_12 = [7200.1, 'VBBL', 7200.3]
-mag_methods_3 = [7195., 'VBBL', 7197.5]
+mag_methods_12 = [7200.1, 'VBM', 7200.3]
+mag_methods_3 = [7195., 'VBM', 7197.5]
 
 model = mm.Model(params, coords=coords)
 model.set_magnification_methods(mag_methods_12, 1)

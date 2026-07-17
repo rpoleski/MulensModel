@@ -63,7 +63,7 @@ for mass in lens_mass:
         file_thetaE.write('{0:6.2f}'.format(system.theta_E.value))
         file_rE.write('{0:6.2f}'.format(system.r_E.value))
         file_rEtilde.write('{0:6.2f}'.format(system.r_E_tilde.value))
-        file_tE.write('{0:6.1f}'.format(system.t_E.value))
+        file_tE.write('{0:6.1f}'.format(system.t_E))
 
     # Add new line characters to files
     for file_ in file_list:

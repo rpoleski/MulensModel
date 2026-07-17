@@ -37,6 +37,6 @@ print(model.parameters.t_star)
 model.plot_trajectory(caustics=True)
 plt.show()
 # and the magnification curve:
-model.set_magnification_methods([6540., 'VBBL', 6555.])
+model.set_magnification_methods([6540., 'VBM', 6555.])
 model.plot_magnification(dt=0.01)
 plt.show()
