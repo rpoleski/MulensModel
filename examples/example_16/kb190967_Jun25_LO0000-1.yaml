@@ -1,0 +1,50 @@
+photometry_files:
+    - {file_name: /home/data/ceres/zbudzik/events_for_rtmodel/MM/kb190967/phot_dat_MM_format/phot_KMT_I.dat, plot_properties: {color: deeppink}}
+model:
+    default method: VBBL
+starting_parameters:
+    t_0: gauss 2458640.5074665053 0.00001
+    u_0: gauss -0.10187845454248745 0.00001
+    t_E: gauss 37.6092338399733 0.00005
+    rho: gauss 0.0012606556539553491 0.000002
+    s: gauss 1.6051776108475773 0.00001
+    q: gauss 0.045119442690241054 0.00001
+    alpha: gauss 225.90659945198192 0.00001
+    ds_dt: gauss 10.12666138457611761 0.00001
+    dalpha_dt: gauss 10.44957523802942 0.00001
+    ds_z_dt: gauss 10.008337381669452706 0.00001
+min_values:
+    t_0: 2458625.5074665053
+    u_0: -1.0
+    t_E: 0.0
+    rho: 0.0
+    q: 0.0
+    s: 0.0
+    alpha: -20.
+max_values:
+    t_0: 2458655.5074665053
+    u_0: 1.0
+    t_E: 400.0
+    rho: 0.1
+    q: 5.0
+    s: 4.0
+    alpha: 400.
+fitting_parameters:
+    n_walkers: 30
+    n_steps: 5
+    n_burn: 4
+    #fit_constraints:
+    #prior:
+    #compare_theta_star: True
+plots:
+    triangle:
+        file: LO0000-1_kb190967_Jun25_triangle.png
+    best model:
+        file: LO0000-1_kb190967_Jun25_model.png
+        time range: 2458600 2458675
+    trajectory:
+        file: LO0000-1_kb190967_Jun25_trajectory.png
+        time range: 2458600 2458675
+        caustic epochs: [2458610, 2458650]
+
+
