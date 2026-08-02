@@ -1,3 +1,5 @@
+import unittest
+
 import numpy as np
 
 import MulensModel as mm
@@ -71,3 +73,67 @@ def test_get_uniform_sampling():
     (x_caustic_in, x_caustic_out) = sampling.get_uniform_sampling(n_points=n)
     assert x_caustic_in.shape == (n,)
     assert x_caustic_out.shape == (n,)
+
+
+class TestSelectNPoints(unittest.TestCase):
+    """
+    Tests for UniformCausticSampling._select_n_points — addresses the
+    `uniformcausticsampling.py _select_n_points()` checklist item in
+    issue #65. The method partitions a requested n_points across 1, 2,
+    or 3 caustics in proportion to caustic "area", enforcing a per-
+    caustic minimum.
+    """
+    @classmethod
+    def setUpClass(cls):
+        # __init__ runs a full numerical integration, so we build each
+        # topology once and reuse the instance across tests.
+        cls.s1 = mm.UniformCausticSampling(s=1.1, q=0.1, n_points=500)
+        cls.s2 = mm.UniformCausticSampling(s=2.0, q=0.01, n_points=500)
+        cls.s3 = mm.UniformCausticSampling(s=0.5, q=0.001, n_points=500)
+
+    def test_one_caustic_returns_full_n_points(self):
+        self.assertEqual(self.s1._n_caustics, 1)
+        self.assertEqual(self.s1._select_n_points(100, 10), [100])
+
+    def test_two_caustics_proportional_split_with_min_bumping_n1(self):
+        """
+        _which_caustic ~ [0, 0.139, 1] -> area_1 << area_2.
+        Raw n_1 = 3 falls below min=5 -> bumped to 5, n_2 = 95.
+        """
+        self.assertEqual(self.s2._n_caustics, 2)
+        self.assertEqual(self.s2._select_n_points(100, 5), [5, 95])
+
+    def test_two_caustics_n2_below_min_is_bumped(self):
+        """
+        Force the n_2 < min branch by patching _which_caustic so area_1
+        dominates. Raw n_2 = 0 -> bumped to 10, n_1 = 90.
+        """
+        original = self.s2._which_caustic
+        try:
+            self.s2._which_caustic = [0., 0.95, 1.0]
+            self.assertEqual(self.s2._select_n_points(100, 10), [90, 10])
+        finally:
+            self.s2._which_caustic = original
+
+    def test_three_caustics_proportional_split(self):
+        """
+        _which_caustic ~ [0, 0.132, 0.566, 1].
+        fraction_2 ~ 0.477 -> n_2 = 143, n_3 = 143, n_1 = 14.
+        """
+        self.assertEqual(self.s3._n_caustics, 3)
+        self.assertEqual(self.s3._select_n_points(300, 5), [14, 143, 143])
+
+    def test_three_caustics_n1_min_constraint_branch(self):
+        """
+        When the raw n_1 falls below n_min, n_1 is bumped to n_min and
+        n_2/n_3 are recomputed from the remainder as (n-n_1)//2 and
+        (n-n_1-n_2). Note: n_2 and n_3 are NOT re-checked against
+        n_min, so this branch can produce a result where they fall
+        below n_min (here: [11, 9, 10] with n_min=11). Tested as-is
+        for coverage; the asymmetry is flagged as a potential
+        follow-up in the PR body.
+        """
+        result = self.s3._select_n_points(30, 11)
+        self.assertEqual(result, [11, 9, 10])
+        self.assertEqual(len(result), 3)
+        self.assertEqual(sum(result), 30)
