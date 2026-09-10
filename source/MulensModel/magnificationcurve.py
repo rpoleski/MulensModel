@@ -602,7 +602,14 @@ class MagnificationCurve(object):
             methods = self.methods_for_epochs
             methods_ = np.array(methods)
 
-            for method in set(methods):
+            # Sorted, not a bare set(): a set of strings iterates in
+            # PYTHONHASHSEED-dependent order, and the order in which the
+            # per-method backends are then built and evaluated is not
+            # numerically neutral (see get_binary_lens_magnification), so an
+            # unsorted walk makes results irreproducible between processes.
+            # The key tolerates the None default method.
+            for method in sorted(set(methods),
+                                 key=lambda m: (m is None, str(m))):
                 selection = (methods_ == method)
                 self._methods_indices[method] = selection
 

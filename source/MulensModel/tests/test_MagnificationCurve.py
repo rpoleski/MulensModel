@@ -1,3 +1,6 @@
+import os
+import subprocess
+import sys
 import numpy as np
 import pytest
 from types import SimpleNamespace
@@ -402,3 +405,84 @@ class PSPLforBinaryTest(unittest.TestCase):
         orb_params['ds_dt'] = 10.0
         orb_params['dalpha_dt'] = 30.
         self._do_low_mag_test(orb_params)
+
+
+def test_methods_indices_order_is_sorted():
+    """
+    methods_indices keys come out in sorted method-name order. This is the
+    guarantee that makes the order independent of PYTHONHASHSEED; name order
+    rather than first-appearance order also keeps it independent of how the
+    epochs happen to be laid out.
+    """
+    t_0 = 2455000.
+    params = mm.ModelParameters(
+        {'t_0': t_0, 'u_0': 0.01, 't_E': 25., 'rho': 0.001,
+         's': 1.1, 'q': 0.2, 'alpha': 270.})
+    times = np.linspace(t_0 - 3., t_0 + 3., 400)
+
+    mag_curve = mm.MagnificationCurve(times, params)
+    mag_curve.set_magnification_methods(
+        [t_0 - 2., 'VBBL',
+         t_0 - 0.5, 'finite_source_uniform_Gould94',
+         t_0 + 0.5, 'point_source_point_lens',
+         t_0 + 2.],
+        'point_source')
+
+    assert list(mag_curve.methods_indices.keys()) == [
+        'VBBL', 'finite_source_uniform_Gould94',
+        'point_source', 'point_source_point_lens']
+
+
+def _methods_indices_keys_in_subprocess(hash_seed):
+    """
+    Return the methods_indices key order from a fresh interpreter run under
+    the given PYTHONHASHSEED. A separate process is required because the
+    hash seed is fixed at interpreter start-up.
+    """
+    script = (
+        "import numpy as np, MulensModel as mm\n"
+        "t_0 = 2455000.\n"
+        "params = mm.ModelParameters({'t_0': t_0, 'u_0': 0.01, 't_E': 25.,\n"
+        "    'rho': 0.001, 's': 1.1, 'q': 0.2, 'alpha': 270.})\n"
+        "c = mm.MagnificationCurve(np.linspace(t_0-3., t_0+3., 400), params)\n"
+        "c.set_magnification_methods([t_0-2., 'VBBL',\n"
+        "    t_0-0.5, 'finite_source_uniform_Gould94',\n"
+        "    t_0+0.5, 'point_source_point_lens', t_0+2.], 'point_source')\n"
+        "print(repr(list(c.methods_indices.keys())))\n")
+
+    env = dict(os.environ, PYTHONHASHSEED=str(hash_seed))
+    out = subprocess.run(
+        [sys.executable, '-c', script], env=env,
+        capture_output=True, text=True, check=True)
+    return out.stdout.strip().splitlines()[-1]
+
+
+def test_methods_indices_order_is_hash_seed_independent():
+    """
+    methods_indices must not depend on PYTHONHASHSEED. It is built by walking
+    a set of method-name strings, whose iteration order is randomized per
+    process, and the per-method magnification backends built from those
+    groups are not order-independent - so an unsorted walk makes results
+    irreproducible between runs of the same script.
+    """
+    results = [_methods_indices_keys_in_subprocess(seed) for seed in (0, 1, 4)]
+    assert len(set(results)) == 1, (
+        "methods_indices order varies with PYTHONHASHSEED: " + str(results))
+
+
+def test_methods_indices_order_with_default_none():
+    """
+    The default method is None unless a caller sets one, so the ordering has
+    to tolerate None mixed with method-name strings (a bare sorted() raises
+    TypeError comparing None with str).
+    """
+    t_0 = 2455000.
+    params = mm.ModelParameters({'t_0': t_0, 'u_0': 0.01, 't_E': 25.})
+    times = np.linspace(t_0 - 3., t_0 + 3., 100)
+
+    mag_curve = mm.MagnificationCurve(times, params)
+    mag_curve.set_magnification_methods(
+        [t_0 - 1., 'point_source_point_lens', t_0 + 1.], None)
+
+    assert list(mag_curve.methods_indices.keys()) == [
+        'point_source_point_lens', None]
