@@ -2923,10 +2923,13 @@ class UlensModelFit(object):
         extras = []
         if self._extra_parameters is not None:
             for par in self._extra_parameters:
-                try:
-                    extras.append(getattr(self._model.parameters, par))
-                except Exception:
-                    raise AttributeError("Wrong parameter name in extra parameters: {:}".format(par))
+                if par == 'theta_E':
+                    extras.append(self._get_theta_star_from_flux() / self._model.parameters.rho)
+                else:
+                    try:
+                        extras.append(getattr(self._model.parameters, par))
+                    except Exception:
+                        raise AttributeError("Wrong parameter name in extra parameters: {:}".format(par))
 
         return extras
 
