@@ -198,7 +198,7 @@ class UlensModelFit(object):
             keys depending on the ``'relation'`` used. For ``{'relation': Adams+18}`` the keys are: ``'mag X label'``,
             ``'mag Y label'``, ``'E(X-Y)'`` and ``'A_Y'``. X and Y are filetrs used for calcualtion.
             Currently this relation uses equations from Adams et al. 2018 with default coefficients
-            for giant stars and (V-K) color. For ``{'relation': Red Clump}`` the keys are:``'mag Y label'`` 
+            for giant stars and (V-K) color. For ``{'relation': Red Clump}`` the keys are:``'mag Y label'``
             and ``'A_Y'``. Currently this function uses equation from Nataf et al. 2013 for filter I.
 
             References:
