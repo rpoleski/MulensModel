@@ -1,7 +1,10 @@
-import numpy as np
 import os
+import unittest
+
+import numpy as np
 
 import MulensModel as mm
+from MulensModel.utils import PlotUtils
 
 
 SAMPLE_FILE_01 = os.path.join(
@@ -61,3 +64,74 @@ def test_n_caustics():
     assert mm.Utils.get_n_caustics(s=s_2, q=q) == 1
     assert mm.Utils.get_n_caustics(s=s_3, q=q) == 1
     assert mm.Utils.get_n_caustics(s=s_4, q=q) == 2
+
+
+class TestGetYValueYErr(unittest.TestCase):
+    """
+    Tests for PlotUtils.get_y_value_y_err — addresses the
+    `utils.py get_y_value_y_err()` checklist item in issue #65.
+    """
+    def setUp(self):
+        self.flux = np.array([1.0, 10.0, 100.0])
+        self.flux_err = np.array([0.01, 0.1, 1.0])
+
+    def test_flux_format_returns_inputs_unchanged(self):
+        (value, uncertainty) = PlotUtils.get_y_value_y_err(
+            'flux', self.flux, self.flux_err)
+        np.testing.assert_array_equal(value, self.flux)
+        np.testing.assert_array_equal(uncertainty, self.flux_err)
+
+    def test_mag_format_returns_hardcoded_magnitudes(self):
+        """
+        Hard-coded reference avoids defining the expected result through
+        the same conversion the SUT delegates to.
+        """
+        (value, uncertainty) = PlotUtils.get_y_value_y_err(
+            'mag', self.flux, self.flux_err)
+        # MAG_ZEROPOINT = 22.0, mag = 22 - 2.5 * log10(flux)
+        np.testing.assert_array_almost_equal(value, [22.0, 19.5, 17.0])
+        # 2.5/ln(10) * err/flux; flux/err is constant 100 for this input
+        np.testing.assert_array_almost_equal(
+            uncertainty, [0.010857362, 0.010857362, 0.010857362])
+
+    def test_unrecognized_format_raises_value_error(self):
+        with self.assertRaisesRegex(
+                ValueError, "Unrecognized photometry format"):
+            PlotUtils.get_y_value_y_err(
+                'magnitude', self.flux, self.flux_err)
+
+    def test_uppercase_mag_is_unrecognized(self):
+        """Case-sensitivity: only lowercase 'mag' / 'flux' are accepted."""
+        with self.assertRaisesRegex(
+                ValueError, "Unrecognized photometry format"):
+            PlotUtils.get_y_value_y_err('MAG', self.flux, self.flux_err)
+
+    def test_empty_arrays_flux_format(self):
+        (value, uncertainty) = PlotUtils.get_y_value_y_err(
+            'flux', np.array([]), np.array([]))
+        self.assertEqual(value.size, 0)
+        self.assertEqual(uncertainty.size, 0)
+
+
+class TestFindSubtractXlabel(unittest.TestCase):
+    """
+    Tests for PlotUtils.find_subtract_xlabel — addresses the
+    `utils.py find_subtract_xlabel()` checklist item in issue #65.
+    """
+    def test_default_returns_time(self):
+        self.assertEqual(PlotUtils.find_subtract_xlabel(), 'Time')
+
+    def test_subtract_2450000_returns_offset_label(self):
+        self.assertEqual(
+            PlotUtils.find_subtract_xlabel(subtract_2450000=True),
+            'Time - 2450000')
+
+    def test_subtract_2460000_returns_offset_label(self):
+        self.assertEqual(
+            PlotUtils.find_subtract_xlabel(subtract_2460000=True),
+            'Time - 2460000')
+
+    def test_both_subtract_flags_raise_value_error(self):
+        with self.assertRaisesRegex(ValueError, "cannot be both True"):
+            PlotUtils.find_subtract_xlabel(
+                subtract_2450000=True, subtract_2460000=True)
