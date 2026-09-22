@@ -61,6 +61,8 @@ class CausticsBinary(object):
 
         try:
             plt.scatter(self._x, self._y, **kwargs)
+            if 'label' in kwargs:
+                plt.legend()
         except Exception:
             print("kwargs passed to plt.scatter():")
             print(kwargs)

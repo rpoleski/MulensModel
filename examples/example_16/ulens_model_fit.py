@@ -401,8 +401,8 @@ class UlensModelFit(object):
             2) for ``triangle`` and ``trace``:
             ``'file'``, and ``'shift t_0'`` (*bool*, *True* is default)
             3) for ``trajectory``:
-            ``'file'``, ``'interactive'``, and ``'time range'`` (if not provided, then values
-            from ``best model`` will be used)
+            ``'file'``, ``'interactive'``, ``'time range'`` (if not provided, then values
+            from ``best model`` will be used) and ``'caustic epochs'``
             e.g.:
 
             .. code-block:: python
@@ -417,6 +417,7 @@ class UlensModelFit(object):
                       'file': 'my_trajectory.png'
                       'time range': 2456050. 2456300.
                       'interactive': 'my_trajectory.html'
+                      'caustic epochs': '[2456150., 2456250.]'
                   'best model':
                       'file': 'my_fit_best.png'
                       'interactive': 'my_fit_best.html'
@@ -1059,7 +1060,8 @@ class UlensModelFit(object):
         """
         Check if parameters of trajectory plot make sense
         """
-        allowed = set(['file', 'time range', 'interactive'])
+        self._multiple_caustics = False
+        allowed = set(['file', 'time range', 'interactive', 'caustic epochs'])
         unknown = set(self._plots['trajectory'].keys()) - allowed
         if len(unknown) > 0:
             raise ValueError(
@@ -1069,6 +1071,19 @@ class UlensModelFit(object):
 
         if 'interactive' in self._plots['trajectory']:
             self._check_plots_parameters_trajectory_interactive()
+        if 'caustic epochs' in self._plots['trajectory']:
+            self._multiple_caustics = True
+            self._check_caustic_epochs()
+
+    def _check_caustic_epochs(self):
+        """
+        Check if enetered epochs and in the time range.
+        """
+        t0, t1 = self._plots['trajectory']['time range']
+        for epoch in self._plots['trajectory']['caustic epochs']:
+            if epoch < t0 or epoch > t1:
+                raise ValueError(
+                    'Epoch: {:} out of time range bounds'.format(epoch))
 
     def _check_plots_parameters_trajectory_interactive(self):
         """
@@ -4944,6 +4959,9 @@ class UlensModelFit(object):
 
         t_range = self._set_time_limits_for_trajectory_plot(tau)
         kwargs = {'caustics': True, 't_range': t_range}
+        if self._multiple_caustics:
+            caustic_epochs = self._plots['trajectory']['caustic epochs']
+            kwargs.update({'caustic_epochs': caustic_epochs, 'color': 'navy'})
 
         self._model.plot_trajectory(**kwargs)
 

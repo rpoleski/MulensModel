@@ -480,7 +480,7 @@ class Model(object):
 
     def plot_trajectory(
             self, times=None, t_range=None, t_start=None, t_stop=None,
-            dt=None, n_epochs=None, caustics=False,
+            dt=None, n_epochs=None, caustics=False, caustic_epochs=None,
             arrow=True, satellite_skycoord=None, arrow_kwargs=None,
             **kwargs):
         """
@@ -498,6 +498,11 @@ class Model(object):
                 trajectory. default=False (off). For finer control of
                 plotting features, e.g. color, use :py:func:`plot_caustics()`
                 instead.
+
+            caustic_epochs: *list*
+                May be used to plot multiple caustics for specified epochs.
+                Will not plot the caustic for the default epoch only the
+                ones in the list.
 
             arrow: *boolean*
                 Show the direction of the source motion. Default is *True*.
@@ -571,7 +576,18 @@ class Model(object):
                 'Wrong number of sources: {:}'.format(self.n_sources))
 
         if caustics:
-            self.plot_caustics(marker='.', color='red')
+            if caustic_epochs is None:
+                self.plot_caustics(marker='.', color='red')
+            else:
+                self._plot_multiple_caustics(caustic_epochs)
+
+    def _plot_multiple_caustics(self, caustic_epochs):
+        """
+        Plots multiple caustics for given epochs.
+        """
+        for E in caustic_epochs:
+            label = 'epoch: ' + str(E) + ' HJD'
+            self.plot_caustics(epoch=E, marker='.', label=label)
 
     def _plot_single_trajectory(self, times, parameters, satellite_skycoord,
                                 arrow, arrow_kwargs, **kwargs):
