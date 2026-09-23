@@ -67,8 +67,8 @@ class MulensData(object):
 
         bandpass: see :obj:`bandpass`
 
-        observatory: *str*, optional
-            The name of the observatory from which the data were obtained.
+        telescope: *str*, optional
+            The name of the telescope from which the data were obtained.
             Does not affect any calculations, but can be used for plotting and labeling.
 
         bad: *boolean np.ndarray*, optional
@@ -117,7 +117,7 @@ class MulensData(object):
     """
 
     def __init__(self, data_list=None, file_name=None, phot_fmt="mag", chi2_fmt="flux", ephemerides_file=None,
-                 add_2450000=False, add_2460000=False, bandpass=None, observatory=None, bad=None, good=None,
+                 add_2450000=False, add_2460000=False, bandpass=None, telescope=None, bad=None, good=None,
                  plot_properties=None, **kwargs):
 
         self._n_epochs = None
@@ -130,7 +130,7 @@ class MulensData(object):
         self._chi2_fmt = chi2_fmt
         self._file_name = file_name
         self._input_fmt = phot_fmt
-        self.observatory = observatory
+        self.telescope = telescope
 
         if plot_properties is None:
             plot_properties = dict()
