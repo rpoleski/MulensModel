@@ -67,6 +67,10 @@ class MulensData(object):
 
         bandpass: see :obj:`bandpass`
 
+        telescope: *str*, optional
+            The name of the telescope from which the data were obtained.
+            Does not affect any calculations, but can be used for plotting and labeling.
+
         bad: *boolean np.ndarray*, optional
             Flags for bad data (data to exclude from fitting and
             plotting). Should be the same length as the number of data
@@ -113,8 +117,8 @@ class MulensData(object):
     """
 
     def __init__(self, data_list=None, file_name=None, phot_fmt="mag", chi2_fmt="flux", ephemerides_file=None,
-                 add_2450000=False, add_2460000=False, bandpass=None, bad=None, good=None, plot_properties=None,
-                 **kwargs):
+                 add_2450000=False, add_2460000=False, bandpass=None, telescope=None, bad=None, good=None,
+                 plot_properties=None, **kwargs):
 
         self._n_epochs = None
         self._horizons = None
@@ -126,6 +130,7 @@ class MulensData(object):
         self._chi2_fmt = chi2_fmt
         self._file_name = file_name
         self._input_fmt = phot_fmt
+        self._telescope = telescope
 
         if plot_properties is None:
             plot_properties = dict()
@@ -169,6 +174,9 @@ class MulensData(object):
             if self._errorbars_scale['minimum'] is not None:
                 out += ' minimum = {:}'.format(
                     self._errorbars_scale['minimum'])
+
+        if self._telescope is not None:
+            out += ', telescope = {0}'.format(self.telescope)
 
         return out
 
@@ -806,7 +814,7 @@ class MulensData(object):
             'data_list': [self.time, *list(data_and_err)], 'phot_fmt': self.input_fmt, 'chi2_fmt': self._chi2_fmt,
             'ephemerides_file': self._ephemerides_file,
             'add_2450000': False, 'add_2460000': False, 'bandpass': self.bandpass, 'bad': np.array(self.bad),
-            'plot_properties': {**self.plot_properties}
+            'plot_properties': {**self.plot_properties},
             }
 
         out = MulensData(**kwargs)
@@ -815,6 +823,8 @@ class MulensData(object):
         out._init_keys['add246'] = self._init_keys['add246']
         if self._ephemerides_file is not None:
             out._satellite_skycoord = self.satellite_skycoord.copy()
+        if self.telescope is not None:
+            out._telescope = self.telescope
 
         return out
 
@@ -899,3 +909,13 @@ class MulensData(object):
                        "sqrt(({factor:} * sigma_mag)^2 + {minimum:}^2)")
 
         return format_.format(**self._errorbars_scale)
+
+    @property
+    def telescope(self):
+        """
+        *str*
+
+        Name of the telescope from which the data were obtained.
+        Does not affect any calculations, but can be used for plotting and labeling.
+        """
+        return self._telescope
