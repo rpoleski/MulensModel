@@ -813,8 +813,8 @@ class MulensData(object):
         kwargs = {
             'data_list': [self.time, *list(data_and_err)], 'phot_fmt': self.input_fmt, 'chi2_fmt': self._chi2_fmt,
             'ephemerides_file': self._ephemerides_file,
-            'add_2450000': False, 'add_2460000': False, 'bandpass': self.bandpass, 'bad': np.array(self.bad),
-            'plot_properties': {**self.plot_properties},
+            'add_2450000': False, 'add_2460000': False, 'bandpass': self.bandpass, 'telescope': self.telescope,
+            'bad': np.array(self.bad), 'plot_properties': {**self.plot_properties},
             }
 
         out = MulensData(**kwargs)
@@ -823,8 +823,6 @@ class MulensData(object):
         out._init_keys['add246'] = self._init_keys['add246']
         if self._ephemerides_file is not None:
             out._satellite_skycoord = self.satellite_skycoord.copy()
-        if self.telescope is not None:
-            out._telescope = self.telescope
 
         return out
 
