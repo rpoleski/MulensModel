@@ -232,6 +232,27 @@ def test_repr_7():
     assert str(data) == expected
 
 
+def test_repr_8():
+    """
+    Check if one can print dataset nicely - telescope
+    """
+    data = mm.MulensData(file_name=SAMPLE_FILE_01, telescope='OGLE')
+    expected = "{0:25} n_epochs ={1:>5}, n_bad ={2:>5}, telescope = OGLE".format(
+        "phot_ob08092_O4.dat:", 383, 0)
+    assert str(data) == expected
+
+
+def test_set_telescope():
+    """
+    Check if telescope is set properly.
+    """
+    data_1 = mm.MulensData(file_name=SAMPLE_FILE_01, telescope='OGLE')
+    data_2 = mm.MulensData(file_name=SAMPLE_FILE_01)
+
+    assert data_1.telescope == 'OGLE'
+    assert data_2.telescope is None
+
+
 def test_plot_color():
     """
     Check if plot_color is set properly.
