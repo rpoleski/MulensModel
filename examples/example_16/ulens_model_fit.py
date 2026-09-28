@@ -3208,12 +3208,14 @@ class UlensModelFit(object):
         """
         Calculates theta_E from third Kepler law.
         """
+        # bug here!!!!!
         period = self._model.parameters.lens_period
         kappa = 8.14385328  # [mas/M_sun]
         pi_E = self._model.parameters.pi_E_mag
         a = self._model.parameters.lens_semimajor_axis
-        theta_E = period/((kappa*pi_E)**(1/2) * a**(3/2))
-        return theta_E
+        #D_L = 
+        theta_E = period/((kappa*pi_E)**(1/2) * (a)**(3/2))
+        return theta_E  
 
     def _add_theta_E(self):
         """
@@ -3221,12 +3223,9 @@ class UlensModelFit(object):
         """
         if 'theta star calculation' in self._model_parameters:
             theta_E = self._get_theta_star_from_flux() / self._model.parameters.rho
+            return theta_E
         else:
-            try: 
-                theta_E = self._get_theta_E()
-            except:
-                raise KeyError("Insufficient number of parameters to add theta_E.")
-        return theta_E
+            raise KeyError("Insufficient number of parameters to add theta_E.")
 
 
     def _add_lens_mass(self):
@@ -3241,11 +3240,6 @@ class UlensModelFit(object):
             pi_E = getattr(self._model.parameters, 'pi_E_mag')
             kappa = 8.14385328 # [mas/M_sun]
             return theta_E/(kappa*pi_E)
-        #elif hasattr(self._model.parameters, 'dalpha_dt'):
-        #    period = self._model.parameters.lens_period
-        #    a = self._model.parameters.lens_semimajor_axis
-        #    lens_mass = ((a*theta_E)**3 / period**2)
-        #    return lens_mass
         else:
             raise KeyError("Insufficient number of parameters to add lens mass.")
 
