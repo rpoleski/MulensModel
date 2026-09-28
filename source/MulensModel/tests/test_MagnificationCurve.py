@@ -351,7 +351,7 @@ class PSPLforBinaryTest(unittest.TestCase):
 
     def setUp(self) -> None:
         self.t_0 = 2458000.
-        self.u_0 = 0.02 # HM events are important for the tests.
+        self.u_0 = 0.02  # High-magnification events are important for the tests.
         self.t_E = 20.
         self.s = 10.
         self.q = 0.05
