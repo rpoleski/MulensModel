@@ -3215,11 +3215,35 @@ class UlensModelFit(object):
         a = self._model.parameters.lens_semimajor_axis
         #D_L = 
         theta_E = period/((kappa*pi_E)**(1/2) * (a)**(3/2))
-        return theta_E  
+        return theta_E
+
+    def _get_lens_mass(self):
+        """
+        Calculates the lens mass from third Kepler law,
+        parallax and theta_E
+        """
+        period = self._model.parameters.lens_period
+        kappa = 8.14385328  # [mas/M_sun]
+        pi_E = self._model.parameters.pi_E_mag
+        a = self._model.parameters.lens_semimajor_axis
+        D_L = self._get_lens_distance()
+        mass = period/((kappa*pi_E*a*D_L)**(3/2))
+        return mass
+
+    def _get_lens_distance(self):
+        """
+        Calculates the lens distance assuming D_S=8kpc.
+        """
+        theta_E = self._add_theta_E()
+        pi_S = 1/8
+        pi_E = getattr(self._model.parameters, 'pi_E_mag')
+        D_L = 1/(theta_E*pi_E + pi_S)
+        return D_L
+
 
     def _add_theta_E(self):
         """
-        Calculating theta_E based on the parameters present
+        Calculates theta_E from theta star and rho.
         """
         if 'theta star calculation' in self._model_parameters:
             theta_E = self._get_theta_star_from_flux() / self._model.parameters.rho
@@ -3230,13 +3254,15 @@ class UlensModelFit(object):
 
     def _add_lens_mass(self):
         """
-        Calculates lens mass if possible
+        Calculates lens mass if possible.
         """
         try:
             theta_E = self._add_theta_E()
         except:
             raise KeyError("Insufficient number of parameters to add lens mass.")
-        if hasattr(self._model.parameters, 'pi_E_mag'):
+        if self._model.parameters.is_keplerian() and hasattr(self._model.parameters, 'pi_E_mag'):
+            return self._get_lens_mass()
+        elif hasattr(self._model.parameters, 'pi_E_mag'):
             pi_E = getattr(self._model.parameters, 'pi_E_mag')
             kappa = 8.14385328 # [mas/M_sun]
             return theta_E/(kappa*pi_E)
