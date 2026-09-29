@@ -3210,10 +3210,9 @@ class UlensModelFit(object):
         """
         # bug here!!!!!
         period = self._model.parameters.lens_period
-        kappa = 8.14385328  # [mas/M_sun]
         pi_E = self._model.parameters.pi_E_mag
         a = self._model.parameters.lens_semimajor_axis
-        theta_E = period/((kappa*pi_E)**(1/2) * (a)**(3/2))
+        theta_E = period/((self._kappa*pi_E)**(1/2) * (a)**(3/2))
         return theta_E
 
     def _get_lens_mass(self):
@@ -3222,11 +3221,10 @@ class UlensModelFit(object):
         parallax and theta_E
         """
         period = self._model.parameters.lens_period
-        kappa = 8.14385328  # [mas/M_sun]
         pi_E = self._model.parameters.pi_E_mag
         a = self._model.parameters.lens_semimajor_axis
         D_L = self._get_lens_distance()
-        mass = period/((kappa*pi_E*a*D_L)**(3/2))
+        mass = period/((self._kappa*pi_E*a*D_L)**(3/2))
         return mass
 
     def _get_lens_distance(self):
@@ -3243,16 +3241,16 @@ class UlensModelFit(object):
         """
         Calculates theta_E from theta star and rho.
         """
-        if 'theta star calculation' in self._model_parameters:
-            theta_E = self._get_theta_star_from_flux() / self._model.parameters.rho
-            return theta_E
-        else:
+        if 'theta star calculation' not in self._model_parameters:
             raise KeyError("Insufficient number of parameters to add theta_E.")
+        theta_E = self._get_theta_star_from_flux() / self._model.parameters.rho
+        return theta_E
 
     def _add_lens_mass(self):
         """
         Calculates lens mass if possible.
         """
+        self._kappa = 8.14385328 # [mas/M_sun]
         try:
             theta_E = self._add_theta_E()
         except Exception:
@@ -3261,8 +3259,7 @@ class UlensModelFit(object):
             return self._get_lens_mass()
         elif hasattr(self._model.parameters, 'pi_E_mag'):
             pi_E = getattr(self._model.parameters, 'pi_E_mag')
-            kappa = 8.14385328  # [mas/M_sun]
-            return theta_E/(kappa*pi_E)
+            return theta_E/(self._kappa*pi_E)
         else:
             raise KeyError("Insufficient number of parameters to add lens mass.")
 
