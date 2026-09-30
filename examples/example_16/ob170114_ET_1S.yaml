@@ -1,0 +1,143 @@
+evolutionary_tracks:
+    #brutus_data: e.g. /user/brutus/data/DATAFILES/ 
+    # if not set, brutus will be set to the value of the environment variable 'BRUTUS_DATA'
+    photometric_map_file: data/OB170114/ob170114_photometric_map.txt 
+    # for CMD track plot, if not set,the track will be plotted without the the neighbor stars
+    loga_max: 13.
+    # maximum log10(a) in Kpc for the Brutus grid, default is 13.
+    eep_max: 808
+    # maximum EEP for the Brutus grid, default is 808.
+    tol: 0.0001
+    #  Convergence tolerance (in dex) on the log10(age) match when solvindg for the secondary's EEP in a binary. default is 1e-5.
+photometry_files:
+    - file_name: data/OB170114/ob170114_I.dat
+      phot_fmt: 'mag'
+      add_2450000: False
+      plot_properties: {zorder: 10., color: red, label: "OGLE I-band"}
+      MIST_bandpass: Bessell_I #  any other bandpass available in Brutus/MIST
+    - file_name: data/OB170114/ob170114_V.dat
+      phot_fmt: 'mag'
+      add_2450000: False
+      plot_properties: {zorder: 10., color: blue, label: "OGLE V-band"}
+      MIST_bandpass: Bessell_V
+model:   
+    coords: 17:21:57.74 -29:37:25.3
+    methods: 2457850. VBBL 2457975. 
+    default method: point_source_point_lens
+    methods parameters:
+        VBBL:
+          relative_accuracy: 0.01
+
+fixed_parameters:
+    t_0_par: 2457933.5
+    t_0_xi:  2457933.5
+starting_parameters:
+
+    t_0: gauss 2457933.8954 0.0001
+    u_0: gauss 0.2984794030540996 0.0001
+    t_E: gauss 80.45055147930728 0.0001
+    rho: gauss 0.0500756837997327 0.0001
+    pi_E_N: gauss 0.14334573709105497 0.0001
+    pi_E_E: gauss -0.25558500812208407 0.0001
+    s: gauss 0.30391772000048467 0.0001
+    q: gauss 0.022558901548159906 0.0001
+    alpha: gauss 342.0196936148709 0.0001
+    xi_period: gauss 670.4463321949931 0.0001
+    xi_semimajor_axis: gauss 1.1146058706422197 0.0001
+    xi_Omega_node: gauss 163.46550585188584 0.0001
+    xi_inclination: gauss 112.55168903566832 0.0001
+    xi_argument_of_latitude_reference: gauss 77.96372443454723 0.0001
+    xi_eccentricity: gauss 0.25673469576284713 0.0001
+    xi_omega_periapsis: gauss 49.74214035055067 0.0001
+    M_ini_S: gauss 2.526433645098531 0.0001
+    EEP_S: gauss 690.7701249857622 0.0001
+    feh_S: gauss -0.5457479889158399 0.0001
+    D_S: gauss 13485.531389320404 0.0001
+    AV_S: gauss 3.8512964428354106 0.0001
+
+min_values:
+
+        
+    xi_period:  1.
+    xi_semimajor_axis :   0.000001 
+    xi_inclination:   -5.00 
+    xi_Omega_node:   -5.00 
+    xi_argument_of_latitude_reference:   -5.00 
+    xi_eccentricity:   0.00 
+    xi_omega_periapsis :   -5.0  
+        
+    t_0: 2457800. 
+    u_0: 0.00000
+    t_E: 5.0000000
+    pi_E_N: -1.00000
+    pi_E_E: -1.00000
+
+    q : 0.00000
+    s : 0.00000
+    alpha : -5.00000
+
+    M_ini_S :   0.080000  
+    EEP_S   :   10.000000  
+    feh_S   :   -4.000000  
+    AV_S    :   0.000000  
+    D_S     :   1000.000000  
+    
+    rho :  0.000010
+
+max_values:
+    
+    xi_period:    2000.000 
+    xi_semimajor_axis : 4.00 
+    xi_inclination:   185.00 
+    xi_Omega_node:   365.00 
+    xi_argument_of_latitude_reference:   365.00 
+    xi_eccentricity:   1.00
+    xi_omega_periapsis :   365.0
+    
+    t_0: 2458000.0000000
+    u_0:  2.00000
+    t_E : 500.00000
+
+    pi_E_N: 1.00000
+    pi_E_E: 1.00000
+
+    q : 0.50000
+    s : 6.00000
+    alpha : 365.00000
+
+    M_ini_S :   100.000000  
+    EEP_S   :   808.000000  
+    feh_S   :   0.500000  
+    AV_S    :   10.000000  
+    D_S     :   20000.0  
+    
+    rho  :  5.000000
+
+
+fitting_parameters:
+    n_walkers: 50
+    n_steps: 80
+    n_burn:  5
+
+
+plots:
+    best model:
+        # You can skip the line below - the light curve will be plotted on screen.
+        file: ob170114_1S_model.png
+        time range:  2457600 2458300
+        interactive : ob170114_1S_model.html
+    triangle:
+        file: ob170114_1S_triangle.png
+    trace:
+        file: ob170114_1S_trace.png
+    trajectory:
+        file: ob170114_1S_trajectory.png
+        time range:  2457600 2458300
+        interactive : ob170114_1S_trajectory.html
+    track: 
+        file: ob170114_1S_track.png
+other_output:
+    yaml output:
+        # Value "-" in line below means that the models will be printed to screen instead of a file.
+        file name: ob170114_1S_results.yaml
+
