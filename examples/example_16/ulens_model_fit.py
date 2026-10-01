@@ -611,6 +611,7 @@ class UlensModelFit(object):
             lens_semimajor_axis='a', lens_period='P',
             lens_eccentricity='e', lens_inclination='I',
             theta_E='\\theta_{E}', lens_mass='M',
+            D_S='D_{S}',
             x_caustic_in='x_{\\rm caustic,in}',
             x_caustic_out='x_{\\rm caustic,out}',
             t_caustic_in='t_{\\rm caustic,in}',
@@ -2004,6 +2005,8 @@ class UlensModelFit(object):
         """
         self._prior_t_E = None
         self._prior_theta_star = None
+        self._prior_pi_S = None
+        self._prior_source_distance = None
         self._priors = None
 
         if self._fit_constraints is None:
@@ -2927,6 +2930,8 @@ class UlensModelFit(object):
                     extras.append(self._add_theta_E())
                 elif par == 'lens_mass':
                     extras.append(self._add_lens_mass())
+                elif par == 'D_S':
+                    extras.append(self._add_source_distance())
                 else:
                     try:
                         extras.append(getattr(self._model.parameters, par))
@@ -3084,7 +3089,7 @@ class UlensModelFit(object):
         reference = self._get_theta_star_from_flux()
         delta_theta = self._get_theta_star() - reference
         sigma = reference * self._model_parameters['theta star calculation']['relative sigma']
-        out = self._get_ln_normal(delta_theta, sigma)
+        out = self._get_ln_normal(delta_theta, sigma, 0)
         return out
 
     def _get_theta_star_from_flux(self):
@@ -3237,6 +3242,24 @@ class UlensModelFit(object):
         D_L = 1/(theta_E*pi_E + pi_S)
         return D_L
 
+    def _add_source_distance(self):
+        """
+        """
+        return 1/self._get_source_parallax()
+
+    def _get_source_parallax(self):
+        """
+        """
+        self._kappa = 8.14385328 # [mas/M_sun]
+        #D_L = self._fit_parameters.D_L
+        D_L = 4
+        period = self._model.parameters.lens_period
+        pi_E = self._model.parameters.pi_E_mag
+        a = self._model.parameters.lens_semimajor_axis
+        pi_S = 1/D_L - np.sqrt((pi_E* period**2)/(self._kappa * (D_L*a)**3))
+        return pi_S
+
+
     def _add_theta_E(self):
         """
         Calculates theta_E from theta star and rho.
@@ -3270,11 +3293,11 @@ class UlensModelFit(object):
         theta_star = self._get_theta_E() * self._model.parameters.rho
         return theta_star
 
-    def _get_ln_normal(self, x, sigma):
+    def _get_ln_normal(self, x, sigma, mu):
         """
         Normal distribution with mu=0.
         """
-        out = np.log(1/(np.sqrt(2 * np.pi * sigma**2))) - (x**2 / (2 * sigma**2))
+        out = np.log(1/(np.sqrt(2 * np.pi * sigma**2))) - ((x-mu)**2 / (2 * sigma**2))
         return out
 
     def _ln_like(self, theta):
