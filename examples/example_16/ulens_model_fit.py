@@ -2381,20 +2381,19 @@ class UlensModelFit(object):
 
     def _check_if_DL_in_params(self):
         """
-
+        Check if D_L is included in fitting if theta star comparion is True.
         """
-        pass
-        #if self._prior_theta_star is not None:
-        #    if 'D_L' not in self._other_parameters_dict:
-        #        raise ValueError("Theta star comparison requires D_L in fitted model.")
-        #    else:
-        #        self._check_if_DS_in_extras()
+        if self._prior_theta_star is not None:
+            if 'D_L' not in self._other_parameters:
+                raise ValueError("Theta star comparison requires D_L in fitted model.")
+            else:
+                self._check_if_DS_in_extras()
 
     def _check_if_DS_in_extras(self):
         """
+        Checks if D_S is included in extra parameters if D_L is fitted.
         """
-        pass
-        if 'D_L' in self._other_parameters_dict:
+        if 'D_L' in self._other_parameters:
             if 'D_S' not in self._extra_parameters:
                 raise ValueError("Add D_S to extra parameters to check if the value is right.")
 

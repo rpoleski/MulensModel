@@ -11,6 +11,7 @@ class MyUlensModelFit(UlensModelFit):
     def _set_default_user_and_other_parameters(self):
         self._other_parameters = ['D_L']
         self._latex_conversion_other = {'D_L': 'D_{L}'}
+        self._check_if_DS_in_extras()
 
 
     def _get_ln_probability_for_other_parameters(self):
