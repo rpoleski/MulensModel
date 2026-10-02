@@ -2316,7 +2316,7 @@ class UlensModelFit(object):
                 else:
                     raise ValueError("Unrecognized t_E prior: " + value)
                 self._read_prior_t_E_data()
-            elif key in ['pi_E_E', 'pi_E_N']:
+            elif key in ['pi_E_E', 'pi_E_N', 'D_S']:
                 words = value.split()
                 if len(words) != 3 or words[0] != 'gauss':
                     msg = "Something went wrong in parsing prior for "
@@ -2334,6 +2334,7 @@ class UlensModelFit(object):
                 if value is True:
                     self._prior_theta_star = value
                     self._check_theta_star_calculation()
+                    self._check_if_DL_in_params()
                 elif value is not False:
                     raise ValueError("wrong 'compare theta star' value: {:}".format(value))
             else:
@@ -2377,6 +2378,25 @@ class UlensModelFit(object):
         if self._prior_theta_star is not None:
             if 'theta star calculation' not in self._model_parameters:
                 raise ValueError("Theta star comparison requires model['theta star calculation'].")
+
+    def _check_if_DL_in_params(self):
+        """
+
+        """
+        pass
+        #if self._prior_theta_star is not None:
+        #    if 'D_L' not in self._other_parameters_dict:
+        #        raise ValueError("Theta star comparison requires D_L in fitted model.")
+        #    else:
+        #        self._check_if_DS_in_extras()
+
+    def _check_if_DS_in_extras(self):
+        """
+        """
+        pass
+        if 'D_L' in self._other_parameters_dict:
+            if 'D_S' not in self._extra_parameters:
+                raise ValueError("Add D_S to extra parameters to check if the value is right.")
 
     def _get_no_of_dataset(self, label):
         """
@@ -3213,11 +3233,12 @@ class UlensModelFit(object):
         """
         Calculates theta_E from third Kepler law.
         """
-        # bug here!!!!!
+        self._kappa = 8.14385328
         period = self._model.parameters.lens_period
         pi_E = self._model.parameters.pi_E_mag
         a = self._model.parameters.lens_semimajor_axis
-        theta_E = period/((self._kappa*pi_E)**(1/2) * (a)**(3/2))
+        DL = self._other_parameters_dict["D_L"]
+        theta_E = period/((self._kappa*pi_E)**(1/2) * (a*DL)**(3/2))
         return theta_E
 
     def _get_lens_mass(self):
@@ -3251,8 +3272,8 @@ class UlensModelFit(object):
         """
         """
         self._kappa = 8.14385328 # [mas/M_sun]
-        #D_L = self._fit_parameters.D_L
-        D_L = 4
+        
+        D_L = self._other_parameters_dict["D_L"]
         period = self._model.parameters.lens_period
         pi_E = self._model.parameters.pi_E_mag
         a = self._model.parameters.lens_semimajor_axis
