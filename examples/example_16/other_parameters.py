@@ -15,9 +15,7 @@ class MyUlensModelFit(UlensModelFit):
 
 
     def _get_ln_probability_for_other_parameters(self):
-        source_distance = self._add_source_distance()
-        out = self._get_ln_normal(source_distance, 1, 8.5)
-        return out
+        return -0.5
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:

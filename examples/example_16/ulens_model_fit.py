@@ -3045,6 +3045,10 @@ class UlensModelFit(object):
                     value = self._model.parameters.parameters[parameter]
                     ln_prior += self._get_ln_prior_for_1_parameter(
                         value, prior_settings)
+                elif parameter == 'D_S':
+                    value = self._add_source_distance()
+                    ln_prior += self._get_ln_prior_for_1_parameter(
+                        value, prior_settings)
 
                 else:
                     raise ValueError('prior not handled: ' + parameter)
@@ -3099,7 +3103,7 @@ class UlensModelFit(object):
             if self._prior_t_E == 'Mroz+20':
                 out += 3. * math.log(10) * (x - self._prior_t_E_data['x_min'])
             return out
-
+    
     def _ln_prior_theta_star(self):
         """
         Get log prior for theta_star of current model. This function is executed
@@ -3264,11 +3268,14 @@ class UlensModelFit(object):
 
     def _add_source_distance(self):
         """
+        Calculates the source distance from source parallax.
         """
         return 1/self._get_source_parallax()
 
     def _get_source_parallax(self):
         """
+        Calculates the source parallax from fitted D_L,
+        keplerian motion parallax.
         """
         self._kappa = 8.14385328 # [mas/M_sun]
         
