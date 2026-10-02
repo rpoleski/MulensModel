@@ -1,0 +1,53 @@
+photometry_files:
+    - {file_name: /home/data/ceres/zbudzik/events_for_rtmodel/MM/ob110975/phot_dat_MM_format/phot_ogle.dat, plot_properties: {color: slateblue}}
+    - {file_name: /home/data/ceres/zbudzik/events_for_rtmodel/MM/ob110975/phot_dat_MM_format/phot_moa.dat, phot_fmt: flux, plot_properties: {color: deeppink}}
+model:
+    default method: VBBL
+    coords: 17:56:46.73 -30:00:17.5
+    theta star calculation:
+        relation: Red Clump
+        A_I: 1.426
+        mag I label: phot_ogle.dat
+extra_parameters: 
+    - 'theta_E'
+    - 'lens_mass'
+    - 'D_S'
+starting_parameters:
+    t_0: gauss 2455761.104714325 0.00001
+    u_0: gauss -0.09194817723207258 0.00001
+    t_E: gauss 16.7828435878553 0.00005
+    rho: gauss 0.002373116397576322 0.000002
+    s: gauss 1.6275837800940072 0.00001
+    q: gauss 0.7156837690204201 0.00001
+    alpha: gauss 15.97436831014195 0.00001
+    pi_E_N: gauss 0.49849839688877556 0.00001
+    pi_E_E: gauss -3.803981850011145 0.00001
+    ds_dt: gauss -4.134101952057878 0.00001
+    dalpha_dt: gauss -19.894306530866476 0.00001
+    ds_z_dt: gauss 3.4508598443318808 0.00001
+    D_L: gauss 4. 0.1
+min_values:
+    t_0: 2455746.104714325
+    u_0: -1.0
+    t_E: 0.0
+    rho: 0.0
+    q: 0.0
+    s: 0.0
+    alpha: -20.
+max_values:
+    t_0: 2455776.104714325
+    u_0: 1.0
+    t_E: 400.0
+    rho: 0.1
+    q: 5.0
+    s: 4.0
+    alpha: 400.
+fit_constraints:
+    prior:
+        D_S: gauss 8.5 1
+        #pi_S: uniform 0.1 0.14
+        compare theta star: True
+fitting_parameters:
+    n_walkers: 30
+    n_steps: 10
+    n_burn: 1
