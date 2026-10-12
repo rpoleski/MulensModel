@@ -1,0 +1,48 @@
+photometry_files:
+    - {file_name: /home/data/ceres/zbudzik/events_for_rtmodel/auto_test_moa/MM/ob190033/phot_dat_MM_format/phot_ogle.dat, plot_properties: {color: slateblue}}
+model:
+    default method: VBBL
+    coords: 18:08:38.26 -30:03:38.7
+    theta star calculation: 
+        relation: Red Clump
+        A_I: 0.852
+        mag I label: 'phot_ogle.dat'
+extra_parameters: ['theta_E', 'lens_mass', 'lens_semimajor_axis', 'D_S']
+starting_parameters:
+    t_0: gauss 2458689. 0.001
+    u_0: gauss -0.06491 0.001
+    t_E: gauss 103.85 0.005
+    rho: gauss 0.01007 0.00002
+    s: gauss 0.3336 0.001
+    q: gauss 0.3114 0.001
+    alpha: gauss 59.2323 0.001
+    pi_E_E: gauss -0.1873 0.01
+    pi_E_N: gauss 0.2884 0.01
+    ds_dt: gauss -1.080 0.01
+    #ds_dt: gauss -0.360288 0.01 
+    dalpha_dt: gauss -5.21 0.01
+    ds_z_dt: gauss 0.4 0.01
+    #ds_z_dt: gauss 0.13344 0.01
+    D_L : gauss 3.22 0.01
+min_values:
+    t_0: 2458641.654860181
+    t_E: 0.0
+    rho: 0.0
+    q: 0.0
+    s: 0.0
+    alpha: -20.0
+    D_L: 3.20
+max_values:
+    u_0: 1.0
+    rho: 0.1
+    q: 7.0
+    s: 4.0
+    alpha: 400.
+    D_L: 3.25
+fitting_parameters:
+    n_walkers: 30
+    n_steps: 20
+    n_burn: 1
+plots:
+    triangle:
+        file: ob190033_05_Oct_LS0150-1_triangle.png
