@@ -7,7 +7,7 @@ model:
         relation: Red Clump
         A_I: 0.852
         mag I label: 'phot_ogle.dat'
-extra_parameters: ['theta_E', 'lens_mass', 'lens_semimajor_axis', 'D_S']
+extra_parameters: ['theta_E', 'D_S']
 starting_parameters:
     t_0: gauss 2458689. 0.001
     u_0: gauss -0.06491 0.001
@@ -43,6 +43,10 @@ fitting_parameters:
     n_walkers: 30
     n_steps: 20
     n_burn: 1
+fit_constraints:
+    prior:
+        D_S: gauss 8.5 0.1
+        compare theta star: True
 plots:
     triangle:
         file: ob190033_05_Oct_LS0150-1_triangle.png

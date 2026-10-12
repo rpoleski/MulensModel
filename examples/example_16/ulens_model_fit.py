@@ -612,7 +612,7 @@ class UlensModelFit(object):
             lens_semimajor_axis='a', lens_period='P',
             lens_eccentricity='e', lens_inclination='I',
             theta_E='\\theta_{E}', lens_mass='M',
-            D_S='D_{S}',
+            D_S='D_{S}', theta_E_alt='\\theta_{E,alt}',
             x_caustic_in='x_{\\rm caustic,in}',
             x_caustic_out='x_{\\rm caustic,out}',
             t_caustic_in='t_{\\rm caustic,in}',
@@ -1612,6 +1612,11 @@ class UlensModelFit(object):
                 conversion[key] = '\\Delta ' + conversion[key]
 
         if self._fit_constraints is not None:
+            if self._fit_constraints['prior']['compare theta star']:
+                if 'theta_E' in self._extra_parameters:
+                    print('hello')
+                    self._extra_parameters.append("theta_E_alt")
+
             if 'posterior parsing' in self._fit_constraints:
                 settings = self._fit_constraints['posterior parsing']
                 for key in settings:  # We should check if the parameters do not repeat.
@@ -2956,7 +2961,9 @@ class UlensModelFit(object):
         if self._extra_parameters is not None:
             for par in self._extra_parameters:
                 if par == 'theta_E':
-                    extras.append(self._add_theta_E())
+                    extras.append(self._get_theta_E_from_theta_star())
+                elif par == 'theta_E_alt':
+                    extras.append(self._get_theta_E())
                 elif par == 'lens_mass':
                     extras.append(self._add_lens_mass())
                 elif par == 'D_S':
@@ -3290,7 +3297,7 @@ class UlensModelFit(object):
         pi_S = 1/D_L - np.sqrt((pi_E * period**2)/(self._kappa * (D_L*a)**3))
         return pi_S
 
-    def _add_theta_E(self):
+    def _get_theta_E_from_theta_star(self):
         """
         Calculates theta_E from theta star and rho.
         """
@@ -3305,7 +3312,7 @@ class UlensModelFit(object):
         Calculates lens mass if possible.
         """
         try:
-            theta_E = self._add_theta_E()
+            theta_E = self._get_theta_E_from_theta_star()
         except Exception:
             raise KeyError("Insufficient number of parameters to add lens mass.")
         if self._model.parameters.is_keplerian() and hasattr(self._model.parameters, 'pi_E_mag'):
