@@ -1946,9 +1946,8 @@ class UlensModelFit(object):
                            "is larger than the upper limit: {:} vs {:}")
                     raise ValueError(fmt.format(key, self._min_values[key], self._max_values[key]))
 
-        self._min_values_indexed, self._min_values_indexed_extra  = self._parse_min_max_values_single(self._min_values)
-        self._max_values_indexed, self._max_values_indexed_extra  = self._parse_min_max_values_single(self._max_values)
-
+        self._min_values_indexed, self._min_values_indexed_extra = self._parse_min_max_values_single(self._min_values)
+        self._max_values_indexed, self._max_values_indexed_extra = self._parse_min_max_values_single(self._max_values)
 
     def _parse_min_max_values_single(self, limits):
         """
@@ -1964,7 +1963,8 @@ class UlensModelFit(object):
             if key not in self._fit_parameters:
                 if self._extra_parameters is not None:
                     if key not in self._extra_parameters:
-                        fmt = 'Key provided in limits: {:}\nis not one of the parameters for fitting or in extra: {:}{:}'
+                        fmt = ('Key provided in limits: {:}\n'
+                               'is not one of the parameters for fitting or in extra: {:} {:}')
                         raise ValueError(fmt.format(key, self._fit_parameters, self._extra_parameters))
                     else:
                         self._limits_on_extra_parameters = True
