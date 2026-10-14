@@ -1,0 +1,36 @@
+True:
+theta_E : 0.545
+lens_mass : 0.195
+D_L: 3.22
+D_S: 8.1
+
+Only parallax and theta_E from flux (here diff method than in the paper)
+Extra parameters:
+theta_E : 0.47660 +0.00213 -0.00189
+lens_mass : 0.16469 +0.00590 -0.00881
+
+After fixing theta_E = 0.545:
+
+Extra parameters:
+theta_E : 0.54500 +0.00000 -0.00000
+lens_mass : 0.19320 +0.00635 -0.01015
+
+With D_L as fitted param:
+From table 3
+ds_dt : -1.09021 +0.01175 -0.03124
+dalpha_dt : -5.21271 +0.01035 -0.01322 changed to deg
+ds_z_dt : 0.40872 +0.00967 -0.00899
+
+D_L : 3.22048 +0.00930 -0.00565
+Extra parameters:
+theta_E : 0.54500 +0.00000 -0.00000
+lens_mass : 0.20184 +0.00714 -0.01510
+D_S : 8.80796 +0.24646 -0.39468
+theta_E_alt : 0.56996 +0.00934 -0.02630
+
+Orbital motion params scaled for s (the correct way):
+ds_dt: gauss -0.360288 0.01
+dalpha_dt: gauss -5.21 0.01
+ds_z_dt: gauss 0.13344 0.01
+
+D_S < 0 !!

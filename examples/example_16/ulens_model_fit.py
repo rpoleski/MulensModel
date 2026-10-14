@@ -1938,6 +1938,7 @@ class UlensModelFit(object):
         Parse min and max values of parameters so that they're properly
         indexed.
         """
+        self._limits_on_extra_parameters = False
         if self._min_values is None:
             self._min_values = []
         if self._max_values is None:
@@ -1959,7 +1960,6 @@ class UlensModelFit(object):
         """
         out = dict()
         out_extra = dict()
-        self._limits_on_extra_parameters = False
         if len(limits) == 0:
             return out, out_extra
 
@@ -1977,7 +1977,6 @@ class UlensModelFit(object):
             else:
                 index = self._fit_parameters.index(key)
                 out[index] = value
-
         return out, out_extra
 
     def _set_prior_limits_MultiNest(self):
@@ -3303,7 +3302,6 @@ class UlensModelFit(object):
         if 'theta star calculation' not in self._model_parameters:
             raise KeyError("Insufficient number of parameters to add theta_E.")
         theta_E = self._get_theta_star_from_flux() / self._model.parameters.rho
-        # if compare theta star = True to theta_E == self._get_theta_E ??
         return theta_E
 
     def _add_lens_mass(self):
