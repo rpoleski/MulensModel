@@ -1614,7 +1614,6 @@ class UlensModelFit(object):
         if self._fit_constraints is not None:
             if self._fit_constraints['prior']['compare theta star']:
                 if 'theta_E' in self._extra_parameters:
-                    print('hello')
                     self._extra_parameters.append("theta_E_alt")
 
             if 'posterior parsing' in self._fit_constraints:
