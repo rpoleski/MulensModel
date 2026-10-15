@@ -162,7 +162,9 @@ class UlensModelFit(object):
             triangle plot, trace plot, and posterior. They are not fitted themselves
             but calculated from the fitted parameters. Currently accepted values are:
             ``lens_semimajor_axis``, ``lens_period``, ``lens_eccentricity``, ``lens_inclination``
-            ``theta_E`` and ``lens_mass``.
+            ``theta_E``, ``theta_E_alt`` and ``lens_mass``. ``theta_E`` is calculated from 
+            theta_star and rho, ``theta_E_alt`` is calculated from parallax, orbital motion and lens
+            distance.
             Works only for EMCEE fitting.
 
         model: *dict*
