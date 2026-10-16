@@ -3032,16 +3032,6 @@ class UlensModelFit(object):
         outside = -np.inf
         self._kappa = 8.14385328
         if self._fit_method == "EMCEE":
-            if self._limits_on_extra_parameters:
-                self._set_model_parameters(theta)
-                extras = self._get_extras()
-                for (index, limit) in self._min_values_indexed_extra.items():
-                    if extras[index] < limit:
-                        return outside
-                for (index, limit) in self._max_values_indexed_extra.items():
-                    if extras[index] > limit:
-                        return outside
-
             for (index, limit) in self._min_values_indexed.items():
                 if theta[index] < limit:
                     return outside
@@ -3054,6 +3044,16 @@ class UlensModelFit(object):
                 self._set_model_parameters(theta)
                 if not self._check_valid_Cassan08_trajectory():
                     return outside
+
+            if self._limits_on_extra_parameters:
+                self._set_model_parameters(theta)
+                extras = self._get_extras()
+                for (index, limit) in self._min_values_indexed_extra.items():
+                    if extras[index] < limit:
+                        return outside
+                for (index, limit) in self._max_values_indexed_extra.items():
+                    if extras[index] > limit:
+                        return outside
 
         ln_prior = inside
 
