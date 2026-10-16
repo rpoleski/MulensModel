@@ -162,9 +162,9 @@ class UlensModelFit(object):
             triangle plot, trace plot, and posterior. They are not fitted themselves
             but calculated from the fitted parameters. Currently accepted values are:
             ``lens_semimajor_axis``, ``lens_period``, ``lens_eccentricity``, ``lens_inclination``
-            ``theta_E``, ``theta_E_alt`` and ``lens_mass``. ``theta_E`` is calculated from 
-            theta_star and rho, ``theta_E_alt`` is calculated from parallax, orbital motion and lens
-            distance.
+            ``theta_E``, ``theta_E_alt`` and ``lens_mass``. ``theta_E`` is calculated based on information in the
+            theta star calculation and ``theta_E_alt`` is calculated from parallax, orbital motion and lens
+            distance. Extra parameters can also be added to min and max values.
             Works only for EMCEE fitting.
 
         model: *dict*
@@ -376,7 +376,9 @@ class UlensModelFit(object):
 
                 ``'compare theta star': True`` - gaussian prior taking into account theta_star parameter calculated by
                 two diffferent methods. Assumes the results differ by a normal distribution with 0 mean and relative
-                sigma of 0.05. Requires parallax and orbital motion int the model and photometry in 2 different bands.
+                sigma of 0.05. Requires parallax and orbital motion in the model, theta star calculation and D_L in
+                the fitted parameters. If True ``theta_E_alt`` in automatically added to the extra parameters.
+
 
             References:
               Mao & Paczynski 1996 - https://ui.adsabs.harvard.edu/abs/1996ApJ...473...57M/abstract
