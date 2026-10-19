@@ -3290,13 +3290,12 @@ class UlensModelFit(object):
     def _get_source_parallax(self):
         """
         Calculates the source parallax from fitted D_L,
-        keplerian motion parallax.
+        parallax and keplerian motion dependant theta_E.
         """
         D_L = self._other_parameters_dict["D_L"]
-        period = self._model.parameters.lens_period
         pi_E = self._model.parameters.pi_E_mag
-        a = self._model.parameters.lens_semimajor_axis
-        pi_S = 1/D_L - np.sqrt((pi_E * period**2)/(self._kappa * (D_L*a)**3))
+        theta_E = self._get_theta_E()
+        pi_S = 1/D_L - (theta_E*pi_E)
         return pi_S
 
     def _get_theta_E_from_theta_star(self):
