@@ -57,10 +57,11 @@ starting_parameters:
     #   file: ob08092-o4_starting_file_input.txt
     #   parameters: t_0 u_0 t_E
     # See also ob08092-o4_starting_file.yaml
+    # It is also possible to add parameters to the fitting, see other_parameters_1_ob190033.yaml and corresponding other_parameters_1.py.
     ERR_k_OB03235_MOA.txt: gauss 1.0 0.001 # Scaling (multiplication) of uncertainties of the second dataset.
     # The other possibility is to use ERR_e_OB03235_MOA.txt which adds minimum uncertainty in squares.
-extra_parameters: ["theta_E"] #only for emcee, these parameters will be included in the output and posterior file and they
-# will be plotted on the triangle and trace plots along with the starting parameters 
+# extra_parameters: ["lens_period", "semi_major_axis", "theta_E", "lens_mass"] #only for emcee, these parameters
+# will be included in the output and posterior file and they will be plotted on the triangle and trace plots along with the starting parameters. 
 # prior_limits:
 #     t_0: [2452847.5, 2452848.5]
 #     u_0: [0.08, 0.18]
