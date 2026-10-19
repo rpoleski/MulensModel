@@ -161,7 +161,10 @@ class UlensModelFit(object):
             Additional parameters you want to a add to the final output,
             triangle plot, trace plot, and posterior. They are not fitted themselves
             but calculated from the fitted parameters. Currently accepted values are:
-            ``lens_semimajor_axis``, ``lens_period``, ``lens_eccentricity``, and ``lens_inclination``.
+            ``lens_semimajor_axis``, ``lens_period``, ``lens_eccentricity``, ``lens_inclination``
+            ``theta_E``, ``theta_E_alt`` and ``lens_mass``. ``theta_E`` is calculated based on information in the
+            theta star calculation and ``theta_E_alt`` is calculated from parallax, orbital motion and lens
+            distance. Extra parameters can also be added to min and max values.
             Works only for EMCEE fitting.
 
         model: *dict*
@@ -373,7 +376,9 @@ class UlensModelFit(object):
 
                 ``'compare theta star': True`` - gaussian prior taking into account theta_star parameter calculated by
                 two diffferent methods. Assumes the results differ by a normal distribution with 0 mean and relative
-                sigma of 0.05. Requires parallax and orbital motion int the model and photometry in 2 different bands.
+                sigma of 0.05. Requires parallax and orbital motion in the model, theta star calculation and D_L in
+                the fitted parameters. If True ``theta_E_alt`` in automatically added to the extra parameters.
+
 
             References:
               Mao & Paczynski 1996 - https://ui.adsabs.harvard.edu/abs/1996ApJ...473...57M/abstract
@@ -611,6 +616,7 @@ class UlensModelFit(object):
             lens_semimajor_axis='a', lens_period='P',
             lens_eccentricity='e', lens_inclination='I',
             theta_E='\\theta_{E}', lens_mass='M',
+            D_S='D_{S}', theta_E_alt='\\theta_{E,alt}',
             x_caustic_in='x_{\\rm caustic,in}',
             x_caustic_out='x_{\\rm caustic,out}',
             t_caustic_in='t_{\\rm caustic,in}',
@@ -1610,6 +1616,10 @@ class UlensModelFit(object):
                 conversion[key] = '\\Delta ' + conversion[key]
 
         if self._fit_constraints is not None:
+            if self._fit_constraints['prior']['compare theta star']:
+                if 'theta_E_alt' not in self._extra_parameters:
+                    self._extra_parameters.append("theta_E_alt")
+
             if 'posterior parsing' in self._fit_constraints:
                 settings = self._fit_constraints['posterior parsing']
                 for key in settings:  # We should check if the parameters do not repeat.
@@ -1932,6 +1942,7 @@ class UlensModelFit(object):
         Parse min and max values of parameters so that they're properly
         indexed.
         """
+        self._limits_on_extra_parameters = False
         if self._min_values is None:
             self._min_values = []
         if self._max_values is None:
@@ -1944,26 +1955,33 @@ class UlensModelFit(object):
                            "is larger than the upper limit: {:} vs {:}")
                     raise ValueError(fmt.format(key, self._min_values[key], self._max_values[key]))
 
-        self._min_values_indexed = self._parse_min_max_values_single(self._min_values)
-        self._max_values_indexed = self._parse_min_max_values_single(self._max_values)
+        self._min_values_indexed, self._min_values_indexed_extra = self._parse_min_max_values_single(self._min_values)
+        self._max_values_indexed, self._max_values_indexed_extra = self._parse_min_max_values_single(self._max_values)
 
     def _parse_min_max_values_single(self, limits):
         """
         change dict that has str as key to index as key
         """
         out = dict()
+        out_extra = dict()
         if len(limits) == 0:
-            return out
+            return out, out_extra
 
         for (key, value) in limits.items():
             if key not in self._fit_parameters:
-                fmt = 'Key provided in limits: {:}\nis not one of the parameters for fitting: {:}'
-                raise ValueError(fmt.format(key, self._fit_parameters))
-
-            index = self._fit_parameters.index(key)
-            out[index] = value
-
-        return out
+                if self._extra_parameters is not None:
+                    if key not in self._extra_parameters:
+                        fmt = ('Key provided in limits: {:}\n'
+                               'is not one of the parameters for fitting or in extra: {:} {:}')
+                        raise ValueError(fmt.format(key, self._fit_parameters, self._extra_parameters))
+                    else:
+                        self._limits_on_extra_parameters = True
+                        index = self._extra_parameters.index(key)
+                        out_extra[index] = value
+            else:
+                index = self._fit_parameters.index(key)
+                out[index] = value
+        return out, out_extra
 
     def _set_prior_limits_MultiNest(self):
         """
@@ -2313,7 +2331,7 @@ class UlensModelFit(object):
                 else:
                     raise ValueError("Unrecognized t_E prior: " + value)
                 self._read_prior_t_E_data()
-            elif key in ['pi_E_E', 'pi_E_N']:
+            elif key in ['pi_E_E', 'pi_E_N', 'D_S']:
                 words = value.split()
                 if len(words) != 3 or words[0] != 'gauss':
                     msg = "Something went wrong in parsing prior for "
@@ -2331,6 +2349,7 @@ class UlensModelFit(object):
                 if value is True:
                     self._prior_theta_star = value
                     self._check_theta_star_calculation()
+                    self._check_if_DL_in_params()
                 elif value is not False:
                     raise ValueError("wrong 'compare theta star' value: {:}".format(value))
             else:
@@ -2374,6 +2393,26 @@ class UlensModelFit(object):
         if self._prior_theta_star is not None:
             if 'theta star calculation' not in self._model_parameters:
                 raise ValueError("Theta star comparison requires model['theta star calculation'].")
+
+    def _check_if_DL_in_params(self):
+        """
+        Check if D_L is included in fitting if theta star comparion is True.
+        """
+        if self._prior_theta_star is not None:
+            if 'D_L' not in self._other_parameters:
+                raise ValueError("Theta star comparison requires D_L in fitted model.")
+            else:
+                self._check_if_DS_in_extras()
+
+    def _check_if_DS_in_extras(self):
+        """
+        Checks if D_S is included in extra parameters if D_L is fitted.
+        """
+        if self._extra_parameters is None:
+            raise ValueError("Add extra_parameters block.")
+        if 'D_L' in self._other_parameters:
+            if 'D_S' not in self._extra_parameters:
+                raise ValueError("Add D_S to extra parameters to check if the value is right.")
 
     def _get_no_of_dataset(self, label):
         """
@@ -2924,7 +2963,13 @@ class UlensModelFit(object):
         if self._extra_parameters is not None:
             for par in self._extra_parameters:
                 if par == 'theta_E':
-                    extras.append(self._get_theta_star_from_flux() / self._model.parameters.rho)
+                    extras.append(self._get_theta_E_from_theta_star())
+                elif par == 'theta_E_alt':
+                    extras.append(self._get_theta_E())
+                elif par == 'lens_mass':
+                    extras.append(self._add_lens_mass())
+                elif par == 'D_S':
+                    extras.append(self._add_source_distance())
                 else:
                     try:
                         extras.append(getattr(self._model.parameters, par))
@@ -2985,7 +3030,7 @@ class UlensModelFit(object):
         """
         inside = 0.
         outside = -np.inf
-
+        self._kappa = 8.14385328
         if self._fit_method == "EMCEE":
             for (index, limit) in self._min_values_indexed.items():
                 if theta[index] < limit:
@@ -2999,6 +3044,16 @@ class UlensModelFit(object):
                 self._set_model_parameters(theta)
                 if not self._check_valid_Cassan08_trajectory():
                     return outside
+
+            if self._limits_on_extra_parameters:
+                self._set_model_parameters(theta)
+                extras = self._get_extras()
+                for (index, limit) in self._min_values_indexed_extra.items():
+                    if extras[index] < limit:
+                        return outside
+                for (index, limit) in self._max_values_indexed_extra.items():
+                    if extras[index] > limit:
+                        return outside
 
         ln_prior = inside
 
@@ -3017,6 +3072,10 @@ class UlensModelFit(object):
                 if parameter in ['pi_E_N', 'pi_E_E']:
                     # Other parameters can be added here. XXX
                     value = self._model.parameters.parameters[parameter]
+                    ln_prior += self._get_ln_prior_for_1_parameter(
+                        value, prior_settings)
+                elif parameter == 'D_S':
+                    value = self._add_source_distance()
                     ln_prior += self._get_ln_prior_for_1_parameter(
                         value, prior_settings)
 
@@ -3082,7 +3141,7 @@ class UlensModelFit(object):
         reference = self._get_theta_star_from_flux()
         delta_theta = self._get_theta_star() - reference
         sigma = reference * self._model_parameters['theta star calculation']['relative sigma']
-        out = self._get_ln_normal(delta_theta, sigma)
+        out = self._get_ln_normal(delta_theta, sigma, 0)
         return out
 
     def _get_theta_star_from_flux(self):
@@ -3207,19 +3266,62 @@ class UlensModelFit(object):
         Calculates theta_E from third Kepler law.
         """
         period = self._model.parameters.lens_period
-        kappa = 8.14385328  # [mas/M_sun]
         pi_E = self._model.parameters.pi_E_mag
         a = self._model.parameters.lens_semimajor_axis
-        theta_E = period/((kappa*pi_E)**(1/2) * a**(3/2))
+        D_L = self._other_parameters_dict["D_L"]
+        theta_E = period/((self._kappa*pi_E)**(1/2) * (a*D_L)**(3/2))
         return theta_E
 
     def _get_lens_mass(self):
         """
-        Calculates lens mass.
+        Calculates the lens mass from third Kepler law,
+        parallax and theta_E
         """
-        kappa = 8.14385328  # [mas/M_sun]
         pi_E = self._model.parameters.pi_E_mag
-        return self._get_theta_star()/(self._model.parameters.rho*kappa*pi_E)
+        mass = self._get_theta_E()/(self._kappa*pi_E)
+        return mass
+
+    def _add_source_distance(self):
+        """
+        Calculates the source distance from source parallax.
+        """
+        return 1/self._get_source_parallax()
+
+    def _get_source_parallax(self):
+        """
+        Calculates the source parallax from fitted D_L,
+        parallax and keplerian motion dependant theta_E.
+        """
+        D_L = self._other_parameters_dict["D_L"]
+        pi_E = self._model.parameters.pi_E_mag
+        theta_E = self._get_theta_E()
+        pi_S = 1/D_L - (theta_E*pi_E)
+        return pi_S
+
+    def _get_theta_E_from_theta_star(self):
+        """
+        Calculates theta_E from theta star and rho.
+        """
+        if 'theta star calculation' not in self._model_parameters:
+            raise KeyError("Insufficient number of parameters to add theta_E.")
+        theta_E = self._get_theta_star_from_flux() / self._model.parameters.rho
+        return theta_E
+
+    def _add_lens_mass(self):
+        """
+        Calculates lens mass if possible.
+        """
+        try:
+            theta_E = self._get_theta_E_from_theta_star()
+        except Exception:
+            raise KeyError("Insufficient number of parameters to add lens mass.")
+        if self._model.parameters.is_keplerian() and hasattr(self._model.parameters, 'pi_E_mag'):
+            return self._get_lens_mass()
+        elif hasattr(self._model.parameters, 'pi_E_mag'):
+            pi_E = getattr(self._model.parameters, 'pi_E_mag')
+            return theta_E/(self._kappa*pi_E)
+        else:
+            raise KeyError("Insufficient number of parameters to add lens mass.")
 
     def _get_theta_star(self):
         """
@@ -3228,11 +3330,11 @@ class UlensModelFit(object):
         theta_star = self._get_theta_E() * self._model.parameters.rho
         return theta_star
 
-    def _get_ln_normal(self, x, sigma):
+    def _get_ln_normal(self, x, sigma, mu):
         """
-        Normal distribution with mu=0.
+        Normal distribution.
         """
-        out = np.log(1/(np.sqrt(2 * np.pi * sigma**2))) - (x**2 / (2 * sigma**2))
+        out = np.log(1/(np.sqrt(2 * np.pi * sigma**2))) - ((x-mu)**2 / (2 * sigma**2))
         return out
 
     def _ln_like(self, theta):

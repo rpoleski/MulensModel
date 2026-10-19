@@ -1,0 +1,51 @@
+photometry_files:
+    - {file_name: data/OB190033/OGLE_ob190033.dat, plot_properties: {color: slateblue}}
+model:
+    default method: VBBL
+    coords: 18:08:38.26 -30:03:38.7
+    theta star calculation: 
+        relation: Red Clump
+        A_I: 0.852
+        mag I label: 'OGLE_ob190033.dat'
+extra_parameters: ['theta_E', 'lens_mass', 'D_S']
+starting_parameters:
+    t_0: gauss 2458689.816599771 0.001
+    u_0: gauss -0.06562509070825119 0.001
+    t_E: gauss 103.76764682836627 0.005
+    rho: gauss 0.009662120640231074 0.00002
+    s: gauss 0.3333254800151259 0.001
+    q: gauss 0.30997943873658956 0.001
+    alpha: gauss 59.19884588005962 0.001
+    pi_E_E: gauss -0.18877979752692328 0.01
+    pi_E_N: gauss 0.2765893054059274 0.01
+    ds_dt: gauss -0.32526776576021077 0.01
+    dalpha_dt: gauss -5.005683309467207 0.01
+    ds_z_dt: gauss 0.007433683614751198 0.01
+    D_L : gauss 3.2481123219530357 0.01
+min_values:
+    t_0: 2458641.654860181
+    t_E: 0.0
+    rho: 0.0
+    q: 0.0
+    s: 0.0
+    alpha: -20.0
+    D_L: 0.5
+    D_S: 0.0
+max_values:
+    u_0: 1.0
+    rho: 0.1
+    q: 7.0
+    s: 4.0
+    alpha: 400.
+    D_L: 3.5
+fitting_parameters:
+    n_walkers: 30
+    n_steps: 2000
+    n_burn: 100
+fit_constraints:
+    prior:
+        D_S: gauss 8.5 0.1
+        compare theta star: True
+plots:
+    triangle:
+        file: ob190033_05_Oct_LS0150-1_triangle.png
