@@ -37,7 +37,7 @@ max_values:
     q: 7.0
     s: 4.0
     alpha: 400.
-    D_L: 8.0
+    D_L: 3.5
 fitting_parameters:
     n_walkers: 30
     n_steps: 2000
