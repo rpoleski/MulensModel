@@ -42,10 +42,17 @@ fitting_parameters:
     n_walkers: 30
     n_steps: 2000
     n_burn: 100
+    progress: True
 fit_constraints:
     prior:
         D_S: gauss 8.5 0.1
         compare theta star: True
 plots:
+    best model:
+        file: ob190033_05_Oct_LS0150-1_model.png
+    trajectory:
+        file: ob190033_05_Oct_LS0150-1_trajectory.png
+    trace:
+        file: ob190033_05_Oct_LS0150-1_trace.png
     triangle:
         file: ob190033_05_Oct_LS0150-1_triangle.png
