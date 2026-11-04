@@ -170,6 +170,7 @@ def test_BinaryLensVBMMagnification_2():
     mean = (results[0] + results[2]) / 2
     np.testing.assert_almost_equal(results[1], mean, decimal=4)
 
+
 def test_BinaryLensVBMMagnification_reltol():
     """
     Make sure providing relative_accuracy for VBM works
