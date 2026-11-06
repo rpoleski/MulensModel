@@ -470,7 +470,7 @@ class FitData(object):
                 The model magnitude evaluated for each datapoint.
         """
         model_flux = self.get_model_fluxes(**kwargs)
-        model_mag = mm.Utils.get_mag_from_flux(model_flux)
+        model_mag = mm.Utils.get_mag_from_flux(model_flux, zeropoint=self._dataset.zeropoint)
 
         return model_mag
 
@@ -565,9 +565,9 @@ class FitData(object):
                 raise ValueError('If phot_fmt=scaled, source_flux and blend_flux must also be specified.')
 
             model_flux = self._get_model_flux(source_flux, blend_flux)
-            model_mag = mm.Utils.get_mag_from_flux(model_flux)
+            model_mag = mm.Utils.get_mag_from_flux(model_flux, zeropoint=self._dataset.zeropoint)
             (flux, err_flux) = self.scale_fluxes(source_flux, blend_flux)
-            (mag, errorbars) = mm.Utils.get_mag_and_err_from_flux(flux, err_flux)
+            (mag, errorbars) = mm.Utils.get_mag_and_err_from_flux(flux, err_flux, zeropoint=self._dataset.zeropoint)
             residuals = mag - model_mag
         else:
             raise ValueError(

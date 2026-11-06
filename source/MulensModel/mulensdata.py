@@ -102,7 +102,9 @@ class MulensData(object):
 
                 show_bad: *boolean*, optional
                     Whether or not to plot data points flagged as bad.
-
+        zeropoint: *float*, optional
+            The magnitude zero point of the photometry. If not provided, it is
+            assumed to be 22.0.
         ``**kwargs``:
             Kwargs passed to np.loadtxt(). Works only if ``file_name`` is set.
 
@@ -118,7 +120,7 @@ class MulensData(object):
 
     def __init__(self, data_list=None, file_name=None, phot_fmt="mag", chi2_fmt="flux", ephemerides_file=None,
                  add_2450000=False, add_2460000=False, bandpass=None, telescope=None, bad=None, good=None,
-                 plot_properties=None, **kwargs):
+                 plot_properties=None, zeropoint=None, **kwargs):
 
         self._n_epochs = None
         self._horizons = None
@@ -131,7 +133,7 @@ class MulensData(object):
         self._file_name = file_name
         self._input_fmt = phot_fmt
         self._telescope = telescope
-
+        self._zeropoint = zeropoint
         if plot_properties is None:
             plot_properties = dict()
         self._plot_properties = plot_properties
@@ -289,7 +291,7 @@ class MulensData(object):
             self._mag = self._brightness_input
             self._err_mag = self._brightness_input_err
             (self._flux, self._err_flux) = Utils.get_flux_and_err_from_mag(
-                mag=self.mag, err_mag=self.err_mag)
+                mag=self.mag, err_mag=self.err_mag, zeropoint=self._zeropoint)
             if np.min(self._err_flux) <= 0.:
                 msg = ("Scaling of magnitude uncertainties to flux space "
                        "resulted in zero or negative values. Maybe the "
@@ -549,7 +551,7 @@ class MulensData(object):
         just calculate magnitudes if needed, or return input otherwise
         """
         if phot_fmt == 'mag':
-            return Utils.get_mag_and_err_from_flux(flux, flux_err)
+            return Utils.get_mag_and_err_from_flux(flux, flux_err, zeropoint=self._zeropoint)
         else:
             return (flux, flux_err)
 
@@ -597,7 +599,7 @@ class MulensData(object):
         """
         if self._mag is None:
             (self._mag, self._err_mag) = Utils.get_mag_and_err_from_flux(
-                flux=self.flux, err_flux=self.err_flux)
+                flux=self.flux, err_flux=self.err_flux, zeropoint=self._zeropoint)
         return self._mag
 
     @property
@@ -620,7 +622,7 @@ class MulensData(object):
         """
         if self._flux is None:
             (self._flux, self._err_flux) = Utils.get_flux_and_err_from_mag(
-                mag=self.mag, err_mag=self.err_mag)
+                mag=self.mag, err_mag=self.err_mag, zeropoint=self._zeropoint)
         return self._flux
 
     @property
