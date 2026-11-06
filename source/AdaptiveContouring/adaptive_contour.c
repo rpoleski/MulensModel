@@ -13,6 +13,7 @@
 /* Revision RP 24-02-18 */
 /* Revision RP 15-11-18 */
 /* Revision RP 25-01-24 ifndef M_LN2 */
+/* Revision RP 06-22-26 free(curr) moved */
 
 
 #include <math.h>
@@ -1493,8 +1494,9 @@ static void get_area(FLOAT (*rho_func)(), FLOAT *ps,
 	    if (reg->sub[0] != NULL) { /* 3-10-06 */
 	      /* subsquares exist; omit and delete from stack */ 
 	      curr = regnode;
-	      free(curr);  
+	      //free(curr);  moved below on 6-11-2026
 	      regnode = regnode->next;
+          free(curr);
 	      if (prev == NULL)
 	        ctstack[k] = regnode;
 	      else
