@@ -129,6 +129,20 @@ python reparametrization.py reparametrization_ob08092_O3.yaml
 
 Note that all other features of `ulens_model_fit.py` are available.
 
+### Physical parameterization of sources using evolutionary tracks
+
+Binary-source and xallarap models introduce a lot of freedom in microlensing modeling. You can reduce this freedom by parameterizing the source physically and tying source properties to evolutionary tracks.
+See Mróz, M. J. (2026) https://doi.org/10.1051/0004-6361/202660534, for details.
+To use this functionality, you need Brutus package installed, see: https://github.com/joshspeagle/brutus.
+
+Examples:
+```python
+python ET_brutus_fit.py ob170114_ET_1S.yaml
+```
+and for Binary-source:
+```python
+python ET_brutus_fit.py ob170114_ET_1S.yaml.
+```
 
 ### More information
 
