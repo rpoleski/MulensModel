@@ -13,7 +13,9 @@
 /* Revision RP 24-02-18 */
 /* Revision RP 15-11-18 */
 /* Revision RP 25-01-24 ifndef M_LN2 */
-/* Revision RP 06-22-26 free(curr) moved */
+/* Revision RP+Claude 06-22-26 free(curr) moved */
+/* Revision RP+Claude 06-22-26 - 47 lines changed: Replace old-style empty () function pointer parameter lists with explicit types throughout adaptive_contour.c and integrate.c so they compile under GCC 14's C23 mode, where () now means (void) instead of unspecified parameters.*/
+
 
 
 #include <math.h>
@@ -87,19 +89,19 @@ static int hmirror[4] = {1,0,3,2};
 static int vmirror[4] = {2,3,0,1};
 
 FLOAT adapsimpsonf1(FLOAT (*f)(FLOAT,FLOAT,
-          FLOAT (*)(), FLOAT*, void (*)(), FLOAT*,
+          FLOAT (*)(FLOAT,FLOAT,FLOAT*), FLOAT*, void (*)(FLOAT,FLOAT,FLOAT*,FLOAT*,FLOAT*), FLOAT*,
           FLOAT (*)(int,FLOAT*,FLOAT),int,FLOAT*),
         FLOAT a, FLOAT b, FLOAT p2,
-        FLOAT (*rho_func)(), FLOAT *ps,
-        void (*lenseq_func)(), FLOAT *pl,
+        FLOAT (*rho_func)(FLOAT, FLOAT, FLOAT*), FLOAT *ps,
+        void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl,
         FLOAT (*ld_func)(int,FLOAT*,FLOAT),
         int n, FLOAT *gam, FLOAT tol);
 FLOAT adapsimpsonf2(FLOAT (*f)(FLOAT,FLOAT,
-          FLOAT (*)(), FLOAT*, void (*)(), FLOAT*,
+          FLOAT (*)(FLOAT,FLOAT,FLOAT*), FLOAT*, void (*)(FLOAT,FLOAT,FLOAT*,FLOAT*,FLOAT*), FLOAT*,
           FLOAT (*)(int,FLOAT*,FLOAT),int,FLOAT*),
-	FLOAT p1, FLOAT a, FLOAT b, 
-        FLOAT (*rho_func)(), FLOAT *ps,
-        void (*lenseq_func)(), FLOAT *pl,
+	FLOAT p1, FLOAT a, FLOAT b,
+        FLOAT (*rho_func)(FLOAT, FLOAT, FLOAT*), FLOAT *ps,
+        void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl,
 	FLOAT (*ld_func)(int,FLOAT*,FLOAT),
 	int n, FLOAT *gam, FLOAT tol);
 static void push (REGNODE_PTR *regstack, REGION_PTR newreg);
@@ -116,43 +118,43 @@ static void get_cut(REGION_PTR reg, int side, FLOAT *x1, FLOAT *x2);
 static void get_cut2(REGION_PTR reg, int side, FLOAT *x1, FLOAT *x2); 
 static void deallocate_struct(REGION_PTR sc_struct);
 static void init_struct(REGION_PTR *sc_struct, FLOAT sc_unitsize,
-	FLOAT zero_x1, FLOAT zero_x2, 
+	FLOAT zero_x1, FLOAT zero_x2,
 	REGNODE_PTR *ctstack, REGNODE_PTR *divstack,
-	boolean (*inside_func)(), FLOAT *ps,
-        void (*lenseq_func)(), FLOAT *pl);
-static boolean subdivide_square(REGION_PTR sc_struct, 
-  REGION_PTR dsquare, FLOAT sc_unitsize, 
+	boolean (*inside_func)(FLOAT, FLOAT, FLOAT*), FLOAT *ps,
+        void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl);
+static boolean subdivide_square(REGION_PTR sc_struct,
+  REGION_PTR dsquare, FLOAT sc_unitsize,
   REGNODE_PTR *ctstack, REGNODE_PTR *divstack,
-  boolean (*inside_func)(), FLOAT *ps,
-  void (*lenseq_func)(), FLOAT *pl);
+  boolean (*inside_func)(FLOAT, FLOAT, FLOAT*), FLOAT *ps,
+  void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl);
 static void extend_struct(REGION_PTR sc_struct, FLOAT sc_unitsize,
 	FLOAT zero_x1, FLOAT zero_x2,
 	REGNODE_PTR *ctstack, REGNODE_PTR *divstack,
-	boolean (*inside_func)(), FLOAT *ps,
-        void (*lenseq_func)(), FLOAT *pl);
+	boolean (*inside_func)(FLOAT, FLOAT, FLOAT*), FLOAT *ps,
+        void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl);
 static void insert_point(REGION_PTR sc_struct, FLOAT sc_unitsize,
   FLOAT zero_x1, FLOAT zero_x2, REGION_PTR top, FLOAT x1, FLOAT x2,
   boolean status, int min_lvl,
   REGNODE_PTR *ctstack, REGNODE_PTR *divstack,
-  boolean (*inside_func)(), FLOAT *ps,
-  void (*lenseq_func)(), FLOAT *pl, boolean *extend);
+  boolean (*inside_func)(FLOAT, FLOAT, FLOAT*), FLOAT *ps,
+  void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl, boolean *extend);
 static void set_minlevels_insertions(FLOAT sc_unitsize,
-  PTLIST_PTR *pointlist, PTLIST_PTR *holelist, 
-  boolean (*inside_func)(), FLOAT *ps,
-  void (*lenseq_func)(), FLOAT *pl);
+  PTLIST_PTR *pointlist, PTLIST_PTR *holelist,
+  boolean (*inside_func)(FLOAT, FLOAT, FLOAT*), FLOAT *ps,
+  void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl);
 static void get_region_with_point(REGION_PTR top, FLOAT x1, FLOAT x2,
 	REGION_PTR *reg1, REGION_PTR *reg2, POINT_PTR *pt);
-static void get_area(FLOAT (*rho_func)(), FLOAT *ps,
-	void (*lenseq_func)(), FLOAT *pl,
+static void get_area(FLOAT (*rho_func)(FLOAT, FLOAT, FLOAT*), FLOAT *ps,
+	void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl,
 	FLOAT (*ld_func)(int n, FLOAT gam[], FLOAT rho),
 	int n, FLOAT gam[], FLOAT ld_acc,
 	FLOAT sc_unitsize, FLOAT *area, FLOAT *error,
 	REGNODE_PTR *ctstack);
-static boolean inside(FLOAT x1, FLOAT x2, boolean (*inside_func)(),
-	FLOAT *ps, void (*lenseq_func)(), FLOAT *pl);
-static FLOAT varprofile(FLOAT x1, FLOAT x2, 
-	FLOAT (*rho_func)(), FLOAT *ps,
-	void (*lenseq_func)(), FLOAT *pl,
+static boolean inside(FLOAT x1, FLOAT x2, boolean (*inside_func)(FLOAT, FLOAT, FLOAT*),
+	FLOAT *ps, void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl);
+static FLOAT varprofile(FLOAT x1, FLOAT x2,
+	FLOAT (*rho_func)(FLOAT, FLOAT, FLOAT*), FLOAT *ps,
+	void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl,
 	FLOAT (*ld_func)(int,FLOAT*,FLOAT), int n, FLOAT gam[]);
 
 
@@ -471,10 +473,10 @@ static void deallocate_struct(REGION_PTR sc_struct)
 }
 
 static void init_struct(REGION_PTR *sc_struct, FLOAT sc_unitsize,
-	FLOAT zero_x1, FLOAT zero_x2, 
+	FLOAT zero_x1, FLOAT zero_x2,
 	REGNODE_PTR *ctstack, REGNODE_PTR *divstack,
-        boolean (*inside_func)(), FLOAT *ps,
-        void (*lenseq_func)(), FLOAT *pl)
+        boolean (*inside_func)(FLOAT, FLOAT, FLOAT*), FLOAT *ps,
+        void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl)
 {
 	int i,j;
 	POINT_PTR pt;
@@ -552,10 +554,10 @@ static void init_struct(REGION_PTR *sc_struct, FLOAT sc_unitsize,
 
 
 static boolean subdivide_square(REGION_PTR sc_struct,
-  REGION_PTR dsquare, FLOAT sc_unitsize, 
+  REGION_PTR dsquare, FLOAT sc_unitsize,
   REGNODE_PTR *ctstack, REGNODE_PTR *divstack,
-  boolean (*inside_func)(), FLOAT *ps,
-  void (*lenseq_func)(), FLOAT *pl)
+  boolean (*inside_func)(FLOAT, FLOAT, FLOAT*), FLOAT *ps,
+  void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl)
 {
 	/* subdivide square pointed to with "dsquare" */
 	/* if adjoining squares require subdivision (and are not marked),
@@ -1009,8 +1011,8 @@ static boolean subdivide_square(REGION_PTR sc_struct,
 static void extend_struct(REGION_PTR sc_struct, FLOAT sc_unitsize,
 	FLOAT zero_x1, FLOAT zero_x2,
 	REGNODE_PTR *ctstack, REGNODE_PTR *divstack,
-	boolean (*inside_func)(), FLOAT *ps,
-        void (*lenseq_func)(), FLOAT *pl)
+	boolean (*inside_func)(FLOAT, FLOAT, FLOAT*), FLOAT *ps,
+        void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl)
 {
 	REGION_PTR new_reg[4],subreg,sq;
 	int i,j,k;
@@ -1462,8 +1464,8 @@ static void extend_struct(REGION_PTR sc_struct, FLOAT sc_unitsize,
 }
 
 
-static void get_area(FLOAT (*rho_func)(), FLOAT *ps,
-	void (*lenseq_func)(), FLOAT *pl,
+static void get_area(FLOAT (*rho_func)(FLOAT, FLOAT, FLOAT*), FLOAT *ps,
+	void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl,
 	FLOAT (*ld_func)(int n, FLOAT gam[], FLOAT rho),
 	int n, FLOAT gam[], FLOAT ld_acc,
 	FLOAT sc_unitsize, FLOAT *area, FLOAT *error,
@@ -1492,10 +1494,10 @@ static void get_area(FLOAT (*rho_func)(), FLOAT *ps,
 	  while (regnode != NULL) {
 	    reg = regnode->sq;
 	    if (reg->sub[0] != NULL) { /* 3-10-06 */
-	      /* subsquares exist; omit and delete from stack */ 
-	      curr = regnode;
-	      //free(curr);  moved below on 6-11-2026
-	      regnode = regnode->next;
+	      /* subsquares exist; omit and delete from stack */
+          curr = regnode;
+          //free(curr);  moved below on 6-11-2026
+          regnode = regnode->next;
           free(curr);
 	      if (prev == NULL)
 	        ctstack[k] = regnode;
@@ -1614,12 +1616,12 @@ static void get_region_with_point(REGION_PTR top, FLOAT x1, FLOAT x2,
 
 
 static void insert_point(REGION_PTR sc_struct, FLOAT sc_unitsize,
-  FLOAT zero_x1, FLOAT zero_x2,  
+  FLOAT zero_x1, FLOAT zero_x2,
   REGION_PTR top, FLOAT x1, FLOAT x2,
   boolean status, int min_lvl,
   REGNODE_PTR *ctstack, REGNODE_PTR *divstack,
-  boolean (*inside_func)(), FLOAT *ps,
-  void (*lenseq_func)(), FLOAT *pl, boolean *extend)
+  boolean (*inside_func)(FLOAT, FLOAT, FLOAT*), FLOAT *ps,
+  void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl, boolean *extend)
 {
 	REGION_PTR reg1,reg2;
 	POINT_PTR pt;
@@ -1714,9 +1716,9 @@ static FLOAT varprofile(FLOAT x1, FLOAT x2,
 
 
 static void set_minlevels_insertions(FLOAT sc_unitsize,
-  PTLIST_PTR *pointlist, PTLIST_PTR *holelist, 
-  boolean (*inside_func)(), FLOAT *ps, 
-  void (*lenseq_func)(), FLOAT *pl)
+  PTLIST_PTR *pointlist, PTLIST_PTR *holelist,
+  boolean (*inside_func)(FLOAT, FLOAT, FLOAT*), FLOAT *ps,
+  void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl)
 {
 	PTLIST_PTR curr, prev, next;
 	PTLIST_PTR curr2;
@@ -1816,7 +1818,7 @@ FLOAT adaptive_contour(FLOAT acc, FLOAT ld_acc,
         PTLIST_PTR *pointlist, PTLIST_PTR *holelist,
         FLOAT (*ld_func)(int n, FLOAT gam[], FLOAT rho),
         int n, FLOAT gam[],
-	FLOAT (*rho_func)(), boolean (*inside_func)(), void (*lenseq_func)(),
+	FLOAT (*rho_func)(FLOAT, FLOAT, FLOAT*), boolean (*inside_func)(FLOAT, FLOAT, FLOAT*), void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*),
         int ns, int nl, ...)
 {
 	REGION_PTR scan_struct;
