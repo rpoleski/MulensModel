@@ -47,7 +47,8 @@ def rtmodel_to_mulensmodel_xallarap(tE, FR, u01, u02, t01, t02, gamma1, gamma2, 
     Omega_rad = np.arctan2(Omega[1], Omega[0]) % (2.0 * np.pi)
 
     phi0_2 = np.arccos(np.clip(np.dot(s[:2], Omega) / A, -1., 1.))
-    phi0_2 *= np.sign(s[2])
+    if s[2] < 0.:
+        phi0_2 = -phi0_2
     phi0_1 = (phi0_2 + np.pi) % (2.0 * np.pi)
     a1 = A * q / (1.0 + q)
 
