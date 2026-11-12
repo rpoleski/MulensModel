@@ -1,5 +1,8 @@
 /* integrate.c */
 
+/* Revision RP+Cluade 06-11-2026 - 7 lines replaced - Replace old-style empty () function pointer parameter lists with explicit types throughout adaptive_contour.c and integrate.c so they compile under GCC 14's C23 mode, where () now means (void) instead of "unspecified parameters."*/
+
+
 #include <math.h>
 
 #ifndef FLOAT
@@ -26,11 +29,11 @@ void free_matrix(FLOAT **m,int nrl,int nrh,int ncl,int nch);
 #define MAXLEVEL 30
 	
 FLOAT adapsimpsonf1(FLOAT (*f)(FLOAT,FLOAT,
-          FLOAT (*)(), FLOAT*, void (*)(), FLOAT*,
+          FLOAT (*)(FLOAT,FLOAT,FLOAT*), FLOAT*, void (*)(FLOAT,FLOAT,FLOAT*,FLOAT*,FLOAT*), FLOAT*,
           FLOAT (*)(int,FLOAT*,FLOAT),int,FLOAT*),
         FLOAT a, FLOAT b, FLOAT p2,
-        FLOAT (*rho_func)(), FLOAT *ps,
-        void (*lenseq_func)(), FLOAT *pl,
+        FLOAT (*rho_func)(FLOAT, FLOAT, FLOAT*), FLOAT *ps,
+        void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl,
         FLOAT (*ld_func)(int,FLOAT*,FLOAT),
         int n, FLOAT *gam, FLOAT tol)
 {
@@ -153,11 +156,11 @@ FLOAT adapsimpsonf1(FLOAT (*f)(FLOAT,FLOAT,
 #define MAXLEVEL 30
 	
 FLOAT adapsimpsonf2(FLOAT (*f)(FLOAT,FLOAT,
-          FLOAT (*)(), FLOAT*, void (*)(), FLOAT*,
+          FLOAT (*)(FLOAT,FLOAT,FLOAT*), FLOAT*, void (*)(FLOAT,FLOAT,FLOAT*,FLOAT*,FLOAT*), FLOAT*,
           FLOAT (*)(int,FLOAT*,FLOAT),int,FLOAT*),
 	FLOAT p1, FLOAT a, FLOAT b,
-        FLOAT (*rho_func)(), FLOAT *ps,
-        void (*lenseq_func)(), FLOAT *pl,
+        FLOAT (*rho_func)(FLOAT, FLOAT, FLOAT*), FLOAT *ps,
+        void (*lenseq_func)(FLOAT, FLOAT, FLOAT*, FLOAT*, FLOAT*), FLOAT *pl,
 	FLOAT (*ld_func)(int,FLOAT*,FLOAT),
 	int n, FLOAT *gam, FLOAT tol)
 {
