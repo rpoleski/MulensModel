@@ -3,8 +3,6 @@ Code that translates VBMicrolensing/RTModel xallarap parameters (called BO there
 
 TO DO:
 - going directly from VBM to MM, not via current p dict
-- parallax; also VBM +-2450000
-- combine rtmodel_to_mulensmodel_xallarap() with rtmodel_to_mulensmodel_for_get_trajectory()
 - docstrings
 
 Written with Claude Code
@@ -62,7 +60,7 @@ def rtmodel_to_mulensmodel_xallarap(tE, FR, u01, u02, t01, t02, gamma1, gamma2, 
         'q_source': q}
 
 
-def rtmodel_to_mulensmodel_for_get_trajectory(tE, FR, u01, u02, t01, t02, gamma1, gamma2, gammaz,
+def rtmodel_to_mulensmodel_for_get_trajectory(tE, FR, u01, u02, t01, t02, piN, piE, gamma1, gamma2, gammaz,
                                               mass_luminosity_exponent=4.0,):
 
     out = rtmodel_to_mulensmodel_xallarap(tE, FR, u01, u02, t01, t02, gamma1, gamma2, gammaz,
@@ -73,7 +71,7 @@ def rtmodel_to_mulensmodel_for_get_trajectory(tE, FR, u01, u02, t01, t02, gamma1
     tE_eff = 1.0 / np.sqrt(vt**2 + vu**2)
     alpha_eff_deg = np.degrees(np.arctan2(vu, vt))
     out['xi_Omega_node'] -= alpha_eff_deg
-    mm_params = {'t_0': t01, 'u_0': u01, 't_E': tE_eff, **out}
+    mm_params = {'t_0': t01, 'u_0': u01, 't_E': tE_eff, 'pi_E_N': piN, 'pi_E_E': piE, **out}
     return mm_params, alpha_eff_deg
 
 
@@ -92,21 +90,23 @@ def source1_mulensmodel_get_trajectory(model, alpha_eff_deg, u01, times):
 if __name__ == '__main__':
     p = dict(
         tE=100.0, u01=0.1,  u02=0.3, t01=2460000.0, t02=2459990.0, FR=0.5,
+        piN = 0.4, piE = -0.3,
         gamma1=0.01, gamma2=-0.005, gammaz=0.008,
     )
     rho = 0.001
+    coords = "18:00:00.0 -30:00:00.0"
 
     t_grid = np.linspace(p['t01'] - 100, p['t01'] + 200, 600)
 
     (mm_params, alpha_eff_deg) = rtmodel_to_mulensmodel_for_get_trajectory(**p)
 
     p_VBM = [np.log(p['tE']), np.log(p['FR']), p['u01'], p['u02'], p['t01']-2450000., p['t02']-2450000.,
-             np.log(rho), 0.0, 0.0, p['gamma1'], p['gamma2'], p['gammaz']]
+             np.log(rho), p['piN'], p['piE'], p['gamma1'], p['gamma2'], p['gammaz']]
     VBM = VBMicrolensing.VBMicrolensing()
-    VBM.SetObjectCoordinates("18:00:00.0 -30:00:00.0")
+    VBM.SetObjectCoordinates(coords)
     (_, tau_rt, u_rt, _, _) = VBM.BinSourceExtLightCurveXallarap(p_VBM, t_grid-2450000.)
 
-    model = mm.Model(mm_params)
+    model = mm.Model(mm_params, coords=coords)
     (tau_aligned, u_aligned) = source1_mulensmodel_get_trajectory(model, alpha_eff_deg, p['u01'], t_grid)
 
     plt.plot(tau_rt, u_rt, lw=5, label='RTModel')
